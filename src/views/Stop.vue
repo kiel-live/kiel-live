@@ -39,7 +39,6 @@ export default {
   methods: {
     join() {
       // request server to join stop room
-      console.log('joined', this.stopId);
       Api.emit('stop:join', this.stopId);
     },
     updateStop(stop) {
@@ -73,7 +72,6 @@ export default {
     },
   },
   mounted() {
-    console.log('toll');
     this.join();
 
     Api.on('connect', this.join);
@@ -86,7 +84,6 @@ export default {
     Api.removeListener('stop', this.updateStop);
 
     if (this.stop) {
-      console.log('left', this.stop.stopShortName);
       Api.emit('stop:leave', this.stop.stopShortName);
     }
   },
