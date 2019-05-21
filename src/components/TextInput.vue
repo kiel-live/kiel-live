@@ -1,5 +1,5 @@
 <template>
-  <input @input="input" type="text" v-bind="$attrs" />
+  <input class="input" @input="input" type="text" v-bind="$attrs" />
 </template>
 
 <script>
@@ -41,3 +41,20 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+  .input {
+    display: inline-block;
+    width: 100%;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 3px #ddd;
+    font-size: 1rem;
+    border-radius: .2rem;
+    padding: .5rem .5rem;
+  }
+
+  .input:focus {
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+  }
+</style>
