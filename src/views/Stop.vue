@@ -1,9 +1,9 @@
 <template>
   <div v-if="stop" class="stop">
-    <router-link :to="{ name: 'home' }">Back &lt;&lt;</router-link>
-    <h2 class="title">{{ stop.stopName }} ({{ stopId }})</h2>
+    <h2 class="title">{{ stop.stopName }}</h2>
+    <router-link :to="{ name: 'home' }">&lt;&lt; Zurück</router-link>
     <div class="arrivals">
-      <div class="bus" v-for="bus in stop.actual" :key="bus.tripId">
+      <div class="bus" v-for="bus in stop.actual" :key="bus.passageid">
         <div class="icon">
           <i v-if="route(bus.routeId).routeType === 'bus'" class="fas fa-bus"></i>
           <i v-if="route(bus.routeId).routeType === 'ferry'" class="fas fa-bus"></i>
@@ -18,6 +18,9 @@
         </div>
       </div>
     </div>
+  </div>
+  <div v-else class="loading">
+    <i class="fas fa-circle-notch fa-spin"></i>
   </div>
 </template>
 
@@ -65,7 +68,7 @@ export default {
       }
 
       if (minutes < 1) {
-        return `sofort (${bus.actualRelativeTime} Sek)`;
+        return 'sofort';
       }
 
       return `${minutes} Min`;
@@ -90,7 +93,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
   .stop {
     display: flex;
     flex-flow: column;
@@ -99,8 +102,8 @@ export default {
   }
 
   .title {
+    margin: 1rem 0;
     font-size: 1.8rem;
-    margin-bottom: 1rem;
   }
 
   .arrivals {
@@ -153,5 +156,10 @@ export default {
       justify-content: center;
       font-size: 1.5rem;
     }
+  }
+
+  .loading {
+    margin: auto;
+    font-size: 4rem;
   }
 </style>
