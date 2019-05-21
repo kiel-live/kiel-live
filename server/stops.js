@@ -63,6 +63,7 @@ async function lookupStops(query) {
 function loop(stopId) {
   return async () => {
     const stop = await getStopData(stopId);
+    stops[stopId].data = stop;
     io.to(`stop:${stopId}`).emit('stop', stop);
   };
 }
@@ -91,10 +92,16 @@ function close(stopId) {
   delete stops[stopId];
 }
 
-function join(stopId) {
+function join(stopId, socket) {
   open(stopId);
 
   stops[stopId].connected += 1;
+
+  // send last fetched data
+  const { data } = stops[stopId];
+  if (data) {
+    socket.emit('stop', data);
+  }
 }
 
 function leave(stopId) {

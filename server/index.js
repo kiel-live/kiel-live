@@ -12,10 +12,10 @@ function start() {
     console.log('client connected');
 
     socket.on('stop:join', (stopId) => {
-      console.log('client joined stop', stopId);
       if (!stopId) { return; }
+      console.log('client joined stop', stopId);
       socket.join(`stop:${stopId}`);
-      stops.join(stopId);
+      stops.join(stopId, socket);
     });
 
     socket.on('stop:leave', (stopId) => {
