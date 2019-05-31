@@ -1,10 +1,19 @@
+const path = require('path');
+const express = require('express');
 const socketIo = require('socket.io');
+const app = express();
+const server = require('http').createServer(app);
 const stops = require('./stops');
 
-const PORT = 8084;
+const PORT = process.env.PORT || 8080;
 
 function start() {
-  const io = socketIo.listen(PORT);
+  const io = socketIo(server);
+
+  app.use(express.static(path.join(__dirname, 'spa', 'dist')));
+  app.use('*', (req, resp) => {
+    resp.sendFile(path.join(__dirname, 'spa', 'dist', 'index.html'));
+  });
 
   stops.setIO(io);
 
@@ -30,7 +39,9 @@ function start() {
     });
   });
 
-  console.log(`Server listening on port: ${PORT}`);
+  server.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}!`);
+  });
 }
 
 start();

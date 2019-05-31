@@ -73,9 +73,15 @@ export default {
   }
 
   .search {
-    margin: 0 .5rem;
-    margin-top: 1rem;
+    margin: 1rem .5rem;
     width: calc(100% - 1rem);
+  }
+
+  @media only screen and (min-width: 768px) {
+    .search {
+      width: 100%;
+      margin: 1rem 0;
+    }
   }
 
   .stops {
