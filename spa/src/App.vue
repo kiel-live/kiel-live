@@ -13,7 +13,7 @@ import Footer from '@/components/Footer.vue';
 import Snackbar from '@/components/Snackbar.vue';
 
 export default {
-  name: 'TextInput',
+  name: 'App',
   components: {
     NavBar,
     Footer,
