@@ -38,4 +38,36 @@ html, body, #app {
   text-align: center;
   color: #2c3e50;
 }
+
+.button {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  box-shadow: none;
+  display: inline-flex;
+  font-size: 1rem;
+  height: 2.25em;
+  justify-content: flex-start;
+  line-height: 1.5;
+  position: relative;
+  vertical-align: top;
+  background-color: #fff;
+  border-color: #dbdbdb;
+  border-width: 1px;
+  color: #363636;
+  cursor: pointer;
+  justify-content: center;
+  padding: calc(.375em - 1px) .75em;
+  text-align: center;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: #b5b5b5;
+    color: #363636;
+  }
+}
+
+a.button {
+  text-decoration: none;
+}
 </style>

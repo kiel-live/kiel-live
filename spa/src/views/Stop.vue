@@ -1,7 +1,7 @@
 <template>
   <div v-if="stop" class="stop">
-    <h2 class="title">{{ stop.stopName }}</h2>
-    <router-link :to="{ name: 'home' }">&lt;&lt; Zurück</router-link>
+    <router-link :to="{ name: 'home' }" class="back button"><i class="fas fa-angle-double-left"/></router-link>
+    <h1 class="title">{{ stop.stopName }}</h1>
     <div class="arrivals">
       <div class="bus" v-for="bus in stop.actual" :key="bus.passageid">
         <div class="icon">
@@ -95,10 +95,23 @@ export default {
 
 <style lang="scss" scoped>
   .stop {
+    position: relative;
     display: flex;
     flex-flow: column;
     width: 100%;
+    max-width: 40rem;
+    margin: 0 auto;
     align-items: center;
+
+    h1 {
+      margin: 2rem 0;
+    }
+
+    .back {
+      position: absolute;
+      top: 2rem;
+      left: 0;
+    }
   }
 
   .title {
@@ -110,7 +123,6 @@ export default {
     display: flex;
     flex-flow: column;
     width: 100%;
-    max-width: 40rem;
   }
 
   .bus {
