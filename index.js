@@ -8,7 +8,7 @@ const stops = require('./stops');
 const PORT = process.env.PORT || 8080;
 
 function start() {
-  const io = socketIo(server);
+  const io = socketIo(server, { path: '/api' });
 
   app.use(express.static(path.join(__dirname, 'spa', 'dist')));
   app.use('*', (req, resp) => {
