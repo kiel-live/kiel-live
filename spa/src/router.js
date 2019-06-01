@@ -29,5 +29,10 @@ export default new Router({
       name: 'stop',
       component: loadView('Stop'),
     },
+    {
+      path: '*',
+      name: 'notFound',
+      component: loadView('NotFound'),
+    },
   ],
 });
