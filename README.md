@@ -25,3 +25,11 @@ services:
     ports:
       - 8080:8080
 ```
+
+## Roadmap
+- [ ] customize manifest (title, icon)
+- [ ] fancier back button on stop page
+- [ ] "connection to server lost" screen
+- [ ] store last stop queries (set favorites)
+- [ ] show next stops based on html5 geolocation
+- [ ] add openstreetmaps routes with estimated bus position
