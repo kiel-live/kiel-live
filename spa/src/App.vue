@@ -22,7 +22,7 @@ export default {
   data() {
     return {
       refreshing: false,
-      snackbar: true,
+      snackbar: false,
       registration: null,
     };
   },
