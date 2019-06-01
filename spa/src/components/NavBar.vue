@@ -1,12 +1,20 @@
 <template>
   <div class="navbar">
     <router-link :to="{ name: 'home' }" class="title">Live OPNV</router-link>
+    <span v-if="!isConnected" class="offline"><i class="fas fa-signal"/>Offline</span>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
   name: 'NavBar',
+  computed: {
+    ...mapState([
+      'isConnected',
+    ]),
+  },
 };
 </script>
 
@@ -26,5 +34,25 @@ export default {
     color: #333;
     text-decoration: none;
     font-size: 1.1rem;
+  }
+
+  .offline {
+    margin-left: auto;
+
+    i {
+      position: relative;
+      margin-right: .5rem;
+
+      &::after {
+        position: absolute;
+        top: 60%;
+        left: 60%;
+        width: 120%;
+        height: .2rem;
+        background: red;
+        transform: translate(-50%, -50%) rotate(45deg);
+        content: '';
+      }
+    }
   }
 </style>

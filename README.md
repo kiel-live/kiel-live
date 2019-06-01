@@ -28,8 +28,9 @@ services:
 
 ## Roadmap
 - [ ] customize manifest (title, icon)
-- [ ] fancier back button on stop page
-- [ ] "connection to server lost" screen
+- [x] fancier back button on stop page
+- [x] "connection to server lost" screen
+- [ ] sort orders based on status
 - [ ] store last stop queries (set favorites)
 - [ ] show next stops based on html5 geolocation
 - [ ] add openstreetmaps routes with estimated bus position

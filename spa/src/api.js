@@ -1,13 +1,14 @@
 import io from 'socket.io-client';
+import store from '@/store';
 
 const socket = io('', { path: '/api' });
 
 socket.on('connect', () => {
-  console.log('connected');
+  store.commit('connect');
 });
 
 socket.on('disconnect', () => {
-  console.log('disconnected');
+  store.commit('disconnect');
 });
 
 export default socket;
