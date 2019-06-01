@@ -17,6 +17,10 @@
           <i v-if="bus.status === 'PREDICTED'" class="fas fa-running"></i>
         </div>
       </div>
+      <div v-if="stop.actual.length == 0" class="no-data">
+        <i class="fas fa-ban" />
+        <p>Hier will gerade wohl kein Manni halten.</p>
+      </div>
     </div>
   </div>
   <div v-else class="loading">
@@ -102,9 +106,11 @@ export default {
     max-width: 40rem;
     margin: 0 auto;
     align-items: center;
+    padding-top: 2rem;
 
     h1 {
-      margin: 2rem 0;
+      margin: 0;
+      margin-bottom: 2rem;
     }
 
     .back {
@@ -167,6 +173,15 @@ export default {
       width: 10%;
       justify-content: center;
       font-size: 1.5rem;
+    }
+  }
+
+  .no-data {
+    margin: auto;
+
+    i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
     }
   }
 
