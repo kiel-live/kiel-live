@@ -116,7 +116,15 @@ export default {
     .back {
       position: absolute;
       top: 2rem;
-      left: 0;
+      left: .5rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .stop {
+      .back {
+        left: 0;
+      }
     }
   }
 
