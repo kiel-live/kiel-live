@@ -32,6 +32,7 @@ services:
 - [x] "connection to server lost" screen
 - [ ] sort orders based on status
 - [x] add favorite stops
+- [ ] add alerts
 - [ ] store last stop queries
 - [ ] show next stops based on html5 geolocation
 - [ ] add openstreetmaps routes with estimated bus position

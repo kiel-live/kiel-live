@@ -12,6 +12,7 @@
 </template>
 
 <script>
+import { orderBy } from 'lodash';
 import Api from '@/api';
 import TextInput from '@/components/TextInput.vue';
 
@@ -30,10 +31,10 @@ export default {
       return this.$store.state.favoriteStops;
     },
     allStops() {
-      return {
+      return orderBy({
         ...this.stops,
         ...this.favoriteStops,
-      };
+      }, 'favorite', 'desc');
     },
   },
   methods: {

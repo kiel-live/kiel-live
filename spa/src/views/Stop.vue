@@ -7,7 +7,7 @@
       <div v-else class="favorite" @click="addFavoriteStop"><i class="far fa-star"/></div>
     </div>
     <div class="arrivals">
-      <div class="bus" v-for="bus in stop.actual" :key="bus.passageid">
+      <div class="bus" v-for="bus in arrivals" :key="bus.passageid">
         <div class="icon">
           <i v-if="route(bus.routeId).routeType === 'bus'" class="fas fa-bus"></i>
           <i v-if="route(bus.routeId).routeType === 'ferry'" class="fas fa-bus"></i>
@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import { orderBy } from 'lodash';
 import Api from '@/api';
 
 export default {
@@ -48,6 +49,22 @@ export default {
     },
     isFavorite() {
       return !!this.$store.state.favoriteStops[this.stopId];
+    },
+    arrivals() {
+      if (!this.stop) {
+        return [];
+      }
+      return orderBy(this.stop.actual, (stop) => {
+        if (stop.status === 'STOPPING') {
+          return 0;
+        }
+
+        if (stop.actualRelativeTime) {
+          return stop.actualRelativeTime;
+        }
+
+        return stop.plannedTime;
+      });
     },
   },
   methods: {
