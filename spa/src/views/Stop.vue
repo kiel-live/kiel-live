@@ -1,7 +1,11 @@
 <template>
   <div v-if="stop" class="stop">
-    <router-link :to="{ name: 'home' }" class="back button"><i class="fas fa-angle-double-left"/></router-link>
-    <h1 class="title">{{ stop.stopName }}</h1>
+    <div class="header">
+      <router-link :to="{ name: 'home' }" class="back button"><i class="fas fa-angle-double-left"/></router-link>
+      <h1 class="title">{{ stop.stopName }}</h1>
+      <div v-if="isFavorite" class="favorite gold" @click="removeFavoriteStop"><i class="fas fa-star"/></div>
+      <div v-else class="favorite" @click="addFavoriteStop"><i class="far fa-star"/></div>
+    </div>
     <div class="arrivals">
       <div class="bus" v-for="bus in stop.actual" :key="bus.passageid">
         <div class="icon">
@@ -42,6 +46,9 @@ export default {
     stopId() {
       return this.$route.params.stop;
     },
+    isFavorite() {
+      return !!this.$store.state.favoriteStops[this.stopId];
+    },
   },
   methods: {
     join() {
@@ -77,6 +84,14 @@ export default {
 
       return `${minutes} Min`;
     },
+    addFavoriteStop() {
+      if (this.stop && this.stop.stopName) {
+        this.$store.commit('addFavoriteStop', { id: this.stopId, name: this.stop.stopName });
+      }
+    },
+    removeFavoriteStop() {
+      this.$store.commit('removeFavoriteStop', this.stopId);
+    },
   },
   mounted() {
     this.join();
@@ -106,24 +121,44 @@ export default {
     max-width: 40rem;
     margin: 0 auto;
     align-items: center;
-    padding-top: 2rem;
+    padding-top: 1rem;
 
     h1 {
       margin: 0;
+    }
+
+    .header {
+      position: relative;
+      width: calc(100% - 1rem);
+      display: flex;
+      margin: 1rem .5rem;
       margin-bottom: 2rem;
+      align-items: center;
+      justify-content: center;
     }
 
     .back {
       position: absolute;
-      top: 2rem;
-      left: .5rem;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+
+    .favorite {
+      margin-left: 1rem;
+
+      &.gold {
+        color: gold;
+      }
     }
   }
 
   @media (min-width: 768px) {
     .stop {
-      .back {
-        left: 0;
+      .header {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
       }
     }
   }

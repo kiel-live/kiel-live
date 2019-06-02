@@ -1,10 +1,11 @@
 <template>
   <div class="home">
     <TextInput class="search" @input="searchStop" :debounce="true" :wait="400" placeholder="Haltestelle" autofocus />
-    <div v-if="stops" class="stops">
-      <router-link v-for="stop in stops" :key="stop.id" :to="{ name: 'stop', params: { stop: stop.id } }" class="stop">
+    <div class="stops">
+      <router-link v-for="stop in allStops" :key="stop.id" :to="{ name: 'stop', params: { stop: stop.id } }" class="stop" :class="{ favorite: stop.favorite }">
         <span class="name">{{ unEscapeHtml(stop.name) }}</span>
-        <i class="icon fas fa-arrow-right"></i>
+        <i v-if="stop.favorite" class="icon fas fa-star"></i>
+        <i v-else class="icon fas fa-arrow-right"></i>
       </router-link>
     </div>
   </div>
@@ -12,7 +13,6 @@
 
 <script>
 import Api from '@/api';
-
 import TextInput from '@/components/TextInput.vue';
 
 export default {
@@ -22,8 +22,19 @@ export default {
   },
   data() {
     return {
-      stops: null,
+      stops: {},
     };
+  },
+  computed: {
+    favoriteStops() {
+      return this.$store.state.favoriteStops;
+    },
+    allStops() {
+      return {
+        ...this.stops,
+        ...this.favoriteStops,
+      };
+    },
   },
   methods: {
     searchStop(query) {
@@ -47,12 +58,12 @@ export default {
   },
   mounted() {
     Api.on('stop:search', (stops) => {
-      this.stops = [];
+      this.stops = {};
 
       const regexp = RegExp('<li stop="(.*?)">(.*?)</li>', 'g');
       let matches = regexp.exec(stops);
       while (matches) {
-        this.stops.push({
+        this.$set(this.stops, matches[1], {
           id: matches[1],
           name: matches[2],
         });
@@ -104,6 +115,12 @@ export default {
       -webkit-box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
       box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
       z-index: 1;
+    }
+
+    &.favorite {
+      i {
+        color: gold;
+      }
     }
 
     .icon {
