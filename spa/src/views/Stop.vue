@@ -60,7 +60,8 @@ export default {
         }
 
         if (stop.actualRelativeTime) {
-          return stop.actualRelativeTime;
+          // if eta is delayed set it to 1 to be greater than STOPPING arrivals
+          return Math.max(stop.actualRelativeTime, 1);
         }
 
         return stop.plannedTime;
@@ -220,7 +221,7 @@ export default {
     }
 
     .direction {
-      margin-left: 1rem;
+      margin-left: 1.5rem;
       flex-grow: 1;
     }
 
