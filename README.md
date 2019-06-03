@@ -30,7 +30,7 @@ services:
 - [ ] customize manifest (title, icon)
 - [x] fancier back button on stop page
 - [x] "connection to server lost" screen
-- [ ] sort orders based on status
+- [x] sort orders based on status
 - [x] add favorite stops
 - [ ] add alerts
 - [ ] store last stop queries

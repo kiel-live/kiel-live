@@ -1,7 +1,7 @@
 const axios = require('axios');
 const qs = require('querystring');
 
-const REFRESH_RATE = 5000;
+const REFRESH_RATE = 10000;
 const STOP_URL = 'https://www.kvg-kiel.de/internetservice/services/stopInfo/stop';
 const STOP_DATA_URL = 'https://www.kvg-kiel.de/internetservice/services/passageInfo/stopPassages/stop';
 const STOP_LOOKUP_URL = 'https://www.kvg-kiel.de/internetservice/services/lookup/autocomplete';

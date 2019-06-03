@@ -6,6 +6,7 @@ const server = require('http').createServer(app);
 const stops = require('./stops');
 
 const PORT = process.env.PORT || 8080;
+let connectedClients = 0;
 
 function start() {
   const io = socketIo(server, { path: '/api' });
@@ -18,7 +19,7 @@ function start() {
   stops.setIO(io);
 
   io.sockets.on('connection', (socket) => {
-    console.log('client connected');
+    connectedClients += 1;
 
     socket.on('stop:join', (stopId) => {
       if (!stopId) { return; }
@@ -36,6 +37,16 @@ function start() {
 
     socket.on('stop:search', async (query) => {
       socket.emit('stop:search', await stops.lookupStops(query));
+    });
+
+    socket.on('info', () => {
+      socket.emit('info', {
+        connectedClients,
+      });
+    });
+
+    socket.on('disconnect', () => {
+      connectedClients -= 1;
     });
   });
 
