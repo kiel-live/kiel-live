@@ -3,8 +3,8 @@
     <div class="header">
       <router-link :to="{ name: 'home' }" class="back button"><i class="fas fa-angle-double-left"/></router-link>
       <h1 class="title">{{ stop.stopName }}</h1>
-      <div v-if="isFavorite" class="favorite gold" @click="removeFavoriteStop"><i class="fas fa-star"/></div>
-      <div v-else class="favorite" @click="addFavoriteStop"><i class="far fa-star"/></div>
+      <div v-if="isFavorite" class="favorite gold button" @click="removeFavoriteStop"><i class="fas fa-star"/></div>
+      <div v-else class="favorite button" @click="addFavoriteStop"><i class="far fa-star"/></div>
     </div>
     <div class="arrivals">
       <div class="bus" v-for="bus in arrivals" :key="bus.passageid">
@@ -152,14 +152,11 @@ export default {
       margin: 1rem .5rem;
       margin-bottom: 2rem;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
     }
 
     .back {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      transform: translateY(-50%);
+      margin-right: .5rem;
     }
 
     .favorite {
@@ -232,7 +229,7 @@ export default {
 
     .status {
       width: 10%;
-      justify-content: center;
+      justify-content: flex-end;
       font-size: 1.5rem;
     }
   }
