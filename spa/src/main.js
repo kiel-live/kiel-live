@@ -4,6 +4,7 @@ import router from './router';
 import store from './store';
 import './api';
 import './registerServiceWorker';
+import './tracking';
 
 Vue.config.productionTip = false;
 

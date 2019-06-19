@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  transport:
+    build: .
+    environment:
+      - PORT
+      - NODE_ENV
+      - VUE_APP_MATOMO_URL
+      - VUE_APP_MATOMO_SITE
+    restart: always
+    ports:
+      - 8080:8080
