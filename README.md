@@ -26,13 +26,49 @@ services:
       - 8080:8080
 ```
 
+## Development
+
+### Project setup
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Run your tests
+```
+npm run test
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
 ## Roadmap
-- [ ] customize manifest (title, icon)
+- [x] new title
+- [ ] new icon
 - [x] fancier back button on stop page
 - [x] "connection to server lost" screen
 - [x] sort orders based on status
 - [x] add favorite stops
-- [ ] add alerts
-- [ ] store last stop queries
+- [ ] ! show alerts
+- [ ] ! add about and imprint (included from file)
+- [ ] ! add route details on bus click (https://github.com/juliuste/nahsh-hafas)
 - [ ] show next stops based on html5 geolocation
+- [ ] add ferry departures
+- [x] add spa tracking
+- [ ] store last stop queries
 - [ ] add openstreetmaps routes with estimated bus position
