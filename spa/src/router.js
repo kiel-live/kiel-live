@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
+import Store from '@/store';
 
 Vue.use(Router);
 
@@ -10,7 +11,7 @@ function loadView(...view) {
   return () => import(/* webpackChunkName: "view-[request]" */ `@/views/${view.join('/')}.vue`);
 }
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
@@ -23,6 +24,9 @@ export default new Router({
       path: '/about',
       name: 'about',
       component: loadView('About'),
+      meta: {
+        title: 'About',
+      },
     },
     {
       path: '/stop/:stop',
@@ -36,3 +40,10 @@ export default new Router({
     },
   ],
 });
+
+router.beforeEach((to, from, next) => {
+  Store.commit('setTitle', to.meta.title);
+  next();
+});
+
+export default router;

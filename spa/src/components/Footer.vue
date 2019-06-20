@@ -1,12 +1,15 @@
 <template>
   <div class="footer">
-    <span>Live OPNV - Made with &#10084; and Vue.js</span>
+    <span>{{ title }} - Made with &#10084; and Vue.js</span>
   </div>
 </template>
 
 <script>
 export default {
   name: 'Footer',
+  data: () => ({
+    title: process.env.VUE_APP_TITLE || 'OPNV Live',
+  }),
 };
 </script>
 

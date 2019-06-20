@@ -75,6 +75,8 @@ export default {
     },
     updateStop(stop) {
       this.stop = stop;
+
+      this.$store.commit('setTitle', stop.stopName);
     },
     route(routeId) {
       for (let i = 0; i < this.stop.routes.length; i += 1) {

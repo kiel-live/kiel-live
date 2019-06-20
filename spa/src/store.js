@@ -7,6 +7,7 @@ export default new Vuex.Store({
   state: {
     isConnected: false,
     favoriteStops: JSON.parse(localStorage.getItem('favoriteStops')) || {},
+    title: null,
   },
   mutations: {
     connect(state) {
@@ -24,6 +25,10 @@ export default new Vuex.Store({
         Vue.delete(state.favoriteStops, id);
         localStorage.setItem('favoriteStops', JSON.stringify(state.favoriteStops));
       }
+    },
+    setTitle(state, title) {
+      state.title = title;
+      document.title = `${title ? `${title} - ` : ''}${process.env.VUE_APP_TITLE || 'OPNV Live'}`;
     },
   },
   actions: {

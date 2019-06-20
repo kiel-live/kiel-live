@@ -1,6 +1,6 @@
 <template>
   <div class="navbar">
-    <router-link :to="{ name: 'home' }" class="title">Live OPNV</router-link>
+    <router-link :to="{ name: 'home' }" class="title">{{ title }}</router-link>
     <span v-if="!isConnected" class="offline"><i class="fas fa-signal"/>Offline</span>
   </div>
 </template>
@@ -10,6 +10,9 @@ import { mapState } from 'vuex';
 
 export default {
   name: 'NavBar',
+  data: () => ({
+    title: process.env.VUE_APP_TITLE || 'OPNV Live',
+  }),
   computed: {
     ...mapState([
       'isConnected',
