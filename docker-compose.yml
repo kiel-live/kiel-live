@@ -3,6 +3,8 @@ version: '3'
 services:
   transport:
     build: .
+    env_file:
+    - .env.local
     environment:
       - PORT
       - NODE_ENV
