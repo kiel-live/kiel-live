@@ -4,7 +4,7 @@ import router from './router';
 import store from './store';
 import './api';
 import './registerServiceWorker';
-import './tracking';
+import tracking from './tracking';
 
 Vue.config.productionTip = false;
 
@@ -13,3 +13,5 @@ new Vue({
   store,
   render: h => h(App),
 }).$mount('#app');
+
+tracking.init(router);
