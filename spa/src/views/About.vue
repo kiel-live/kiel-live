@@ -1,7 +1,7 @@
 <template>
   <div class="about">
     <h1 class="title">{{ title }}</h1>
-    <p>Version: </p>
+    <p>Version: {{ version }}</p>
   </div>
 </template>
 

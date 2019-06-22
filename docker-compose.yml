@@ -10,6 +10,7 @@ services:
       - NODE_ENV
       - VUE_APP_MATOMO_URL
       - VUE_APP_MATOMO_SITE
+      - VUE_APP_TITLE
     restart: always
     ports:
       - 8080:8080
