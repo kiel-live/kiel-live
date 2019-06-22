@@ -64,10 +64,10 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [x] "connection to server lost" screen
 - [x] sort orders based on status
 - [x] add favorite stops
-- [ ] ! show alerts
+- [x] show alerts
 - [ ] ! add about and imprint (included from file)
-- [ ] ! add route details on bus click (https://github.com/juliuste/nahsh-hafas)
-- [ ] show next stops based on html5 geolocation
+- [x] add route details on bus click
+- [ ] ! show nearby stops based on html5 geolocation
 - [ ] add ferry departures
 - [x] add spa tracking
 - [ ] store last stop queries

@@ -10,6 +10,12 @@
       <div v-if="isFavorite" class="favorite gold button" @click="removeFavoriteStop"><i class="fas fa-star"/></div>
       <div v-else class="favorite button" @click="addFavoriteStop"><i class="far fa-star"/></div>
     </div>
+    <div v-if="alerts" class="alerts">
+      <div v-for="alert in alerts" :key="alert.title" class="alert">
+        <i class="fas fa-exclamation-triangle icon" />
+        <div class="content">{{ alert.title }}</div>
+      </div>
+    </div>
     <div class="arrivals">
       <div class="bus" v-for="bus in arrivals" :key="bus.passageid" @click="toggleTrip(bus)">
         <div class="icon">
@@ -75,6 +81,19 @@ export default {
 
         return stop.plannedTime;
       });
+    },
+    alerts() {
+      if (!this.stop) {
+        return [];
+      }
+
+      let alerts = this.stop.generalAlerts;
+
+      this.stop.routes.forEach((route) => {
+        alerts = [...alerts, ...route.alerts];
+      });
+
+      return alerts;
     },
   },
   methods: {
@@ -288,6 +307,31 @@ export default {
 
     .close {
       margin-right: auto;
+    }
+  }
+
+  .alerts {
+    display: flex;
+    width: 100%;
+    margin-bottom: 2rem;
+    flex-flow: column;
+
+    .alert {
+      display: flex;
+      flex-flow: row;
+      color: #fff;
+      border-radius: 4px;
+      padding: 1.25rem 2.5rem 1.25rem 1.5rem;
+      position: relative;
+      width: 100%;
+      margin-bottom: .5rem;
+
+      background-color: #ff3860;
+      border-color: rgba(0,0,0,0.12) !important;
+    
+      .icon {
+        margin-right: 1rem;
+      }
     }
   }
 </style>
