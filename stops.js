@@ -1,12 +1,16 @@
 const axios = require('axios');
 const qs = require('querystring');
+const createClient = require('hafas-client');
+const nahshProfile = require('hafas-client/p/nahsh');
 
 const REFRESH_RATE = 10000;
 const STOP_URL = 'https://www.kvg-kiel.de/internetservice/services/stopInfo/stop';
 const STOP_DATA_URL = 'https://www.kvg-kiel.de/internetservice/services/passageInfo/stopPassages/stop';
 const STOP_LOOKUP_URL = 'https://www.kvg-kiel.de/internetservice/services/lookup/autocomplete';
 const STOP_ROUTE_URL = 'https://www.kvg-kiel.de/internetservice/services/routeInfo/route';
+const TRIP_INFO_URL = 'https://www.kvg-kiel.de/internetservice/services/tripInfo/tripPassages';
 
+const hafas = createClient(nahshProfile, 'NAHSHPROD');
 const stops = {};
 let io;
 
@@ -114,9 +118,42 @@ function leave(stopId) {
   }
 }
 
+async function nearby({ longitude, latitude }) {
+  try {
+    return await hafas.nearby({
+      type: 'location',
+      latitude,
+      longitude,
+    }, {distance: 400});      
+  } catch (error) {
+    console.log(error);     
+  }
+}
+
+async function trip({ tripId, vehicleId }) {
+  /*
+  try {
+    return await hafas.trip(id, tripName);    
+  } catch (error) {
+    console.log(error);    
+  }
+  */
+  const data = {
+    cacheBuster: new Date().getTime(),
+    tripId,
+    vehicleId,
+    mode: 'departure',
+    language: 'de',
+  };
+
+  return post(TRIP_INFO_URL, data);
+}
+
 module.exports = {
   setIO,
   join,
   leave,
+  nearby,
+  trip,
   lookupStops,
 };

@@ -1,7 +1,6 @@
 const path = require('path');
 const express = require('express');
 const socketIo = require('socket.io');
-const hafas = require('nahsh-hafas');
 const app = express();
 const server = require('http').createServer(app);
 const stops = require('./stops');
@@ -46,20 +45,12 @@ function start() {
       });
     });
 
-    socket.on('nearby', async ({latitude, longitude}) => {
-      const result = hafas.nearby({
-        type: 'location',
-        latitude,
-        longitude,
-      }, {distance: 400});
-
-      socket.emit('nearby', result);
+    socket.on('nearby', async (opts) => {
+      socket.emit('nearby', await stops.nearby(opts));
     });
 
-    socket.on('trip', async ({id, lineName}) => {
-      const result = hafas.client.journeys(id, lineName, {results: 1});
-
-      socket.emit('trip', result);
+    socket.on('trip', async (opts) => {
+      socket.emit('trip', await stops.trip(opts));
     });
 
     socket.on('disconnect', () => {

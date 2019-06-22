@@ -1,5 +1,9 @@
 <template>
-  <div v-if="stop" class="stop">
+  <div v-if="trip" class="trip">
+    <div @click="trip = null" class="close button"><i class="fas fa-angle-double-left" /></div>
+    <Trip :id="trip.tripId" :vehicleId="trip.vehicleId"/>
+  </div>
+  <div v-else-if="stop" class="stop">
     <div class="header">
       <router-link :to="{ name: 'home' }" class="back button"><i class="fas fa-angle-double-left"/></router-link>
       <h1 class="title">{{ stop.stopName }}</h1>
@@ -7,7 +11,7 @@
       <div v-else class="favorite button" @click="addFavoriteStop"><i class="far fa-star"/></div>
     </div>
     <div class="arrivals">
-      <div class="bus" v-for="bus in arrivals" :key="bus.passageid">
+      <div class="bus" v-for="bus in arrivals" :key="bus.passageid" @click="toggleTrip(bus)">
         <div class="icon">
           <i v-if="route(bus.routeId).routeType === 'bus'" class="fas fa-bus"></i>
           <i v-if="route(bus.routeId).routeType === 'ferry'" class="fas fa-bus"></i>
@@ -35,12 +39,17 @@
 <script>
 import { orderBy } from 'lodash';
 import Api from '@/api';
+import Trip from '@/components/Trip.vue';
 
 export default {
   name: 'stop',
+  components: {
+    Trip,
+  },
   data() {
     return {
       stop: null,
+      trip: null,
     };
   },
   computed: {
@@ -69,6 +78,27 @@ export default {
     },
   },
   methods: {
+    load() {
+      this.join();
+      Api.on('connect', this.join);
+      // wait for stop updates
+      Api.on('stop', this.updateStop);
+    },
+    unload() {
+      Api.removeListener('connect', this.join);
+      Api.removeListener('stop', this.updateStop);
+
+      if (this.stop) {
+        Api.emit('stop:leave', this.stop.stopShortName);
+      }
+
+      this.stop = null;
+      this.trip = null;
+    },
+    reload() {
+      this.unload();
+      this.load();
+    },
     join() {
       // request server to join stop room
       Api.emit('stop:join', this.stopId);
@@ -112,22 +142,20 @@ export default {
     removeFavoriteStop() {
       this.$store.commit('removeFavoriteStop', this.stopId);
     },
+    toggleTrip(bus) {
+      // open or close if already open 
+      this.trip = this.trip && this.trip.tripId === bus.tripId ? null : bus;    
+    },
   },
   mounted() {
-    this.join();
-
-    Api.on('connect', this.join);
-
-    // wait for stop updates
-    Api.on('stop', this.updateStop);
+    this.load();
   },
   beforeDestroy() {
-    Api.removeListener('connect', this.join);
-    Api.removeListener('stop', this.updateStop);
-
-    if (this.stop) {
-      Api.emit('stop:leave', this.stop.stopShortName);
-    }
+    this.unload();
+  },
+  beforeRouteUpdate(to, from, next) {
+    next();
+    this.reload();
   },
 };
 </script>
@@ -248,5 +276,18 @@ export default {
   .loading {
     margin: auto;
     font-size: 4rem;
+  }
+
+  .trip {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    max-width: 40rem;
+    margin: 0 auto;
+    padding-top: 2rem;
+
+    .close {
+      margin-right: auto;
+    }
   }
 </style>

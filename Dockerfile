@@ -12,8 +12,6 @@ RUN npm install --silent
 
 COPY --chown=node:node . .
 
-RUN chmod +x /app/start.sh
-
 EXPOSE 8080
 
-CMD [ "/app/start.sh" ]
+ENTRYPOINT ["/app/start.sh"]
