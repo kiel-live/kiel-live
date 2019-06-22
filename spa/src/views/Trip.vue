@@ -1,6 +1,10 @@
 <template>
   <div v-if="trip" class="trip">
-    <h2 class="title">Abfahrten der {{ trip.routeName }} nach {{ trip.directionText }}</h2>
+    <div class="header">
+      <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
+      <h1 class="title">{{ trip.routeName }} nach {{ trip.directionText }}</h1>
+      <div class="spaceholder"></div>
+    </div>
     <div class="stops">
       <template v-for="i in ['old', 'actual']">
         <div v-for="stop in trip[i]" :key="stop.tripId" class="stop" :class="i" @click="openStop(stop)">
@@ -24,19 +28,17 @@ import Api from '@/api';
 
 export default {
   name: 'Trip',
-  props: {
-    id: {
-      type: String,
-      required: true,
-    },
-    vehicleId: {
-      type: String,
-      required: true,
-    },
-  },
   data: () => ({
     trip: null,
   }),
+  computed: {
+    tripId() {
+      return this.$route.params.trip;
+    },
+    vehicleId() {
+      return this.$route.params.vehicle;
+    },
+  },
   methods: {
     updateTrip(trip) {
       this.trip = trip;
@@ -47,7 +49,7 @@ export default {
   },
   mounted() {
     Api.emit('trip', {
-      tripId: this.id,
+      tripId: this.tripId,
       vehicleId: this.vehicleId,  
     });
 
@@ -59,13 +61,46 @@ export default {
 
 <style lang="scss" scoped>
   .trip {
+    position: relative;
     display: flex;
     flex-flow: column;
     width: 100%;
+    max-width: 40rem;
+    margin: 0 auto;
+    align-items: center;
+    padding-top: 1rem;
+
+    h1 {
+      margin: 0;
+    }
+
+    .header {
+      position: relative;
+      width: calc(100% - 1rem);
+      display: flex;
+      margin: 1rem .5rem;
+      margin-bottom: 2rem;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .back {
+      margin-right: 1rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .stop {
+      .header {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+      }
+    }
   }
 
   .title {
-    margin: 1rem 0;
+    margin-bottom: 1rem;
     font-size: 1.8rem;
   }
 
@@ -76,7 +111,6 @@ export default {
     max-width: 40rem;
     margin: 0 auto;
     align-items: center;
-    padding-top: 1rem;
   }
 
   .stop {

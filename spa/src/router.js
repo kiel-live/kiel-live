@@ -34,6 +34,11 @@ const router = new Router({
       component: loadView('Stop'),
     },
     {
+      path: '/trip/:trip/:vehicle',
+      name: 'trip',
+      component: loadView('Trip'),
+    },
+    {
       path: '*',
       name: 'notFound',
       component: loadView('NotFound'),

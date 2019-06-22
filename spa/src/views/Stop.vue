@@ -1,23 +1,19 @@
 <template>
-  <div v-if="trip" class="trip">
-    <div @click="trip = null" class="close button"><i class="fas fa-angle-double-left" /></div>
-    <Trip :id="trip.tripId" :vehicleId="trip.vehicleId"/>
-  </div>
-  <div v-else-if="stop" class="stop">
+  <div v-if="stop" class="stop">
     <div class="header">
-      <router-link :to="{ name: 'home' }" class="back button"><i class="fas fa-angle-double-left"/></router-link>
+      <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
       <h1 class="title">{{ stop.stopName }}</h1>
       <div v-if="isFavorite" class="favorite gold button" @click="removeFavoriteStop"><i class="fas fa-star"/></div>
       <div v-else class="favorite button" @click="addFavoriteStop"><i class="far fa-star"/></div>
     </div>
-    <div v-if="alerts" class="alerts">
+    <div v-if="alerts && alerts.length > 0" class="alerts">
       <div v-for="alert in alerts" :key="alert.title" class="alert">
         <i class="fas fa-exclamation-triangle icon" />
         <div class="content">{{ alert.title }}</div>
       </div>
     </div>
     <div class="arrivals">
-      <div class="bus" v-for="bus in arrivals" :key="bus.passageid" @click="toggleTrip(bus)">
+      <div class="bus" v-for="bus in arrivals" :key="bus.passageid" @click="openTrip(bus)">
         <div class="icon">
           <i v-if="route(bus.routeId).routeType === 'bus'" class="fas fa-bus"></i>
           <i v-if="route(bus.routeId).routeType === 'ferry'" class="fas fa-bus"></i>
@@ -45,17 +41,12 @@
 <script>
 import { orderBy } from 'lodash';
 import Api from '@/api';
-import Trip from '@/components/Trip.vue';
 
 export default {
   name: 'stop',
-  components: {
-    Trip,
-  },
   data() {
     return {
       stop: null,
-      trip: null,
     };
   },
   computed: {
@@ -112,7 +103,6 @@ export default {
       }
 
       this.stop = null;
-      this.trip = null;
     },
     reload() {
       this.unload();
@@ -161,9 +151,8 @@ export default {
     removeFavoriteStop() {
       this.$store.commit('removeFavoriteStop', this.stopId);
     },
-    toggleTrip(bus) {
-      // open or close if already open 
-      this.trip = this.trip && this.trip.tripId === bus.tripId ? null : bus;    
+    openTrip(bus) {
+      this.$router.push({ name:'trip', params: { trip: bus.tripId, vehicle: bus.vehicleId }});
     },
   },
   mounted() {
@@ -297,23 +286,10 @@ export default {
     font-size: 4rem;
   }
 
-  .trip {
-    display: flex;
-    flex-flow: column;
-    width: 100%;
-    max-width: 40rem;
-    margin: 0 auto;
-    padding-top: 2rem;
-
-    .close {
-      margin-right: auto;
-    }
-  }
-
   .alerts {
     display: flex;
     width: 100%;
-    margin-bottom: 2rem;
+    padding-bottom: 2rem;
     flex-flow: column;
 
     .alert {
