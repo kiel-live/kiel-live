@@ -1,10 +1,14 @@
 <template>
   <div class="home">
-    <TextInput class="search" @input="searchStop" :debounce="true" :wait="400" placeholder="Haltestelle" autofocus />
+    <div class="search">
+      <TextInput class="searchText" @input="searchStop" :debounce="true" :wait="400" placeholder="Haltestelle" autofocus />
+      <div v-if="gpsSupport" class="button gps" @click="gps"><i class="fas fa-crosshairs"/></div>
+    </div>
     <div class="stops">
       <router-link v-for="stop in allStops" :key="stop.id" :to="{ name: 'stop', params: { stop: stop.id } }" class="stop" :class="{ favorite: stop.favorite }">
         <span class="name">{{ unEscapeHtml(stop.name) }}</span>
         <i v-if="stop.favorite" class="icon fas fa-star"></i>
+        <i v-else-if="stop.distance" class="icon fas fa-crosshairs"></i>
         <i v-else class="icon fas fa-arrow-right"></i>
       </router-link>
     </div>
@@ -24,6 +28,9 @@ export default {
   data() {
     return {
       stops: {},
+      gpsStops: {},
+      gpsSupport: true,
+      title: process.env.VUE_APP_TITLE || 'OPNV Live',
     };
   },
   computed: {
@@ -33,6 +40,7 @@ export default {
     allStops() {
       return orderBy({
         ...this.stops,
+        ...this.gpsStops,
         ...this.favoriteStops,
       }, 'favorite', 'desc');
     },
@@ -40,6 +48,9 @@ export default {
   methods: {
     searchStop(query) {
       Api.emit('stop:search', query);
+    },
+    searchNearby(position) {
+      Api.emit('stop:nearby', position);
     },
     unEscapeHtml(unsafe) {
       return unsafe
@@ -56,20 +67,34 @@ export default {
         .replace('&Uuml;', 'Ü')
         .replace('&szlig;', 'ß');
     },
+    gps() {
+      if (!this.gpsSupport) { return; }
+
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.searchNearby({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      }, (error) => {
+        console.log(error);
+        this.gpsSupport = false;
+      });
+    },
   },
   mounted() {
+    this.gpsSupport = !!navigator.geolocation;
+
     Api.on('stop:search', (stops) => {
       this.stops = {};
+      stops.forEach(item => {
+        if (item && item.id) {
+          this.stops[item.id] = item;
+        }
+      });
+    });
 
-      const regexp = RegExp('<li stop="(.*?)">(.*?)</li>', 'g');
-      let matches = regexp.exec(stops);
-      while (matches) {
-        this.$set(this.stops, matches[1], {
-          id: matches[1],
-          name: matches[2],
-        });
-        matches = regexp.exec(stops);
-      }
+    Api.on('stop:nearby', (stops) => {
+      this.gpsStops = stops;
     });
   },
 };
@@ -85,8 +110,15 @@ export default {
   }
 
   .search {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
     margin: 1rem .5rem;
     width: calc(100% - 1rem);
+
+    .searchText {
+      margin-right: 1rem;
+    }
   }
 
   @media only screen and (min-width: 768px) {
@@ -125,7 +157,9 @@ export default {
     }
 
     .icon {
+      width: 1rem;
       margin-left: auto;
+      text-align: center;
     }
   }
 </style>

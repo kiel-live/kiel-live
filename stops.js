@@ -3,10 +3,11 @@ const qs = require('querystring');
 const createClient = require('hafas-client');
 const nahshProfile = require('hafas-client/p/nahsh');
 
-const REFRESH_RATE = 10000;
+const STOP_REFRESH_RATE = 10000;
+const TRIP_REFRESH_RATE = 60000;
 const STOP_URL = 'https://www.kvg-kiel.de/internetservice/services/stopInfo/stop';
 const STOP_DATA_URL = 'https://www.kvg-kiel.de/internetservice/services/passageInfo/stopPassages/stop';
-const STOP_LOOKUP_URL = 'https://www.kvg-kiel.de/internetservice/services/lookup/autocomplete';
+const STOP_LOOKUP_URL = 'https://www.kvg-kiel.de/internetservice/services/lookup/autocomplete/json';
 const STOP_ROUTE_URL = 'https://www.kvg-kiel.de/internetservice/services/routeInfo/route';
 const TRIP_INFO_URL = 'https://www.kvg-kiel.de/internetservice/services/tripInfo/tripPassages';
 
@@ -61,7 +62,9 @@ async function lookupStops(query) {
     language: 'de',
   };
 
-  return post(STOP_LOOKUP_URL, data);
+  const res = await post(STOP_LOOKUP_URL, data);
+
+  return res.filter(item => item.id);
 }
 
 function loop(stopId) {
@@ -80,7 +83,7 @@ function open(stopId) {
 
   stops[stopId] = {
     connected: 0,
-    loop: setInterval(loop(stopId), REFRESH_RATE),
+    loop: setInterval(loop(stopId), STOP_REFRESH_RATE),
   };
 
   loop(stopId)();

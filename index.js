@@ -39,18 +39,36 @@ function start() {
       socket.emit('stop:search', await stops.lookupStops(query));
     });
 
-    socket.on('info', () => {
-      socket.emit('info', {
-        connectedClients,
-      });
-    });
+    socket.on('stop:nearby', async (opts) => {
+      const res = {};
+      const tmp = await stops.nearby(opts);
 
-    socket.on('nearby', async (opts) => {
-      socket.emit('nearby', await stops.nearby(opts));
+      for (let i = 0; i < tmp.length; i++) {
+        const item = tmp[i];
+        const name = item.name.replace(/Kiel\s/, '');
+        const lookup = await stops.lookupStops(name);
+        console.log(lookup);
+        if (lookup && lookup.length === 1) {
+          const found = {
+            ...item,
+            ...lookup[0],
+          };
+          found.gps = true;
+          res[found.id] = found;          
+        }
+      }
+
+      socket.emit('stop:nearby', res);
     });
 
     socket.on('trip', async (opts) => {
       socket.emit('trip', await stops.trip(opts));
+    });
+
+    socket.on('info', () => {
+      socket.emit('info', {
+        connectedClients,
+      });
     });
 
     socket.on('disconnect', () => {
