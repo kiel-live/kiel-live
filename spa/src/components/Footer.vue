@@ -1,6 +1,6 @@
 <template>
   <div class="footer">
-    <span>{{ title }} - Made with &#10084; and Vue.js</span>
+    <router-link :to="{name: 'about'}">{{ title }} - Made with &#10084; and Vue.js</router-link>
   </div>
 </template>
 
@@ -21,5 +21,10 @@ export default {
     padding: .5rem 0;
     text-align: center;
     justify-content: center;
+
+    a {
+      color: #000;
+      text-decoration: none;
+    }
   }
 </style>
