@@ -3,7 +3,7 @@ const express = require('express');
 const socketIo = require('socket.io');
 const app = express();
 const server = require('http').createServer(app);
-const stops = require('./stops');
+const Api = require('./src/api');
 
 const PORT = process.env.PORT || 8080;
 let connectedClients = 0;
@@ -16,8 +16,6 @@ function start() {
     resp.sendFile(path.join(__dirname, 'spa', 'dist', 'index.html'));
   });
 
-  stops.setIO(io);
-
   io.sockets.on('connection', (socket) => {
     connectedClients += 1;
 
@@ -25,26 +23,36 @@ function start() {
       if (!stopId) { return; }
       console.log('client joined stop', stopId);
       socket.join(`stop:${stopId}`);
-      stops.join(stopId, socket);
+      Api.joinStop(stopId, (data) => io.to(`stop:${stopId}`).emit('stop', data));
     });
 
     socket.on('stop:leave', (stopId) => {
       if (!stopId) { return; }
       console.log('client left stop', stopId);
-      stops.leave(stopId);
+      Api.leaveStop(stopId);
       socket.leave(`stop:${stopId}`);
     });
 
     socket.on('stop:search', async (query) => {
-      socket.emit('stop:search', await stops.lookupStops(query));
+      socket.emit('stop:search', await Api.lookupStops(query));
     });
 
     socket.on('stop:nearby', async (opts) => {
-      socket.emit('stop:nearby', await stops.nearby(opts));
+      socket.emit('stop:nearby', await Api.nearby(opts));
     });
 
-    socket.on('trip', async (opts) => {
-      socket.emit('trip', await stops.trip(opts));
+    socket.on('trip:join', ({ tripId, vehicleId }) => {
+      if (!tripId || !vehicleId) { return; }
+      console.log('client joined trip', tripId);
+      socket.join(`trip:${tripId}:${vehicleId}`);
+      Api.joinTrip({ tripId, vehicleId }, (data) => io.to(`trip:${tripId}:${vehicleId}`).emit('trip', data));
+    });
+
+    socket.on('trip:leave', ({ tripId, vehicleId }) => {
+      if (!tripId || !vehicleId) { return; }
+      console.log('client left trip', tripId);
+      Api.leaveTrip({ tripId, vehicleId });
+      socket.leave(`trip:${tripId}:${vehicleId}`);
     });
 
     socket.on('info', () => {

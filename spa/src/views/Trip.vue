@@ -7,10 +7,11 @@
     </div>
     <div class="stops">
       <template v-for="i in ['old', 'actual']">
-        <div v-for="stop in trip[i]" :key="stop.tripId" class="stop" :class="i" @click="openStop(stop)">
+        <div v-for="(stop, index) in trip[i]" :key="stop.tripId" class="stop" :class="i" @click="openStop(stop)">
           <div class="time">{{ stop.actualTime }}</div>
           <div class="marker">
-            <i v-if="i == 'old'" class="fas fa-blank" />
+            <i v-if="i === 'actual' && index === 0" class="fas fa-bus" />
+            <i v-else-if="i == 'old'" class="fas fa-blank" />
             <i v-else class="fas fa-circle" />
           </div>
           <div class="name">{{ stop.stop.name }}</div>
@@ -30,6 +31,7 @@ export default {
   name: 'Trip',
   data: () => ({
     trip: null,
+    ids: {},
   }),
   computed: {
     tripId() {
@@ -40,6 +42,34 @@ export default {
     },
   },
   methods: {
+    load() {
+      this.join();
+      Api.on('connect', this.join);
+      // wait for trip updates
+      Api.on('trip', this.updateTrip);
+    },
+    unload() {
+      Api.removeListener('connect', this.join);
+      Api.removeListener('trip', this.updateTrip);
+
+      if (this.trip) {
+        Api.emit('trip:leave', this.ids);
+      }
+
+      this.stop = null;
+    },
+    reload() {
+      this.unload();
+      this.load();
+    },
+    join() {
+      this.ids = {
+        tripId: this.tripId,
+        vehicleId: this.vehicleId,
+      };
+
+      Api.emit('trip:join', this.ids);
+    },
     updateTrip(trip) {
       this.trip = trip;
     },
@@ -48,13 +78,14 @@ export default {
     },
   },
   mounted() {
-    Api.emit('trip', {
-      tripId: this.tripId,
-      vehicleId: this.vehicleId,  
-    });
-
-    // wait for stop updates
-    Api.on('trip', this.updateTrip);
+    this.load();
+  },
+  beforeDestroy() {
+    this.unload();
+  },
+  beforeRouteUpdate(to, from, next) {
+    next();
+    this.reload();
   },
 };
 </script>
@@ -152,5 +183,10 @@ export default {
         content: '';
       }
     }
+  }
+
+  .loading {
+    margin: auto;
+    font-size: 4rem;
   }
 </style>
