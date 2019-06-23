@@ -62,9 +62,17 @@ async function lookupStops(query) {
     language: 'de',
   };
 
-  const res = await post(STOP_LOOKUP_URL, data);
+  const res = {};
+  const tmp = await post(STOP_LOOKUP_URL, data);
+  
+  for (let i = 0; i < tmp.length; i++) {
+    const stop = tmp[i];
+    if (stop && stop.id) {
+      res[stop.id] = stop;
+    }
+  }
 
-  return res.filter(item => item.id);
+  return res;
 }
 
 function loop(stopId) {
@@ -122,23 +130,43 @@ function leave(stopId) {
 }
 
 async function nearby({ longitude, latitude }) {
+  const res = {};
+  let tmp;
+
   try {
-    return await hafas.nearby({
+    tmp = await hafas.nearby({
       type: 'location',
       latitude,
       longitude,
-    }, {distance: 400});      
+    }, {distance: 400});
   } catch (error) {
-    console.log(error);     
+    console.log(error);
+    return;
   }
+
+  for (let i = 0; i < tmp.length; i++) {
+    const item = tmp[i];
+    const name = item.name.replace(/Kiel\s/, '');
+    const lookup = await lookupStops(name);
+    if (lookup && lookup.length === 1) {
+      const found = {
+        ...item,
+        ...lookup[0],
+      };
+      found.gps = true;
+      res[found.id] = found;
+    }
+  }
+
+  return res;
 }
 
 async function trip({ tripId, vehicleId }) {
   /*
   try {
-    return await hafas.trip(id, tripName);    
+    return await hafas.trip(id, tripName);
   } catch (error) {
-    console.log(error);    
+    console.log(error);
   }
   */
   const data = {
