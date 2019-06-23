@@ -148,12 +148,13 @@ async function nearby({ longitude, latitude }) {
     const item = tmp[i];
     const name = item.name.replace(/Kiel\s/, '');
     const lookup = await lookupStops(name);
-    if (lookup && lookup.length === 1) {
+
+    if (lookup && Object.keys(lookup).length === 1) {
       const found = {
         ...item,
         ...lookup[0],
+        'gps': true,
       };
-      found.gps = true;
       res[found.id] = found;
     }
   }
