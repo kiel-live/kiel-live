@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <div class="search">
-      <TextInput class="searchText" @input="searchStop" :debounce="true" :wait="400" placeholder="Haltestelle" autofocus />
+      <TextInput class="searchText" :value="stopQuery" @input="searchStop" :debounce="true" :wait="400" placeholder="Haltestelle" autofocus />
       <div v-if="gpsSupport" class="button gps" @click="gps"><i class="fas fa-crosshairs"/></div>
     </div>
     <div class="stops">
@@ -16,9 +16,9 @@
 </template>
 
 <script>
-import { orderBy } from 'lodash';
 import Api from '@/api';
 import TextInput from '@/components/TextInput.vue';
+import { mapState, mapGetters } from 'vuex';
 
 export default {
   name: 'home',
@@ -27,26 +27,21 @@ export default {
   },
   data() {
     return {
-      stops: {},
-      gpsStops: {},
       gpsSupport: true,
       title: process.env.VUE_APP_TITLE || 'OPNV Live',
     };
   },
   computed: {
-    favoriteStops() {
-      return this.$store.state.favoriteStops;
-    },
-    allStops() {
-      return orderBy({
-        ...this.stops,
-        ...this.gpsStops,
-        ...this.favoriteStops,
-      }, 'favorite', 'desc');
-    },
+    ...mapGetters([
+      'allStops',
+    ]),
+    ...mapState([
+      'stopQuery',
+    ]),
   },
   methods: {
     searchStop(query) {
+      this.$store.commit('setStopQuery', query);
       Api.emit('stop:search', query);
     },
     searchNearby(position) {
@@ -85,16 +80,11 @@ export default {
     this.gpsSupport = !!navigator.geolocation;
 
     Api.on('stop:search', (stops) => {
-      this.stops = {};
-      stops.forEach(item => {
-        if (item && item.id) {
-          this.stops[item.id] = item;
-        }
-      });
+      this.$store.commit('setStops', stops);
     });
 
     Api.on('stop:nearby', (stops) => {
-      this.gpsStops = stops;
+      this.$store.commit('setGPSStops', stops);
     });
   },
 };

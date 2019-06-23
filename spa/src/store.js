@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import { orderBy } from 'lodash';
 
 Vue.use(Vuex);
 
@@ -8,6 +9,18 @@ export default new Vuex.Store({
     isConnected: false,
     favoriteStops: JSON.parse(localStorage.getItem('favoriteStops')) || {},
     title: null,
+    stopQuery: '',
+    gpsStops: {},
+    stops: {},
+  },
+  getters: {
+    allStops(state) {
+      return orderBy({
+        ...state.stops,
+        ...state.gpsStops,
+        ...state.favoriteStops,
+      }, 'favorite', 'desc');
+    },
   },
   mutations: {
     connect(state) {
@@ -29,6 +42,15 @@ export default new Vuex.Store({
     setTitle(state, title) {
       state.title = title;
       document.title = `${title ? `${title} - ` : ''}${process.env.VUE_APP_TITLE || 'OPNV Live'}`;
+    },
+    setStopQuery(state, query) {
+      state.stopQuery = query;
+    },
+    setGPSStops(state, stops) {
+      state.gpsStops = stops;
+    },
+    setStops(state, stops) {
+      state.stops = stops;
     },
   },
   actions: {

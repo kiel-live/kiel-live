@@ -67,7 +67,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [x] show alerts
 - [ ] ! add about and imprint (included from file)
 - [x] add route details on bus click
-- [ ] ! show nearby stops based on html5 geolocation
+- [x] ! show nearby stops based on html5 geolocation
 - [ ] add ferry departures
 - [x] add spa tracking
 - [ ] store last stop queries
