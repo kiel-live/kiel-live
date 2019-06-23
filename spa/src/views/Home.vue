@@ -2,7 +2,10 @@
   <div class="home">
     <div class="search">
       <TextInput class="searchText" :value="stopQuery" @input="searchStop" :debounce="true" :wait="400" placeholder="Haltestelle" autofocus />
-      <div v-if="gpsSupport" class="button gps" @click="gps"><i class="fas fa-crosshairs"/></div>
+      <div v-if="gpsSupport" class="button gps" :class="{ loading: gpsLoading }" @click="gps">
+        <i v-if="gpsLoading" class="fas fa-circle-notch fa-spin" />
+        <i v-else class="fas fa-crosshairs" />
+      </div>
     </div>
     <div class="stops">
       <router-link v-for="stop in allStops" :key="stop.id" :to="{ name: 'stop', params: { stop: stop.id } }" class="stop" :class="{ favorite: stop.favorite }">
@@ -28,6 +31,7 @@ export default {
   data() {
     return {
       gpsSupport: true,
+      gpsLoading: false,
       title: process.env.VUE_APP_TITLE || 'OPNV Live',
     };
   },
@@ -43,9 +47,6 @@ export default {
     searchStop(query) {
       this.$store.commit('setStopQuery', query);
       Api.emit('stop:search', query);
-    },
-    searchNearby(position) {
-      Api.emit('stop:nearby', position);
     },
     unEscapeHtml(unsafe) {
       return unsafe
@@ -63,10 +64,11 @@ export default {
         .replace('&szlig;', 'ß');
     },
     gps() {
-      if (!this.gpsSupport) { return; }
+      if (!this.gpsSupport || this.gpsLoading) { return; }
 
       navigator.geolocation.getCurrentPosition((position) => {
-        this.searchNearby({
+        this.gpsLoading = true;
+        Api.emit('stop:nearby', {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
         });
@@ -84,6 +86,7 @@ export default {
     });
 
     Api.on('stop:nearby', (stops) => {
+      this.gpsLoading = false;
       this.$store.commit('setGPSStops', stops);
     });
   },
