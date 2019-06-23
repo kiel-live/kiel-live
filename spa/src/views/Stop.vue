@@ -152,7 +152,7 @@ export default {
       this.$store.commit('removeFavoriteStop', this.stopId);
     },
     openTrip(bus) {
-      this.$router.push({ name:'trip', params: { trip: bus.tripId, vehicle: bus.vehicleId }});
+      this.$router.push({ name: 'trip', params: { trip: bus.tripId, vehicle: bus.vehicleId } });
     },
   },
   mounted() {
@@ -304,7 +304,7 @@ export default {
 
       background-color: #ff3860;
       border-color: rgba(0,0,0,0.12) !important;
-    
+
       .icon {
         margin-right: 1rem;
       }

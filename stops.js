@@ -154,13 +154,6 @@ async function nearby({ longitude, latitude }) {
 }
 
 async function trip({ tripId, vehicleId }) {
-  /*
-  try {
-    return await hafas.trip(id, tripName);
-  } catch (error) {
-    console.log(error);
-  }
-  */
   const data = {
     cacheBuster: new Date().getTime(),
     tripId,
