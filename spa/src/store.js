@@ -1,25 +1,27 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { orderBy } from 'lodash';
+import { orderBy, uniqBy, values } from 'lodash';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
     isConnected: false,
-    favoriteStops: JSON.parse(localStorage.getItem('favoriteStops')) || {},
+    favoriteStops: values(JSON.parse(localStorage.getItem('favoriteStops')) || {}),
     title: null,
     stopQuery: '',
-    gpsStops: {},
-    stops: {},
+    gpsStops: [],
+    stops: [],
   },
   getters: {
     allStops(state) {
-      return orderBy({
-        ...state.stops,
-        ...state.gpsStops,
+      const stops = [
         ...state.favoriteStops,
-      }, 'favorite', 'desc');
+        ...state.gpsStops,
+        ...state.stops,
+      ];
+
+      return orderBy(uniqBy(stops, 'id'), ['favorite', 'gps'], ['desc', 'desc']);
     },
   },
   mutations: {
@@ -30,14 +32,13 @@ export default new Vuex.Store({
       state.isConnected = false;
     },
     addFavoriteStop(state, { id, name }) {
-      Vue.set(state.favoriteStops, id, { id, name, favorite: true });
+      state.favoriteStops.push({ id, name, favorite: true });
       localStorage.setItem('favoriteStops', JSON.stringify(state.favoriteStops));
     },
     removeFavoriteStop(state, id) {
-      if (state.favoriteStops[id]) {
-        Vue.delete(state.favoriteStops, id);
-        localStorage.setItem('favoriteStops', JSON.stringify(state.favoriteStops));
-      }
+      const stops = state.favoriteStops.filter(i => i.id !== id);
+      localStorage.setItem('favoriteStops', JSON.stringify(stops));
+      state.favoriteStops = stops;
     },
     setTitle(state, title) {
       state.title = title;

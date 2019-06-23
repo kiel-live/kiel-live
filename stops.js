@@ -62,17 +62,9 @@ async function lookupStops(query) {
     language: 'de',
   };
 
-  const res = {};
-  const tmp = await post(STOP_LOOKUP_URL, data);
-  
-  for (let i = 0; i < tmp.length; i++) {
-    const stop = tmp[i];
-    if (stop && stop.id) {
-      res[stop.id] = stop;
-    }
-  }
+  const res = await post(STOP_LOOKUP_URL, data);
 
-  return res;
+  return res.filter(i => i.id);
 }
 
 function loop(stopId) {
@@ -130,7 +122,7 @@ function leave(stopId) {
 }
 
 async function nearby({ longitude, latitude }) {
-  const res = {};
+  const res = [];
   let tmp;
 
   try {
@@ -149,13 +141,12 @@ async function nearby({ longitude, latitude }) {
     const name = item.name.replace(/Kiel\s/, '');
     const lookup = await lookupStops(name);
 
-    if (lookup && Object.keys(lookup).length === 1) {
-      const found = {
+    if (lookup && lookup.length === 1) {
+      res.push({
         ...item,
         ...lookup[0],
         'gps': true,
-      };
-      res[found.id] = found;
+      });
     }
   }
 
