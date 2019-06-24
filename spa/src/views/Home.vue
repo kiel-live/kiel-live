@@ -10,9 +10,12 @@
     <div class="stops">
       <router-link v-for="stop in allStops" :key="stop.id" :to="{ name: 'stop', params: { stop: stop.id } }" class="stop" :class="{ favorite: stop.favorite }">
         <span class="name">{{ unEscapeHtml(stop.name) }}</span>
-        <i v-if="stop.favorite" class="icon fas fa-star"></i>
-        <i v-else-if="stop.distance" class="icon fas fa-crosshairs"></i>
-        <i v-else class="icon fas fa-arrow-right"></i>
+        <div class="details">
+          <span v-if="stop.distance" class="direction">{{ stop.distance }}m</span>
+          <i v-if="stop.favorite" class="icon fas fa-star"></i>
+          <i  v-else-if="stop.distance" class="icon fas fa-crosshairs" />
+          <i v-else class="icon fas fa-arrow-right"></i>
+        </div>
       </router-link>
     </div>
   </div>
@@ -149,10 +152,19 @@ export default {
       }
     }
 
-    .icon {
-      width: 1rem;
+    .details {
+      display: flex;
+      flex-flow: row;
       margin-left: auto;
-      text-align: center;
+
+      .direction {
+        margin-right: .5rem;
+      }
+
+      .icon {
+        width: 1rem;
+        text-align: center;
+      }
     }
   }
 </style>
