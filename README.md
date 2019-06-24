@@ -59,11 +59,11 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## Roadmap
 - [ ] add ferry departures
-- [ ] new icon
 - [ ] ! add about and imprint (included from file)
-- [ ] add openstreetmaps routes with estimated bus position
-- [ ] add backend caching
-- [ ] fetch live updates directly from client
+- [ ] add map with searched stops (text, gps, favorites, own location)
+- [ ] ~~ fetch live updates directly from client ~~ (api doesn't provide correct CORS header)
+- [x] add backend caching
+- [x] new icon
 - [x] new title
 - [x] fancier back button on stop page
 - [x] "connection to server lost" screen

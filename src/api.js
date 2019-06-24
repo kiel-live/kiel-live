@@ -3,8 +3,8 @@ const nahshProfile = require('hafas-client/p/nahsh');
 const { post } = require('./cachedRequest');
 const { join, leave } = require('./autoUpdater');
 
-const STOP_REFRESH_RATE = 5000;
-const TRIP_REFRESH_RATE = 5000;
+const STOP_REFRESH_RATE = 10000;
+const TRIP_REFRESH_RATE = 10000;
 const STOP_URL = 'https://www.kvg-kiel.de/internetservice/services/stopInfo/stop';
 const STOP_DATA_URL = 'https://www.kvg-kiel.de/internetservice/services/passageInfo/stopPassages/stop';
 const STOP_LOOKUP_URL = 'https://www.kvg-kiel.de/internetservice/services/lookup/autocomplete/json';

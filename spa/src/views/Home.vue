@@ -69,8 +69,8 @@ export default {
     gps() {
       if (!this.gpsSupport || this.gpsLoading) { return; }
 
+      this.gpsLoading = true;
       navigator.geolocation.getCurrentPosition((position) => {
-        this.gpsLoading = true;
         Api.emit('stop:nearby', {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
