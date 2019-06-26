@@ -52,7 +52,7 @@ export default {
       return this.$route.params.vehicle;
     },
     driving() {
-      return this.trip && this.trip.old.length > 0 && this.trip.actual.length > 0;
+      return this.trip && (this.trip.old.length > 0 || this.trip.actual.length > 0);
     }
   },
   methods: {
