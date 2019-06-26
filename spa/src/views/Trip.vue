@@ -1,5 +1,5 @@
 <template>
-  <div v-if="trip" class="trip">
+  <div v-if="driving" class="trip">
     <div class="header">
       <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
       <h1 class="title">{{ trip.routeName }} nach {{ trip.directionText }}</h1>
@@ -10,8 +10,12 @@
         <div v-for="(stop, index) in trip[i]" :key="stop.tripId" class="stop" :class="i" @click="openStop(stop)">
           <div class="time">{{ stop.actualTime }}</div>
           <div class="marker">
-            <i v-if="i === 'actual' && index === 0" class="fas fa-bus" />
-            <i v-else-if="i == 'old'" class="fas fa-blank" />
+
+            <div v-if="i === 'actual' && index === 0" class="vehicle" :class="{ driving: (stop.status === 'PREDICTED') }">
+              <div class="ringring"></div>
+            </div>
+
+            <i v-if="i === 'old'" class="fas fa-blank" />
             <i v-else class="fas fa-circle" />
           </div>
           <div class="name">{{ stop.stop.name }}</div>
@@ -19,8 +23,15 @@
       </template>
     </div>
   </div>
-  <div v-else class="trip loading">
+  <div v-else-if="!trip" class="trip loading">
     <i class="fas fa-circle-notch fa-spin"></i>
+  </div>
+  <div v-else class="trip">
+    <div class="ended">
+      <i class="fas fa-ban" />
+      <p>Diese Tour ist wohl schon zu Ende.</p>
+      <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left" />Zurück</a>
+    </div>
   </div>
 </template>
 
@@ -40,6 +51,9 @@ export default {
     vehicleId() {
       return this.$route.params.vehicle;
     },
+    driving() {
+      return this.trip && this.trip.old.length > 0 && this.trip.actual.length > 0;
+    }
   },
   methods: {
     load() {
@@ -95,6 +109,7 @@ export default {
     position: relative;
     display: flex;
     flex-flow: column;
+    flex-grow: 1;
     width: 100%;
     max-width: 40rem;
     margin: 0 auto;
@@ -175,12 +190,51 @@ export default {
 
       &::after {
         position: absolute;
-        left: calc(50% - 1px);
+        left: calc(50% - .05rem);
         top: 0;
         height: 100%;
-        width: 2px;
-        background: black;
+        width: .1rem;
+        background: #2e2e2e;
         content: '';
+      }
+
+      i {
+        z-index: 1;
+      }
+    }
+
+    .vehicle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+
+      &.driving {
+        top: -.25rem;
+      }
+
+      &::before {
+        display: block;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background-color: #c80000;
+        content: "";
+      }
+
+      .ringring {
+        border: 3px solid #c80000;
+        border-radius: 30px;
+        height: 2rem;
+        width: 2rem;
+        position: absolute;
+        left: calc(50% - 1rem);
+        top: calc(50% - 1rem);
+        transform: translate(-50%, -50%);
+        animation: pulsate 1.5s ease-out;
+        animation-iteration-count: infinite; 
+        opacity: 0.0
       }
     }
   }
@@ -188,5 +242,28 @@ export default {
   .loading {
     margin: auto;
     font-size: 4rem;
+  }
+
+  .trip .ended {
+    margin: auto;
+
+    > i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .back {
+      margin-top: 1rem;
+
+      i { 
+        margin-right: .5rem;
+      }
+    }
+  }
+
+  @keyframes pulsate {
+    0% {-webkit-transform: scale(0.1, 0.1); opacity: 0.0;}
+    50% {opacity: 1.0;}
+    100% {-webkit-transform: scale(1.2, 1.2); opacity: 0.0;}
   }
 </style>

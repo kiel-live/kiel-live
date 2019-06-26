@@ -73,7 +73,7 @@ async function post(url, data) {
   try {
     // const response = await axios(options);
     // cache every request for 3 minutes
-    const response = await Request.post(url, { debounce: true, ttl: 3 * 60 * 1000 }, qs.stringify(data), options);
+    const response = await Request.post(url, { debounce: true, ttl: 10 * 60 * 1000 }, qs.stringify(data), options);
     return response.data;
   } catch (e) {
     console.log('HTTP-ERROR', url, data);
