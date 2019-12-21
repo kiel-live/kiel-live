@@ -3,15 +3,17 @@ module.exports = {
     devServer: {
       proxy: {
         '^/api/*': {
-          target: 'http://localhost:8081/api/',
+          target: 'http://localhost:8080/api/',
           secure: false,
         },
       },
     },
   },
   pwa: {
+    workboxPluginMode: 'InjectManifest',
     workboxOptions: {
-      skipWaiting: true,
+      swSrc: './src/sw.js',
+      swDest: 'service-worker.js',
     },
     iconPaths: {
       favicon32: 'img/icons/favicon-32x32.png',

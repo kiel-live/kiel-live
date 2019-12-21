@@ -22,9 +22,9 @@
 </template>
 
 <script>
+import { mapState, mapGetters } from 'vuex';
 import Api from '@/api';
 import TextInput from '@/components/TextInput.vue';
-import { mapState, mapGetters } from 'vuex';
 
 export default {
   name: 'home',

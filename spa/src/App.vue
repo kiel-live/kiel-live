@@ -3,7 +3,7 @@
     <NavBar />
     <router-view/>
     <Footer />
-    <Snackbar :show="snackbar" text="Es steht ein neues Update bereit" action="Installieren" @click="refreshApp" />
+    <Snackbar :show="updateExists" text="Es steht ein neues Update bereit" action="Installieren" @click="refreshApp" />
   </div>
 </template>
 
@@ -22,7 +22,7 @@ export default {
   data() {
     return {
       refreshing: false,
-      snackbar: false,
+      updateExists: false,
       registration: null,
     };
   },
@@ -44,10 +44,10 @@ export default {
       // The new service worker is installed, but not yet active.
       // Store the ServiceWorkerRegistration instance for later use.
       this.registration = e.detail;
-      this.snackbar = true;
+      this.updateExists = true;
     },
     refreshApp() {
-      this.snackbar = false;
+      this.updateExists = false;
       // Protect against missing registration.waiting.
       if (!this.registration || !this.registration.waiting) { return; }
       this.registration.waiting.postMessage('skipWaiting');
