@@ -1,6 +1,6 @@
 # opnv-live
 
-[![Build Status](https://travis-ci.org/Garogat/opnv-live.svg?branch=master)](https://travis-ci.org/Garogat/opnv-live)
+[![Build Status](https://travis-ci.org/anbraten/opnv-live.svg?branch=master)](https://travis-ci.org/Garogat/opnv-live)
 [![](https://images.microbadger.com/badges/image/anbraten/opnv-live.svg)](https://microbadger.com/images/anbraten/opnv-live "Get your own image badge on microbadger.com")
 
 This wep app allows you to view live updates of bus arrivals.
@@ -12,45 +12,31 @@ This wep app allows you to view live updates of bus arrivals.
 docker pull anbraten/opnv-live
 ```
 
-### docker-compose.yml
-```
-version: '3'
-
-services:
-  transport:
-    build: .
-    environment:
-      PORT: 8080
-    restart: always
-    ports:
-      - 8080:8080
-```
-
 ## Development
 
 ### Project setup
 ```
-npm install
+yarn install
 ```
 
 ### Compiles and hot-reloads for development
 ```
-npm run serve
+yarn run serve
 ```
 
 ### Compiles and minifies for production
 ```
-npm run build
+yarn run build
 ```
 
 ### Run your tests
 ```
-npm run test
+yarn run test
 ```
 
 ### Lints and fixes files
 ```
-npm run lint
+yarn run lint
 ```
 
 ### Customize configuration
@@ -61,7 +47,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [ ] add ferry departures
 - [ ] ! add about and imprint (included from file)
 - [ ] add map with searched stops (text, gps, favorites, own location)
-- [ ] ~~ fetch live updates directly from client ~~ (api doesn't provide correct CORS header)
+- [-] ~~ fetch live updates directly from client ~~ (api doesn't provide correct CORS header)
 - [x] add backend caching
 - [x] new icon
 - [x] new title
