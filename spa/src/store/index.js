@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { orderBy, uniqBy, values } from 'lodash';
+import { values, orderBy, uniqBy } from 'lodash';
 
 Vue.use(Vuex);
 
@@ -36,7 +36,7 @@ export default new Vuex.Store({
       localStorage.setItem('favoriteStops', JSON.stringify(state.favoriteStops));
     },
     removeFavoriteStop(state, id) {
-      const stops = state.favoriteStops.filter(i => i.id !== id);
+      const stops = state.favoriteStops.filter((i) => i.id !== id);
       localStorage.setItem('favoriteStops', JSON.stringify(stops));
       state.favoriteStops = stops;
     },
@@ -55,6 +55,7 @@ export default new Vuex.Store({
     },
   },
   actions: {
-
+  },
+  modules: {
   },
 });
