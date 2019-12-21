@@ -2,7 +2,9 @@ version: '3'
 
 services:
   transport:
-    build: .
+    build: 
+      dockerfile: docker/Dockerfile
+      context: .
     env_file:
     - .env.local
     environment:

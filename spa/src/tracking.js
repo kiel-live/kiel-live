@@ -1,15 +1,16 @@
 import Vue from 'vue';
 import VueMatomo from 'vue-matomo';
+import config from '@/libs/config';
 
 function init(router) {
-  if (!process.env.VUE_APP_MATOMO_URL || !process.env.VUE_APP_MATOMO_SITE) {
+  if (!config('APP_MATOMO_URL') || !config('APP_MATOMO_SITE')) {
     return;
   }
 
   Vue.use(VueMatomo, {
     // Configure your matomo server and site by providing
-    host: process.env.VUE_APP_MATOMO_URL,
-    siteId: process.env.VUE_APP_MATOMO_SITE,
+    host: config('APP_MATOMO_URL'),
+    siteId: config('APP_MATOMO_SITE'),
 
     // Changes the default .js and .php endpoint's filename
     // Default: 'piwik'

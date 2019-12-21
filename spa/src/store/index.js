@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { values, orderBy, uniqBy } from 'lodash';
+import config from '@/libs/config';
 
 Vue.use(Vuex);
 
@@ -42,7 +43,7 @@ export default new Vuex.Store({
     },
     setTitle(state, title) {
       state.title = title;
-      document.title = `${title ? `${title} - ` : ''}${process.env.VUE_APP_TITLE || 'OPNV Live'}`;
+      document.title = `${title ? `${title} - ` : ''}${config('title', 'OPNV Live')}`;
     },
     setStopQuery(state, query) {
       state.stopQuery = query;

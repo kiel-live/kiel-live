@@ -7,11 +7,12 @@
 
 <script>
 import { mapState } from 'vuex';
+import config from '@/libs/config';
 
 export default {
   name: 'NavBar',
   data: () => ({
-    title: process.env.VUE_APP_TITLE || 'OPNV Live',
+    title: config('title', 'OPNV Live'),
   }),
   computed: {
     ...mapState([

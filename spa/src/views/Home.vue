@@ -76,7 +76,8 @@ export default {
           longitude: position.coords.longitude,
         });
       }, (error) => {
-        console.log(error);
+        // eslint-disable-next-line no-console
+        console.error(error);
         this.gpsSupport = false;
       });
     },
