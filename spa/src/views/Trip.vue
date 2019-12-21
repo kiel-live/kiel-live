@@ -53,7 +53,7 @@ export default {
     },
     driving() {
       return this.trip && (this.trip.old.length > 0 || this.trip.actual.length > 0);
-    }
+    },
   },
   methods: {
     load() {
@@ -233,7 +233,7 @@ export default {
         top: calc(50% - 1rem);
         transform: translate(-50%, -50%);
         animation: pulsate 1.5s ease-out;
-        animation-iteration-count: infinite; 
+        animation-iteration-count: infinite;
         opacity: 0.0
       }
     }
@@ -255,7 +255,7 @@ export default {
     .back {
       margin-top: 1rem;
 
-      i { 
+      i {
         margin-right: .5rem;
       }
     }

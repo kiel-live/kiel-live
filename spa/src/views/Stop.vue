@@ -54,7 +54,7 @@ export default {
       return this.$route.params.stop;
     },
     isFavorite() {
-      return this.$store.state.favoriteStops.filter(i => i.id === this.stopId).length === 1;
+      return this.$store.state.favoriteStops.filter((i) => i.id === this.stopId).length === 1;
     },
     arrivals() {
       if (!this.stop) {
