@@ -47,7 +47,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [ ] add ferry departures
 - [ ] ! add about and imprint (included from file)
 - [ ] add map with searched stops (text, gps, favorites, own location)
-- [-] ~~ fetch live updates directly from client ~~ (api doesn't provide correct CORS header)
+- [ ] ~~ fetch live updates directly from client ~~ (api doesn't provide correct CORS header)
 - [x] add backend caching
 - [x] new icon
 - [x] new title
