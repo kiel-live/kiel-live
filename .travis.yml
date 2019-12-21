@@ -14,7 +14,7 @@ env:
 
 script:
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
-  - docker build --no-cache=true -t $DOCKER_REPO:$DOCKER_TAG .
+  - docker build --no-cache=true -t $DOCKER_REPO:$DOCKER_TAG -f docker/Dockerfile .
 
 after_success:
   - docker login -u $DOCKER_USER -p $DOCKER_PASS
