@@ -3,14 +3,14 @@ import VueMatomo from 'vue-matomo';
 import config from '@/libs/config';
 
 function init(router) {
-  if (!config('APP_MATOMO_URL') || !config('APP_MATOMO_SITE')) {
+  if (!config('matomo_url') || !config('matomo_site')) {
     return;
   }
 
   Vue.use(VueMatomo, {
     // Configure your matomo server and site by providing
-    host: config('APP_MATOMO_URL'),
-    siteId: config('APP_MATOMO_SITE'),
+    host: config('matomo_url'),
+    siteId: config('matomo_site'),
 
     // Changes the default .js and .php endpoint's filename
     // Default: 'piwik'
