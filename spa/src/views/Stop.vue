@@ -18,7 +18,7 @@
           <i v-if="route(bus.routeId).routeType === 'bus'" class="fas fa-bus"></i>
           <i v-if="route(bus.routeId).routeType === 'ferry'" class="fas fa-bus"></i>
         </div>
-        <div class="line">{{ route(bus.routeId).shortName }}</div>
+        <div class="line">{{ route(bus.routeId).name }}</div>
         <div class="direction">{{ bus.direction }}</div>
         <div class="eta">{{ eta(bus) }}</div>
         <div class="status">
