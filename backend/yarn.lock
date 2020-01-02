@@ -675,10 +675,10 @@ hafas-client@^2.5.0:
     vbb-stations "^6.2.1"
     vbb-translate-ids "^3.1.0"
 
-hafas-client@^4.6.2:
-  version "4.6.2"
-  resolved "https://registry.yarnpkg.com/hafas-client/-/hafas-client-4.6.2.tgz#87d99debda405cc3ef78ecfc79362842648822f3"
-  integrity sha512-pUEYIrSc2j9goQ5joQF8gEaATUUgAzwuvG63if2cV5NbhK0MR6U95w34lYEz+PADg4rhd3RwWXXBReWLO8Q6LQ==
+hafas-client@^4.8.0:
+  version "4.8.0"
+  resolved "https://registry.yarnpkg.com/hafas-client/-/hafas-client-4.8.0.tgz#79e9b2c4e6e94b2b8cc4e25ecd240a1fd845868b"
+  integrity sha512-j8Hu6r5eOv2+I/HlYvwbmU+jwfBoQv7uzqy3c+7bLTLhSHHsagToptma7jkOfUcWKFNRa3cCMKyix4fxHe3Nlg==
   dependencies:
     "@derhuerst/br2nl" "^1.0.0"
     "@mapbox/polyline" "^1.0.0"
