@@ -9,12 +9,13 @@ branches:
 
 env:
   global:
-#    - COMMIT=${TRAVIS_COMMIT::8}
-    - DOCKER_TAG=ci-$TRAVIS_BUILD_NUMBER
+  # - COMMIT=${TRAVIS_COMMIT::8}
+  - DOCKER_TAG=ci-$TRAVIS_BUILD_NUMBER
+  - VERSION=${TRAVIS_COMMIT::8}
 
 script:
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
-  - docker build --no-cache=true -t $DOCKER_REPO:$DOCKER_TAG -f docker/Dockerfile .
+  - docker build --no-cache=true --build-arg VERSION=$(date)-${VERSION} -t $DOCKER_REPO:$DOCKER_TAG -f docker/Dockerfile .
 
 after_success:
   - docker login -u $DOCKER_USER -p $DOCKER_PASS
