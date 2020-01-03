@@ -15,6 +15,7 @@ function start() {
   app.use(express.static(path.join(...DIST_DIR)));
   app.use('/status', (req, resp) => {
     resp.json({
+      version: process.env.VERSION || null,
       clients: connectedClients,
       ...Api.status(),
     });
