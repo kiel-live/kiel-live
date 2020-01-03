@@ -115,8 +115,10 @@ function leaveTrip({ tripId, vehicleId }) {
 }
 
 function status() {
+  const c = channels();
   return {
-    channels: channels(),
+    loadedChannels: c.length,
+    channels: c,
   }
 }
 
