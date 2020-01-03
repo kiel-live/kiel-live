@@ -12,5 +12,8 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-param-reassign': ['error', { props: false }],
     'no-underscore-dangle': 'off',
+    'object-curly-newline': ['error', {
+      'ObjectPattern': { 'minProperties': 10 },
+    }],
   },
 };

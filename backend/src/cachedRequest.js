@@ -2,10 +2,8 @@ const axios = require('axios');
 const qs = require('querystring');
 const crypto = require('crypto');
 
-function hash(str) {
-  if (typeof str !== 'string') {
-    str = JSON.stringify(str);
-  }
+function hash(_str) {
+  const str = (typeof _str !== 'string') ? JSON.stringify(_str) : _str;
   return crypto.createHash('md5').update(str).digest('hex');
 }
 
@@ -13,9 +11,9 @@ function hash(str) {
  * @credits: cache from https://medium.com/@nirlevy/debouncing-caching-axios-requests-c1b1b264e0cb
  */
 class Request {
-  static cache(func, options, ...params) {
-    options = {
-      ...options,
+  static cache(func, _options, ...params) {
+    const options = {
+      ..._options,
       ...Request._defaultOptions,
     };
     const cachekey = hash(params);
