@@ -6,7 +6,7 @@ function hash(str) {
   if (typeof str !== 'string') {
     str = JSON.stringify(str);
   }
-  return crypto.createHash('md5').update(str).digest("hex");
+  return crypto.createHash('md5').update(str).digest('hex');
 }
 
 /**
@@ -14,18 +14,17 @@ function hash(str) {
  */
 class Request {
   static cache(func, options, ...params) {
-      options = {
-        ...options,
-        ...Request._defaultOptions,
-      };
-      const cachekey = hash(params);
-      if (!Request._once[cachekey] || options['debounce'] === false) {
-          Request._once[cachekey] = func(...params);
-          return Request._once[cachekey];
-      } else {
-          setTimeout(() => (delete Request._once[cachekey]), options.ttl);
-          return Request._once[cachekey];
-      }
+    options = {
+      ...options,
+      ...Request._defaultOptions,
+    };
+    const cachekey = hash(params);
+    if (!Request._once[cachekey] || options.debounce === false) {
+      Request._once[cachekey] = func(...params);
+      return Request._once[cachekey];
+    }
+    setTimeout(() => (delete Request._once[cachekey]), options.ttl);
+    return Request._once[cachekey];
   }
 
   /**
@@ -42,7 +41,7 @@ class Request {
    * @return  {Promise}          Promise
   */
   static post(endpoint, options, data, config) {
-      return Request.cache(axios.post, options, endpoint, data, config);
+    return Request.cache(axios.post, options, endpoint, data, config);
   }
 
   /**
@@ -55,10 +54,10 @@ class Request {
    * @endpoint {String}          URL
    * @options  {Object}          debounce options: defaults are {debounce: true, ttl:1000}
    * @config   {Object}          axios config
-   * @return  {Promise}          Promise 
+   * @return  {Promise}          Promise
    */
   static get(endpoint, options, config) {
-      return Request.cache(axios.get, options, endpoint, config);
+    return Request.cache(axios.get, options, endpoint, config);
   }
 }
 
@@ -73,7 +72,13 @@ async function post(url, data) {
   try {
     // const response = await axios(options);
     // cache every request for 3 minutes
-    const response = await Request.post(url, { debounce: true, ttl: 10 * 60 * 1000 }, qs.stringify(data), options);
+    const response = await Request.post(url,
+      {
+        debounce: true,
+        ttl: 10 * 60 * 1000,
+      },
+      qs.stringify(data), options);
+
     return response.data;
   } catch (e) {
     console.log('HTTP-ERROR', url, data);
@@ -82,5 +87,5 @@ async function post(url, data) {
 }
 
 module.exports = {
-  post
-}
+  post,
+};
