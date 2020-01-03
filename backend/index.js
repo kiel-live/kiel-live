@@ -13,6 +13,12 @@ function start() {
   const io = socketIo(server, { path: '/api' });
 
   app.use(express.static(path.join(...DIST_DIR)));
+  app.use('/status', (req, resp) => {
+    resp.json({
+      clients: connectedClients,
+      ...Api.status(),
+    });
+  });
   app.use('*', (req, resp) => {
     resp.sendFile(path.join(...DIST_DIR, 'index.html'));
   });
@@ -54,12 +60,6 @@ function start() {
       console.log('client left trip', tripId);
       Api.leaveTrip({ tripId, vehicleId });
       socket.leave(`trip:${tripId}:${vehicleId}`);
-    });
-
-    socket.on('info', () => {
-      socket.emit('info', {
-        connectedClients,
-      });
     });
 
     socket.on('disconnect', () => {

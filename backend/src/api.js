@@ -1,7 +1,7 @@
 const createClient = require('hafas-client');
 const nahshProfile = require('hafas-client/p/nahsh');
 const { post } = require('./cachedRequest');
-const { join, leave } = require('./autoUpdater');
+const { join, leave, channels } = require('./autoUpdater');
 
 const STOP_REFRESH_RATE = 10000;
 const TRIP_REFRESH_RATE = 10000;
@@ -114,6 +114,12 @@ function leaveTrip({ tripId, vehicleId }) {
   leave(`trip:${tripId}:${vehicleId}`);
 }
 
+function status() {
+  return {
+    channels: channels(),
+  }
+}
+
 module.exports = {
   joinStop,
   leaveStop,
@@ -122,4 +128,5 @@ module.exports = {
   nearby,
   trip,
   lookupStops,
+  status,
 };

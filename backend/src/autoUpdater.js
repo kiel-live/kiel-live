@@ -17,6 +17,7 @@ function open({ channel, load, cb, timeout }) {
   looper[channel] = {
     connected: 0,
     loop: setInterval(loop(channel), timeout),
+    timeout,
     load,
     cb,
   };
@@ -57,7 +58,18 @@ function leave(channel) {
   }
 }
 
+function channels() {
+  return Object.keys(looper).map(channel => {
+    return {
+      name: channel,
+      connected: looper[channel].connected,
+      timeout: looper[channel].timeout,
+    };
+  });
+}
+
 module.exports = {
   join,
   leave,
+  channels,
 };
