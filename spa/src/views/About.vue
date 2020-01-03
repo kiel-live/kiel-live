@@ -6,10 +6,12 @@
 </template>
 
 <script>
+import config from '@/libs/config';
+
 export default {
   name: 'About',
   data: () => ({
-    title: process.env.VUE_APP_TITLE || 'OPNV Live',
+    title: config('title', 'OPNV Live'),
     version: process.env.VUE_APP_VERSION,
   }),
 };

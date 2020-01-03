@@ -1,11 +1,11 @@
 FROM node:12.13-alpine as build-stage
 ARG VERSION
+ENV VUE_APP_VERSION=${VERSION}
 WORKDIR /app
 COPY spa/package.json spa/yarn.lock ./
 RUN yarn install --silent
 COPY spa/ .
 RUN yarn run build
-ENV VUE_APP_VERSION=${VERSION}
 
 #####################################################
 

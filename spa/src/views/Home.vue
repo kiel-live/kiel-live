@@ -35,7 +35,6 @@ export default {
     return {
       gpsSupport: true,
       gpsLoading: false,
-      title: process.env.VUE_APP_TITLE || 'OPNV Live',
     };
   },
   computed: {
