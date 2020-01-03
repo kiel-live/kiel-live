@@ -3,9 +3,9 @@ WORKDIR /app
 COPY spa/package.json spa/yarn.lock ./
 RUN yarn install --silent
 COPY spa/ .
+RUN yarn run build
 ARG VERSION
 ENV VUE_APP_VERSION=$VERSION
-RUN yarn run build
 
 #####################################################
 
