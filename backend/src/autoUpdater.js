@@ -15,8 +15,9 @@ function open({ channel, load, cb, timeout }) {
   }
 
   looper[channel] = {
-    connected: 0,
+    connected: [],
     loop: setInterval(loop(channel), timeout),
+    timeout,
     load,
     cb,
   };
@@ -35,11 +36,11 @@ function close(channel) {
   delete looper[channel];
 }
 
-function join({ channel, load, cb, timeout }) {
+function join({ channel, load, cb, timeout, clientId }) {
   open({ channel, load, cb, timeout });
 
-  looper[channel].connected += 1;
- 
+  looper[channel].connected.push(clientId);
+
   // send last fetched data
   const { data } = looper[channel];
   if (data) {
@@ -47,17 +48,28 @@ function join({ channel, load, cb, timeout }) {
   }
 }
 
-function leave(channel) {
+function leave({ channel, clientId }) {
   if (looper[channel]) {
-    looper[channel].connected -= 1;
+    // remove client from list
+    const { connected } = looper[channel];
+    looper[channel].connected = connected.filter((c) => c !== clientId);
 
-    if (looper[channel].connected < 1) {
+    if (looper[channel].connected.length < 1) {
       close(channel);
     }
   }
 }
 
+function channels() {
+  return Object.keys(looper).map((channel) => ({
+    name: channel,
+    connected: looper[channel].connected.length,
+    timeout: looper[channel].timeout,
+  }));
+}
+
 module.exports = {
   join,
   leave,
+  channels,
 };

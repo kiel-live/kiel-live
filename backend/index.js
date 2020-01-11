@@ -1,6 +1,7 @@
 const path = require('path');
 const express = require('express');
 const socketIo = require('socket.io');
+
 const app = express();
 const server = require('http').createServer(app);
 const Api = require('./src/api');
@@ -13,6 +14,17 @@ function start() {
   const io = socketIo(server, { path: '/api' });
 
   app.use(express.static(path.join(...DIST_DIR)));
+  app.use('/status', (req, resp) => {
+    const status = {
+      version: process.env.VERSION || null,
+      clients: connectedClients,
+      ...Api.status(),
+    };
+
+    // pretty json
+    resp.header('Content-Type', 'application/json');
+    resp.send(JSON.stringify(status, null, 4));
+  });
   app.use('*', (req, resp) => {
     resp.sendFile(path.join(...DIST_DIR, 'index.html'));
   });
@@ -22,16 +34,26 @@ function start() {
 
     socket.on('stop:join', (stopId) => {
       if (!stopId) { return; }
-      console.log('client joined stop', stopId);
       socket.join(`stop:${stopId}`);
-      Api.joinStop(stopId, (data) => io.to(`stop:${stopId}`).emit('stop', data));
+      Api.joinStop({ stopId, clientId: socket.id }, (data) => io.to(`stop:${stopId}`).emit('stop', data));
     });
 
     socket.on('stop:leave', (stopId) => {
       if (!stopId) { return; }
-      console.log('client left stop', stopId);
-      Api.leaveStop(stopId);
       socket.leave(`stop:${stopId}`);
+      Api.leaveStop({ stopId, clientId: socket.id });
+    });
+
+    socket.on('trip:join', ({ tripId, vehicleId }) => {
+      if (!tripId || !vehicleId) { return; }
+      socket.join(`trip:${tripId}:${vehicleId}`);
+      Api.joinTrip({ tripId, vehicleId, clientId: socket.id }, (data) => io.to(`trip:${tripId}:${vehicleId}`).emit('trip', data));
+    });
+
+    socket.on('trip:leave', ({ tripId, vehicleId }) => {
+      if (!tripId || !vehicleId) { return; }
+      socket.leave(`trip:${tripId}:${vehicleId}`);
+      Api.leaveTrip({ tripId, vehicleId, clientId: socket.id });
     });
 
     socket.on('stop:search', async (query) => {
@@ -42,27 +64,8 @@ function start() {
       socket.emit('stop:nearby', await Api.nearby(opts));
     });
 
-    socket.on('trip:join', ({ tripId, vehicleId }) => {
-      if (!tripId || !vehicleId) { return; }
-      console.log('client joined trip', tripId);
-      socket.join(`trip:${tripId}:${vehicleId}`);
-      Api.joinTrip({ tripId, vehicleId }, (data) => io.to(`trip:${tripId}:${vehicleId}`).emit('trip', data));
-    });
-
-    socket.on('trip:leave', ({ tripId, vehicleId }) => {
-      if (!tripId || !vehicleId) { return; }
-      console.log('client left trip', tripId);
-      Api.leaveTrip({ tripId, vehicleId });
-      socket.leave(`trip:${tripId}:${vehicleId}`);
-    });
-
-    socket.on('info', () => {
-      socket.emit('info', {
-        connectedClients,
-      });
-    });
-
     socket.on('disconnect', () => {
+      Api.leaveChannels(socket.id);
       connectedClients -= 1;
     });
   });
