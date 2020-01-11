@@ -45,8 +45,11 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## Roadmap
 - [ ] add ferry departures
-- [ ] ! add about and imprint (included from file)
-- [ ] add map with searched stops (text, gps, favorites, own location)
+- [ ] ! add about and imprint (link to external page?)
+- [ ] add map with stops and vehicle live locations (home => map city overview, bus trip (map icon) <=> live bus position on map, stop (map icon) <=> stop on map)
+- [ ] add routes tab to stop view (and current view to depatures tab)
+- [ ] add location image to stop view (none clickable map)
+- [ ] add translations
 - [ ] ~~fetch live updates directly from client~~ (api doesn't provide correct CORS header)
 - [x] add backend caching
 - [x] new icon
