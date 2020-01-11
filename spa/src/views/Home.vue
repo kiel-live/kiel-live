@@ -9,7 +9,7 @@
     </div>
     <div class="stops">
       <router-link v-for="stop in allStops" :key="stop.id" :to="{ name: 'stop', params: { stop: stop.id } }" class="stop" :class="{ favorite: stop.favorite }">
-        <span class="name">{{ unEscapeHtml(stop.name) }}</span>
+        <span class="name">{{ stop.name }}</span>
         <div class="details">
           <span v-if="stop.distance" class="direction">{{ stop.distance }}m</span>
           <i v-if="stop.favorite" class="icon fas fa-star"></i>
@@ -50,21 +50,6 @@ export default {
     searchStop(query) {
       this.$store.commit('setStopQuery', query);
       Api.emit('stop:search', query);
-    },
-    unEscapeHtml(unsafe) {
-      return unsafe
-        .replace('&amp;', /&/g)
-        .replace('&lt;', /</g)
-        .replace('&gt;', />/g)
-        .replace('&quot;', /"/g)
-        .replace('&#039;', /'/g)
-        .replace('&auml;', 'ä')
-        .replace('&Auml;', 'Ä')
-        .replace('&ouml;', 'ö')
-        .replace('&Ouml;', 'Ö')
-        .replace('&uuml;', 'ü')
-        .replace('&Uuml;', 'Ü')
-        .replace('&szlig;', 'ß');
     },
     gps() {
       if (!this.gpsSupport || this.gpsLoading) { return; }
