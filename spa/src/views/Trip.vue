@@ -23,6 +23,13 @@
       </template>
     </div>
   </div>
+  <div v-else-if="!tripId || !vehicleId" class="trip">
+    <div class="notfound">
+      <i class="fas fa-ban" />
+      <p>Zu dieser Tour gibt es anscheinend keine live Daten.</p>
+      <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left" />Zurück</a>
+    </div>
+  </div>
   <div v-else-if="!trip" class="trip loading">
     <i class="fas fa-circle-notch fa-spin"></i>
   </div>
@@ -57,6 +64,10 @@ export default {
   },
   methods: {
     load() {
+      if (!this.tripId || !this.vehicleId) {
+        return;
+      }
+
       this.join();
       Api.on('connect', this.join);
       // wait for trip updates
@@ -244,7 +255,8 @@ export default {
     font-size: 4rem;
   }
 
-  .trip .ended {
+  .trip .ended,
+  .trip .notfound {
     margin: auto;
 
     > i {
