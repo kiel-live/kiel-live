@@ -13,6 +13,22 @@ const TRIP_INFO_URL = 'https://www.kvg-kiel.de/internetservice/services/tripInfo
 
 const hafas = createClient(nahshProfile, 'NAHSHPROD');
 
+function unEscapeHtml(unsafe) {
+  return unsafe
+    .replace('&amp;', /&/g)
+    .replace('&lt;', /</g)
+    .replace('&gt;', />/g)
+    .replace('&quot;', /"/g)
+    .replace('&#039;', /'/g)
+    .replace('&auml;', 'ä')
+    .replace('&Auml;', 'Ä')
+    .replace('&ouml;', 'ö')
+    .replace('&Ouml;', 'Ö')
+    .replace('&uuml;', 'ü')
+    .replace('&Uuml;', 'Ü')
+    .replace('&szlig;', 'ß');
+}
+
 async function getStop(stopId) {
   const data = {
     stop: stopId,
@@ -39,7 +55,11 @@ async function lookupStops(query) {
     language: 'de',
   };
 
-  const res = await post(STOP_LOOKUP_URL, data);
+  let res = await post(STOP_LOOKUP_URL, data);
+
+  res.forEach(stop => {
+    stop.name = unEscapeHtml(stop.name);
+  });
 
   return res.filter(i => i.id);
 }
