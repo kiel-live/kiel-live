@@ -5,6 +5,7 @@ import store from './store';
 import './api';
 import './registerServiceWorker';
 import tracking from './tracking';
+import './libs/leaflet';
 
 Vue.config.productionTip = false;
 
