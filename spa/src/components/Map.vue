@@ -171,8 +171,7 @@ export default {
           lng: position.coords.longitude,
         };
         this.center = this.ownLocation;
-      }, (error) => {
-        console.error(error);
+      }, () => {
         this.gpsSupport = false;
       });
     },
