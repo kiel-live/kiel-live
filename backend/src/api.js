@@ -5,11 +5,16 @@ const { join, leave, channels } = require('./autoUpdater');
 
 const STOP_REFRESH_RATE = 10000;
 const TRIP_REFRESH_RATE = 10000;
-const STOP_DATA_URL = 'https://www.kvg-kiel.de/internetservice/services/passageInfo/stopPassages/stop';
-const STOP_LOOKUP_URL = 'https://www.kvg-kiel.de/internetservice/services/lookup/autocomplete/json';
-const TRIP_INFO_URL = 'https://www.kvg-kiel.de/internetservice/services/tripInfo/tripPassages';
-// const STOP_URL = 'https://www.kvg-kiel.de/internetservice/services/stopInfo/stop';
-// const STOP_ROUTE_URL = 'https://www.kvg-kiel.de/internetservice/services/routeInfo/route';
+const GEO_VEHICLES_REFRESH_RATE = 1000;
+
+const BASE_URL = 'https://www.kvg-kiel.de';
+const STOP_DATA_URL = `${BASE_URL}/internetservice/services/passageInfo/stopPassages/stop`;
+const STOP_LOOKUP_URL = `${BASE_URL}/internetservice/services/lookup/autocomplete/json`;
+const TRIP_INFO_URL = `${BASE_URL}/internetservice/services/tripInfo/tripPassages`;
+// const STOP_URL = `${BASE_URL}/internetservice/services/stopInfo/stop`;
+// const STOP_ROUTE_URL = `${BASE_URL}/internetservice/services/routeInfo/route`;
+const GEO_VEHICLES_URL = `${BASE_URL}/internetservice/geoserviceDispatcher/services/vehicleinfo/vehicles`;
+const GEO_STOPS_URL = `${BASE_URL}/internetservice/geoserviceDispatcher/services/stopinfo/stops`;
 
 const hafas = createClient(nahshProfile, 'NAHSHPROD');
 const joinedChannels = {};
@@ -161,6 +166,48 @@ function leaveTrip({ clientId }) {
   leaveChannels(clientId);
 }
 
+async function geoVehiclesLocation() {
+  const data = {
+    cacheBuster: new Date().getTime(),
+    colorType: 'ROUTE_BASED',
+    // lastUpdate: new Date().getTime(),
+    positionType: 'CORRECTED',
+  };
+
+  return post(GEO_VEHICLES_URL, data);
+}
+
+function joinGeoVehicles({ clientId }, cb) {
+  const channel = `geo:vehicles`;
+
+  // leave old channels first
+  leaveChannels(clientId);
+
+  join({
+    channel,
+    clientId,
+    timeout: GEO_VEHICLES_REFRESH_RATE,
+    load: async () => geoVehiclesLocation(),
+    cb,
+  });
+  joinedChannels[clientId] = channel;
+}
+
+async function geoStops() {
+ const data = {
+    top: 324000000,
+    bottom: -324000000,
+    left: -648000000,
+    right: 648000000,
+  };
+
+  return post(GEO_STOPS_URL, data);
+}
+
+function leaveGeoVehicles({ clientId }) {
+  leaveChannels(clientId);
+}
+
 function status() {
   const c = channels();
   return {
@@ -179,4 +226,7 @@ module.exports = {
   lookupStops,
   status,
   leaveChannels,
+  joinGeoVehicles,
+  leaveGeoVehicles,
+  geoStops,
 };

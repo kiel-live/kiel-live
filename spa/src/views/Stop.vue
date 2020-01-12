@@ -5,6 +5,7 @@
       <h1 class="title">{{ stop.stopName }}</h1>
       <div v-if="isFavorite" class="favorite gold button" @click="removeFavoriteStop"><i class="fas fa-star"/></div>
       <div v-else class="favorite button" @click="addFavoriteStop"><i class="far fa-star"/></div>
+      <div class="map button" @click="$router.push({ name: 'mapStop', params: { stop: stopId }})"><i class="fas fa-map-marked"/></div>
     </div>
     <div v-if="alerts && alerts.length > 0" class="alerts">
       <div v-for="alert in alerts" :key="alert.title" class="alert">
@@ -115,7 +116,9 @@ export default {
     updateStop(stop) {
       this.stop = stop;
 
-      this.$store.commit('setTitle', stop.stopName);
+      if (stop) {
+        this.$store.commit('setTitle', stop.stopName);
+      }
     },
     route(routeId) {
       for (let i = 0; i < this.stop.routes.length; i += 1) {
@@ -197,12 +200,20 @@ export default {
       margin-right: .5rem;
     }
 
+    .title {
+      flex-grow: 2;
+    }
+
     .favorite {
       margin-left: 1rem;
 
       &.gold {
         color: gold;
       }
+    }
+
+    .map {
+      margin-left: 1rem;
     }
   }
 

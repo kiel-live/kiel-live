@@ -46,7 +46,12 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 ## Roadmap
 - [ ] add ferry departures
 - [ ] ! add about and imprint (link to external page?)
-- [ ] add map with stops and vehicle live locations (home => map city overview, bus trip (map icon) <=> live bus position on map, stop (map icon) <=> stop on map)
+- [x] add stops to map
+- [x] add map link: home => map city overview
+- [x] add map link: bus trip (map icon) <=> live bus position on map
+- [x] add map link: stop (map icon) <=> stop on map
+- [x] add map with vehicle live locations
+- [ ] map smooth vehicle locations (https://github.com/LouisMazel/vue2-leaflet-movingmarker)
 - [ ] add routes tab to stop view (and current view to depatures tab)
 - [ ] add location image to stop view (none clickable map)
 - [ ] add translations

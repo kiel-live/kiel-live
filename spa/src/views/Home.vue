@@ -6,6 +6,7 @@
         <i v-if="gpsLoading" class="fas fa-circle-notch fa-spin" />
         <i v-else class="fas fa-crosshairs" />
       </div>
+      <div class="map button" @click="$router.push({ name: 'map' })"><i class="fas fa-map-marked"/></div>
     </div>
     <div class="stops">
       <router-link v-for="stop in allStops" :key="stop.id" :to="{ name: 'stop', params: { stop: stop.id } }" class="stop" :class="{ favorite: stop.favorite }">
@@ -99,6 +100,10 @@ export default {
 
     .searchText {
       margin-right: 1rem;
+    }
+
+    .map {
+      margin-left: 1rem;
     }
   }
 
