@@ -36,6 +36,21 @@ const routes = [
     component: () => import(/* webpackChunkName: "trip" */ '../views/Trip.vue'),
   },
   {
+    path: '/map',
+    name: 'map',
+    component: () => import(/* webpackChunkName: "map" */ '../views/Map.vue'),
+  },
+  {
+    path: '/map/trip/:vehicle',
+    name: 'mapTrip',
+    component: () => import(/* webpackChunkName: "map" */ '../views/Map.vue'),
+  },
+  {
+    path: '/map/stop/:stop',
+    name: 'mapStop',
+    component: () => import(/* webpackChunkName: "map" */ '../views/Map.vue'),
+  },
+  {
     path: '*',
     name: 'notFound',
     component: () => import(/* webpackChunkName: "notFound" */ '../views/NotFound.vue'),
