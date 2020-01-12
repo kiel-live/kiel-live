@@ -57,11 +57,34 @@ function start() {
     });
 
     socket.on('stop:search', async (query) => {
-      socket.emit('stop:search', await Api.lookupStops(query));
+      const stops = await Api.lookupStops(query);
+      if (stops) {
+        socket.emit('stop:search', stops);
+      }
     });
 
     socket.on('stop:nearby', async (opts) => {
-      socket.emit('stop:nearby', await Api.nearby(opts));
+      const stops = await Api.nearby(opts);
+      if (stops) {
+        socket.emit('stop:nearby', stops);
+      }
+    });
+
+    socket.on('geo:stops', async () => {
+      const stops = await Api.geoStops();
+      if (stops) {
+        socket.emit('geo:stops', stops);
+      }
+    });
+
+    socket.on('geo:vehicles:join', () => {
+      socket.join('geo:vehicles');
+      Api.joinGeoVehicles({ clientId: socket.id }, (data) => io.to('geo:vehicles').emit('geo:vehicles', data));
+    });
+
+    socket.on('geo:vehicles:leave', () => {
+      socket.leave('geo:vehicles');
+      Api.leaveGeoVehicles({ clientId: socket.id });
     });
 
     socket.on('disconnect', () => {
