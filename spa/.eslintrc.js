@@ -25,8 +25,8 @@ module.exports = {
     {
       files: ['*.vue'],
       rules: {
-        'max-len': 'off'
-      }
-    }
+        'max-len': 'off',
+      },
+    },
   ],
 };
