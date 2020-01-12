@@ -1,7 +1,7 @@
 import io from 'socket.io-client';
 import store from '@/store';
 
-const socket = io('', { path: '/api' });
+const socket = io('', { path: '/api/socket' });
 
 socket.on('connect', () => {
   store.commit('connect');

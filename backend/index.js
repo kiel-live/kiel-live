@@ -1,19 +1,23 @@
 const path = require('path');
 const express = require('express');
 const socketIo = require('socket.io');
+const http = require('http');
+
+const Api = require('./src/api');
+const cachedResponse = require('./src/cachedResponse');
 
 const app = express();
-const server = require('http').createServer(app);
-const Api = require('./src/api');
+const server = http.createServer(app);
 
 const PORT = process.env.PORT || 8080;
 const DIST_DIR = [__dirname, 'dist'];
 let connectedClients = 0;
 
 function start() {
-  const io = socketIo(server, { path: '/api' });
+  const io = socketIo(server, { path: '/api/socket' });
 
   app.use(express.static(path.join(...DIST_DIR)));
+
   app.use('/status', (req, resp) => {
     const status = {
       version: process.env.VERSION || null,
@@ -25,6 +29,41 @@ function start() {
     resp.header('Content-Type', 'application/json');
     resp.send(JSON.stringify(status, null, 4));
   });
+
+  app.get('/api/osm-tiles/:z/:x/:y.png', cachedResponse, async (req, resp) => {
+    const { z, x, y } = req.params;
+    const s = String.fromCharCode(97 + Math.floor(Math.random() * 3)); // select a, b or c
+
+    const options = {
+      hostname: `${s}.tile.osm.org`,
+      port: 80,
+      path: `/${z}/${x}/${y}.png`,
+      method: 'GET',
+      headers: {
+        'User-Agent': 'osm-proxy-opnv-live',
+        Accept: '*/*',
+      },
+    };
+
+    resp.set({
+      'Cache-Control': 'public, max-age=86400',
+      Expires: new Date(Date.now() + 86400000).toUTCString(),
+    });
+
+    const proxy = http.request(options, (res) => {
+      const data = [];
+
+      res.on('data', (chunk) => {
+        data.push(chunk);
+      }).on('end', () => {
+        const buffer = Buffer.concat(data);
+        resp.send(buffer);
+      });
+    });
+
+    proxy.end();
+  });
+
   app.use('*', (req, resp) => {
     resp.sendFile(path.join(...DIST_DIR, 'index.html'));
   });

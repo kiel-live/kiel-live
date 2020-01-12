@@ -11,7 +11,7 @@
       @update:bounds="boundsUpdated"
     >
       <l-tile-layer
-        url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"
+        url="/api/osm-tiles/{z}/{x}/{y}.png"
         attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
       />
       <l-rotated-marker
