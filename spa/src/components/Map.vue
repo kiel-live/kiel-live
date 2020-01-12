@@ -172,7 +172,7 @@ export default {
         };
         this.center = this.ownLocation;
       }, (error) => {
-        console.log(error);
+        console.error(error);
         this.gpsSupport = false;
       });
     },
