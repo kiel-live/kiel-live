@@ -28,6 +28,7 @@ export default {
     width: 100%;
     padding: 1rem;
     box-shadow: 0 1px 8px -1px rgba(0, 0, 0, .5);
+    z-index: 1000;
   }
 
   .right {
