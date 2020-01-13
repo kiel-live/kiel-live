@@ -13,6 +13,7 @@ export default new Vuex.Store({
     stopQuery: '',
     gpsStops: [],
     stops: [],
+    isTester: localStorage.getItem('tester') === 'true' || false,
   },
   getters: {
     allStops(state) {
@@ -53,6 +54,10 @@ export default new Vuex.Store({
     },
     setStops(state, stops) {
       state.stops = stops;
+    },
+    setTester(state, isTester) {
+      state.isTester = isTester;
+      localStorage.setItem('tester', isTester);
     },
   },
   actions: {

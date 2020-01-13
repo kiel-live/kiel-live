@@ -6,6 +6,7 @@
       :center="center"
       :maxBounds="maxBounds"
       :minZoom="minZoom"
+      :maxZoom="maxZoom"
       @update:zoom="zoomUpdated"
       @update:center="centerUpdated"
       @update:bounds="boundsUpdated"
@@ -92,7 +93,8 @@ export default {
         [54.21, 10.44],
       ], // kiel city: left=9.9 bottom=54.21 right=10.44 top=54.52
       ownLocation: null,
-      minZoom: 11, // zoom: 11-18
+      minZoom: 11, // zoom: 11-16
+      maxZoom: 16,
       bounds: null,
     };
   },
