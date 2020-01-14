@@ -80,7 +80,7 @@ export default {
       }).addTo(this.osmap);
 
       const savedView = this.$store.state.map.view || null;
-      if (savedView) {
+      if (!this.focusVehicle && !this.focusStop && savedView) {
         this.osmap.setView(savedView.center, savedView.zoom);
       }
     },
