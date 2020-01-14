@@ -13,8 +13,6 @@ export default {
   name: 'osmap2',
   data() {
     return {
-      gpsSupport: true,
-      ownLocation: null,
       vehicles: null,
       stops: null,
       osmap: null,
@@ -46,7 +44,7 @@ export default {
       this.osmap = L.map('map', {
         preferCanvas: true,
         zoom: 13,
-        minZoom: 11, // zoom: 11-16
+        minZoom: 12,
         maxZoom: 16,
         center: [54.321, 10.131],
         maxBounds: [
@@ -64,19 +62,22 @@ export default {
       */
 
       this.osmap.on('zoomend', () => {
-        // add stops if zoom is at least 14 else remove it
-        if (this.stopLayer) {
-          if (this.osmap.getZoom() < 13) {
-            this.osmap.removeLayer(this.stopLayer);
-          } else if (!this.osmap.hasLayer(this.stopLayer)) {
-            this.osmap.addLayer(this.stopLayer);
-          }
-        }
+        this.updateLayer();
       });
 
       L.tileLayer('/api/osm-tiles/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(this.osmap);
+    },
+    updateLayer() {
+      // add stops if zoom is at least 15, else remove it
+      if (this.stopLayer) {
+        if (this.osmap.getZoom() < 15) {
+          this.osmap.removeLayer(this.stopLayer);
+        } else if (!this.osmap.hasLayer(this.stopLayer)) {
+          this.osmap.addLayer(this.stopLayer);
+        }
+      }
     },
     updateVehicles({ vehicles }) {
       if (process.env.NODE_ENV === 'development') {
@@ -120,6 +121,10 @@ export default {
         });
 
         this.vehicles.push(marker);
+
+        if (this.showStop === v.id) {
+          this.osmap.setView([v.latitude / 3600000, v.longitude / 3600000], 17);
+        }
       });
 
       if (this.vehicleLayer) {
@@ -134,7 +139,7 @@ export default {
 
       stops.forEach((s) => {
         const marker = L.circleMarker([s.latitude / 3600000, s.longitude / 3600000], {
-          radius: 5,
+          radius: 7,
           color: '#3388ff',
           fillColor: '#3388ff',
           fillOpacity: 1,
@@ -147,27 +152,17 @@ export default {
         });
 
         this.stops.push(marker);
+
+        if (this.showStop === s.shortName) {
+          this.osmap.setView([s.latitude / 3600000, s.longitude / 3600000], 17);
+        }
       });
 
       if (this.stopLayer) {
         this.osmap.removeLayer(this.stopLayer);
       }
       this.stopLayer = layer;
-      this.osmap.addLayer(this.stopLayer);
-    },
-    centerGPS() {
-      if (!this.gpsSupport || this.gpsLoading) { return; }
-
-      this.gpsLoading = true;
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.ownLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-        this.center = this.ownLocation;
-      }, () => {
-        this.gpsSupport = false;
-      });
+      this.updateLayer();
     },
     load() {
       this.join();
@@ -196,14 +191,11 @@ export default {
     },
   },
   mounted() {
-    this.gpsSupport = !!navigator.geolocation;
     this.load();
 
     // center requested vehicle / stop or gps location if available
     if (this.showVehicle || this.showStop) {
       this.zoom = 17;
-    } else if (this.gpsSupport) {
-      this.centerGPS();
     }
   },
   beforeDestroy() {
