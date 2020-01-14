@@ -6,6 +6,7 @@
 
 <script>
 import L from 'leaflet';
+import 'leaflet.locatecontrol';
 
 import Api from '@/api';
 
@@ -68,6 +69,8 @@ export default {
       L.tileLayer('/api/osm-tiles/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(this.osmap);
+
+      L.control.locate().addTo(this.osmap);
     },
     updateLayer() {
       // add stops if zoom is at least 15, else remove it

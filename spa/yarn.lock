@@ -5065,6 +5065,11 @@ leaflet-rotatedmarker@^0.2.0:
   resolved "https://registry.yarnpkg.com/leaflet-rotatedmarker/-/leaflet-rotatedmarker-0.2.0.tgz#4467f49f98d1bfd56959bd9c6705203dd2601277"
   integrity sha1-RGf0n5jRv9VpWb2cZwUgPdJgEnc=
 
+leaflet.locatecontrol@^0.70.0:
+  version "0.70.0"
+  resolved "https://registry.yarnpkg.com/leaflet.locatecontrol/-/leaflet.locatecontrol-0.70.0.tgz#924e6a0986bdd7297e485502e072740a6a505ea9"
+  integrity sha512-21pW002ifgXdQ05R+/aqAuAGt8wkh5H/WfVngYc32dN3cQwd8sJ4OGydi/b4snUZeD+C3yNfFgzIQd9LhVWKdw==
+
 leaflet@^1.4.0, leaflet@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.6.0.tgz#aecbb044b949ec29469eeb31c77a88e2f448f308"
