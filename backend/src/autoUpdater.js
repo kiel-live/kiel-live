@@ -3,6 +3,8 @@ const looper = {};
 function loop(channel) {
   return async () => {
     const data = await looper[channel].load();
+    // sometimes load take quite some time and the channel could already been deleted
+    if (!looper[channel]) { return; }
     looper[channel].data = data;
     looper[channel].cb(data);
   };
