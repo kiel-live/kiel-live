@@ -6,7 +6,6 @@
 
 <script>
 import L from 'leaflet';
-import { insideBoundingBox } from 'geolocation-utils';
 
 import Api from '@/api';
 
