@@ -63,9 +63,9 @@ async function lookupStops(query) {
     language: 'de',
   };
 
-  let res = await post(STOP_LOOKUP_URL, data);
+  const res = await post(STOP_LOOKUP_URL, data);
 
-  res.forEach(stop => {
+  res.forEach((stop) => {
     stop.name = unEscapeHtml(stop.name);
   });
 
@@ -178,7 +178,7 @@ async function geoVehiclesLocation() {
 }
 
 function joinGeoVehicles({ clientId }, cb) {
-  const channel = `geo:vehicles`;
+  const channel = 'geo:vehicles';
 
   // leave old channels first
   leaveChannels(clientId);
@@ -194,7 +194,7 @@ function joinGeoVehicles({ clientId }, cb) {
 }
 
 async function geoStops() {
- const data = {
+  const data = {
     top: 324000000,
     bottom: -324000000,
     left: -648000000,
