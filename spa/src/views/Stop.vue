@@ -59,7 +59,7 @@ export default {
       return this.$route.params.stop;
     },
     isFavorite() {
-      return this.$store.state.favoriteStops.filter((i) => i.id === this.stopId).length === 1;
+      return this.$store.state.stops.favoriteStops.filter((i) => i.id === this.stopId).length === 1;
     },
     arrivals() {
       if (!this.stop) {
@@ -152,11 +152,11 @@ export default {
     },
     addFavoriteStop() {
       if (this.stop && this.stop.stopName) {
-        this.$store.commit('addFavoriteStop', { id: this.stopId, name: this.stop.stopName });
+        this.$store.commit('stops/addFavoriteStop', { id: this.stopId, name: this.stop.stopName });
       }
     },
     removeFavoriteStop() {
-      this.$store.commit('removeFavoriteStop', this.stopId);
+      this.$store.commit('stops/removeFavoriteStop', this.stopId);
     },
     openTrip(bus) {
       this.$router.push({ name: 'trip', params: { trip: bus.tripId, vehicle: bus.vehicleId } });

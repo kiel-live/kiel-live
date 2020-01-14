@@ -39,17 +39,17 @@ export default {
     };
   },
   computed: {
-    ...mapGetters([
-      'allStops',
-    ]),
-    ...mapState([
-      'stopQuery',
-      'isTester',
-    ]),
+    ...mapGetters({
+      allStops: 'stops/allStops',
+    }),
+    ...mapState({
+      stopQuery: 'stops/stopQuery',
+      isTester: 'isTester',
+    }),
   },
   methods: {
     searchStop(query) {
-      this.$store.commit('setStopQuery', query);
+      this.$store.commit('stops/setStopQuery', query);
       Api.emit('stop:search', query);
     },
     gps() {
@@ -72,12 +72,12 @@ export default {
     this.gpsSupport = !!navigator.geolocation;
 
     Api.on('stop:search', (stops) => {
-      this.$store.commit('setStops', stops);
+      this.$store.commit('stops/setStops', stops);
     });
 
     Api.on('stop:nearby', (stops) => {
       this.gpsLoading = false;
-      this.$store.commit('setGPSStops', stops);
+      this.$store.commit('stops/setGPSStops', stops);
     });
   },
 };
