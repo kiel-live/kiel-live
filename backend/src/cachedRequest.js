@@ -79,7 +79,11 @@ async function post(url, data) {
 
     return response.data;
   } catch (e) {
-    console.log('HTTP-ERROR', url, data, e.response.data || null);
+    if (process.env.NODE_ENV === 'developement') {
+      console.error('HTTP-ERROR', url, data, e.response.data || null);
+    } else {
+      console.error('HTTP-ERROR', url, data);
+    }
     return null;
   }
 }
