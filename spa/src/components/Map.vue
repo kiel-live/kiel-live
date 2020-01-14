@@ -78,6 +78,11 @@ export default {
       L.control.locate({
         position: 'bottomright',
       }).addTo(this.osmap);
+
+      const savedView = this.$store.state.map.view || null;
+      if (savedView) {
+        this.osmap.setView(savedView.center, savedView.zoom);
+      }
     },
     updateLayer() {
       // add stops if zoom is at least 15, else remove it
@@ -210,6 +215,10 @@ export default {
   },
   beforeDestroy() {
     this.unload();
+    this.$store.commit('map/setView', {
+      center: this.osmap.getCenter(),
+      zoom: this.osmap.getZoom(),
+    });
   },
   beforeRouteUpdate(to, from, next) {
     next();
