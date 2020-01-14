@@ -55,12 +55,13 @@ export default {
         ], // kiel city: left=9.9 bottom=54.21 right=10.44 top=54.52
       });
 
-      if (process.env.NODE_ENV === 'development') {
-        this.osmap.on('click', (ev) => {
-          const latlng = this.osmap.mouseEventToLatLng(ev.originalEvent);
-          console.log(latlng);
-        });
-      }
+      /*
+      this.osmap.on('click', (ev) => {
+        const latlng = this.osmap.mouseEventToLatLng(ev.originalEvent);
+        // es
+        console.log(latlng);
+      });
+      */
 
       this.osmap.on('zoomend', () => {
         // add stops if zoom is at least 14 else remove it
