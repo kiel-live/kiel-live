@@ -1,181 +1,168 @@
 <template>
-  <div class="map">
-    <l-map
-      v-if="vehicles && stops"
-      :zoom="zoom"
-      :center="center"
-      :maxBounds="maxBounds"
-      :minZoom="minZoom"
-      :maxZoom="maxZoom"
-      @update:zoom="zoomUpdated"
-      @update:center="centerUpdated"
-      @update:bounds="boundsUpdated"
-    >
-      <l-tile-layer
-        url="/api/osm-tiles/{z}/{x}/{y}.png"
-        attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
-      />
-      <l-rotated-marker
-        v-for="v in vehicles"
-        :key="v.id"
-        :lat-lng="[v.latitude / 3600000, v.longitude / 3600000]"
-        :rotationAngle="v.heading-90"
-        :zIndexOffset="100"
-        :name="v.name.split(' ')[0]"
-        @click="clickVehicle({ vehicleId: v.id, tripId: v.tripId })"
-      >
-        <l-popup>{{ v.name }}</l-popup>
-        <l-icon
-          :className="v.heading > 180 ? 'vehiclemarker-rotated' : 'vehiclemarker'"
-          :iconAnchor="[40 / 2, Math.round(((40 / 2) / 68) * 44)]"
-          :iconSize="[40, Math.round((40 / 68) * 44)]"
-          :popupAnchor="[-1, -14]"
-          :shadowAnchor="[32, 32]"
-          :shadowSize="[24, 24]"
-        >
-          <span>{{ v.name.split(' ')[0] }}</span>
-        </l-icon>
-      </l-rotated-marker>
-      <template v-if="zoom > 14">
-        <l-marker
-          v-for="s in stops"
-          :key="s.id"
-          :lat-lng="[s.latitude / 3600000, s.longitude / 3600000]"
-          :name="s.name"
-          @click="clickStop(s.shortName)"
-        >
-          <l-popup>{{ s.name }}</l-popup>
-        </l-marker>
-      </template>
-      <l-marker
-        v-if="ownLocation"
-        :lat-lng="ownLocation"
-        :zIndexOffset="100"
-        name="GPS"
-      >
-        <l-popup>GPS</l-popup>
-      </l-marker>
-    </l-map>
+  <div class="map-container">
+    <div id="map"></div>
   </div>
 </template>
 
 <script>
-import {
-  LMap,
-  LTileLayer,
-  LIcon,
-  LMarker,
-  LPopup,
-} from 'vue2-leaflet';
-import LRotatedMarker from 'vue2-leaflet-rotatedmarker';
+import L from 'leaflet';
 
 import Api from '@/api';
 
 export default {
   name: 'osmap',
-  components: {
-    LMap,
-    LTileLayer,
-    LIcon,
-    LPopup,
-    LMarker,
-    LRotatedMarker,
-  },
   data() {
     return {
-      gpsSupport: true,
       vehicles: null,
       stops: null,
-      zoom: 14,
-      center: [54.321, 10.131],
-      maxBounds: [
-        [54.52, 9.9],
-        [54.21, 10.44],
-      ], // kiel city: left=9.9 bottom=54.21 right=10.44 top=54.52
-      ownLocation: null,
-      minZoom: 11, // zoom: 11-16
-      maxZoom: 16,
-      bounds: null,
+      osmap: null,
+      vehicleLayer: null,
+      stopLayer: null,
     };
   },
+  computed: {
+    visibleStops() {
+      if (this.zoom < 15) {
+        return []; // don't show stops
+      }
+
+      return [];
+    },
+  },
   props: {
-    showVehicle: {
+    focusVehicle: {
       type: String,
       default: null,
     },
-    showStop: {
+    focusStop: {
       type: String,
       default: null,
     },
   },
   methods: {
-    clickVehicle({ vehicleId, tripId }) {
-      this.$router.push({ name: 'trip', params: { vehicle: vehicleId, trip: tripId } });
-    },
-    clickStop(stopId) {
-      this.$router.push({ name: 'stop', params: { stop: stopId } });
-    },
-    zoomUpdated(zoom) {
-      this.zoom = zoom;
-    },
-    centerUpdated(center) {
-      this.center = center;
-    },
-    boundsUpdated(bounds) {
-      this.bounds = bounds;
-    },
-    updateVehicles(data) {
-      const vehicles = data.vehicles.filter((v) => v.id && v.name && v.longitude && v.latitude);
+    loadMap() {
+      this.osmap = L.map('map', {
+        preferCanvas: true,
+        zoom: 13,
+        minZoom: 12,
+        maxZoom: 16,
+        center: [54.321, 10.131],
+        maxBounds: [
+          [54.52, 9.9],
+          [54.21, 10.44],
+        ], // kiel city: left=9.9 bottom=54.21 right=10.44 top=54.52
+      });
 
-      // only list selected vehicle
-      if (this.showVehicle) {
-        const vehicle = vehicles.filter((v) => v.id === this.showVehicle)[0] || null;
+      /*
+      this.osmap.on('click', (ev) => {
+        const latlng = this.osmap.mouseEventToLatLng(ev.originalEvent);
+        // es
+        console.log(latlng);
+      });
+      */
 
-        if (!vehicle) {
+      this.osmap.on('zoomend', () => {
+        this.updateLayer();
+      });
+
+      L.tileLayer('/api/osm-tiles/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(this.osmap);
+    },
+    updateLayer() {
+      // add stops if zoom is at least 15, else remove it
+      if (this.stopLayer) {
+        if (this.osmap.getZoom() < 15) {
+          this.osmap.removeLayer(this.stopLayer);
+        } else if (!this.osmap.hasLayer(this.stopLayer)) {
+          this.osmap.addLayer(this.stopLayer);
+        }
+      }
+    },
+    updateVehicles({ vehicles }) {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line
+        vehicles = [
+          {
+            id: 10,
+            tripId: 'ttiu',
+            name: '60s Ziegel',
+            latitude: 54.327335997647666 * 3600000,
+            longitude: 10.089225769042969 * 3600000,
+          },
+          {
+            id: 11,
+            tripId: 'tt',
+            name: '1 HBF',
+            latitude: 54.309513453509375 * 3600000,
+            longitude: 10.088024139404299 * 3600000,
+          },
+        ];
+      }
+
+      const layer = L.layerGroup();
+      this.vehicles = [];
+
+      vehicles.forEach((v) => {
+        if (!v.id || !v.name || !v.longitude || !v.latitude) {
           return;
         }
 
-        this.center = {
-          lat: vehicle.latitude / 3600000,
-          lng: vehicle.longitude / 3600000,
-        };
+        const marker = L.circleMarker([v.latitude / 3600000, v.longitude / 3600000], {
+          radius: 8,
+          color: '#A00',
+          fillColor: '#A00',
+          fillOpacity: 0.5,
+          stroke: true,
+        }).addTo(layer);
 
-        this.vehicles = [vehicle];
-      } else {
-        this.vehicles = vehicles;
+        marker.on('click', () => {
+          this.$router.push({ name: 'trip', params: { vehicle: v.id, trip: v.tripId } });
+        });
+
+        this.vehicles.push(marker);
+
+        if (this.focusVehicle === v.id) {
+          this.osmap.setView([v.latitude / 3600000, v.longitude / 3600000], 17);
+        }
+      });
+
+      if (this.vehicleLayer) {
+        this.osmap.removeLayer(this.vehicleLayer);
       }
+      this.vehicleLayer = layer;
+      this.osmap.addLayer(this.vehicleLayer);
     },
     updateStops({ stops }) {
-      if (this.showStop) {
-        const stop = stops.filter((v) => v.shortName === this.showStop)[0] || null;
+      const layer = L.layerGroup();
+      this.stops = [];
 
-        if (!stop) {
-          return;
+      stops.forEach((s) => {
+        const marker = L.circleMarker([s.latitude / 3600000, s.longitude / 3600000], {
+          radius: 7,
+          color: '#3388ff',
+          fillColor: '#3388ff',
+          fillOpacity: 1,
+          stroke: false,
+          data: s,
+        }).addTo(layer);
+
+        marker.on('click', () => {
+          this.$router.push({ name: 'stop', params: { stop: s.shortName } });
+        });
+
+        this.stops.push(marker);
+
+        if (this.focusStop === s.shortName) {
+          this.osmap.setView([s.latitude / 3600000, s.longitude / 3600000], 17);
         }
-
-        this.center = {
-          lat: stop.latitude / 3600000,
-          lng: stop.longitude / 3600000,
-        };
-
-        this.stops = [stop];
-      } else {
-        this.stops = stops;
-      }
-    },
-    centerGPS() {
-      if (!this.gpsSupport || this.gpsLoading) { return; }
-
-      this.gpsLoading = true;
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.ownLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-        this.center = this.ownLocation;
-      }, () => {
-        this.gpsSupport = false;
       });
+
+      if (this.stopLayer) {
+        this.osmap.removeLayer(this.stopLayer);
+      }
+      this.stopLayer = layer;
+      this.updateLayer();
     },
     load() {
       this.join();
@@ -183,6 +170,7 @@ export default {
       // wait for vehicle updates
       Api.on('geo:vehicles', this.updateVehicles);
       Api.on('geo:stops', this.updateStops);
+      this.loadMap();
     },
     unload() {
       Api.removeListener('connect', this.join);
@@ -203,14 +191,11 @@ export default {
     },
   },
   mounted() {
-    this.gpsSupport = !!navigator.geolocation;
     this.load();
 
     // center requested vehicle / stop or gps location if available
     if (this.showVehicle || this.showStop) {
       this.zoom = 17;
-    } else if (this.gpsSupport) {
-      this.centerGPS();
     }
   },
   beforeDestroy() {
@@ -224,20 +209,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .map {
+  .map-container {
     position: relative;
     display: flex;
     width: 100%;
     flex-flow: column;
     flex-grow: 1;
 
-    .map-container {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-    }
-
-    #osmap {
+    #map {
       width: 100%;
       height: 100%;
     }
@@ -253,7 +232,7 @@ export default {
     background-image: url('/img/vehicle-icon.svg');
     background-size: 100% auto;
     background-repeat: no-repeat;
-    transition: transform 1s linear;
+    // transition: transform 1s linear;
   }
 
   %vehiclemarker-common-text{

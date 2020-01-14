@@ -1,9 +1,9 @@
 <template>
-  <Map :showVehicle="vehicleId" :showStop="stopId" />
+  <Map :focusVehicle="vehicleId" :focusStop="stopId" />
 </template>
 
 <script>
-import Map from '../components/Map2.vue';
+import Map from '../components/Map.vue';
 
 export default {
   name: 'MapView',
@@ -12,10 +12,10 @@ export default {
   },
   computed: {
     vehicleId() {
-      return this.$route.params.vehicle;
+      return this.$route.params.vehicle || null;
     },
     stopId() {
-      return this.$route.params.stop;
+      return this.$route.params.stop || null;
     },
   },
 };
