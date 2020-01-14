@@ -47,6 +47,7 @@ export default {
         zoom: 13,
         minZoom: 12,
         maxZoom: 16,
+        zoomControl: false,
         center: [54.321, 10.131],
         maxBounds: [
           [54.52, 9.9],
@@ -70,7 +71,13 @@ export default {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(this.osmap);
 
-      L.control.locate().addTo(this.osmap);
+      L.control.zoom({
+        position: 'bottomright',
+      }).addTo(this.osmap);
+
+      L.control.locate({
+        position: 'bottomright',
+      }).addTo(this.osmap);
     },
     updateLayer() {
       // add stops if zoom is at least 15, else remove it
