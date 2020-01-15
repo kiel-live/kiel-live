@@ -46,24 +46,14 @@ export default {
       this.osmap = L.map('map', {
         preferCanvas: true,
         renderer: new CustomCanvas(),
-        zoom: 13,
         minZoom: 12,
         maxZoom: 16,
         zoomControl: false,
-        center: [54.321, 10.131],
         maxBounds: [
           [54.52, 9.9],
           [54.21, 10.44],
         ], // kiel city: left=9.9 bottom=54.21 right=10.44 top=54.52
       });
-
-      /*
-      this.osmap.on('click', (ev) => {
-        const latlng = this.osmap.mouseEventToLatLng(ev.originalEvent);
-        // es
-        console.log(latlng);
-      });
-      */
 
       this.osmap.on('zoomend', () => {
         this.updateLayer();
@@ -82,8 +72,12 @@ export default {
       }).addTo(this.osmap);
 
       const savedView = this.$store.state.map.view || null;
-      if (!this.focusVehicle && !this.focusStop && savedView) {
-        this.osmap.setView(savedView.center, savedView.zoom);
+      if (!this.focusVehicle && !this.focusStop) {
+        if (savedView) {
+          this.osmap.setView(savedView.center, savedView.zoom); // center last location
+        } else {
+          this.osmap.setView([54.321, 10.131], 13); // center kiel city
+        }
       }
 
       this.vehicleLayer = L.layerGroup();
@@ -123,7 +117,10 @@ export default {
           }).addTo(this.vehicleLayer);
 
           marker.on('click', () => {
-            this.$router.push({ name: 'trip', params: { vehicle: v.id, trip: v.tripId } });
+            this.osmap.setView([v.latitude / 3600000, v.longitude / 3600000], 17);
+            if (this.focusVehicle !== v.id) {
+              this.$router.push({ name: 'mapTrip', params: { vehicle: v.id, trip: v.tripId } });
+            }
           });
 
           this.vehicles[v.id] = marker;
@@ -157,7 +154,10 @@ export default {
         }).addTo(layer);
 
         marker.on('click', () => {
-          this.$router.push({ name: 'stop', params: { stop: s.shortName } });
+          this.osmap.setView([s.latitude / 3600000, s.longitude / 3600000], 17);
+          if (this.focusStop !== s.shortName) {
+            this.$router.push({ name: 'mapStop', params: { stop: s.shortName } });
+          }
         });
 
         this.stops.push(marker);
@@ -172,6 +172,10 @@ export default {
       }
       this.stopLayer = layer;
       this.updateLayer();
+    },
+    join() {
+      Api.emit('geo:vehicles:join');
+      Api.emit('geo:stops');
     },
     load() {
       this.join();
@@ -193,10 +197,6 @@ export default {
     reload() {
       this.unload();
       this.load();
-    },
-    join() {
-      Api.emit('geo:vehicles:join');
-      Api.emit('geo:stops');
     },
   },
   mounted() {
