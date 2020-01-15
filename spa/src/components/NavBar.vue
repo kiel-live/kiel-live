@@ -1,7 +1,12 @@
 <template>
-  <div class="navbar">
-    <router-link :to="{ name: 'home' }" class="title">{{ title }}</router-link>
-    <span v-if="!isConnected" class="offline"><i class="fas fa-signal"/>Offline</span>
+  <div class="top">
+    <div class="navbar">
+      <div class="inner">
+        <router-link :to="{ name: 'home' }" class="title">{{ title }}</router-link>
+        <span v-if="!isConnected" class="offline"><i class="fas fa-signal"/>Offline</span>
+      </div>
+    </div>
+    <div class="placeholder"></div>
   </div>
 </template>
 
@@ -24,11 +29,32 @@ export default {
 
 <style lang="scss" scoped>
   .navbar {
+    position: fixed;
     display: flex;
     width: 100%;
     padding: 1rem;
     box-shadow: 0 1px 8px -1px rgba(0, 0, 0, .5);
     z-index: 1000;
+    background: #fff;
+
+    .inner {
+      position: relative;
+      display: flex;
+      flex-flow: row;
+      width: 100%;
+      max-width: 40rem;
+      margin: 0 auto;
+      padding: 0 0.5rem;
+    }
+  }
+
+  .top {
+    position: relative;
+  }
+
+  .placeholder {
+    display: block;
+    height: calc(2rem + (1rem + 1px)); // padding + text size
   }
 
   .right {
