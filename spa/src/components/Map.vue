@@ -89,9 +89,11 @@ export default {
       });
 
       // const tileUrl = '/api/osm-tiles/{z}/{x}/{y}.png';
-      const tileUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      // const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      const tileUrl = 'https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token={accessToken}';
       L.tileLayer(tileUrl, {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        accessToken: 'pk.eyJ1IjoiYW5icmF0ZW4iLCJhIjoiY2s1ZTg5bXJwMDI4eTNscnVkNmFldzM5biJ9.hrN_sy18PEbgu8QYYIYXiA',
       }).addTo(this.osmap);
 
       // zoom (+ & -) buttons
@@ -131,6 +133,11 @@ export default {
     },
     leaveFocus() {
       if (this.focusVehicle || this.focusStop) {
+        if (this.focusStop) {
+          this.stops.forEach((st) => {
+            st.options.focused = false;
+          });
+        }
         this.focusData = null;
         if (this.$route.name !== 'map') {
           this.$router.replace({ name: 'map' });
@@ -152,20 +159,26 @@ export default {
           // this.vehicles[v.id].slideTo([v.latitude / 3600000, v.longitude / 3600000], { duration: 5000, /* keepAtCenter: true, */ });
           this.vehicles[v.id].setLatLng([v.latitude / 3600000, v.longitude / 3600000]);
           this.vehicles[v.id].options.heading = v.heading;
+          this.vehicles[v.id].options.label = v.name.split(' ').shift();
+          this.vehicles[v.id].options.focused = this.focusVehicle === v.id;
         } else {
           const marker = L.vehicleMarker([v.latitude / 3600000, v.longitude / 3600000], {
             id: v.id,
-            radius: 12,
-            color: '#A00',
-            fillOpacity: 1,
             heading: v.heading,
             label: v.name.split(' ')[0],
           }).addTo(this.vehicleLayer);
 
           // focus vehicle
           marker.on('click', (e) => {
+            // prevent re-focus
+            if (marker.options.focused) {
+              return;
+            }
+
+            marker.options.focused = true;
             this.focusData = v;
             this.setView(e.latlng, 17);
+
             if (this.focusVehicle !== v.id) {
               this.$router.replace({ name: 'mapTrip', params: { vehicle: v.id, trip: v.tripId } });
             }
@@ -197,19 +210,22 @@ export default {
       this.stops = [];
 
       stops.forEach((s) => {
-        const marker = L.stopMarker([s.latitude / 3600000, s.longitude / 3600000], {
-          radius: 7,
-          color: '#3388ff',
-          fillColor: '#3388ff',
-          fillOpacity: 1,
-          stroke: false,
-          data: s,
-        }).addTo(this.stopLayer);
+        const marker = L.stopMarker([s.latitude / 3600000, s.longitude / 3600000], {}).addTo(this.stopLayer);
 
         // focus stop
         marker.on('click', (e) => {
+          // prevent re-focus
+          if (marker.options.focused) {
+            return;
+          }
+
+          this.stops.forEach((st) => {
+            st.options.focused = false;
+          });
+          marker.options.focused = true;
           this.focusData = s;
           this.setView(e.latlng, 17);
+
           if (this.focusStop !== s.shortName) {
             this.$router.replace({ name: 'mapStop', params: { stop: s.shortName } });
           }
