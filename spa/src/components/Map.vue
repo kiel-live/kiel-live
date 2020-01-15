@@ -43,8 +43,18 @@ export default {
   },
   methods: {
     loadMap() {
+      const CustomCanvas = L.Canvas.extend({
+        _updateCustomPath(layer) {
+          if (!this._drawing || layer._empty()) { return; }
+
+          const ctx = this._ctx;
+          layer._customDraw(ctx);
+        },
+      });
+
       this.osmap = L.map('map', {
         preferCanvas: true,
+        renderer: new CustomCanvas(),
         zoom: 13,
         minZoom: 12,
         maxZoom: 16,
