@@ -34,7 +34,7 @@ export default {
   },
   data() {
     return {
-      gpsSupport: true,
+      gpsSupport: null,
       gpsLoading: false,
     };
   },

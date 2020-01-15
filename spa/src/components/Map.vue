@@ -15,21 +15,12 @@ export default {
   name: 'osmap',
   data() {
     return {
-      vehicles: null,
+      vehicles: {},
       stops: null,
       osmap: null,
       vehicleLayer: null,
       stopLayer: null,
     };
-  },
-  computed: {
-    visibleStops() {
-      if (this.zoom < 15) {
-        return []; // don't show stops
-      }
-
-      return [];
-    },
   },
   props: {
     focusVehicle: {
@@ -94,6 +85,9 @@ export default {
       if (!this.focusVehicle && !this.focusStop && savedView) {
         this.osmap.setView(savedView.center, savedView.zoom);
       }
+
+      this.vehicleLayer = L.layerGroup();
+      this.vehicleLayer.addTo(this.osmap);
     },
     updateLayer() {
       // add stops if zoom is at least 14, else remove it
@@ -106,57 +100,47 @@ export default {
       }
     },
     updateVehicles({ vehicles }) {
-      if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line
-        vehicles = [
-          {
-            id: 10,
-            tripId: 'ttiu',
-            name: '60s Ziegel',
-            latitude: 54.327335997647666 * 3600000,
-            longitude: 10.089225769042969 * 3600000,
-          },
-          {
-            id: 11,
-            tripId: 'tt',
-            name: '1 HBF',
-            latitude: 54.309513453509375 * 3600000,
-            longitude: 10.088024139404299 * 3600000,
-          },
-        ];
-      }
-
-      const layer = L.layerGroup();
-      this.vehicles = [];
+      const vehicleUpdates = [];
 
       vehicles.forEach((v) => {
         if (!v.id || !v.name || !v.longitude || !v.latitude) {
           return;
         }
 
-        const marker = L.vehicleMarker([v.latitude / 3600000, v.longitude / 3600000], {
-          radius: 12,
-          color: '#A00',
-          fillOpacity: 1,
-          label: v.name.split(' ')[0],
-        }).addTo(layer);
+        vehicleUpdates.push(v.id);
 
-        marker.on('click', () => {
-          this.$router.push({ name: 'trip', params: { vehicle: v.id, trip: v.tripId } });
-        });
+        // vehicle already exists
+        if (this.vehicles[v.id]) {
+          // this.vehicles[v.id].slideTo([v.latitude / 3600000, v.longitude / 3600000]); // TODO: add slideTo
+          this.vehicles[v.id].setLatLng([v.latitude / 3600000, v.longitude / 3600000]);
+        } else {
+          const marker = L.vehicleMarker([v.latitude / 3600000, v.longitude / 3600000], {
+            id: v.id,
+            radius: 12,
+            color: '#A00',
+            fillOpacity: 1,
+            label: v.name.split(' ')[0],
+          }).addTo(this.vehicleLayer);
 
-        this.vehicles.push(marker);
+          marker.on('click', () => {
+            this.$router.push({ name: 'trip', params: { vehicle: v.id, trip: v.tripId } });
+          });
+
+          this.vehicles[v.id] = marker;
+        }
 
         if (this.focusVehicle === v.id) {
           this.osmap.setView([v.latitude / 3600000, v.longitude / 3600000], 17);
         }
       });
 
-      if (this.vehicleLayer) {
-        this.osmap.removeLayer(this.vehicleLayer);
-      }
-      this.vehicleLayer = layer;
-      this.osmap.addLayer(this.vehicleLayer);
+      // remove not updated vehicles
+      Object.keys(this.vehicles).forEach((vid) => {
+        if (!vehicleUpdates.includes(vid)) {
+          this.vehicles[vid].remove();
+          delete this.vehicles[vid];
+        }
+      });
     },
     updateStops({ stops }) {
       const layer = L.layerGroup();
