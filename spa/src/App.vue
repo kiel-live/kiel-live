@@ -71,7 +71,7 @@ html, body, #app {
 #app {
   display: flex;
   flex-flow: column;
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   text-align: center;
   color: #2c3e50;
 }

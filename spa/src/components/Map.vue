@@ -1,6 +1,22 @@
 <template>
   <div class="map-container">
-    <div id="map"></div>
+    <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
+    <div class="map-overlay">
+      <div id="map"></div>
+    </div>
+    <div v-if="(focusVehicle || focusStop) && focusData" class="focus-popup">
+      <a v-if="focusVehicle" class="body" @click="$router.push({ name: 'trip', params: { vehicle: focusData.id, trip: focusData.tripId } })">
+        <span class="route"><i v-if="focusData.category === 'bus'" class="icon fas fa-bus" />{{ focusData.name.split(' ')[0] }}</span>
+        <span class="direction">{{ focusData.name.split(' ').slice(1).join(' ') }}</span>
+        <i class="fas fa-external-link-alt"></i>
+      </a>
+      <a v-if="focusStop" class="body" @click="$router.push({ name: 'stop', params: { stop: focusData.id } })">
+        <i class="fas fa-sign" />
+        <span>{{ focusData.name }}</span>
+        <i class="fas fa-external-link-alt"></i>
+      </a>
+      <a class="close button" @click="leaveFocus"><i class="fas fa-times" /></a>
+    </div>
   </div>
 </template>
 
@@ -20,6 +36,8 @@ export default {
       osmap: null,
       vehicleLayer: null,
       stopLayer: null,
+      focusData: null,
+      isProgramaticViewUpdate: false,
     };
   },
   props: {
@@ -59,31 +77,65 @@ export default {
         this.updateLayer();
       });
 
+      // leave possibile vehicle / stop focus if the user is trying to zoom / move the map himself
+      /*
+      this.osmap.on('zoomstart', (e) => {
+        if (!this.isProgramaticViewUpdate) {
+          console.log('user', e.type);
+          this.leaveFocus();
+        }
+      });
+      */
+
+      // leave possibile vehicle / stop focus to center gps location
+      this.osmap.on('onlocationfound', () => {
+        this.leaveFocus();
+      });
+
       // const tileUrl = '/api/osm-tiles/{z}/{x}/{y}.png';
       const tileUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
       L.tileLayer(tileUrl, {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(this.osmap);
 
+      // zoom (+ & -) buttons
       L.control.zoom({
         position: 'bottomright',
       }).addTo(this.osmap);
 
+      // gps locator button
       L.control.locate({
         position: 'bottomright',
+        flyTo: true,
       }).addTo(this.osmap);
 
+      // go to last visited location or center kiel
       const savedView = this.$store.state.map.view || null;
       if (!this.focusVehicle && !this.focusStop) {
         if (savedView) {
-          this.osmap.setView(savedView.center, savedView.zoom); // center last location
+          this.setView(savedView.center, savedView.zoom); // center last location
         } else {
-          this.osmap.setView([54.321, 10.131], 13); // center kiel city
+          this.setView([54.321, 10.131], 13); // center kiel city
         }
       }
 
+      // add layer for vehicle markers
       this.vehicleLayer = L.layerGroup();
       this.vehicleLayer.addTo(this.osmap);
+    },
+    setView(latlng, zoom) {
+      if (!this.osmap) { return; }
+      this.isProgramaticViewUpdate = true;
+      this.osmap.setView(latlng, zoom);
+      this.isProgramaticViewUpdate = false;
+    },
+    leaveFocus() {
+      if (this.focusVehicle || this.focusStop) {
+        this.focusData = null;
+        if (this.$route.name !== 'map') {
+          this.$router.replace({ name: 'map' });
+        }
+      }
     },
     updateLayer() {
       // add stops if zoom is at least 14, else remove it
@@ -119,21 +171,26 @@ export default {
             radius: 12,
             color: '#A00',
             fillOpacity: 1,
+            heading: v.heading,
             label: v.name.split(' ')[0],
           }).addTo(this.vehicleLayer);
 
-          marker.on('click', () => {
-            this.osmap.setView([v.latitude / 3600000, v.longitude / 3600000], 17);
+          // focus vehicle
+          marker.on('click', (e) => {
+            this.focusData = v;
+            this.setView(e.latlng, 17);
             if (this.focusVehicle !== v.id) {
-              this.$router.push({ name: 'mapTrip', params: { vehicle: v.id, trip: v.tripId } });
+              this.$router.replace({ name: 'mapTrip', params: { vehicle: v.id, trip: v.tripId } });
             }
           });
 
           this.vehicles[v.id] = marker;
         }
 
+        // re-center vehicle
         if (this.focusVehicle === v.id) {
-          this.osmap.setView([v.latitude / 3600000, v.longitude / 3600000], 17);
+          this.focusData = v;
+          this.setView([v.latitude / 3600000, v.longitude / 3600000], 17);
         }
       });
 
@@ -159,17 +216,20 @@ export default {
           data: s,
         }).addTo(layer);
 
-        marker.on('click', () => {
-          this.osmap.setView([s.latitude / 3600000, s.longitude / 3600000], 17);
+        // focus stop
+        marker.on('click', (e) => {
+          this.focusData = s;
+          this.setView(e.latlng, 17);
           if (this.focusStop !== s.shortName) {
-            this.$router.push({ name: 'mapStop', params: { stop: s.shortName } });
+            this.$router.replace({ name: 'mapStop', params: { stop: s.shortName } });
           }
         });
 
         this.stops.push(marker);
 
         if (this.focusStop === s.shortName) {
-          this.osmap.setView([s.latitude / 3600000, s.longitude / 3600000], 17);
+          this.focusData = s;
+          this.setView([s.latitude / 3600000, s.longitude / 3600000], 17);
         }
       });
 
@@ -207,11 +267,6 @@ export default {
   },
   mounted() {
     this.load();
-
-    // center requested vehicle / stop or gps location if available
-    if (this.showVehicle || this.showStop) {
-      this.zoom = 17;
-    }
   },
   beforeDestroy() {
     this.unload();
@@ -219,10 +274,6 @@ export default {
       center: this.osmap.getCenter(),
       zoom: this.osmap.getZoom(),
     });
-  },
-  beforeRouteUpdate(to, from, next) {
-    next();
-    this.reload();
   },
 };
 </script>
@@ -234,10 +285,89 @@ export default {
     width: 100%;
     flex-flow: column;
     flex-grow: 1;
+    border-bottom: 1px solid #b5b5b5;
+
+    .back {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      z-index: 500;
+    }
+
+    .map-overlay {
+      width: 100%;
+      height: 100%;
+    }
 
     #map {
       width: 100%;
       height: 100%;
+    }
+
+    .focus-popup {
+      position: absolute;
+      display: flex;
+      flex-direction: row;
+      bottom: -1px;
+      left: 50%;
+      height: 3rem;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1rem .5rem;
+      background: #fff;
+      z-index: 1000;
+      align-items: center;
+      justify-content: space-between;
+      transform: translate(-50%, 0%);
+      border-bottom: 1px solid #b5b5b5;
+
+      .body {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        width: 100%;
+
+        .route {
+          display: flex;
+          font-size: 1rem;
+          line-height: 1.2rem;
+          height: 1rem;
+
+          i {
+            margin-right: .5rem;
+          }
+        }
+
+        > * {
+          margin: .5rem;
+        }
+      }
+
+      span {
+        line-height: 1rem;
+      }
+
+      .close {
+        margin-left: 1rem;
+        margin-right: 0;
+        height: auto;
+        padding: calc(.375em - 1px) 0.50em;
+      }
+
+      @media only screen and (min-width: 768px) {
+        width: auto;
+        border: 1px solid #b5b5b5;
+        border-bottom: 0;
+        border-top-left-radius: .5rem;
+        border-top-right-radius: .5rem;
+        max-width: 40rem;
+        padding: 1.5rem;
+
+        .close {
+          margin-left: 3rem;
+        }
+      }
     }
   }
 </style>
@@ -281,5 +411,13 @@ export default {
 
   .leaflet-tile {
     filter: grayscale(1);
+  }
+
+  .leaflet-bottom {
+    bottom: 3rem;
+
+    @media only screen and (min-width: 768px) {
+      bottom: 0;
+    }
   }
 </style>

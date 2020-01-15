@@ -25,7 +25,7 @@ export default {
     justify-content: center;
 
     a {
-      color: #000;
+      color: #333;
       text-decoration: none;
     }
   }
