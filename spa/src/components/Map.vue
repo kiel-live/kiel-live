@@ -7,6 +7,7 @@
 <script>
 import L from 'leaflet';
 import 'leaflet.locatecontrol';
+import '@/libs/LVectorMarker';
 
 import Api from '@/api';
 
@@ -85,9 +86,9 @@ export default {
       }
     },
     updateLayer() {
-      // add stops if zoom is at least 15, else remove it
+      // add stops if zoom is at least 14, else remove it
       if (this.stopLayer) {
-        if (this.osmap.getZoom() < 15) {
+        if (this.osmap.getZoom() < 14) {
           this.osmap.removeLayer(this.stopLayer);
         } else if (!this.osmap.hasLayer(this.stopLayer)) {
           this.osmap.addLayer(this.stopLayer);
@@ -123,12 +124,11 @@ export default {
           return;
         }
 
-        const marker = L.circleMarker([v.latitude / 3600000, v.longitude / 3600000], {
-          radius: 8,
+        const marker = L.vehicleMarker([v.latitude / 3600000, v.longitude / 3600000], {
+          radius: 12,
           color: '#A00',
-          fillColor: '#A00',
-          fillOpacity: 0.5,
-          stroke: true,
+          fillOpacity: 1,
+          label: v.name.split(' ')[0],
         }).addTo(layer);
 
         marker.on('click', () => {
@@ -153,7 +153,7 @@ export default {
       this.stops = [];
 
       stops.forEach((s) => {
-        const marker = L.circleMarker([s.latitude / 3600000, s.longitude / 3600000], {
+        const marker = L.stopMarker([s.latitude / 3600000, s.longitude / 3600000], {
           radius: 7,
           color: '#3388ff',
           fillColor: '#3388ff',
@@ -277,5 +277,9 @@ export default {
       transform-origin: 50% 50% 50%;
       //text-align: right;
     }
+  }
+
+  .leaflet-tile {
+    filter: grayscale(1);
   }
 </style>
