@@ -46,11 +46,30 @@ L.VehicleMarker = L.VectorMarker.extend({
       const { options } = layer;
       const p = layer._point;
 
+      if (options.heading) {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((options.heading * Math.PI) / 180);
+        ctx.beginPath();
+        ctx.globalAlpha = options.fillOpacity;
+        ctx.fillStyle = options.fillColor || options.color;
+        const height = 12;
+        const width = 12;
+        ctx.moveTo(0, 0 - height - 10);
+        ctx.lineTo(0 - width / 2, 0 - 10);
+        ctx.lineTo(0 + width / 2, 0 - 10);
+        ctx.closePath();
+        ctx.fill('evenodd');
+        ctx.restore();
+      }
+
       ctx.beginPath();
       ctx.arc(p.x, p.y, layer._radius, 0, 2 * Math.PI);
       ctx.globalAlpha = options.fillOpacity;
       ctx.fillStyle = options.fillColor || options.color;
+      ctx.strokeStyle = '#fff';
       ctx.fill('evenodd');
+      ctx.stroke();
 
       ctx.font = '10px Arial';
       ctx.fillStyle = '#fff';

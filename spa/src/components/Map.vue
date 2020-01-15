@@ -10,7 +10,7 @@
         <span class="direction">{{ focusData.name.split(' ').slice(1).join(' ') }}</span>
         <i class="fas fa-external-link-alt"></i>
       </a>
-      <a v-if="focusStop" class="body" @click="$router.push({ name: 'stop', params: { stop: focusData.id } })">
+      <a v-if="focusStop" class="body" @click="$router.push({ name: 'stop', params: { stop: focusData.shotName } })">
         <i class="fas fa-sign" />
         <span>{{ focusData.name }}</span>
         <i class="fas fa-external-link-alt"></i>
@@ -68,13 +68,9 @@ export default {
         // maxZoom: 18,
         zoomControl: false,
         maxBounds: [
-          [54.52, 9.9],
+          [54.52, 9.8],
           [54.21, 10.44],
         ], // kiel city: left=9.9 bottom=54.21 right=10.44 top=54.52
-      });
-
-      this.osmap.on('zoomend', () => {
-        this.updateLayer();
       });
 
       // leave possibile vehicle / stop focus if the user is trying to zoom / move the map himself
@@ -122,6 +118,10 @@ export default {
       // add layer for vehicle markers
       this.vehicleLayer = L.layerGroup();
       this.vehicleLayer.addTo(this.osmap);
+
+      // add layer for stop markers
+      this.stopLayer = L.layerGroup();
+      this.stopLayer.addTo(this.osmap);
     },
     setView(latlng, zoom) {
       if (!this.osmap) { return; }
@@ -134,20 +134,6 @@ export default {
         this.focusData = null;
         if (this.$route.name !== 'map') {
           this.$router.replace({ name: 'map' });
-        }
-      }
-    },
-    updateLayer() {
-      // add stops if zoom is at least 14, else remove it
-      if (this.stopLayer) {
-        if (this.osmap.getZoom() < 14) {
-          this.osmap.removeLayer(this.stopLayer);
-        } else if (!this.osmap.hasLayer(this.stopLayer)) {
-          this.osmap.addLayer(this.stopLayer);
-
-          // re add vehicles to keep them in front
-          this.osmap.removeLayer(this.vehicleLayer);
-          this.osmap.addLayer(this.vehicleLayer);
         }
       }
     },
@@ -198,12 +184,15 @@ export default {
       Object.keys(this.vehicles).forEach((vid) => {
         if (!vehicleUpdates.includes(vid)) {
           this.vehicles[vid].remove();
+          if (this.focusData && this.focusData.id === vid) {
+            this.leaveFocus();
+          }
           delete this.vehicles[vid];
         }
       });
     },
     updateStops({ stops }) {
-      const layer = L.layerGroup();
+      this.stopLayer.clearLayers();
       this.stops = [];
 
       stops.forEach((s) => {
@@ -214,7 +203,7 @@ export default {
           fillOpacity: 1,
           stroke: false,
           data: s,
-        }).addTo(layer);
+        }).addTo(this.stopLayer);
 
         // focus stop
         marker.on('click', (e) => {
@@ -233,11 +222,11 @@ export default {
         }
       });
 
-      if (this.stopLayer) {
-        this.osmap.removeLayer(this.stopLayer);
+      // hack to make sure vehicles are in front of the stops
+      if (this.osmap.hasLayer(this.vehicleLayer)) {
+        this.osmap.removeLayer(this.vehicleLayer);
+        this.osmap.addLayer(this.vehicleLayer);
       }
-      this.stopLayer = layer;
-      this.updateLayer();
     },
     join() {
       Api.emit('geo:vehicles:join');
