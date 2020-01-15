@@ -47,7 +47,7 @@ export default {
         preferCanvas: true,
         renderer: new CustomCanvas(),
         minZoom: 12,
-        maxZoom: 16,
+        // maxZoom: 18,
         zoomControl: false,
         maxBounds: [
           [54.52, 9.9],
@@ -59,7 +59,9 @@ export default {
         this.updateLayer();
       });
 
-      L.tileLayer('/api/osm-tiles/{z}/{x}/{y}.png', {
+      // const tileUrl = '/api/osm-tiles/{z}/{x}/{y}.png';
+      const tileUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      L.tileLayer(tileUrl, {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(this.osmap);
 
@@ -90,6 +92,10 @@ export default {
           this.osmap.removeLayer(this.stopLayer);
         } else if (!this.osmap.hasLayer(this.stopLayer)) {
           this.osmap.addLayer(this.stopLayer);
+
+          // re add vehicles to keep them in front
+          this.osmap.removeLayer(this.vehicleLayer);
+          this.osmap.addLayer(this.vehicleLayer);
         }
       }
     },
@@ -105,7 +111,7 @@ export default {
 
         // vehicle already exists
         if (this.vehicles[v.id]) {
-          // this.vehicles[v.id].slideTo([v.latitude / 3600000, v.longitude / 3600000]); // TODO: add slideTo
+          // this.vehicles[v.id].slideTo([v.latitude / 3600000, v.longitude / 3600000], { duration: 5000, /* keepAtCenter: true, */ });
           this.vehicles[v.id].setLatLng([v.latitude / 3600000, v.longitude / 3600000]);
         } else {
           const marker = L.vehicleMarker([v.latitude / 3600000, v.longitude / 3600000], {
