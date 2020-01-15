@@ -151,6 +151,7 @@ export default {
         if (this.vehicles[v.id]) {
           // this.vehicles[v.id].slideTo([v.latitude / 3600000, v.longitude / 3600000], { duration: 5000, /* keepAtCenter: true, */ });
           this.vehicles[v.id].setLatLng([v.latitude / 3600000, v.longitude / 3600000]);
+          this.vehicles[v.id].options.heading = v.heading;
         } else {
           const marker = L.vehicleMarker([v.latitude / 3600000, v.longitude / 3600000], {
             id: v.id,
