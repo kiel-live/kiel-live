@@ -171,7 +171,7 @@ async function geoVehiclesLocation() {
     cacheBuster: new Date().getTime(),
     colorType: 'ROUTE_BASED',
     // lastUpdate: new Date().getTime(),
-    positionType: 'CORRECTED',
+    positionType: 'RAW', // 'CORRECTED',
   };
 
   return post(GEO_VEHICLES_URL, data);
