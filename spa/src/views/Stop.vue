@@ -41,25 +41,20 @@
 
 <script>
 import { orderBy } from 'lodash';
-import { mapState } from 'vuex';
-import Api from '@/api';
+import { mapState, mapGetters } from 'vuex';
 
 export default {
   name: 'stop',
-  data() {
-    return {
-      stop: null,
-    };
-  },
   computed: {
-    ...mapState([
-      'isTester',
-    ]),
+    ...mapState({
+      isTester: 'isTester',
+      stop: (state) => state.stop.stop,
+    }),
+    ...mapGetters({
+      isFavorite: 'stop/isFavoriteStop',
+    }),
     stopId() {
       return this.$route.params.stop;
-    },
-    isFavorite() {
-      return this.$store.state.stops.favoriteStops.filter((i) => i.id === this.stopId).length === 1;
     },
     arrivals() {
       if (!this.stop) {
@@ -92,38 +87,14 @@ export default {
       return alerts;
     },
   },
-  methods: {
-    load() {
-      this.join();
-      Api.on('connect', this.join);
-      // wait for stop updates
-      Api.on('stop', this.updateStop);
-    },
-    unload() {
-      Api.removeListener('connect', this.join);
-      Api.removeListener('stop', this.updateStop);
-
-      if (this.stop) {
-        Api.emit('stop:leave', this.stop.stopShortName);
-      }
-
-      this.stop = null;
-    },
-    reload() {
-      this.unload();
-      this.load();
-    },
-    join() {
-      // request server to join stop room
-      Api.emit('stop:join', this.stopId);
-    },
-    updateStop(stop) {
-      this.stop = stop;
-
+  watch: {
+    stop(stop) {
       if (stop) {
         this.$store.commit('setTitle', stop.stopName);
       }
     },
+  },
+  methods: {
     route(routeId) {
       for (let i = 0; i < this.stop.routes.length; i += 1) {
         if (this.stop.routes[i].id === routeId) {
@@ -152,14 +123,25 @@ export default {
     },
     addFavoriteStop() {
       if (this.stop && this.stop.stopName) {
-        this.$store.commit('stops/addFavoriteStop', { id: this.stopId, name: this.stop.stopName });
+        this.$store.commit('stop/addFavoriteStop', { id: this.stopId, name: this.stop.stopName });
       }
     },
     removeFavoriteStop() {
-      this.$store.commit('stops/removeFavoriteStop', this.stopId);
+      this.$store.commit('stop/removeFavoriteStop', this.stopId);
     },
     openTrip(bus) {
       this.$router.push({ name: 'trip', params: { trip: bus.tripId, vehicle: bus.vehicleId } });
+    },
+    load() {
+      if (!this.stopId) {
+        this.$router.push({ name: 'home' });
+        return;
+      }
+
+      this.$store.dispatch('stop/load', this.stopId);
+    },
+    unload() {
+      this.$store.dispatch('stop/unload');
     },
   },
   mounted() {
@@ -170,7 +152,8 @@ export default {
   },
   beforeRouteUpdate(to, from, next) {
     next();
-    this.reload();
+    this.unload();
+    this.load();
   },
 };
 </script>

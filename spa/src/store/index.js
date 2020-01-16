@@ -3,12 +3,14 @@ import Vuex from 'vuex';
 import config from '@/libs/config';
 
 import Map from './map';
-import Trips from './trips';
-import Stops from './stops';
+import Trip from './trip';
+import Stop from './stop';
+
+import subscribe from '@/libs/subscriptions';
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state: {
     isConnected: false,
     title: null,
@@ -34,7 +36,12 @@ export default new Vuex.Store({
   },
   modules: {
     map: Map,
-    stops: Stops,
-    trips: Trips,
+    stop: Stop,
+    trip: Trip,
   },
 });
+
+// register socket.io subscriptions
+subscribe(store);
+
+export default store;

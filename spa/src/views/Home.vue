@@ -24,7 +24,6 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex';
-import Api from '@/api';
 import TextInput from '@/components/TextInput.vue';
 
 export default {
@@ -32,53 +31,24 @@ export default {
   components: {
     TextInput,
   },
-  data() {
-    return {
-      gpsSupport: null,
-      gpsLoading: false,
-    };
-  },
   computed: {
     ...mapGetters({
-      allStops: 'stops/allStops',
+      allStops: 'stop/allStops',
     }),
     ...mapState({
-      stopQuery: 'stops/stopQuery',
       isTester: 'isTester',
+      stopQuery: (state) => state.stop.stopQuery,
+      gpsLoading: (state) => state.stop.gpsLoading,
+      gpsSupport: (state) => state.stop.gpsSupport,
     }),
   },
   methods: {
     searchStop(query) {
-      this.$store.commit('stops/setStopQuery', query);
-      Api.emit('stop:search', query);
+      this.$store.dispatch('stop/searchStops', query);
     },
     gps() {
-      if (!this.gpsSupport || this.gpsLoading) { return; }
-
-      this.gpsLoading = true;
-      navigator.geolocation.getCurrentPosition((position) => {
-        Api.emit('stop:nearby', {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-      }, (error) => {
-        // eslint-disable-next-line no-console
-        console.error(error);
-        this.gpsSupport = false;
-      });
+      this.$store.dispatch('stop/searchGPSStops');
     },
-  },
-  mounted() {
-    this.gpsSupport = !!navigator.geolocation;
-
-    Api.on('stop:search', (stops) => {
-      this.$store.commit('stops/setStops', stops);
-    });
-
-    Api.on('stop:nearby', (stops) => {
-      this.gpsLoading = false;
-      this.$store.commit('stops/setGPSStops', stops);
-    });
   },
 };
 </script>

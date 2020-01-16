@@ -24,22 +24,10 @@
 import L from 'leaflet';
 import 'leaflet.locatecontrol';
 import '@/libs/LVectorMarker';
-
-import Api from '@/api';
+import { mapState } from 'vuex';
 
 export default {
   name: 'osmap',
-  data() {
-    return {
-      vehicles: {},
-      stops: null,
-      osmap: null,
-      vehicleLayer: null,
-      stopLayer: null,
-      focusData: null,
-      isProgramaticViewUpdate: false,
-    };
-  },
   props: {
     focusVehicle: {
       type: String,
@@ -49,6 +37,22 @@ export default {
       type: String,
       default: null,
     },
+  },
+  data() {
+    return {
+      osmap: null,
+      vehicleLayer: null,
+      stopLayer: null,
+      focusData: null,
+      isProgramaticViewUpdate: false,
+    };
+  },
+  computed: {
+    ...mapState({
+      vehilces: (state) => state.map.vehicles,
+      stops: (state) => state.map.stops,
+      savedView: (state) => state.map.savedView,
+    }),
   },
   methods: {
     loadMap() {
@@ -108,10 +112,9 @@ export default {
       }).addTo(this.osmap);
 
       // go to last visited location or center kiel
-      const savedView = this.$store.state.map.view || null;
       if (!this.focusVehicle && !this.focusStop) {
-        if (savedView) {
-          this.setView(savedView.center, savedView.zoom); // center last location
+        if (this.savedView) {
+          this.setView(this.savedView.center, this.savedView.zoom); // center last location
         } else {
           this.setView([54.321, 10.131], 13); // center kiel city
         }
@@ -144,131 +147,15 @@ export default {
         }
       }
     },
-    updateVehicles({ vehicles }) {
-      const vehicleUpdates = [];
-
-      vehicles.forEach((v) => {
-        if (!v.id || !v.name || !v.longitude || !v.latitude) {
-          return;
-        }
-
-        vehicleUpdates.push(v.id);
-
-        // vehicle already exists
-        if (this.vehicles[v.id]) {
-          // this.vehicles[v.id].slideTo([v.latitude / 3600000, v.longitude / 3600000], { duration: 5000, /* keepAtCenter: true, */ });
-          this.vehicles[v.id].setLatLng([v.latitude / 3600000, v.longitude / 3600000]);
-          this.vehicles[v.id].options.heading = v.heading;
-          this.vehicles[v.id].options.label = v.name.split(' ').shift();
-          this.vehicles[v.id].options.focused = this.focusVehicle === v.id;
-        } else {
-          const marker = L.vehicleMarker([v.latitude / 3600000, v.longitude / 3600000], {
-            id: v.id,
-            heading: v.heading,
-            label: v.name.split(' ')[0],
-          }).addTo(this.vehicleLayer);
-
-          // focus vehicle
-          marker.on('click', (e) => {
-            // prevent re-focus
-            if (marker.options.focused) {
-              return;
-            }
-
-            marker.options.focused = true;
-            this.focusData = v;
-            this.setView(e.latlng, 17);
-
-            if (this.focusVehicle !== v.id) {
-              this.$router.replace({ name: 'mapTrip', params: { vehicle: v.id, trip: v.tripId } });
-            }
-          });
-
-          this.vehicles[v.id] = marker;
-        }
-
-        // re-center vehicle
-        if (this.focusVehicle === v.id) {
-          this.focusData = v;
-          this.setView([v.latitude / 3600000, v.longitude / 3600000], 17);
-        }
-      });
-
-      // remove not updated vehicles
-      Object.keys(this.vehicles).forEach((vid) => {
-        if (!vehicleUpdates.includes(vid)) {
-          this.vehicles[vid].remove();
-          if (this.focusData && this.focusData.id === vid) {
-            this.leaveFocus();
-          }
-          delete this.vehicles[vid];
-        }
-      });
-    },
-    updateStops({ stops }) {
-      this.stopLayer.clearLayers();
-      this.stops = [];
-
-      stops.forEach((s) => {
-        const marker = L.stopMarker([s.latitude / 3600000, s.longitude / 3600000], {}).addTo(this.stopLayer);
-
-        // focus stop
-        marker.on('click', (e) => {
-          // prevent re-focus
-          if (marker.options.focused) {
-            return;
-          }
-
-          this.stops.forEach((st) => {
-            st.options.focused = false;
-          });
-          marker.options.focused = true;
-          this.focusData = s;
-          this.setView(e.latlng, 17);
-
-          if (this.focusStop !== s.shortName) {
-            this.$router.replace({ name: 'mapStop', params: { stop: s.shortName } });
-          }
-        });
-
-        this.stops.push(marker);
-
-        if (this.focusStop === s.shortName) {
-          this.focusData = s;
-          this.setView([s.latitude / 3600000, s.longitude / 3600000], 17);
-        }
-      });
-
-      // hack to make sure vehicles are in front of the stops
-      if (this.osmap.hasLayer(this.vehicleLayer)) {
-        this.osmap.removeLayer(this.vehicleLayer);
-        this.osmap.addLayer(this.vehicleLayer);
-      }
-    },
-    join() {
-      Api.emit('geo:vehicles:join');
-      Api.emit('geo:stops');
-    },
     load() {
-      this.join();
-      Api.on('connect', this.join);
-      // wait for vehicle updates
-      Api.on('geo:vehicles', this.updateVehicles);
-      Api.on('geo:stops', this.updateStops);
       this.loadMap();
+      this.$store.dispatch('map/load');
     },
     unload() {
-      Api.removeListener('connect', this.join);
-      Api.removeListener('geo:vehicles', this.updateVehicles);
-      Api.removeListener('geo:stops', this.updateStops);
-
-      if (this.vehicles) {
-        Api.emit('geo:vehicles:leave');
-      }
-    },
-    reload() {
-      this.unload();
-      this.load();
+      this.$store.dispatch('map/unload', {
+        center: this.osmap.getCenter(),
+        zoom: this.osmap.getZoom(),
+      });
     },
   },
   mounted() {
@@ -276,10 +163,11 @@ export default {
   },
   beforeDestroy() {
     this.unload();
-    this.$store.commit('map/setView', {
-      center: this.osmap.getCenter(),
-      zoom: this.osmap.getZoom(),
-    });
+  },
+  beforeRouteUpdate(to, from, next) {
+    next();
+    this.unload();
+    this.load();
   },
 };
 </script>
