@@ -22,13 +22,13 @@ export default {
   },
 
   actions: {
-    load() {
-      Api.emit('geo:vehicles:join');
+    load({ dispatch }) {
+      dispatch('joinChannel', { name: 'geo:vehicles' }, { root: true });
       Api.emit('geo:stops');
     },
-    unload({ commit }, savedView) {
-      Api.emit('geo:vehicles:leave');
-      commit('map/setSavedView', savedView);
+    unload({ commit, dispatch }, savedView) {
+      dispatch('leaveChannel', 'geo:vehicles', { root: true });
+      commit('setSavedView', savedView);
     },
   },
 };

@@ -1,5 +1,3 @@
-import Api from '@/libs/api';
-
 export default {
   namespaced: true,
 
@@ -18,14 +16,14 @@ export default {
   },
 
   actions: {
-    load({ commit }, ids) {
+    load({ commit, dispatch }, ids) {
       commit('setTrip', null);
+      dispatch('joinChannel', { name: 'trip', data: ids }, { root: true });
       commit('setLoadedStopId', ids);
-      Api.emit('trip:join', ids);
     },
-    unload({ commit, state }) {
+    unload({ commit, state, dispatch }) {
       if (state.loadedTripId) {
-        Api.emit('trip:leave', state.loadedTripId);
+        dispatch('leaveChannel', 'trip', { root: true });
         commit('setLoadedStopId', null);
       }
     },

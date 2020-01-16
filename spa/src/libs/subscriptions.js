@@ -3,8 +3,8 @@ import Api from '@/libs/api';
 export default (store) => {
   // general socket listeners
   Api.on('connect', () => {
-    // TODO: rejoin Channels
     store.commit('connect');
+    store.dispatch('reJoin');
   });
 
   Api.on('disconnect', () => {

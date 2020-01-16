@@ -101,14 +101,14 @@ export default {
     },
 
     // Stop.vue
-    load({ commit }, stopId) {
+    load({ commit, dispatch }, stopId) {
       commit('setStop', null);
+      dispatch('joinChannel', { name: 'stop', data: stopId }, { root: true });
       commit('setLoadedStopId', stopId);
-      Api.emit('stop:join', stopId);
     },
-    unload({ state, commit }) {
+    unload({ state, commit, dispatch }) {
       if (state.loadedStopId) {
-        Api.emit('stop:leave', state.loadedStopId);
+        dispatch('leaveChannel', 'stop', { root: true });
         commit('setLoadedStopId', null);
       }
     },
