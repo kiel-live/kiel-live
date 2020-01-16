@@ -83,13 +83,15 @@ function start() {
       Api.leaveStop({ stopId, clientId: socket.id });
     });
 
-    socket.on('trip:join', ({ tripId, vehicleId }) => {
+    socket.on('trip:join', (ids) => {
+      const { tripId, vehicleId } = ids || {};
       if (!tripId || !vehicleId) { return; }
       socket.join(`trip:${tripId}:${vehicleId}`);
       Api.joinTrip({ tripId, vehicleId, clientId: socket.id }, (data) => io.to(`trip:${tripId}:${vehicleId}`).emit('trip', data));
     });
 
-    socket.on('trip:leave', ({ tripId, vehicleId }) => {
+    socket.on('trip:leave', (ids) => {
+      const { tripId, vehicleId } = ids || {};
       if (!tripId || !vehicleId) { return; }
       socket.leave(`trip:${tripId}:${vehicleId}`);
       Api.leaveTrip({ tripId, vehicleId, clientId: socket.id });
