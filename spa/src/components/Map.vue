@@ -1,19 +1,21 @@
 <template>
-  <div class="map-container">
+  <div class="map-container" :class="{ focused }">
     <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
     <div id="map"></div>
     <div v-if="focusData" class="focus-popup">
-      <a v-if="focusVehicle" class="body" @click="$router.push({ name: 'trip', params: { vehicle: focusData.id, trip: focusData.tripId } })">
-        <span class="route"><i v-if="focusData.category === 'bus'" class="icon fas fa-bus" />{{ focusData.name.split(' ')[0] }}</span>
-        <span class="direction">{{ focusData.name.split(' ').slice(1).join(' ') }}</span>
-        <i class="fas fa-external-link-alt"></i>
-      </a>
-      <a v-if="focusStop" class="body" @click="$router.push({ name: 'stop', params: { stop: focusData.shotName } })">
-        <i class="fas fa-sign" />
-        <span>{{ focusData.name }}</span>
-        <i class="fas fa-external-link-alt"></i>
-      </a>
-      <a class="close button" @click="$router.replace({ name: 'map' })"><i class="fas fa-times" /></a>
+      <template v-if="focusData">
+        <a v-if="focusVehicle" class="body" @click="$router.push({ name: 'trip', params: { vehicle: focusData.id, trip: focusData.tripId } })">
+          <span class="route"><i v-if="focusData.category === 'bus'" class="icon fas fa-bus" />{{ focusData.name.split(' ')[0] }}</span>
+          <span class="direction">{{ focusData.name.split(' ').slice(1).join(' ') }}</span>
+          <i class="fas fa-external-link-alt"></i>
+        </a>
+        <a v-if="focusStop" class="body" @click="$router.push({ name: 'stop', params: { stop: focusData.shortName } })">
+          <i class="fas fa-sign" />
+          <span>{{ focusData.name }}</span>
+          <i class="fas fa-external-link-alt"></i>
+        </a>
+        <a class="close button" @click="$router.replace({ name: 'map' })"><i class="fas fa-times" /></a>
+      </template>
     </div>
   </div>
 </template>
@@ -98,7 +100,7 @@ export default {
       } else {
         console.log('enable controls');
       }
-      // TODO: re-enable this.setMapControlsEnabled(!focused);
+      this.setMapControlsEnabled(!focused);
     },
     vehicles(vehicles) {
       const updated = {}; // updated vehicle-ids list
@@ -108,12 +110,13 @@ export default {
         const marker = this.markers[v.id] || null;
         if (marker) {
           marker.setLatLng([v.latitude / 3600000, v.longitude / 3600000]);
+          /*
           const options = {
             ...marker.options,
             label: v.name.split(' ').shift(),
           };
           this.$set(this.markers[v.id], 'options', options);
-          this.$set(this.markers[v.id], 't', Date.now());
+          */
         } else {
           this.addVehicle(v);
         }
@@ -191,13 +194,13 @@ export default {
       }).addTo(this.osmap);
 
       // go to last visited location or center kiel
-      if (this.$route.name === 'map') {
-        if (this.savedView) {
-          this.osmap.setView(this.savedView.center, this.savedView.zoom); // center last location
-        } else {
-          this.osmap.setView([54.321, 10.131], 13); // center kiel city
-        }
+      // if (this.$route.name === 'map') {
+      if (this.savedView) {
+        this.osmap.setView(this.savedView.center, this.savedView.zoom); // center last location
+      } else {
+        this.osmap.setView([54.321, 10.131], 13); // center kiel city
       }
+      // }
 
       // add layer for vehicle markers
       this.vehicleLayer = L.layerGroup();
@@ -259,7 +262,7 @@ export default {
       this.osmap.scrollWheelZoom[fnc]();
       this.osmap.boxZoom[fnc]();
       this.osmap.keyboard[fnc]();
-      if (this.osmap.tap) this.osmap.tap[fnc]();
+      // if (this.osmap.tap) this.osmap.tap[fnc](); // allow user to focus diffrent item
 
       if (enabled) {
         document.getElementById('map').style.cursor = 'grab';
@@ -303,6 +306,7 @@ export default {
     flex-flow: column;
     flex-grow: 1;
     border-bottom: 1px solid #b5b5b5;
+    overflow: hidden;
 
     .back {
       position: absolute;
@@ -331,7 +335,7 @@ export default {
       z-index: 1000;
       align-items: center;
       justify-content: space-between;
-      transform: translate(-50%, 0%);
+      transform: translate(-50%, 100%);
       border-bottom: 1px solid #b5b5b5;
 
       .body {
@@ -386,51 +390,32 @@ export default {
 </style>
 
 <style lang="scss">
-  %vehiclemarker-common {
-    font-size: 12px;
-    color: white;
-    padding: 2px;
-    display: flex;
-    background-image: url('/img/vehicle-icon.svg');
-    background-size: 100% auto;
-    background-repeat: no-repeat;
-    // transition: transform 1s linear;
-  }
+  .map-container {
 
-  %vehiclemarker-common-text{
-    display: block;
-    text-align: center;
-    width: 66%;
-    margin: auto 0px auto 0px;
-  }
-
-  .vehiclemarker {
-    @extend %vehiclemarker-common;
-
-    span {
-      @extend %vehiclemarker-common-text;
+    .leaflet-control-locate,
+    .leaflet-control-zoom {
+    // .leaflet-bottom,
+    // .focus-popup {
+      transition: all .25s;
     }
-  }
 
-  .vehiclemarker-rotated {
-    @extend %vehiclemarker-common;
-    span {
-      @extend %vehiclemarker-common-text;
-      transform: scale(-1, -1);
-      transform-origin: 50% 50% 50%;
-      //text-align: right;
-    }
-  }
+    &.focused {
+      .leaflet-control-locate,
+      .leaflet-control-zoom {
+        opacity: 0;
+      }
 
-  .leaflet-tile {
-    filter: grayscale(1);
-  }
+      .leaflet-bottom {
+        bottom: 3rem;
 
-  .leaflet-bottom {
-    bottom: 3rem;
+        @media only screen and (min-width: 768px) {
+          bottom: 0;
+        }
+      }
 
-    @media only screen and (min-width: 768px) {
-      bottom: 0;
+      .focus-popup {
+        transform: translate(-50%, 0);
+      }
     }
   }
 </style>
