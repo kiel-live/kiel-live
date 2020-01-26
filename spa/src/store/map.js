@@ -26,7 +26,7 @@ export default {
       dispatch('joinChannel', { name: 'geo:vehicles' }, { root: true });
       Api.emit('geo:stops');
     },
-    unload({ commit, dispatch }, savedView) {
+    unload({ commit, dispatch }, savedView = { center: null, zoom: null }) {
       dispatch('leaveChannel', 'geo:vehicles', { root: true });
       commit('setSavedView', savedView);
     },
