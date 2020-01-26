@@ -1,10 +1,8 @@
 <template>
   <div class="map-container">
     <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
-    <div class="map-overlay">
-      <div id="map"></div>
-    </div>
-    <div v-if="(focusVehicle || focusStop) && focusData" class="focus-popup">
+    <div id="map"></div>
+    <div v-if="focusData" class="focus-popup">
       <a v-if="focusVehicle" class="body" @click="$router.push({ name: 'trip', params: { vehicle: focusData.id, trip: focusData.tripId } })">
         <span class="route"><i v-if="focusData.category === 'bus'" class="icon fas fa-bus" />{{ focusData.name.split(' ')[0] }}</span>
         <span class="direction">{{ focusData.name.split(' ').slice(1).join(' ') }}</span>
@@ -15,7 +13,7 @@
         <span>{{ focusData.name }}</span>
         <i class="fas fa-external-link-alt"></i>
       </a>
-      <a class="close button" @click="leaveFocus"><i class="fas fa-times" /></a>
+      <a class="close button" @click="$router.replace({ name: 'map' })"><i class="fas fa-times" /></a>
     </div>
   </div>
 </template>
@@ -43,19 +41,111 @@ export default {
       osmap: null,
       vehicleLayer: null,
       stopLayer: null,
-      focusData: null,
-      isProgramaticViewUpdate: false,
+      markers: {},
     };
   },
   computed: {
     ...mapState({
-      vehilces: (state) => state.map.vehicles,
+      vehicles: (state) => state.map.vehicles,
       stops: (state) => state.map.stops,
       savedView: (state) => state.map.savedView,
     }),
+    focusMarker() {
+      return this.markers[this.focusStop || this.focusVehicle] || null;
+    },
+    focusData() {
+      return (this.focusMarker && this.focusMarker.options) || null;
+    },
+    focused() {
+      return !!this.focusMarker;
+    },
+  },
+  watch: {
+    focusVehicle(vehicle) {
+      if (vehicle) {
+        // join vehicle
+      }
+    },
+    focusStop(stop) {
+      if (stop) {
+        // join stop
+      }
+    },
+    focusMarker(marker, old) {
+      console.log('marker updated');
+
+      // unselect old marker
+      if (old) {
+        old.options.focused = false;
+      }
+
+      // focus new marker
+      if (marker) {
+        marker.options.focused = true;
+
+        if (this.osmap) {
+          this.osmap.setView(marker.getLatLng(), 17);
+        }
+      }
+    },
+    focusData() {
+      // TODO: fix location updates
+      console.log('marker data updated');
+    },
+    focused(focused) {
+      if (focused) {
+        console.log('disable controls');
+      } else {
+        console.log('enable controls');
+      }
+      // TODO: re-enable this.setMapControlsEnabled(!focused);
+    },
+    vehicles(vehicles) {
+      const updated = {}; // updated vehicle-ids list
+
+      vehicles.forEach((v) => {
+        if (!v.id || !v.latitude || !v.longitude) { return; } // skip incomplete records
+        const marker = this.markers[v.id] || null;
+        if (marker) {
+          marker.setLatLng([v.latitude / 3600000, v.longitude / 3600000]);
+          const options = {
+            ...marker.options,
+            label: v.name.split(' ').shift(),
+          };
+          this.$set(this.markers[v.id], 'options', options);
+          this.$set(this.markers[v.id], 't', Date.now());
+        } else {
+          this.addVehicle(v);
+        }
+        updated[v.id] = true;
+      });
+
+      // remove none updated stop-markers
+      this.cleanUpMarkers('vehicle', updated);
+    },
+    stops(stops) {
+      const updated = {}; // updated stop-ids list
+
+      stops.forEach((s) => {
+        const marker = this.markers[s.id] || null;
+        if (marker) {
+          marker.setLatLng([s.latitude / 3600000, s.longitude / 3600000]);
+          const options = {
+            ...marker.options,
+            ...s,
+          };
+          this.$set(this.markers[s.id], 'options', options);
+        } else {
+          this.addStop(s);
+        }
+        updated[s.id] = true;
+      });
+
+      this.cleanUpMarkers('stop', updated);
+    },
   },
   methods: {
-    loadMap() {
+    initMap() {
       const CustomCanvas = L.Canvas.extend({
         _updateCustomPath(layer) {
           if (!this._drawing || layer._empty()) { return; }
@@ -69,7 +159,7 @@ export default {
         preferCanvas: true,
         renderer: new CustomCanvas(),
         minZoom: 12,
-        // maxZoom: 18,
+        maxZoom: 18,
         zoomControl: false,
         maxBounds: [
           [54.52, 9.8],
@@ -77,27 +167,16 @@ export default {
         ], // kiel city: left=9.9 bottom=54.21 right=10.44 top=54.52
       });
 
-      // leave possibile vehicle / stop focus if the user is trying to zoom / move the map himself
-      /*
-      this.osmap.on('zoomstart', (e) => {
-        if (!this.isProgramaticViewUpdate) {
-          console.log('user', e.type);
-          this.leaveFocus();
-        }
-      });
-      */
-
       // leave possibile vehicle / stop focus to center gps location
       this.osmap.on('onlocationfound', () => {
         this.leaveFocus();
+        // TODO: necessary?
       });
 
       // const tileUrl = '/api/osm-tiles/{z}/{x}/{y}.png';
-      // const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-      const tileUrl = 'https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token={accessToken}';
+      const tileUrl = 'https://maps.targomo.com/styles/gray-gl-style/rendered/{z}/{x}/{y}.png';
       L.tileLayer(tileUrl, {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        accessToken: 'pk.eyJ1IjoiYW5icmF0ZW4iLCJhIjoiY2s1ZTg5bXJwMDI4eTNscnVkNmFldzM5biJ9.hrN_sy18PEbgu8QYYIYXiA',
       }).addTo(this.osmap);
 
       // zoom (+ & -) buttons
@@ -112,11 +191,11 @@ export default {
       }).addTo(this.osmap);
 
       // go to last visited location or center kiel
-      if (!this.focusVehicle && !this.focusStop) {
+      if (this.$route.name === 'map') {
         if (this.savedView) {
-          this.setView(this.savedView.center, this.savedView.zoom); // center last location
+          this.osmap.setView(this.savedView.center, this.savedView.zoom); // center last location
         } else {
-          this.setView([54.321, 10.131], 13); // center kiel city
+          this.osmap.setView([54.321, 10.131], 13); // center kiel city
         }
       }
 
@@ -128,34 +207,83 @@ export default {
       this.stopLayer = L.layerGroup();
       this.stopLayer.addTo(this.osmap);
     },
-    setView(latlng, zoom) {
-      if (!this.osmap) { return; }
-      this.isProgramaticViewUpdate = true;
-      this.osmap.setView(latlng, zoom);
-      this.isProgramaticViewUpdate = false;
+    addVehicle(v) {
+      const marker = L.vehicleMarker([v.latitude / 3600000, v.longitude / 3600000], {
+        ...v, // unpack vehicle data
+        type: 'vehicle',
+        label: v.name && v.name.split(' ')[0],
+        focused: v.id === this.focusVehicle,
+      });
+
+      // focus vehicle
+      marker.on('click', () => {
+        if (this.focusVehicle === v.id) { return; } // prevent reloading of same vehicle
+        this.$router.replace({ name: 'mapVehicle', params: { vehicle: v.id } });
+      });
+
+      marker.addTo(this.vehicleLayer);
+      this.$set(this.markers, v.id, marker);
     },
-    leaveFocus() {
-      if (this.focusVehicle || this.focusStop) {
-        if (this.focusStop) {
-          this.stops.forEach((st) => {
-            st.options.focused = false;
-          });
+    addStop(s) {
+      const marker = L.stopMarker([s.latitude / 3600000, s.longitude / 3600000], {
+        ...s, // unpack stop data
+        type: 'stop',
+        focused: s.id === this.focusStop,
+      });
+
+      // focus stop
+      marker.on('click', () => {
+        if (this.focusStop === s.id) { return; } // prevent reloading of same stop
+        this.$router.replace({ name: 'mapStop', params: { stop: s.id } });
+      });
+
+      marker.addTo(this.stopLayer);
+      this.$set(this.markers, s.id, marker);
+    },
+    cleanUpMarkers(type, ids) {
+      // remove none updated markers
+      Object.keys(this.markers).forEach((id) => {
+        const marker = this.markers[id];
+        if (marker.options.type === type && !ids[marker.options.id]) {
+          console.log('deleted', marker.options.type);
+          marker.remove(); // remove marker from map
+          this.$delete(this.markers, id); // notify and delete marker from list via vue
         }
-        this.focusData = null;
-        if (this.$route.name !== 'map') {
-          this.$router.replace({ name: 'map' });
-        }
+      });
+    },
+    setMapControlsEnabled(enabled) {
+      const fnc = enabled ? 'enable' : 'disable';
+      this.osmap.dragging[fnc]();
+      this.osmap.touchZoom[fnc]();
+      this.osmap.doubleClickZoom[fnc]();
+      this.osmap.scrollWheelZoom[fnc]();
+      this.osmap.boxZoom[fnc]();
+      this.osmap.keyboard[fnc]();
+      if (this.osmap.tap) this.osmap.tap[fnc]();
+
+      if (enabled) {
+        document.getElementById('map').style.cursor = 'grab';
+      } else {
+        document.getElementById('map').style.cursor = 'default';
       }
     },
     load() {
-      this.loadMap();
+      this.initMap();
       this.$store.dispatch('map/load');
     },
     unload() {
-      this.$store.dispatch('map/unload', {
-        center: this.osmap.getCenter(),
-        zoom: this.osmap.getZoom(),
-      });
+      let view = null;
+      if (this.osmap) {
+        try {
+          view = {
+            center: this.osmap.getCenter(),
+            zoom: this.osmap.getZoom(),
+          };
+        } catch (e) {
+          // IGNORE
+        }
+      }
+      this.$store.dispatch('map/unload', view);
     },
   },
   mounted() {
@@ -163,11 +291,6 @@ export default {
   },
   beforeDestroy() {
     this.unload();
-  },
-  beforeRouteUpdate(to, from, next) {
-    next();
-    this.unload();
-    this.load();
   },
 };
 </script>
@@ -188,12 +311,8 @@ export default {
       z-index: 500;
     }
 
-    .map-overlay {
-      width: 100%;
-      height: 100%;
-    }
-
     #map {
+      position: absolute;
       width: 100%;
       height: 100%;
     }
