@@ -3,7 +3,7 @@
     <div class="header">
       <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
       <h1 class="title">{{ trip.routeName }} nach {{ trip.directionText }}</h1>
-      <div v-if="isTester" class="map button" @click="$router.push({ name: 'mapTrip', params: { vehicle: vehicleId }})"><i class="fas fa-map-marked"/></div>
+      <div v-if="isTester" class="map button" @click="$router.push({ name: 'mapVehicle', params: { vehicle: vehicleId }})"><i class="fas fa-map-marked"/></div>
       <div v-else></div>
     </div>
     <div class="stops">
