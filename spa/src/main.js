@@ -1,11 +1,11 @@
 import Vue from 'vue';
 import App from './App.vue';
-import router from './router';
-import store from './store';
-import './api';
-import './registerServiceWorker';
-import tracking from './tracking';
-import './libs/leaflet';
+import router from '@/router';
+import store from '@/store';
+import '@/libs/api';
+import tracking from '@/libs/tracking';
+import '@/libs/leaflet';
+import '@/registerServiceWorker';
 
 Vue.config.productionTip = false;
 

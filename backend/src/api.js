@@ -5,7 +5,7 @@ const { join, leave, channels } = require('./autoUpdater');
 
 const STOP_REFRESH_RATE = 10000;
 const TRIP_REFRESH_RATE = 10000;
-const GEO_VEHICLES_REFRESH_RATE = 1000;
+const GEO_VEHICLES_REFRESH_RATE = 5000;
 
 const BASE_URL = 'https://www.kvg-kiel.de';
 const STOP_DATA_URL = `${BASE_URL}/internetservice/services/passageInfo/stopPassages/stop`;

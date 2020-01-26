@@ -3,7 +3,7 @@
     <div class="header">
       <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
       <h1 class="title">{{ trip.routeName }} nach {{ trip.directionText }}</h1>
-      <div v-if="isTester" class="map button" @click="$router.push({ name: 'mapTrip', params: { vehicle: vehicleId }})"><i class="fas fa-map-marked"/></div>
+      <div v-if="isTester" class="map button" @click="$router.push({ name: 'mapVehicle', params: { vehicle: vehicleId }})"><i class="fas fa-map-marked"/></div>
       <div v-else></div>
     </div>
     <div class="stops">
@@ -45,18 +45,14 @@
 
 <script>
 import { mapState } from 'vuex';
-import Api from '@/api';
 
 export default {
   name: 'Trip',
-  data: () => ({
-    trip: null,
-    ids: {},
-  }),
   computed: {
-    ...mapState([
-      'isTester',
-    ]),
+    ...mapState({
+      isTester: 'isTester',
+      trip: (state) => state.trip.trip,
+    }),
     tripId() {
       return this.$route.params.trip;
     },
@@ -68,43 +64,20 @@ export default {
     },
   },
   methods: {
-    load() {
-      if (!this.tripId || !this.vehicleId) {
-        return;
-      }
-
-      this.join();
-      Api.on('connect', this.join);
-      // wait for trip updates
-      Api.on('trip', this.updateTrip);
-    },
-    unload() {
-      Api.removeListener('connect', this.join);
-      Api.removeListener('trip', this.updateTrip);
-
-      if (this.trip) {
-        Api.emit('trip:leave', this.ids);
-      }
-
-      this.stop = null;
-    },
-    reload() {
-      this.unload();
-      this.load();
-    },
-    join() {
-      this.ids = {
-        tripId: this.tripId,
-        vehicleId: this.vehicleId,
-      };
-
-      Api.emit('trip:join', this.ids);
-    },
     updateTrip(trip) {
       this.trip = trip;
     },
     openStop(stop) {
       this.$router.push({ name: 'stop', params: { stop: stop.stop.shortName } });
+    },
+    load() {
+      this.$store.dispatch('trip/load', {
+        tripId: this.tripId,
+        vehicleId: this.vehicleId,
+      });
+    },
+    unload() {
+      this.$store.dispatch('trip/unload');
     },
   },
   mounted() {
@@ -115,7 +88,8 @@ export default {
   },
   beforeRouteUpdate(to, from, next) {
     next();
-    this.reload();
+    this.unload();
+    this.load();
   },
 };
 </script>

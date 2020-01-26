@@ -71,30 +71,6 @@ function start() {
   io.sockets.on('connection', (socket) => {
     connectedClients += 1;
 
-    socket.on('stop:join', (stopId) => {
-      if (!stopId) { return; }
-      socket.join(`stop:${stopId}`);
-      Api.joinStop({ stopId, clientId: socket.id }, (data) => io.to(`stop:${stopId}`).emit('stop', data));
-    });
-
-    socket.on('stop:leave', (stopId) => {
-      if (!stopId) { return; }
-      socket.leave(`stop:${stopId}`);
-      Api.leaveStop({ stopId, clientId: socket.id });
-    });
-
-    socket.on('trip:join', ({ tripId, vehicleId }) => {
-      if (!tripId || !vehicleId) { return; }
-      socket.join(`trip:${tripId}:${vehicleId}`);
-      Api.joinTrip({ tripId, vehicleId, clientId: socket.id }, (data) => io.to(`trip:${tripId}:${vehicleId}`).emit('trip', data));
-    });
-
-    socket.on('trip:leave', ({ tripId, vehicleId }) => {
-      if (!tripId || !vehicleId) { return; }
-      socket.leave(`trip:${tripId}:${vehicleId}`);
-      Api.leaveTrip({ tripId, vehicleId, clientId: socket.id });
-    });
-
     socket.on('stop:search', async (query) => {
       const stops = await Api.lookupStops(query);
       if (stops) {
@@ -116,12 +92,39 @@ function start() {
       }
     });
 
-    socket.on('geo:vehicles:join', () => {
+    // channels join & leave
+    socket.on('join:stop', (stopId) => {
+      if (!stopId) { return; }
+      socket.join(`stop:${stopId}`);
+      Api.joinStop({ stopId, clientId: socket.id }, (data) => io.to(`stop:${stopId}`).emit('stop', data));
+    });
+
+    socket.on('leave:stop', (stopId) => {
+      if (!stopId) { return; }
+      socket.leave(`stop:${stopId}`);
+      Api.leaveStop({ stopId, clientId: socket.id });
+    });
+
+    socket.on('join:trip', (ids) => {
+      const { tripId, vehicleId } = ids || {};
+      if (!tripId || !vehicleId) { return; }
+      socket.join(`trip:${tripId}:${vehicleId}`);
+      Api.joinTrip({ tripId, vehicleId, clientId: socket.id }, (data) => io.to(`trip:${tripId}:${vehicleId}`).emit('trip', data));
+    });
+
+    socket.on('leave:trip', (ids) => {
+      const { tripId, vehicleId } = ids || {};
+      if (!tripId || !vehicleId) { return; }
+      socket.leave(`trip:${tripId}:${vehicleId}`);
+      Api.leaveTrip({ tripId, vehicleId, clientId: socket.id });
+    });
+
+    socket.on('join:geo:vehicles', () => {
       socket.join('geo:vehicles');
       Api.joinGeoVehicles({ clientId: socket.id }, (data) => io.to('geo:vehicles').emit('geo:vehicles', data));
     });
 
-    socket.on('geo:vehicles:leave', () => {
+    socket.on('leave:geo:vehicles', () => {
       socket.leave('geo:vehicles');
       Api.leaveGeoVehicles({ clientId: socket.id });
     });

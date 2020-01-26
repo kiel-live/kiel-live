@@ -1,12 +1,34 @@
+import Api from '@/libs/api';
+
 export default {
   namespaced: true,
+
   state: {
-    view: null,
+    savedView: null,
+    vehicles: null,
+    stops: null,
   },
+
   mutations: {
-    setView(state, view) {
-      state.view = view;
+    setSavedView(state, savedView) {
+      state.savedView = savedView;
+    },
+    setVehicles(state, vehicles) {
+      state.vehicles = vehicles;
+    },
+    setStops(state, stops) {
+      state.stops = stops;
     },
   },
-  actions: {},
+
+  actions: {
+    load({ dispatch }) {
+      dispatch('joinChannel', { name: 'geo:vehicles' }, { root: true });
+      Api.emit('geo:stops');
+    },
+    unload({ commit, dispatch }, savedView = { center: null, zoom: null }) {
+      dispatch('leaveChannel', 'geo:vehicles', { root: true });
+      commit('setSavedView', savedView);
+    },
+  },
 };

@@ -1,5 +1,5 @@
 <template>
-  <div class="footer">
+  <div v-if="visible" class="footer">
     <router-link :to="{name: 'about'}">{{ title }} - Made with &#10084; and Vue.js</router-link>
   </div>
 </template>
@@ -12,6 +12,11 @@ export default {
   data: () => ({
     title: config('title', 'OPNV Live'),
   }),
+  computed: {
+    visible() {
+      return this.$route.meta.disableFooter !== true;
+    },
+  },
 };
 </script>
 
