@@ -74,7 +74,7 @@ export default {
       }
     },
     focusMarker(marker, old) {
-      console.log('marker updated');
+      // console.log('marker updated');
 
       // unselect old marker
       if (old) {
@@ -92,14 +92,16 @@ export default {
     },
     focusData() {
       // TODO: fix location updates
-      console.log('marker data updated');
+      // console.log('marker data updated');
     },
     focused(focused) {
+      /*
       if (focused) {
         console.log('disable controls');
       } else {
         console.log('enable controls');
       }
+      */
       this.setMapControlsEnabled(!focused);
     },
     vehicles(vehicles) {
@@ -248,7 +250,7 @@ export default {
       Object.keys(this.markers).forEach((id) => {
         const marker = this.markers[id];
         if (marker.options.type === type && !ids[marker.options.id]) {
-          console.log('deleted', marker.options.type);
+          // console.log('deleted', marker.options.type);
           marker.remove(); // remove marker from map
           this.$delete(this.markers, id); // notify and delete marker from list via vue
         }
