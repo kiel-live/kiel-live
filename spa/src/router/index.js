@@ -38,16 +38,19 @@ const routes = [
   {
     path: '/map',
     name: 'map',
+    meta: { disableFooter: true },
     component: () => import(/* webpackChunkName: "map" */ '../views/Map.vue'),
   },
   {
     path: '/map/vehicle/:vehicle',
     name: 'mapVehicle',
+    meta: { disableFooter: true },
     component: () => import(/* webpackChunkName: "map" */ '../views/Map.vue'),
   },
   {
     path: '/map/stop/:stop',
     name: 'mapStop',
+    meta: { disableFooter: true },
     component: () => import(/* webpackChunkName: "map" */ '../views/Map.vue'),
   },
   {
