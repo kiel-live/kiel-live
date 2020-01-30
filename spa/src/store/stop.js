@@ -8,7 +8,7 @@ export default {
     favoriteStops: values(JSON.parse(localStorage.getItem('favoriteStops')) || {}),
 
     // Home.vue
-    GPSstops: [],
+    gpsStops: [],
     searchStops: [],
     stopQuery: null,
     gpsLoading: false,
@@ -23,7 +23,7 @@ export default {
     allStops(state) {
       const stops = [
         ...state.favoriteStops,
-        ...state.GPSstops,
+        ...state.gpsStops,
         ...state.searchStops,
       ];
 

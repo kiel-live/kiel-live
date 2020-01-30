@@ -1,5 +1,4 @@
-const createClient = require('hafas-client');
-const nahshProfile = require('hafas-client/p/nahsh');
+const { getBoundingBox, headingDistanceTo } = require('geolocation-utils');
 const { post } = require('./cachedRequest');
 const { join, leave, channels } = require('./autoUpdater');
 
@@ -16,7 +15,6 @@ const TRIP_INFO_URL = `${BASE_URL}/internetservice/services/tripInfo/tripPassage
 const GEO_VEHICLES_URL = `${BASE_URL}/internetservice/geoserviceDispatcher/services/vehicleinfo/vehicles`;
 const GEO_STOPS_URL = `${BASE_URL}/internetservice/geoserviceDispatcher/services/stopinfo/stops`;
 
-const hafas = createClient(nahshProfile, 'NAHSHPROD');
 const joinedChannels = {};
 
 function unEscapeHtml(unsafe) {
@@ -72,36 +70,50 @@ async function lookupStops(query) {
   return res.filter((i) => i.id);
 }
 
+async function geoStops(_box) {
+  const box = _box || {
+    top: 324000000,
+    bottom: -324000000,
+    left: -648000000,
+    right: 648000000,
+  };
+
+  const res = await post(GEO_STOPS_URL, box);
+  const stops = res.stops.map((s) => ({
+    ...s,
+    sid: s.id,
+    id: s.shortName,
+  }));
+
+  return { stops };
+}
+
 async function nearby({ longitude, latitude }) {
-  const res = [];
-  let tmp;
+  const radius = 200; // radius in meters
+  const position = {
+    lat: latitude,
+    lon: longitude,
+  };
+  const box = getBoundingBox([position], radius);
 
-  try {
-    tmp = await hafas.nearby({
-      type: 'location',
-      latitude,
-      longitude,
-    }, { distance: 400 });
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+  const { stops } = await geoStops({
+    top: Math.round(box.topLeft.lat * 3600000),
+    left: Math.round(box.topLeft.lon * 3600000),
+    bottom: Math.round(box.bottomRight.lat * 3600000),
+    right: Math.round(box.bottomRight.lon * 3600000),
+  });
 
-  for (let i = 0; i < tmp.length; i += 1) {
-    const item = tmp[i];
-    const name = item.name.replace(/Kiel\s/, '');
-    const lookup = await lookupStops(name);
+  return stops.map((s) => {
+    const location = {
+      lat: s.latitude / 3600000,
+      lon: s.longitude / 3600000,
+    };
 
-    if (lookup && lookup.length === 1) {
-      res.push({
-        ...item,
-        ...lookup[0],
-        gps: true,
-      });
-    }
-  }
-
-  return res;
+    return {
+      ...s,
+      distance: Math.round(headingDistanceTo(position, location).distance),
+    };
+  });
 }
 
 async function trip({ tripId, vehicleId }) {
@@ -191,17 +203,6 @@ function joinGeoVehicles({ clientId }, cb) {
     cb,
   });
   joinedChannels[clientId] = channel;
-}
-
-async function geoStops() {
-  const data = {
-    top: 324000000,
-    bottom: -324000000,
-    left: -648000000,
-    right: 648000000,
-  };
-
-  return post(GEO_STOPS_URL, data);
 }
 
 function leaveGeoVehicles({ clientId }) {
