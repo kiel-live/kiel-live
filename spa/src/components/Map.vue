@@ -90,46 +90,50 @@ export default {
         }
       }
     },
-    focusData() {
+    focusData(data) {
       // TODO: fix location updates
-      // console.log('marker data updated');
+      console.log('marker data updated');
+      if (this.osmap) {
+        this.osmap.setView([data.latitude / 3600000, data.longitude / 3600000], 17);
+      }
     },
     focused(focused) {
-      /*
-      if (focused) {
-        console.log('disable controls');
-      } else {
-        console.log('enable controls');
-      }
-      */
       this.setMapControlsEnabled(!focused);
     },
     vehicles(vehicles) {
       const updated = {}; // updated vehicle-ids list
+
+      // remove vehicle layer before updating
+      this.osmap.removeLayer(this.vehicleLayer);
 
       vehicles.forEach((v) => {
         if (!v.id || !v.latitude || !v.longitude) { return; } // skip incomplete records
         const marker = this.markers[v.id] || null;
         if (marker) {
           marker.setLatLng([v.latitude / 3600000, v.longitude / 3600000]);
-          /*
           const options = {
             ...marker.options,
+            ...v,
             label: v.name.split(' ').shift(),
           };
           this.$set(this.markers[v.id], 'options', options);
-          */
         } else {
           this.addVehicle(v);
         }
         updated[v.id] = true;
       });
 
-      // remove none updated stop-markers
+      // remove none updated vehicle-markers
       this.cleanUpMarkers('vehicle', updated);
+
+      // re-add vehicle layer
+      this.osmap.addLayer(this.vehicleLayer);
     },
     stops(stops) {
       const updated = {}; // updated stop-ids list
+
+      // remove stop layer before updating
+      this.osmap.removeLayer(this.stopLayer);
 
       stops.forEach((s) => {
         const marker = this.markers[s.id] || null;
@@ -146,7 +150,15 @@ export default {
         updated[s.id] = true;
       });
 
+      // remove none updated stop-markers
       this.cleanUpMarkers('stop', updated);
+
+      // re-add stop layer
+      this.osmap.addLayer(this.stopLayer);
+
+      // trigger re-render to get vehicles to top
+      this.osmap.addLayer(this.vehicleLayer);
+      this.osmap.removeLayer(this.vehicleLayer);
     },
   },
   methods: {
