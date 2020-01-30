@@ -91,9 +91,8 @@ export default {
       }
     },
     focusData(data) {
-      // TODO: fix location updates
-      console.log('marker data updated');
-      if (this.osmap) {
+      // console.log('marker data updated');
+      if (data && data.latitude && data.longitude && this.osmap) {
         this.osmap.setView([data.latitude / 3600000, data.longitude / 3600000], 17);
       }
     },
