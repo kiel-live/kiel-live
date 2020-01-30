@@ -78,7 +78,14 @@ async function geoStops(_box) {
     right: 648000000,
   };
 
-  return post(GEO_STOPS_URL, box);
+  const res = await post(GEO_STOPS_URL, box);
+  const stops = res.stops.map((s) => ({
+    ...s,
+    sid: s.id,
+    id: s.shortName,
+  }));
+
+  return { stops };
 }
 
 async function nearby({ longitude, latitude }) {
