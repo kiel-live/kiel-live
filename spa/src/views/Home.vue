@@ -14,7 +14,7 @@
         <div class="details">
           <span v-if="stop.distance" class="direction">{{ stop.distance }}m</span>
           <i v-if="stop.favorite" class="icon fas fa-star"></i>
-          <i  v-else-if="stop.distance" class="icon fas fa-crosshairs" />
+          <i v-else-if="stop.distance" class="icon fas fa-crosshairs" />
           <i v-else class="icon fas fa-arrow-right"></i>
         </div>
       </router-link>

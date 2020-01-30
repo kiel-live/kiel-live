@@ -111,8 +111,6 @@ async function nearby({ longitude, latitude }) {
 
     return {
       ...s,
-      id: s.shortName,
-      sid: s.id,
       distance: Math.round(headingDistanceTo(position, location).distance),
     };
   });
