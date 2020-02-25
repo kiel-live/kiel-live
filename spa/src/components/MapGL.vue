@@ -14,7 +14,12 @@
       layerId="elf"
       :layer="geoJsonlayer"
     />
-    <MglMarker :coordinates="bus" color="blue"/>
+    <MglGeojsonLayer
+      sourceId= "stops"
+      :source="{ type: 'geojson', data: stopsGeoJson }"
+      layerId="stops"
+      :layer="stopsLayer"
+    />
   </MglMap>
 </template>
 
@@ -25,7 +30,6 @@ import {
   MglNavigationControl,
   MglGeolocateControl,
   MglGeojsonLayer,
-  MglMarker,
 } from 'vue-mapbox';
 import { mapState } from 'vuex';
 import elf from '@/assets/11.json';
@@ -36,7 +40,6 @@ export default {
     MglNavigationControl,
     MglGeolocateControl,
     MglGeojsonLayer,
-    MglMarker,
   },
   data() {
     return {
@@ -57,6 +60,14 @@ export default {
           'line-color': '#00ffff',
         },
       },
+      stopsLayer: {
+        id: 'stops',
+        type: 'circle',
+        source: 'stops',
+        paint: {
+          'circle-color': 'blue',
+        },
+      },
       bus: [10.1283, 54.3166],
     };
   },
@@ -66,6 +77,24 @@ export default {
       stops: (state) => state.map.stops,
       savedView: (state) => state.map.savedView,
     }),
+    stopsGeoJson() {
+      if (!this.stops) { return null; }
+      return {
+        type: 'FeatureCollection',
+        features: this.stops.map((stop) => ({
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [this.convertLatLng(stop.longitude), this.convertLatLng(stop.latitude)],
+          },
+        })),
+      };
+    },
+  },
+  methods: {
+    convertLatLng(value) {
+      return value / 3600000;
+    },
   },
   created() {
     // We need to set mapbox-gl library here in order to use it in template
