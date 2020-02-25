@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import Map from '../components/Map.vue';
+import Map from '../components/MapGL.vue';
 
 export default {
   name: 'MapView',
