@@ -65,7 +65,9 @@ export default {
         type: 'circle',
         source: 'stops',
         paint: {
-          'circle-color': 'blue',
+          'circle-color': '#4f96fc',
+          'circle-stroke-opacity': 0,
+          'circle-stroke-width': 5,
         },
       },
       bus: [10.1283, 54.3166],
