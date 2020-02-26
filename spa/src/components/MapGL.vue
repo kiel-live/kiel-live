@@ -19,6 +19,9 @@
       :source="{ type: 'geojson', data: stopsGeoJson }"
       layerId="stops"
       :layer="stopsLayer"
+        @click="onClickStop"
+        @mouseenter="onMouseEnter"
+        @mouseleave="onMouseLeave"
     />
   </MglMap>
 </template>
@@ -40,6 +43,12 @@ export default {
     MglNavigationControl,
     MglGeolocateControl,
     MglGeojsonLayer,
+  },
+  props: {
+    focusStop: {
+      type: String,
+      default: null,
+    },
   },
   data() {
     return {
@@ -89,6 +98,9 @@ export default {
             type: 'Point',
             coordinates: [this.convertLatLng(stop.longitude), this.convertLatLng(stop.latitude)],
           },
+          properties: {
+            id: stop.id,
+          },
         })),
       };
     },
@@ -96,6 +108,16 @@ export default {
   methods: {
     convertLatLng(value) {
       return value / 3600000;
+    },
+    onClickStop(e) {
+      if (this.focusStop === e.mapboxEvent.features[0].properties.id) { return; } // prevent reloading of same stop
+      this.$router.replace({ name: 'mapStop', params: { stop: e.mapboxEvent.features[0].properties.id } });
+    },
+    onMouseEnter(e) {
+      e.map.getCanvas().style.cursor = 'pointer';
+    },
+    onMouseLeave(e) {
+      e.map.getCanvas().style.cursor = '';
     },
   },
   created() {
