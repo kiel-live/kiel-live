@@ -1,29 +1,41 @@
 <template>
-  <MglMap
-    :mapStyle="mapStyle"
-    :center="center"
-    :minZoom="minZoom"
-    :maxZoom="maxZoom"
-    :maxBounds="maxBounds"
-  >
-    <MglNavigationControl position="top-right"/>
-    <MglGeolocateControl position="top-right" />
-    <MglGeojsonLayer
-      sourceId= "fakeID"
-      :source="geoJsonSource"
-      layerId="elf"
-      :layer="geoJsonlayer"
-    />
-    <MglGeojsonLayer
-      sourceId= "stops"
-      :source="{ type: 'geojson', data: stopsGeoJson }"
-      layerId="stops"
-      :layer="stopsLayer"
+  <div class="map-container">
+    <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
+    <MglMap
+      id="map"
+      :mapStyle="mapStyle"
+      :center="center"
+      :minZoom="minZoom"
+      :maxZoom="maxZoom"
+      :maxBounds="maxBounds"
+    >
+      <MglNavigationControl position="top-right"/>
+      <MglGeolocateControl position="top-right" />
+      <MglGeojsonLayer
+        sourceId= "fakeID"
+        :source="geoJsonSource"
+        layerId="elf"
+        :layer="geoJsonlayer"
+      />
+      <MglGeojsonLayer
+        sourceId= "stops"
+        :source="{ type: 'geojson', data: stopsGeoJson }"
+        layerId="stops"
+        :layer="stopsLayer"
         @click="onClickStop"
         @mouseenter="onMouseEnter"
         @mouseleave="onMouseLeave"
-    />
-  </MglMap>
+      />
+    </MglMap>
+    <div v-if="focusStop" class="focus-popup">
+      <a v-if="focusStop" class="body" @click="$router.push({ name: 'stop', params: { stop: stops.find(stop => stop.id === focusStop).shortName } })">
+        <i class="fas fa-sign" />
+        <span>{{ stops.find(stop => stop.id === focusStop).name }}</span>
+        <i class="fas fa-external-link-alt"></i>
+      </a>
+      <a class="close button" @click="$router.replace({ name: 'map' })"><i class="fas fa-times" /></a>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -133,5 +145,90 @@ export default {
 <style lang="scss" scoped>
   .map-container {
     position: relative;
+    display: flex;
+    width: 100%;
+    flex-flow: column;
+    flex-grow: 1;
+    border-bottom: 1px solid #b5b5b5;
+    overflow: hidden;
+
+    .back {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      z-index: 500;
+    }
+
+    #map {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    .focus-popup {
+      position: absolute;
+      display: flex;
+      flex-direction: row;
+      bottom: -1px;
+      left: 50%;
+      height: 3rem;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1rem .5rem;
+      background: #fff;
+      z-index: 1000;
+      align-items: center;
+      justify-content: space-between;
+      transform: translate(-50%, 0);
+      border-bottom: 1px solid #b5b5b5;
+
+      .body {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        width: 100%;
+
+        .route {
+          display: flex;
+          font-size: 1rem;
+          line-height: 1.2rem;
+          height: 1rem;
+
+          i {
+            margin-right: .5rem;
+          }
+        }
+
+        > * {
+          margin: .5rem;
+        }
+      }
+
+      span {
+        line-height: 1rem;
+      }
+
+      .close {
+        margin-left: 1rem;
+        margin-right: 0;
+        height: auto;
+        padding: calc(.375em - 1px) 0.50em;
+      }
+
+      @media only screen and (min-width: 768px) {
+        width: auto;
+        border: 1px solid #b5b5b5;
+        border-bottom: 0;
+        border-top-left-radius: .5rem;
+        border-top-right-radius: .5rem;
+        max-width: 40rem;
+        padding: 1.5rem;
+
+        .close {
+          margin-left: 3rem;
+        }
+      }
+    }
   }
 </style>
