@@ -7,6 +7,7 @@
       :center="center"
       :minZoom="minZoom"
       :maxZoom="maxZoom"
+      :zoom="zoom"
       :maxBounds="maxBounds"
     >
       <MglNavigationControl position="top-right"/>
@@ -79,6 +80,7 @@ export default {
       center: [10.1283, 54.3166],
       minZoom: 11,
       maxZoom: 18,
+      zoom: 14,
       // [west, south, east, north]
       maxBounds: [9.8, 54.21, 10.44, 54.52],
       bus: [10.1283, 54.3166],
