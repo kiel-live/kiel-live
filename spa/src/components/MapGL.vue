@@ -12,12 +12,6 @@
       <MglNavigationControl position="top-right"/>
       <MglGeolocateControl position="top-right" />
       <MglGeojsonLayer
-        sourceId= "fakeID"
-        :source="geoJsonSource"
-        layerId="elf"
-        :layer="geoJsonlayer"
-      />
-      <MglGeojsonLayer
         sourceId= "stops"
         :source="{ type: 'geojson', data: stopsGeoJson }"
         layerId="stops"
@@ -61,7 +55,6 @@ import {
   MglGeojsonLayer,
 } from 'vue-mapbox';
 import { mapState } from 'vuex';
-import elf from '@/assets/11.json';
 
 export default {
   components: {
@@ -88,17 +81,6 @@ export default {
       maxZoom: 18,
       // [west, south, east, north]
       maxBounds: [9.8, 54.21, 10.44, 54.52],
-      geoJsonSource: {
-        type: 'geojson',
-        data: elf,
-      },
-      geoJsonlayer: {
-        id: 'elf',
-        type: 'line',
-        paint: {
-          'line-color': '#00ffff',
-        },
-      },
       bus: [10.1283, 54.3166],
     };
   },
