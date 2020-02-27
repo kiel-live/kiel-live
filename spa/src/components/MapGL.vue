@@ -37,14 +37,14 @@
       />
     </MglMap>
     <div v-if="focusStop || focusVehicle" class="focus-popup">
-      <a v-if="focusStop" class="body" @click="$router.push({ name: 'stop', params: { stop: focusData.shortName } })">
+      <a v-if="focusStop" class="body" @click="$router.push({ name: 'stop', params: { stop: focusData && focusData.shortName } })">
         <i class="fas fa-sign" />
-        <span>{{ focusData.name }}</span>
+        <span>{{ focusData && focusData.name }}</span>
         <i class="fas fa-external-link-alt"></i>
       </a>
-      <a v-if="focusVehicle" class="body" @click="$router.push({ name: 'trip', params: { vehicle: focusVehicle, trip: focusData.tripId } })">
-        <span class="route"><i v-if="focusData.category === 'bus'" class="icon fas fa-bus" />{{ focusData.name.split(' ')[0] }}</span>
-        <span class="direction">{{ focusData.name.split(' ').slice(1).join(' ') }}</span>
+      <a v-if="focusVehicle" class="body" @click="$router.push({ name: 'trip', params: { vehicle: focusVehicle, trip: focusData && focusData.tripId } })">
+        <span class="route"><i v-if="focusData && focusData.category === 'bus'" class="icon fas fa-bus" />{{ focusData && focusData.name.split(' ')[0] }}</span>
+        <span class="direction">{{ focusData && focusData.name.split(' ').slice(1).join(' ') }}</span>
         <i class="fas fa-external-link-alt"></i>
       </a>
       <a class="close button" @click="$router.replace({ name: 'map' })"><i class="fas fa-times" /></a>
@@ -191,8 +191,8 @@ export default {
       };
     },
     focusData() {
-      return (this.focusVehicle && this.vehicles.find((v) => v.id === this.focusVehicle))
-          || (this.focusStop && this.stops.find((s) => s.id === this.focusStop));
+      return (this.focusVehicle && this.vehicles && this.vehicles.find((v) => v.id === this.focusVehicle))
+          || (this.focusStop && this.stops && this.stops.find((s) => s.id === this.focusStop));
     },
   },
   methods: {
