@@ -81,16 +81,6 @@ export default {
           'line-color': '#00ffff',
         },
       },
-      stopsLayer: {
-        id: 'stops',
-        type: 'circle',
-        source: 'stops',
-        paint: {
-          'circle-color': '#4f96fc',
-          'circle-stroke-opacity': 0,
-          'circle-stroke-width': 5,
-        },
-      },
       bus: [10.1283, 54.3166],
     };
   },
@@ -114,6 +104,31 @@ export default {
             id: stop.id,
           },
         })),
+      };
+    },
+    stopsLayer() {
+      return {
+        id: 'stops',
+        type: 'circle',
+        source: 'stops',
+        paint: {
+          'circle-color': [
+            'match',
+            ['get', 'id'],
+            this.focusStop || '',
+            '#1673fc',
+            '#4f96fc',
+          ],
+          'circle-radius': [
+            'match',
+            ['get', 'id'],
+            this.focusStop || '',
+            8,
+            5,
+          ],
+          'circle-stroke-opacity': 0,
+          'circle-stroke-width': 5,
+        },
       };
     },
   },
