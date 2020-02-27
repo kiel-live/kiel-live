@@ -26,11 +26,25 @@
         @mouseenter="onMouseEnter"
         @mouseleave="onMouseLeave"
       />
+      <MglGeojsonLayer
+        sourceId= "vehicles"
+        :source="{ type: 'geojson', data: vehiclesGeoJson }"
+        layerId="vehicles"
+        :layer="vehiclesLayer"
+        @click="onClickVehicle"
+        @mouseenter="onMouseEnter"
+        @mouseleave="onMouseLeave"
+      />
     </MglMap>
-    <div v-if="focusStop" class="focus-popup">
+    <div v-if="focusStop || focusVehicle" class="focus-popup">
       <a v-if="focusStop" class="body" @click="$router.push({ name: 'stop', params: { stop: stops.find(stop => stop.id === focusStop).shortName } })">
         <i class="fas fa-sign" />
         <span>{{ stops.find(stop => stop.id === focusStop).name }}</span>
+        <i class="fas fa-external-link-alt"></i>
+      </a>
+      <a v-if="focusVehicle" class="body" @click="$router.push({ name: 'trip', params: { vehicle: focusVehicle, trip: vehicles.find(v => v.id === focusVehicle).tripId } })">
+        <span class="route"><i v-if="vehicles.find(v => v.id === focusVehicle).category === 'bus'" class="icon fas fa-bus" />{{ vehicles.find(v => v.id === focusVehicle).name.split(' ')[0] }}</span>
+        <span class="direction">{{ vehicles.find(v => v.id === focusVehicle).name.split(' ').slice(1).join(' ') }}</span>
         <i class="fas fa-external-link-alt"></i>
       </a>
       <a class="close button" @click="$router.replace({ name: 'map' })"><i class="fas fa-times" /></a>
@@ -58,6 +72,10 @@ export default {
   },
   props: {
     focusStop: {
+      type: String,
+      default: null,
+    },
+    focusVehicle: {
       type: String,
       default: null,
     },
@@ -106,6 +124,22 @@ export default {
         })),
       };
     },
+    vehiclesGeoJson() {
+      if (!this.vehicles) { return null; }
+      return {
+        type: 'FeatureCollection',
+        features: this.vehicles.map((vehicle) => ({
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [this.convertLatLng(vehicle.longitude), this.convertLatLng(vehicle.latitude)],
+          },
+          properties: {
+            id: vehicle.id,
+          },
+        })),
+      };
+    },
     stopsLayer() {
       return {
         id: 'stops',
@@ -131,6 +165,31 @@ export default {
         },
       };
     },
+    vehiclesLayer() {
+      return {
+        id: 'vehicles',
+        type: 'circle',
+        source: 'vehicles',
+        paint: {
+          'circle-color': [
+            'match',
+            ['get', 'id'],
+            this.focusStop || '',
+            'pink',
+            'red',
+          ],
+          'circle-radius': [
+            'match',
+            ['get', 'id'],
+            this.focusStop || '',
+            8,
+            7,
+          ],
+          'circle-stroke-opacity': 0,
+          'circle-stroke-width': 3,
+        },
+      };
+    },
   },
   methods: {
     convertLatLng(value) {
@@ -139,6 +198,10 @@ export default {
     onClickStop(e) {
       if (this.focusStop === e.mapboxEvent.features[0].properties.id) { return; } // prevent reloading of same stop
       this.$router.replace({ name: 'mapStop', params: { stop: e.mapboxEvent.features[0].properties.id } });
+    },
+    onClickVehicle(e) {
+      if (this.focusVehicle === e.mapboxEvent.features[0].properties.id) { return; } // prevent reloading of same stop
+      this.$router.replace({ name: 'mapVehicle', params: { vehicle: e.mapboxEvent.features[0].properties.id } });
     },
     onMouseEnter(e) {
       e.map.getCanvas().style.cursor = 'pointer';
