@@ -32,7 +32,7 @@
         @mouseleave="onMouseLeave"
       />
     </MglMap>
-    <div v-if="focusStop || focusVehicle" class="focus-popup">
+    <div v-if="focusData" class="focus-popup">
       <a v-if="focusStop" class="body" @click="$router.push({ name: 'stop', params: { stop: focusData && focusData.shortName } })">
         <i class="fas fa-sign" />
         <span>{{ focusData && focusData.name }}</span>
