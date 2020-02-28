@@ -9,6 +9,7 @@
       :maxZoom="maxZoom"
       :zoom="zoom"
       :maxBounds="maxBounds"
+      @click="onClickMap"
     >
       <MglNavigationControl position="top-right"/>
       <MglGeolocateControl position="top-right" />
@@ -182,6 +183,10 @@ export default {
   methods: {
     convertLatLng(value) {
       return value / 3600000;
+    },
+    onClickMap() {
+      if (!this.focusData) { return; }
+      this.$router.replace({ name: 'map' });
     },
     onClickStop(e) {
       if (this.focusStop === e.mapboxEvent.features[0].properties.id) { return; } // prevent reloading of same stop
