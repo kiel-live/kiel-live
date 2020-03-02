@@ -10,6 +10,7 @@
       :zoom="zoom"
       :maxBounds="maxBounds"
       @click="onClickMap"
+      @load="onMapLoaded"
     >
       <MglNavigationControl position="top-right"/>
       <MglGeolocateControl position="top-right" />
@@ -78,13 +79,10 @@ export default {
   data() {
     return {
       mapStyle: 'https://maps.targomo.com/styles/dark-matter-gl-style.json',
-      center: [10.1283, 54.3166],
       minZoom: 11,
       maxZoom: 18,
-      zoom: 14,
       // [west, south, east, north]
       maxBounds: [9.8, 54.21, 10.44, 54.52],
-      bus: [10.1283, 54.3166],
     };
   },
   computed: {
@@ -179,6 +177,12 @@ export default {
       return (this.focusVehicle && this.vehicles && this.vehicles.find((v) => v.id === this.focusVehicle))
           || (this.focusStop && this.stops && this.stops.find((s) => s.id === this.focusStop));
     },
+    center() {
+      return (this.savedView && this.savedView.center) || [10.1283, 54.3166];
+    },
+    zoom() {
+      return (this.savedView && this.savedView.zoom) || 14;
+    },
   },
   methods: {
     convertLatLng(value) {
@@ -202,13 +206,27 @@ export default {
     onMouseLeave(e) {
       e.map.getCanvas().style.cursor = '';
     },
+    onMapLoaded(event) {
+      this.map = event.map;
+    },
   },
   created() {
     // We need to set mapbox-gl library here in order to use it in template
     this.mapbox = Mapbox;
+    this.map = null;
   },
   mounted() {
     this.$store.dispatch('map/load');
+  },
+  beforeDestroy() {
+    let view = null;
+    if (this.map) {
+      view = {
+        center: this.map.getCenter(),
+        zoom: this.map.getZoom(),
+      };
+    }
+    this.$store.dispatch('map/unload', view);
   },
 };
 </script>
