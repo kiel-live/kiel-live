@@ -2,12 +2,11 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import config from '@/libs/config';
 import Api from '@/libs/api';
+import subscribe from '@/libs/subscriptions';
 
 import Map from './map';
 import Trip from './trip';
 import Stop from './stop';
-
-import subscribe from '@/libs/subscriptions';
 
 Vue.use(Vuex);
 
