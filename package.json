@@ -1,0 +1,14 @@
+{
+  "name": "kiel-live",
+  "version": "1.0.0",
+  "description": "This wep app allows you to view live updates of bus arrivals in Kiel.",
+  "repository": "https://github.com/anbraten/opnv-live",
+  "author": "Anbraten",
+  "private": true,
+  "workspaces": ["backend", "spa"],
+  "scripts": {
+    "dev": "yarn workspace @kiel-live/backend run dev & yarn workspace @kiel-live/spa run dev",
+    "build": "yarn workspaces run build",
+    "lint": "yarn workspaces run lint"
+  }
+}
