@@ -2,7 +2,7 @@ FROM node:12.13-alpine as build-stage
 ARG VERSION
 ENV VUE_APP_VERSION=${VERSION}
 WORKDIR /app
-COPY spa/package.json spa/yarn.lock ./
+COPY spa/package.json yarn.lock ./
 RUN yarn install --silent
 COPY spa/ .
 RUN yarn run build
@@ -14,7 +14,7 @@ ARG VERSION
 
 WORKDIR /app
 RUN chown -R node:node /app
-COPY backend/package.json backend/yarn.lock ./
+COPY backend/package.json yarn.lock ./
 USER node
 RUN yarn install --silent --frozen-lockfile --production
 COPY --chown=node:node docker/set-env-vars.sh docker/entrypoint.sh backend/ ./
