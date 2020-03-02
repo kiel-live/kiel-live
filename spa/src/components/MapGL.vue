@@ -4,10 +4,10 @@
     <MglMap
       id="map"
       :mapStyle="mapStyle"
-      :center="center"
+      :center.sync="center"
       :minZoom="minZoom"
       :maxZoom="maxZoom"
-      :zoom="zoom"
+      :zoom.sync="zoom"
       :maxBounds="maxBounds"
       @click="onClickMap"
       @load="onMapLoaded"
@@ -83,6 +83,8 @@ export default {
       maxZoom: 18,
       // [west, south, east, north]
       maxBounds: [9.8, 54.21, 10.44, 54.52],
+      center: null,
+      zoom: null,
     };
   },
   computed: {
@@ -177,12 +179,6 @@ export default {
       return (this.focusVehicle && this.vehicles && this.vehicles.find((v) => v.id === this.focusVehicle))
           || (this.focusStop && this.stops && this.stops.find((s) => s.id === this.focusStop));
     },
-    center() {
-      return (this.savedView && this.savedView.center) || [10.1283, 54.3166];
-    },
-    zoom() {
-      return (this.savedView && this.savedView.zoom) || 14;
-    },
   },
   methods: {
     convertLatLng(value) {
@@ -217,15 +213,23 @@ export default {
   },
   mounted() {
     this.$store.dispatch('map/load');
+
+    if (this.focusData) {
+      this.center = [this.convertLatLng(this.focusData.longitude), this.convertLatLng(this.focusData.latitude)];
+      this.zoom = 16;
+    } else if (this.savedView) {
+      this.center = this.savedView.center;
+      this.zoom = this.savedView.zoom;
+    } else {
+      this.center = [10.1283, 54.3166];
+      this.zoom = 14;
+    }
   },
   beforeDestroy() {
-    let view = null;
-    if (this.map) {
-      view = {
-        center: this.map.getCenter(),
-        zoom: this.map.getZoom(),
-      };
-    }
+    const view = {
+      center: this.center,
+      zoom: this.zoom,
+    };
     this.$store.dispatch('map/unload', view);
   },
 };
