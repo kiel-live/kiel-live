@@ -5350,21 +5350,6 @@ lcid@^2.0.0:
   dependencies:
     invert-kv "^2.0.0"
 
-leaflet-rotatedmarker@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/leaflet-rotatedmarker/-/leaflet-rotatedmarker-0.2.0.tgz#4467f49f98d1bfd56959bd9c6705203dd2601277"
-  integrity sha1-RGf0n5jRv9VpWb2cZwUgPdJgEnc=
-
-leaflet.locatecontrol@^0.70.0:
-  version "0.70.0"
-  resolved "https://registry.yarnpkg.com/leaflet.locatecontrol/-/leaflet.locatecontrol-0.70.0.tgz#924e6a0986bdd7297e485502e072740a6a505ea9"
-  integrity sha512-21pW002ifgXdQ05R+/aqAuAGt8wkh5H/WfVngYc32dN3cQwd8sJ4OGydi/b4snUZeD+C3yNfFgzIQd9LhVWKdw==
-
-leaflet@^1.4.0, leaflet@^1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.6.0.tgz#aecbb044b949ec29469eeb31c77a88e2f448f308"
-  integrity sha512-CPkhyqWUKZKFJ6K8umN5/D2wrJ2+/8UIpXppY7QDnUZW5bZL5+SEI2J7GBpwh4LIupOKqbNSQXgqmrEJopHVNQ==
-
 leven@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/leven/-/leven-3.1.0.tgz#77891de834064cccba82ae7842bb6b14a13ed7f2"
@@ -8930,20 +8915,6 @@ vue-template-es2015-compiler@^1.9.0:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz#1ee3bc9a16ecbf5118be334bb15f9c46f82f5825"
   integrity sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==
-
-vue2-leaflet-rotatedmarker@^1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/vue2-leaflet-rotatedmarker/-/vue2-leaflet-rotatedmarker-1.0.9.tgz#7b580032a88abc4d468af108f891851f02a1d183"
-  integrity sha512-k3OzUB+pJr9dggLOgB1ILLGBgezm3HjLMQr6QPg+wdRgbsBY/S9fMw8Ffa1NMC4VpSGhN+Y+OiFZF80TDnFp5g==
-  dependencies:
-    leaflet "^1.4.0"
-    leaflet-rotatedmarker "^0.2.0"
-    vue2-leaflet "^2.1.1"
-
-vue2-leaflet@^2.1.1, vue2-leaflet@^2.4.2:
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/vue2-leaflet/-/vue2-leaflet-2.5.2.tgz#b89c056fe741c7ce7cb9df5aca90809092e5eb8d"
-  integrity sha512-9eN0TxqCkyXbaI7waO3u+n0OAezkxjb811tstG6gRLAZy/ocXlNLC3JqTWE0FwBUlqBbMpyzsIk6LrEhs8oVBQ==
 
 vue@^2.6.11:
   version "2.6.11"
