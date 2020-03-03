@@ -5,7 +5,7 @@ WORKDIR /app
 COPY spa/package.json ./spa/
 COPY package.json yarn.lock ./
 RUN yarn install --silent --frozen-lockfile
-COPY spa/ .
+COPY spa/ ./spa/
 RUN yarn run build
 
 #####################################################
