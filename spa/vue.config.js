@@ -1,3 +1,7 @@
+const git = require('git-rev-sync');
+
+const envConfigRevision = git.long(); // get last commit id as revision for /env-config.js
+
 module.exports = {
   configureWebpack: {
     devServer: {
@@ -15,7 +19,7 @@ module.exports = {
       swSrc: './src/sw.js',
       swDest: 'service-worker.js',
       additionalManifestEntries: [
-        '/env-config.js',
+        { url: '/env-config.js', revision: envConfigRevision },
       ],
     },
     iconPaths: {

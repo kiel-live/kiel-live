@@ -18,9 +18,6 @@ self.addEventListener('message', (e) => {
   }
 });
 
-workbox.core.clientsClaim(); // Vue CLI 4 and Workbox v4, else
+workbox.core.clientsClaim();
 
-// The precaching code provided by Workbox.
-self.__WB_MANIFEST = [].concat(self.__WB_MANIFEST || []);
-// workbox.precaching.suppressWarnings(); // Only used with Vue CLI 3 and Workbox v3.
-workbox.precaching.precacheAndRoute(self.__WB_MANIFEST, {});
+workbox.precaching.precacheAndRoute(self.__WB_MANIFEST);
