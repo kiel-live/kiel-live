@@ -3,7 +3,7 @@ ARG VERSION
 ENV VUE_APP_VERSION=${VERSION}
 WORKDIR /app
 COPY spa/package.json yarn.lock ./
-RUN yarn install --silent
+RUN yarn install --silent --frozen-lockfile
 COPY spa/ .
 RUN yarn run build
 
