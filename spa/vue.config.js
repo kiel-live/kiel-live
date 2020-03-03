@@ -1,6 +1,5 @@
-const git = require('git-rev-sync');
-
-const envConfigRevision = git.long(); // get last commit id as revision for /env-config.js
+// get last commit id as revision for /env-config.js
+const envConfigRevision = process.env.VERSION || null;
 
 module.exports = {
   configureWebpack: {
