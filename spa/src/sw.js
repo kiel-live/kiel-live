@@ -19,23 +19,8 @@ self.addEventListener('message', (e) => {
 });
 
 workbox.core.clientsClaim(); // Vue CLI 4 and Workbox v4, else
-// workbox.clientsClaim(); // Vue CLI 3 and Workbox v3.
 
 // The precaching code provided by Workbox.
-self.__precacheManifest = [].concat(self.__precacheManifest || []);
+self.__WB_MANIFEST = [].concat(self.__WB_MANIFEST || []);
 // workbox.precaching.suppressWarnings(); // Only used with Vue CLI 3 and Workbox v3.
-workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
-
-// cache /env-config.js:
-workbox.routing.registerRoute(
-  new RegExp('/env-config.js'),
-  workbox.strategies.cacheFirst({
-    cacheName: 'config',
-    plugins: [
-      new workbox.expiration.Plugin({
-        maxEntries: 30,
-        maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-      }),
-    ],
-  }),
-);
+workbox.precaching.precacheAndRoute(self.__WB_MANIFEST, {});

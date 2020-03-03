@@ -8,8 +8,11 @@
   "workspaces": ["backend", "spa"],
   "scripts": {
     "dev": "yarn workspace @kiel-live/backend run dev & yarn workspace @kiel-live/spa run dev",
-    "build": "yarn workspaces run build",
+    "build": "yarn workspace @kiel-live/spa run build",
     "lint": "yarn workspaces run lint",
     "lint:fix": "yarn workspaces run lint --fix"
+  },
+  "resolutions": {
+    "**/workbox-webpack-plugin": "5.0.0"
   }
 }
