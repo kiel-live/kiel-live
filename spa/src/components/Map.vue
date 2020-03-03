@@ -1,7 +1,7 @@
 <template>
   <div class="map-container">
     <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
-    <p>Will soon be implemented ;-D</p>
+    <p>Wird bald zur Verfügung stehen ;-D</p>
   </div>
 </template>
 
