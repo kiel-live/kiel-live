@@ -13,26 +13,46 @@
         <div class="content">{{ alert.title }}</div>
       </div>
     </div>
-    <div class="arrivals">
-      <div class="bus" v-for="bus in arrivals" :key="bus.passageid" @click="openTrip(bus)">
-        <div class="icon">
-          <i v-if="route(bus.routeId).routeType === 'bus'" class="fas fa-bus"></i>
-          <i v-if="route(bus.routeId).routeType === 'ferry'" class="fas fa-bus"></i>
+
+    <Tabs>
+      <Tab class="arrivals" name="Abfahrten" :selected="true">
+        <div v-for="bus in arrivals" :key="bus.passageid" class="bus" @click="openTrip(bus)">
+          <div class="icon">
+            <i v-if="route(bus.routeId).routeType === 'bus'" class="fas fa-bus"></i>
+            <i v-if="route(bus.routeId).routeType === 'ferry'" class="fas fa-bus"></i>
+          </div>
+          <div class="line">{{ route(bus.routeId).name }}</div>
+          <div class="direction">{{ bus.direction }}</div>
+          <div class="eta">{{ eta(bus) }}</div>
+          <div class="status">
+            <i v-if="bus.status === 'STOPPING'" class="fas fa-hand-paper"></i>
+            <i v-if="bus.status === 'PLANNED'" class="fas fa-clock"></i>
+            <i v-if="bus.status === 'PREDICTED'" class="fas fa-running"></i>
+          </div>
         </div>
-        <div class="line">{{ route(bus.routeId).name }}</div>
-        <div class="direction">{{ bus.direction }}</div>
-        <div class="eta">{{ eta(bus) }}</div>
-        <div class="status">
-          <i v-if="bus.status === 'STOPPING'" class="fas fa-hand-paper"></i>
-          <i v-if="bus.status === 'PLANNED'" class="fas fa-clock"></i>
-          <i v-if="bus.status === 'PREDICTED'" class="fas fa-running"></i>
+        <div v-if="stop.actual.length == 0" class="no-data">
+          <i class="fas fa-ban" />
+          <p>Hier will gerade wohl kein Manni halten.</p>
         </div>
-      </div>
-      <div v-if="stop.actual.length == 0" class="no-data">
-        <i class="fas fa-ban" />
-        <p>Hier will gerade wohl kein Manni halten.</p>
-      </div>
-    </div>
+      </Tab>
+
+      <Tab class="routes" name="Routen">
+        <template v-for="route in stop.routes">
+          <div class="route" :key="route.id">
+            <div class="icon">
+              <i v-if="route.routeType === 'bus'" class="fas fa-bus"></i>
+              <i v-if="route.routeType === 'ferry'" class="fas fa-bus"></i>
+            </div>
+            <div class="line">{{ route.name }}</div>
+            <div class="directions">
+              <div v-for="direction in route.directions" :key="direction" class="direction">
+                {{ direction }}
+              </div>
+            </div>
+          </div>
+        </template>
+      </Tab>
+    </Tabs>
   </div>
   <div v-else class="loading">
     <i class="fas fa-circle-notch fa-spin"></i>
@@ -43,8 +63,16 @@
 import { orderBy } from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 
+import Tabs from '@/components/Tabs.vue';
+import Tab from '@/components/Tab.vue';
+
+
 export default {
   name: 'stop',
+  components: {
+    Tabs,
+    Tab,
+  },
   computed: {
     ...mapState({
       isTester: 'isTester',
@@ -92,6 +120,11 @@ export default {
       if (stop) {
         this.$store.commit('setTitle', stop.stopName);
       }
+    },
+    stopId() {
+      // reload on stop id changes
+      this.unload();
+      this.load();
     },
   },
   methods: {
@@ -149,11 +182,6 @@ export default {
   },
   beforeDestroy() {
     this.unload();
-  },
-  beforeRouteUpdate(to, from, next) {
-    next();
-    this.unload();
-    this.load();
   },
 };
 </script>
@@ -294,7 +322,6 @@ export default {
       display: flex;
       flex-flow: row;
       color: #fff;
-      border-radius: 4px;
       padding: 1.25rem 2.5rem 1.25rem 1.5rem;
       position: relative;
       width: 100%;
@@ -305,6 +332,43 @@ export default {
 
       .icon {
         margin-right: 1rem;
+      }
+
+      @media (min-width: 768px) {
+        border-radius: 4px;
+      }
+    }
+  }
+
+  .route {
+    display: flex;
+    padding: 1rem;
+    flex-flow: row;
+    width: 100%;
+    box-shadow: inset 0 -1px 0 0 rgba(100,121,143,0.122);
+    text-align: left;
+
+    * {
+      display: flex;
+      align-items: center;
+    }
+
+    .icon {
+      margin-right: .5rem;
+    }
+
+    .line {
+      width: 1.5rem;
+    }
+
+    .directions {
+      margin-left: 1.5rem;
+      flex-flow: column;
+      align-items: flex-start;
+
+      .direction {
+        display: flex;
+        padding: 0.25rem;
       }
     }
   }
