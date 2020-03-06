@@ -216,7 +216,7 @@ export default {
 
     if (this.focusData) {
       this.center = [this.convertLatLng(this.focusData.longitude), this.convertLatLng(this.focusData.latitude)];
-      this.zoom = 16;
+      this.zoom = 14;
     } else if (this.savedView) {
       this.center = this.savedView.center;
       this.zoom = this.savedView.zoom;
