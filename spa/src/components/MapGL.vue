@@ -113,7 +113,7 @@ export default {
       if (!this.vehicles) { return null; }
       return {
         type: 'FeatureCollection',
-        features: this.vehicles.map((vehicle) => ({
+        features: this.vehicles.filter((v) => v.id && v.latitude && v.longitude && v.name).map((vehicle) => ({
           type: 'Feature',
           geometry: {
             type: 'Point',
