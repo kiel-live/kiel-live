@@ -73,9 +73,6 @@ export default class PulsingDot {
       this.height,
     ).data;
 
-    // continuously repaint the map, resulting in the smooth animation of the dot
-    this.map.triggerRepaint();
-
     // return `true` to let the map know that the image was updated
     return true;
   }
