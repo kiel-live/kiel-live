@@ -58,6 +58,7 @@ import {
   MglGeojsonLayer,
 } from 'vue-mapbox';
 import { mapState } from 'vuex';
+import BusIcon from '@/libs/busIcon';
 
 export default {
   components: {
@@ -121,6 +122,8 @@ export default {
           },
           properties: {
             id: vehicle.id,
+            number: vehicle.name.split(' ')[0],
+            heading: vehicle.heading,
           },
         })),
       };
@@ -153,25 +156,30 @@ export default {
     vehiclesLayer() {
       return {
         id: 'vehicles',
-        type: 'circle',
+        type: 'symbol',
         source: 'vehicles',
         paint: {
-          'circle-color': [
+          'text-color': '#000',
+        },
+        layout: {
+          'icon-image': [
             'match',
             ['get', 'id'],
             this.focusVehicle || '',
-            'red',
-            '#aa2a0f',
+            'bus-icon-focused',
+            'bus-icon',
           ],
-          'circle-radius': [
-            'match',
-            ['get', 'id'],
-            this.focusVehicle || '',
-            8,
-            6,
-          ],
-          'circle-stroke-opacity': 0,
-          'circle-stroke-width': 3,
+          'icon-rotate': ['get', 'heading'],
+          'icon-rotation-alignment': 'map',
+          'icon-pitch-alignment': 'viewport',
+          'icon-allow-overlap': true,
+          // 'icon-ignore-placement': true,
+          'text-field': ['get', 'number'],
+          'text-size': 10,
+          // 'text-allow-overlap': true,
+          // 'text-ignore-placement': true,
+          'text-optional': true,
+          'text-padding': 0,
         },
       };
     },
@@ -204,6 +212,8 @@ export default {
     },
     onMapLoaded(event) {
       this.map = event.map;
+      this.map.addImage('bus-icon', new BusIcon(this.map));
+      this.map.addImage('bus-icon-focused', new BusIcon(this.map, true));
     },
   },
   created() {
