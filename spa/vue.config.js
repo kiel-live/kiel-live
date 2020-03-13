@@ -1,3 +1,6 @@
+// get last commit id as revision for /env-config.js
+const envConfigRevision = process.env.VERSION || null;
+
 module.exports = {
   configureWebpack: {
     devServer: {
@@ -14,6 +17,9 @@ module.exports = {
     workboxOptions: {
       swSrc: './src/sw.js',
       swDest: 'service-worker.js',
+      additionalManifestEntries: [
+        { url: '/env-config.js', revision: envConfigRevision },
+      ],
     },
     iconPaths: {
       favicon32: 'img/icons/favicon-32x32.png',
