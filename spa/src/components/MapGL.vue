@@ -123,7 +123,9 @@ export default {
           properties: {
             id: vehicle.id,
             number: vehicle.name.split(' ')[0],
-            heading: vehicle.heading,
+            to: vehicle.name.split(' ').slice(1).join(' '),
+            iconName: `busicon-unfocused-${vehicle.name.split(' ')[0]}-${vehicle.heading}`,
+            iconNameFocused: `busicon-focused-${vehicle.name.split(' ')[0]}-${vehicle.heading}`,
           },
         })),
       };
@@ -174,8 +176,8 @@ export default {
             'match',
             ['get', 'id'],
             this.focusVehicle || '',
-            'bus-icon-focused',
-            'bus-icon',
+            ['get', 'iconNameFocused'],
+            ['get', 'iconName'],
           ],
           'icon-rotate': ['get', 'heading'],
           'icon-rotation-alignment': 'map',
@@ -220,8 +222,10 @@ export default {
     },
     onMapLoaded(event) {
       this.map = event.map;
-      this.map.addImage('bus-icon', new BusIcon(this.map));
-      this.map.addImage('bus-icon-focused', new BusIcon(this.map, true));
+      this.map.on('styleimagemissing', (e) => {
+        const [, focus, route, heading] = e.id.split('-');
+        this.map.addImage(e.id, new BusIcon(this.map, focus === 'focused', route, heading));
+      });
     },
   },
   created() {
