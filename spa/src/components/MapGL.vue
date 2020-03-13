@@ -150,6 +150,7 @@ export default {
           ],
           'circle-stroke-opacity': 0,
           'circle-stroke-width': 5,
+          'circle-opacity': this.focusVehicle ? 0.5 : 1,
         },
       };
     },
@@ -160,6 +161,13 @@ export default {
         source: 'vehicles',
         paint: {
           'text-color': '#000',
+          'icon-opacity': [
+            'match',
+            ['get', 'number'],
+            (this.focusData && this.focusData.name.split(' ')[0]) || '',
+            1,
+            this.focusVehicle ? 0.3 : 1,
+          ],
         },
         layout: {
           'icon-image': [
