@@ -179,7 +179,6 @@ export default {
             ['get', 'iconName'],
           ],
           'icon-rotation-alignment': 'map',
-          'icon-pitch-alignment': 'viewport',
           'icon-allow-overlap': true,
           // 'icon-ignore-placement': true,
           'text-field': ['get', 'number'],
