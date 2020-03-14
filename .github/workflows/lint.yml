@@ -1,8 +1,11 @@
-name: Lint
+name: Linting
 
 on:
   push:
   pull_request:
+
+env:
+  YARN_CACHE_FOLDER: ~/.yarn
 
 jobs:
   lint:
@@ -10,6 +13,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: ${{ env.YARN_CACHE_FOLDER }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
       - name: Set up Node
         uses: actions/setup-node@v1
         with:
