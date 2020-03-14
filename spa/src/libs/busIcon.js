@@ -17,6 +17,8 @@ export default class PulsingDot {
 
   heading;
 
+  rendered;
+
   constructor(map, focused, route, heading) {
     this.map = map;
     this.focused = focused;
@@ -34,6 +36,9 @@ export default class PulsingDot {
 
   // called once before every frame where the icon will be used
   render() {
+    if (this.rendered) {
+      return false;
+    }
     const radius = (this.width / 2) * 0.6;
     const { context } = this;
 
@@ -88,6 +93,7 @@ export default class PulsingDot {
       this.width,
       this.height,
     ).data;
+    this.rendered = true;
 
     // return `true` to let the map know that the image was updated
     return true;
