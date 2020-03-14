@@ -86,6 +86,7 @@ export default {
       maxBounds: [9.8, 54.21, 10.44, 54.52],
       center: null,
       zoom: null,
+      needToFocus: false,
     };
   },
   computed: {
@@ -223,6 +224,13 @@ export default {
         const [, focus, route, heading] = e.id.split('-');
         this.map.addImage(e.id, new BusIcon(this.map, focus === 'focused', route, heading));
       });
+      if (this.needToFocus && this.focusData) {
+        this.map.flyTo({
+          center: [this.convertLatLng(this.focusData.longitude), this.convertLatLng(this.focusData.latitude)],
+          zoom: 14,
+        });
+        this.needToFocus = false;
+      }
     },
   },
   created() {
@@ -232,11 +240,10 @@ export default {
   },
   mounted() {
     this.$store.dispatch('map/load');
-
-    if (this.focusData) {
-      this.center = [this.convertLatLng(this.focusData.longitude), this.convertLatLng(this.focusData.latitude)];
-      this.zoom = 14;
-    } else if (this.savedView) {
+    if (this.focusVehicle || this.focusStop) {
+      this.needToFocus = true;
+    }
+    if (this.savedView) {
       this.center = this.savedView.center;
       this.zoom = this.savedView.zoom;
     } else {
