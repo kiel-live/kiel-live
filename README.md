@@ -1,6 +1,6 @@
 # opnv-live
-
-[![Build Status](https://travis-ci.org/anbraten/opnv-live.svg?branch=master)](https://travis-ci.org/anbraten/opnv-live)
+![Docker Build](https://github.com/anbraten/opnv-live/workflows/Docker%20Build/badge.svg)
+![Linting](https://github.com/anbraten/opnv-live/workflows/Linting/badge.svg)
 [![](https://images.microbadger.com/badges/image/anbraten/opnv-live.svg)](https://microbadger.com/images/anbraten/opnv-live "Get your own image badge on microbadger.com")
 
 This wep app allows you to view live updates of bus arrivals.
