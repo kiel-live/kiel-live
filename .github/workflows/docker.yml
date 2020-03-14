@@ -1,0 +1,41 @@
+name: Docker Build
+
+on:
+  push:
+    tags:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - run: yarn --frozen-lockfile
+      - run: yarn lint
+
+  buildx:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Run Buildx
+        run: |
+          docker buildx build \
+            --progress plain \
+            --platform linux/amd64,linux/arm/v7,linux/arm64 \
+            --tag ${{ secrets.DOCKERHUB_USERNAME }}/opnv-live:latest \
+            --push \
+            --build-arg "$(date +%d.%m.%Y-%H:%M)-${GITHUB_SHA::8}" \
+            --file docker/Dockerfile \
+            .
