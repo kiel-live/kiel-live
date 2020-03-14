@@ -162,7 +162,6 @@ export default {
         type: 'symbol',
         source: 'vehicles',
         paint: {
-          'text-color': '#000',
           'icon-opacity': [
             'match',
             ['get', 'number'],
@@ -179,7 +178,6 @@ export default {
             ['get', 'iconNameFocused'],
             ['get', 'iconName'],
           ],
-          'icon-rotate': ['get', 'heading'],
           'icon-rotation-alignment': 'map',
           'icon-pitch-alignment': 'viewport',
           'icon-allow-overlap': true,
