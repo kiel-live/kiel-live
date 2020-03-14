@@ -3,9 +3,9 @@ const colorSecondary = '#aaa';
 const colorFocused = 'rgb(170, 50, 50)';
 
 export default class PulsingDot {
-  width = 40;
+  width = 80;
 
-  height = 40;
+  height = 80;
 
   data = new Uint8Array(this.width * this.height * 4);
 
@@ -55,8 +55,8 @@ export default class PulsingDot {
       context.rotate((this.heading * Math.PI) / 180);
       context.beginPath();
       context.fillStyle = colorSecondary;
-      const height = 10;
-      const width = 12;
+      const height = 15;
+      const width = 18;
       context.moveTo(0, 0 - radius - height);
       context.lineTo(0 - width / 2, 0 - radius);
       context.lineTo(0 + width / 2, 0 - radius);
@@ -68,7 +68,7 @@ export default class PulsingDot {
     // draw base (circle)
     context.beginPath();
     context.arc(0, 0, radius, 0, 2 * Math.PI);
-    context.lineWidth = 2;
+    context.lineWidth = 4;
     context.strokeStyle = colorSecondary;
     context.fillStyle = colorPrimary;
     if (this.focused) {
@@ -79,7 +79,7 @@ export default class PulsingDot {
 
     // draw text (route)
     context.fillStyle = '#eee';
-    context.font = '10px Arial';
+    context.font = '20px Arial';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     context.fillText(this.route, 0, 0);

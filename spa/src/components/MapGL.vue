@@ -222,7 +222,7 @@ export default {
       this.map = event.map;
       this.map.on('styleimagemissing', (e) => {
         const [, focus, route, heading] = e.id.split('-');
-        this.map.addImage(e.id, new BusIcon(this.map, focus === 'focused', route, heading));
+        this.map.addImage(e.id, new BusIcon(this.map, focus === 'focused', route, heading), { pixelRatio: 2 });
       });
       if (this.needToFocus && this.focusData) {
         this.map.flyTo({
