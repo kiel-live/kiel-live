@@ -2,6 +2,7 @@ name: Linting
 
 on:
   push:
+    branches: '*'
   pull_request:
 
 env:
