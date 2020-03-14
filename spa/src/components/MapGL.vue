@@ -15,6 +15,12 @@
       <MglNavigationControl position="top-right"/>
       <MglGeolocateControl position="top-right" />
       <MglGeojsonLayer
+        sourceId= "trips"
+        :source="{ type: 'geojson', data: tripsGeoJson }"
+        layerId="trips"
+        :layer="tripsLayer"
+      />
+      <MglGeojsonLayer
         sourceId= "stops"
         :source="{ type: 'geojson', data: stopsGeoJson }"
         layerId="stops"
@@ -58,6 +64,8 @@ import {
   MglGeojsonLayer,
 } from 'vue-mapbox';
 import { mapState } from 'vuex';
+import queryOverpass from '@derhuerst/query-overpass';
+import osmtogeojson from 'osmtogeojson';
 import BusIcon from '@/libs/busIcon';
 
 export default {
@@ -86,6 +94,7 @@ export default {
       maxBounds: [9.8, 54.21, 10.44, 54.52],
       center: null,
       zoom: null,
+      tripsGeoJson: null,
     };
   },
   computed: {
@@ -128,6 +137,17 @@ export default {
             iconNameFocused: `busicon-focused-${vehicle.name.split(' ')[0]}-${vehicle.heading}`,
           },
         })),
+      };
+    },
+    tripsLayer() {
+      return {
+        id: 'trips',
+        type: 'line',
+        source: 'trips',
+        paint: {
+          'line-color': '#fff',
+          'line-width': 2,
+        },
       };
     },
     stopsLayer() {
@@ -205,6 +225,7 @@ export default {
     onClickMap() {
       if (!this.focusData) { return; }
       this.$router.replace({ name: 'map' });
+      this.tripsGeoJson = { type: 'Feature' }; // clear trips layer
     },
     onClickStop(e) {
       if (this.focusStop === e.mapboxEvent.features[0].properties.id) { return; } // prevent reloading of same stop
@@ -213,6 +234,7 @@ export default {
     onClickVehicle(e) {
       if (this.focusVehicle === e.mapboxEvent.features[0].properties.id) { return; } // prevent reloading of same stop
       this.$router.replace({ name: 'mapVehicle', params: { vehicle: e.mapboxEvent.features[0].properties.id } });
+      this.loadOsmRoute(e.mapboxEvent.features[0].properties.number, e.mapboxEvent.features[0].properties.to);
     },
     onMouseEnter(e) {
       e.map.getCanvas().style.cursor = 'pointer';
@@ -226,6 +248,16 @@ export default {
         const [, focus, route, heading] = e.id.split('-');
         this.map.addImage(e.id, new BusIcon(this.map, focus === 'focused', route, heading));
       });
+    },
+    async loadOsmRoute(ref) {
+      // [to="${to}"]
+      const query = `[out:json];relation[route=bus][network="NAH.SH;VRK"][ref=${ref}](54.28005930839782,9.973869323730469,54.46305400323598,10.336074829101562);out body;>;out skel qt;`;
+      try {
+        const data = await queryOverpass(query);
+        this.tripsGeoJson = osmtogeojson({ elements: data });
+      } catch (e) {
+        console.error(e);
+      }
     },
   },
   created() {
