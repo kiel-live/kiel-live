@@ -1,1 +1,6 @@
-export default (key, fallback) => window._env_[`APP_${key.toUpperCase()}`] || fallback || null;
+const config = window._env_ || {};
+
+export default (_key, fallback) => {
+  const key = `APP_${_key.toUpperCase()}`;
+  return config[key] || fallback || null;
+};
