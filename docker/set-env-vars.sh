@@ -8,9 +8,9 @@ rm -rf $FILE_PATH
 mkdir -p $FILE_DIR && touch $FILE_PATH
 
 # load env vars from file if one exists
-if [ -f .env ]; then
+if [ -f .env.local ]; then
   set -a
-  . ./.env
+  . ./.env.local
   set +a
 fi
 
@@ -38,7 +38,7 @@ printenv | while read line; do
   echo "Setting $varname"
 
   # Append configuration property to JS file
-  echo "  $varname: \"$value\"," >> $FILE_PATH
+  echo "  $varname: '$value'," >> $FILE_PATH
 done
 
-echo "}" >> $FILE_PATH
+echo "};" >> $FILE_PATH
