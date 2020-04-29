@@ -1,13 +1,12 @@
 const colorPrimary = 'rgb(170, 0, 0)';
 const colorSecondary = '#aaa';
-const colorFocused = 'rgb(170, 50, 50)';
 
 export default class PulsingDot {
-  width = 80;
+  width;
 
-  height = 80;
+  height;
 
-  data = new Uint8Array(this.width * this.height * 4);
+  data;
 
   map;
 
@@ -24,6 +23,14 @@ export default class PulsingDot {
     this.focused = focused;
     this.route = route;
     this.heading = heading;
+    if (focused) {
+      this.width = 100;
+      this.height = 100;
+    } else {
+      this.width = 80;
+      this.height = 80;
+    }
+    this.data = new Uint8Array(this.width * this.height * 4);
   }
 
   // get rendering context for the map canvas when layer is added to the map
@@ -50,33 +57,51 @@ export default class PulsingDot {
 
     context.translate(this.width / 2, this.height / 2);
 
-    // draw heading nose
-    if (typeof this.heading !== 'undefined' && this.heading !== null) {
-      context.rotate((this.heading * Math.PI) / 180);
-      context.beginPath();
-      context.fillStyle = colorSecondary;
-      const height = 15;
-      const width = 18;
-      context.moveTo(0, 0 - radius - height);
-      context.lineTo(0 - width / 2, 0 - radius);
-      context.lineTo(0 + width / 2, 0 - radius);
-      context.closePath();
-      context.fill('evenodd');
-      context.rotate((-this.heading * Math.PI) / 180);
-    }
-
-    // draw base (circle)
-    context.beginPath();
-    context.arc(0, 0, radius, 0, 2 * Math.PI);
-    context.lineWidth = 4;
-    context.strokeStyle = colorSecondary;
-    context.fillStyle = colorPrimary;
     if (this.focused) {
-      context.fillStyle = colorFocused;
-    }
-    context.fill('evenodd');
-    context.stroke();
+      // draw arrow
+      context.rotate((this.heading * Math.PI) / 180);
+      const lineWidth = 6;
 
+      context.beginPath();
+      context.moveTo(0, -this.height / 2 + lineWidth);
+      context.lineTo(35 - lineWidth, 35 - lineWidth);
+      context.lineTo(0, 25 - lineWidth);
+      context.lineTo(-35 + lineWidth, 35 - lineWidth);
+      context.closePath();
+
+      context.lineWidth = lineWidth;
+      context.strokeStyle = colorSecondary;
+      context.stroke();
+
+      context.fillStyle = colorPrimary;
+      context.fill();
+
+      context.rotate((-this.heading * Math.PI) / 180);
+    } else {
+      // draw heading nose
+      if (typeof this.heading !== 'undefined' && this.heading !== null) {
+        context.rotate((this.heading * Math.PI) / 180);
+        context.beginPath();
+        context.fillStyle = colorSecondary;
+        const height = 15;
+        const width = 18;
+        context.moveTo(0, 0 - radius - height);
+        context.lineTo(0 - width / 2, 0 - radius);
+        context.lineTo(0 + width / 2, 0 - radius);
+        context.closePath();
+        context.fill('evenodd');
+        context.rotate((-this.heading * Math.PI) / 180);
+      }
+
+      // draw base (circle)
+      context.beginPath();
+      context.arc(0, 0, radius, 0, 2 * Math.PI);
+      context.lineWidth = 4;
+      context.strokeStyle = colorSecondary;
+      context.fillStyle = colorPrimary;
+      context.fill('evenodd');
+      context.stroke();
+    }
     // draw text (route)
     context.fillStyle = '#eee';
     context.font = '20px Arial';
