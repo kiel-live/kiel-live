@@ -9,8 +9,10 @@
   "scripts": {
     "dev": "yarn workspace @kiel-live/backend run dev & yarn workspace @kiel-live/spa run dev",
     "build": "yarn workspace @kiel-live/spa run build",
+    "build:preview": "yarn generate:config && yarn build",
     "lint": "yarn workspaces run lint",
-    "lint:fix": "yarn workspaces run lint --fix"
+    "lint:fix": "yarn workspaces run lint --fix",
+    "generate:config": "./docker/set-env-vars.sh ./spa/public/env-config.js"
   },
   "resolutions": {
     "**/workbox-webpack-plugin": "5.0.0"
