@@ -12,8 +12,8 @@
       @click="onClickMap"
       @load="onMapLoaded"
     >
-      <MglNavigationControl position="top-right"/>
-      <MglGeolocateControl position="top-right" />
+      <MglNavigationControl position="bottom-right"/>
+      <MglGeolocateControl position="bottom-right" />
       <MglGeojsonLayer
         sourceId= "stops"
         :source="{ type: 'geojson', data: stopsGeoJson }"
