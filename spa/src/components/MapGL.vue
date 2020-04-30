@@ -10,9 +10,11 @@
         :maxZoom="maxZoom"
         :zoom.sync="zoom"
         :maxBounds="maxBounds"
+        :attributionControl="false"
         @click="onClickMap"
         @load="onMapLoaded"
       >
+        <MglAttributionControl position="top-right" />
         <MglNavigationControl position="bottom-right" />
         <MglGeolocateControl position="bottom-right" />
         <MglGeojsonLayer
@@ -56,6 +58,7 @@
 import Mapbox from 'mapbox-gl';
 import {
   MglMap,
+  MglAttributionControl,
   MglNavigationControl,
   MglGeolocateControl,
   MglGeojsonLayer,
@@ -67,6 +70,7 @@ import config from '@/libs/config';
 export default {
   components: {
     MglMap,
+    MglAttributionControl,
     MglNavigationControl,
     MglGeolocateControl,
     MglGeojsonLayer,
@@ -287,6 +291,10 @@ export default {
       position: absolute;
       width: 100%;
       height: 100%;
+    }
+
+    ::v-deep .mapboxgl-ctrl-bottom-right {
+      bottom: 3rem;
     }
 
     .focus-popup {
