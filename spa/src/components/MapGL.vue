@@ -133,8 +133,8 @@ export default {
             id: vehicle.id,
             number: vehicle.name.split(' ')[0],
             to: vehicle.name.split(' ').slice(1).join(' '),
-            iconName: `busicon-unfocused-${vehicle.name.split(' ')[0]}-${vehicle.heading}`,
-            iconNameFocused: `busicon-focused-${vehicle.name.split(' ')[0]}-${vehicle.heading}`,
+            iconName: `busIcon-unfocused-${vehicle.name.split(' ')[0]}-${vehicle.heading}`,
+            iconNameFocused: `busIcon-focused-${vehicle.name.split(' ')[0]}-${vehicle.heading}`,
           },
         })),
       };
