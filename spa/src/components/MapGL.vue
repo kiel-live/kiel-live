@@ -1,51 +1,54 @@
 <template>
   <div class="map-container">
     <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
-    <MglMap
-      id="map"
-      :mapStyle="mapStyle"
-      :center.sync="center"
-      :minZoom="minZoom"
-      :maxZoom="maxZoom"
-      :zoom.sync="zoom"
-      :maxBounds="maxBounds"
-      @click="onClickMap"
-      @load="onMapLoaded"
-    >
-      <MglNavigationControl position="bottom-right"/>
-      <MglGeolocateControl position="bottom-right" />
-      <MglGeojsonLayer
-        sourceId= "stops"
-        :source="{ type: 'geojson', data: stopsGeoJson }"
-        layerId="stops"
-        :layer="stopsLayer"
-        @click="onClickStop"
-        @mouseenter="onMouseEnter"
-        @mouseleave="onMouseLeave"
-      />
-      <MglGeojsonLayer
-        sourceId= "vehicles"
-        :source="{ type: 'geojson', data: vehiclesGeoJson }"
-        layerId="vehicles"
-        :layer="vehiclesLayer"
-        @click="onClickVehicle"
-        @mouseenter="onMouseEnter"
-        @mouseleave="onMouseLeave"
-      />
-    </MglMap>
-    <div v-if="focusData" class="focus-popup">
-      <a v-if="focusStop" class="body" @click="$router.push({ name: 'stop', params: { stop: focusData && focusData.shortName } })">
-        <i class="fas fa-sign" />
-        <span>{{ focusData && focusData.name }}</span>
-        <i class="fas fa-external-link-alt"></i>
-      </a>
-      <a v-if="focusVehicle" class="body" @click="$router.push({ name: 'trip', params: { vehicle: focusVehicle, trip: focusData && focusData.tripId } })">
-        <span class="route"><i v-if="focusData && focusData.category === 'bus'" class="icon fas fa-bus" />{{ focusData && focusData.name.split(' ')[0] }}</span>
-        <span class="direction">{{ focusData && focusData.name.split(' ').slice(1).join(' ') }}</span>
-        <i class="fas fa-external-link-alt"></i>
-      </a>
-      <a class="close button" @click="$router.replace({ name: 'map' })"><i class="fas fa-times" /></a>
-    </div>
+    <template v-if="mapStyle">
+      <MglMap
+        id="map"
+        :mapStyle="mapStyle"
+        :center.sync="center"
+        :minZoom="minZoom"
+        :maxZoom="maxZoom"
+        :zoom.sync="zoom"
+        :maxBounds="maxBounds"
+        @click="onClickMap"
+        @load="onMapLoaded"
+      >
+        <MglNavigationControl position="bottom-right" />
+        <MglGeolocateControl position="bottom-right" />
+        <MglGeojsonLayer
+          sourceId= "stops"
+          :source="{ type: 'geojson', data: stopsGeoJson }"
+          layerId="stops"
+          :layer="stopsLayer"
+          @click="onClickStop"
+          @mouseenter="onMouseEnter"
+          @mouseleave="onMouseLeave"
+        />
+        <MglGeojsonLayer
+          sourceId= "vehicles"
+          :source="{ type: 'geojson', data: vehiclesGeoJson }"
+          layerId="vehicles"
+          :layer="vehiclesLayer"
+          @click="onClickVehicle"
+          @mouseenter="onMouseEnter"
+          @mouseleave="onMouseLeave"
+        />
+      </MglMap>
+      <div v-if="focusData" class="focus-popup">
+        <a v-if="focusStop" class="body" @click="$router.push({ name: 'stop', params: { stop: focusData && focusData.shortName } })">
+          <i class="fas fa-sign" />
+          <span>{{ focusData && focusData.name }}</span>
+          <i class="fas fa-external-link-alt"></i>
+        </a>
+        <a v-if="focusVehicle" class="body" @click="$router.push({ name: 'trip', params: { vehicle: focusVehicle, trip: focusData && focusData.tripId } })">
+          <span class="route"><i v-if="focusData && focusData.category === 'bus'" class="icon fas fa-bus" />{{ focusData && focusData.name.split(' ')[0] }}</span>
+          <span class="direction">{{ focusData && focusData.name.split(' ').slice(1).join(' ') }}</span>
+          <i class="fas fa-external-link-alt"></i>
+        </a>
+        <a class="close button" @click="$router.replace({ name: 'map' })"><i class="fas fa-times" /></a>
+      </div>
+    </template>
+    <p v-else>Die Map ist nicht konfiguriert ;-D</p>
   </div>
 </template>
 
@@ -59,6 +62,7 @@ import {
 } from 'vue-mapbox';
 import { mapState } from 'vuex';
 import BusIcon from '@/libs/busIcon';
+import config from '@/libs/config';
 
 export default {
   components: {
@@ -79,7 +83,7 @@ export default {
   },
   data() {
     return {
-      mapStyle: 'https://maps.targomo.com/styles/dark-matter-gl-style.json',
+      mapStyle: config('tile_server_url'),
       minZoom: 11,
       maxZoom: 18,
       // [west, south, east, north]
@@ -270,6 +274,7 @@ export default {
     flex-grow: 1;
     border-bottom: 1px solid #b5b5b5;
     overflow: hidden;
+    justify-content: center;
 
     .back {
       position: absolute;
