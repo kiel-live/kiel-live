@@ -286,8 +286,7 @@ export default {
 
   .alerts {
     display: flex;
-    width: 100%;
-    padding-bottom: 2rem;
+    margin: 0 .5rem 1rem;
     flex-flow: column;
 
     .alert {
