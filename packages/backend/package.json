@@ -1,6 +1,7 @@
 {
   "name": "@kiel-live/backend",
   "version": "1.0.0",
+  "private": true,
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
