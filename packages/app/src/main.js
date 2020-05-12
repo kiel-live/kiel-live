@@ -3,6 +3,7 @@ import router from '@/router';
 import store from '@/store';
 import '@/libs/api';
 import tracking from '@/libs/tracking';
+import '@/libs/sentry';
 import '@/registerServiceWorker';
 import App from './App.vue';
 
