@@ -4,17 +4,28 @@
   "description": "This wep app allows you to view live updates of bus arrivals in Kiel.",
   "repository": "https://github.com/anbraten/opnv-live",
   "author": "Anbraten",
-  "private": true,
-  "workspaces": ["backend", "spa"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "yarn workspace @kiel-live/backend run dev & yarn workspace @kiel-live/spa run dev",
-    "build": "yarn workspace @kiel-live/spa run build",
+    "dev": "dotenv concurrently \"yarn dev:app\" \"yarn dev:backend\"",
+    "dev:app": "yarn workspace @kiel-live/app run dev",
+    "dev:backend": "yarn workspace @kiel-live/backend run dev",
+    "build": "yarn workspace @kiel-live/app run build",
     "build:preview": "yarn generate:config && yarn build",
     "lint": "yarn workspaces run lint",
     "lint:fix": "yarn workspaces run lint --fix",
-    "generate:config": "./docker/set-env-vars.sh ./spa/public/env-config.js"
+    "generate:config": "./docker/set-env-vars.sh ./spa/public/env-config.js",
+    "release": "dotenv lerna version --conventional-commits --create-release github"
   },
   "resolutions": {
     "**/workbox-webpack-plugin": "5.0.0"
+  },
+  "dependencies": {
+    "concurrently": "^5.2.0",
+    "dotenv-cli": "^3.1.0"
+  },
+  "devDependencies": {
+    "lerna": "^3.20.2"
   }
 }

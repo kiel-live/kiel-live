@@ -1,5 +1,5 @@
 #!/bin/sh
-FILE_PATH=${1:-./spa/env-config.js}
+FILE_PATH=${1:-./packages/app/public/env-config.js}
 FILE_DIR=$(dirname "${FILE_PATH}")
 PREFIX=${2:-APP_}
 
@@ -8,9 +8,9 @@ rm -rf $FILE_PATH
 mkdir -p $FILE_DIR && touch $FILE_PATH
 
 # load env vars from file if one exists
-if [ -f .env.local ]; then
+if [ -f .env ]; then
   set -a
-  . ./.env.local
+  . ./.env
   set +a
 fi
 
@@ -40,5 +40,3 @@ printenv | while read line; do
   # Append configuration property to JS file
   echo "  $varname: '$value'," >> $FILE_PATH
 done
-
-echo "};" >> $FILE_PATH
