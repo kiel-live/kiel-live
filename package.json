@@ -16,7 +16,7 @@
     "build:preview": "yarn generate:config && yarn build",
     "lint": "yarn workspaces run lint",
     "lint:fix": "yarn workspaces run lint --fix",
-    "generate:config": "./docker/set-env-vars.sh ./spa/public/env-config.js",
+    "generate:config": "./docker/set-env-vars.sh ./packages/app/public/env-config.js",
     "release": "dotenv lerna version --conventional-commits --create-release github"
   },
   "resolutions": {
