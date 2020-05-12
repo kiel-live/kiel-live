@@ -40,3 +40,5 @@ printenv | while read line; do
   # Append configuration property to JS file
   echo "  $varname: '$value'," >> $FILE_PATH
 done
+
+echo "};" >> $FILE_PATH
