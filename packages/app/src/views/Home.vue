@@ -28,9 +28,11 @@ import TextInput from '@/components/TextInput.vue';
 
 export default {
   name: 'home',
+
   components: {
     TextInput,
   },
+
   computed: {
     ...mapGetters({
       allStops: 'stop/allStops',
@@ -41,6 +43,7 @@ export default {
       gpsSupport: (state) => state.stop.gpsSupport,
     }),
   },
+
   methods: {
     searchStop(query) {
       this.$store.dispatch('stop/searchStops', query);
