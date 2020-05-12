@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js",
-    "lint": "eslint --ext .js --ignore-path ../.gitignore ."
+    "dev": "nodemon --watch src src/",
+    "start": "node src/",
+    "lint": "eslint --ext .js --ignore-path ../../.gitignore ."
   },
   "dependencies": {
     "axios": "^0.19.2",

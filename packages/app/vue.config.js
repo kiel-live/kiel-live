@@ -3,15 +3,14 @@ const envConfigRevision = process.env.VERSION || null;
 const manifestJSON = require('./public/manifest.json');
 
 module.exports = {
-  configureWebpack: {
-    devServer: {
-      proxy: {
-        '^/api/*': {
-          target: 'http://localhost:3000',
-          secure: false,
-        },
+  devServer: {
+    proxy: {
+      '^/api/*': {
+        target: 'http://localhost:3000',
+        secure: false,
       },
     },
+    progress: false,
   },
   pwa: {
     workboxPluginMode: 'InjectManifest',
