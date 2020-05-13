@@ -4,6 +4,7 @@
     <router-view/>
     <Footer />
     <Snackbar :show="updateExists" text="Es steht ein neues Update bereit" action="Installieren" @click="refreshApp" />
+    <Changelog />
   </div>
 </template>
 
@@ -11,6 +12,7 @@
 import NavBar from '@/components/NavBar.vue';
 import Footer from '@/components/Footer.vue';
 import Snackbar from '@/components/Snackbar.vue';
+import Changelog from '@/components/Changelog.vue';
 
 export default {
   name: 'App',
@@ -18,6 +20,7 @@ export default {
     NavBar,
     Footer,
     Snackbar,
+    Changelog,
   },
   data() {
     return {

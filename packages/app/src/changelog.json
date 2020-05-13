@@ -1,0 +1,10 @@
+{
+  "version": "1",
+  "changes": [
+    {
+      "timestamp": 123214321798,
+      "content": "Es <b>gibt</b> ne map",
+      "icon": "map-marked"
+    }
+  ]
+}
