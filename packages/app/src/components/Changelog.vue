@@ -31,13 +31,13 @@ export default {
       return changelog.changes;
     },
     visible() {
-      return this.version !== changelog.version;
+      return this.version !== this.changes[0].timestamp;
     },
   },
 
   methods: {
     setVersion() {
-      this.$store.commit('setVersion', changelog.version);
+      this.$store.commit('setVersion', this.changes[0].timestamp);
     },
   },
 };
