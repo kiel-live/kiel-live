@@ -3,14 +3,14 @@ const express = require('express');
 const socketIo = require('socket.io');
 const http = require('http');
 
-const Api = require('./src/api');
-const cachedResponse = require('./src/cachedResponse');
+const Api = require('./api');
+// const cachedResponse = require('./cachedResponse');
 
 const app = express();
 const server = http.createServer(app);
 
-const PORT = process.env.PORT || 8080;
-const DIST_DIR = [__dirname, 'dist'];
+const PORT = process.env.BACKEND_PORT || 3000;
+const DIST_DIR = [__dirname, '..', 'dist'];
 let connectedClients = 0;
 
 function start() {
@@ -30,39 +30,39 @@ function start() {
     resp.send(JSON.stringify(status, null, 4));
   });
 
-  app.get('/api/osm-tiles/:z/:x/:y.png', cachedResponse, async (req, resp) => {
-    const { z, x, y } = req.params;
-    const s = String.fromCharCode(97 + Math.floor(Math.random() * 3)); // select a, b or c
+  // app.get('/api/osm-tiles/:z/:x/:y.png', cachedResponse, async (req, resp) => {
+  //   const { z, x, y } = req.params;
+  //   const s = String.fromCharCode(97 + Math.floor(Math.random() * 3)); // select a, b or c
 
-    const options = {
-      hostname: `${s}.tile.osm.org`,
-      port: 80,
-      path: `/${z}/${x}/${y}.png`,
-      method: 'GET',
-      headers: {
-        'User-Agent': 'osm-proxy-opnv-live',
-        Accept: '*/*',
-      },
-    };
+  //   const options = {
+  //     hostname: `${s}.tile.osm.org`,
+  //     port: 80,
+  //     path: `/${z}/${x}/${y}.png`,
+  //     method: 'GET',
+  //     headers: {
+  //       'User-Agent': 'osm-proxy-opnv-live',
+  //       Accept: '*/*',
+  //     },
+  //   };
 
-    resp.set({
-      'Cache-Control': 'public, max-age=86400',
-      Expires: new Date(Date.now() + 86400000).toUTCString(),
-    });
+  //   resp.set({
+  //     'Cache-Control': 'public, max-age=86400',
+  //     Expires: new Date(Date.now() + 86400000).toUTCString(),
+  //   });
 
-    const proxy = http.request(options, (res) => {
-      const data = [];
+  //   const proxy = http.request(options, (res) => {
+  //     const data = [];
 
-      res.on('data', (chunk) => {
-        data.push(chunk);
-      }).on('end', () => {
-        const buffer = Buffer.concat(data);
-        resp.send(buffer);
-      });
-    });
+  //     res.on('data', (chunk) => {
+  //       data.push(chunk);
+  //     }).on('end', () => {
+  //       const buffer = Buffer.concat(data);
+  //       resp.send(buffer);
+  //     });
+  //   });
 
-    proxy.end();
-  });
+  //   proxy.end();
+  // });
 
   app.use('*', (req, resp) => {
     resp.sendFile(path.join(...DIST_DIR, 'index.html'));

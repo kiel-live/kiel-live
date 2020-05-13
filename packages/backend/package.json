@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js",
-    "lint": "eslint --ext .js --ignore-path ../.gitignore ."
+    "dev": "nodemon --watch src src/",
+    "start": "node src/",
+    "lint": "eslint --ext .js --ignore-path ../../.gitignore ."
   },
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.19.2",
     "express": "^4.17.1",
     "flat-cache": "^2.0.1",
     "geolocation-utils": "^1.2.2",
@@ -17,8 +17,8 @@
   },
   "devDependencies": {
     "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.19.1",
-    "nodemon": "^2.0.2"
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2",
+    "nodemon": "^2.0.3"
   }
 }

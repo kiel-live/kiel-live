@@ -1,16 +1,16 @@
 // get last commit id as revision for /env-config.js
 const envConfigRevision = process.env.VERSION || null;
+const manifestJSON = require('./public/manifest.json');
 
 module.exports = {
-  configureWebpack: {
-    devServer: {
-      proxy: {
-        '^/api/*': {
-          target: 'http://localhost:8080',
-          secure: false,
-        },
+  devServer: {
+    proxy: {
+      '^/api/*': {
+        target: 'http://localhost:3000',
+        secure: false,
       },
     },
+    progress: false,
   },
   pwa: {
     workboxPluginMode: 'InjectManifest',
@@ -28,8 +28,10 @@ module.exports = {
       maskIcon: 'img/icons/safari-pinned-tab.svg',
       msTileImage: 'img/icons/mstile-150x150.png',
     },
-    themeColor: '#2c3e50',
-    msTileColor: '#ffffff',
-    name: 'Kiel Live',
+    themeColor: manifestJSON.theme_color,
+    name: manifestJSON.short_name,
+    msTileColor: manifestJSON.background_color,
+    appleMobileWebAppCapable: 'yes',
+    appleMobileWebAppStatusBarStyle: 'black',
   },
 };

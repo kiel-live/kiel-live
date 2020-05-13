@@ -5,7 +5,7 @@
       <h1 class="title">{{ stop.stopName }}</h1>
       <div v-if="isFavorite" class="favorite gold button" @click="removeFavoriteStop"><i class="fas fa-star"/></div>
       <div v-else class="favorite button" @click="addFavoriteStop"><i class="far fa-star"/></div>
-      <div v-if="isTester" class="map button" @click="$router.push({ name: 'mapStop', params: { stop: stopId }})"><i class="fas fa-map-marked"/></div>
+      <div class="map button" @click="$router.push({ name: 'mapStop', params: { stop: stopId }})"><i class="fas fa-map-marked"/></div>
     </div>
     <div v-if="alerts && alerts.length > 0" class="alerts">
       <div v-for="alert in alerts" :key="alert.title" class="alert">
@@ -47,7 +47,6 @@ export default {
   name: 'stop',
   computed: {
     ...mapState({
-      isTester: 'isTester',
       stop: (state) => state.stop.stop,
     }),
     ...mapGetters({
@@ -286,8 +285,7 @@ export default {
 
   .alerts {
     display: flex;
-    width: 100%;
-    padding-bottom: 2rem;
+    margin: 0 .5rem 1rem;
     flex-flow: column;
 
     .alert {
