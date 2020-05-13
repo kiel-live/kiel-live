@@ -4,9 +4,9 @@
     <div class="modal-card">
       <header class="modal-card-head"><p class="modal-card-title">Neue Funktionen</p></header>
       <section class="modal-card-body">
-        <div v-for="change in changes" :key="change.timestamp">
+        <div v-for="change in changes" :key="change.timestamp" class="change-block">
           <p class="change-title">{{ change.timestamp }}</p>
-          <i v-if="change.icon" class="fas icon" :class="[`fa-${change.icon}`]"/><p v-html="change.content" />
+          <span class="change-content" v-html="change.content" />
         </div>
       </section>
       <footer class="modal-card-foot">
@@ -106,14 +106,33 @@ export default {
         overflow: auto;
         padding: 20px;
         position: relative;
-        align-items: flex-start;
+        text-align: left;
 
-        .change-title {
-          font-size: 1.2rem;
-          border-bottom: #363636;
+        .change-block:not(:last-child) {
+          margin-bottom: 1.5rem;
         }
 
-        b {
+        .change-title {
+          position: relative;
+          font-size: 1.2rem;
+          margin-bottom: 1rem;
+
+          &::after {
+            content: " ";
+            position: absolute;
+            background: #dbdbdb;
+            left: 0;
+            bottom: -0.5rem;
+            width: 100%;
+            height: 1px;
+          }
+        }
+
+        .change-content {
+          line-height: 1.5rem;
+        }
+
+        ::v-deep b {
           font-weight: bold;
         }
       }
@@ -123,11 +142,17 @@ export default {
         border-bottom-right-radius: 6px;
         border-top: 1px solid #dbdbdb;
         justify-content: center;
+
+        .button {
+          background-color: #363636;
+          border-color: #363636;
+          color: #fff;
+        }
+
+        .icon {
+            margin-left: .5rem;
+        }
       }
     }
-  }
-
-  .icon {
-    margin-left: .5rem;
   }
 </style>
