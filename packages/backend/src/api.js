@@ -5,6 +5,7 @@ const { join, leave, channels } = require('./autoUpdater');
 const STOP_REFRESH_RATE = 10000;
 const TRIP_REFRESH_RATE = 10000;
 const GEO_VEHICLES_REFRESH_RATE = 5000;
+const LANGUAGE = 'de';
 
 const BASE_URL = 'https://www.kvg-kiel.de';
 const STOP_DATA_URL = `${BASE_URL}/internetservice/services/passageInfo/stopPassages/stop`;
@@ -37,7 +38,7 @@ function unEscapeHtml(unsafe) {
 async function getStop(stopId) {
   const data = {
     stop: stopId,
-    language: 'de',
+    language: LANGUAGE,
   };
 
   return post(STOP_URL, data);
@@ -48,7 +49,7 @@ async function getStopData(stopId) {
   const data = {
     cacheBuster: new Date().getTime(),
     mode: 'departure',
-    language: 'de',
+    language: LANGUAGE,
     stop: stopId,
   };
 
@@ -58,7 +59,7 @@ async function getStopData(stopId) {
 async function lookupStops(query) {
   const data = {
     query,
-    language: 'de',
+    language: LANGUAGE,
   };
 
   const res = await post(STOP_LOOKUP_URL, data);
@@ -122,7 +123,7 @@ async function trip({ tripId, vehicleId }) {
     tripId,
     vehicleId,
     mode: 'departure',
-    language: 'de',
+    language: LANGUAGE,
   };
 
   return post(TRIP_INFO_URL, data);
