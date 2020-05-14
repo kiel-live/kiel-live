@@ -1,0 +1,16 @@
+{
+  "changes": [
+    {
+      "timestamp": "2020-05-13",
+      "content": "<i class=\"fas fa-map-marked icon\"></i> <b>Karte</b> mit Haltestellen und <b>Echtzeit</b>-Positionen aller Busse"
+    },
+    {
+      "timestamp": "2019-06-22",
+      "content": "Anzeige von <i class=\"fas fa-exclamation-triangle icon\"></i><b>Verkehrs-Warnungen</b> hinzugefügt"
+    },
+    {
+      "timestamp": "2019-05-20",
+      "content": "<i class=\"fas fa-birthday-cake icon\"></i> Projekt gestartet"
+    }
+  ]
+}
