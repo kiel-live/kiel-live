@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <div class="search">
-      <TextInput class="searchText" :value="stopQuery" @input="searchStop" :debounce="true" :wait="400" placeholder="Haltestelle" autofocus />
+      <TextInput class="searchText" :value="stopQuery" @input="searchStop" :debounce="true" :wait="400" placeholder="Haltestelle suchen..." autofocus />
       <div v-if="gpsSupport" class="button gps" :class="{ loading: gpsLoading }" @click="gps">
         <i v-if="gpsLoading" class="fas fa-circle-notch fa-spin" />
         <i v-else class="fas fa-crosshairs" />
