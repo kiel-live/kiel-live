@@ -13,7 +13,7 @@ module.exports = {
     'no-param-reassign': ['error', { props: false }],
     'no-underscore-dangle': 'off',
     'object-curly-newline': ['error', {
-      'ObjectPattern': { 'minProperties': 10 },
+      ObjectPattern: { minProperties: 10 },
     }],
   },
 };
