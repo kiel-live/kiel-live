@@ -3,7 +3,7 @@ name: Docker Build
 on:
   push:
     tags:
-      - '*'
+      - 'v*'
 
 env:
   YARN_CACHE_FOLDER: ~/.yarn

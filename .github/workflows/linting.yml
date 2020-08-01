@@ -2,9 +2,24 @@ name: Linting
 
 on:
   push:
+    paths:
+      - 'lerna.json'
+      - 'yarn.lock'
+      - 'packages/app/package.json'
+      - 'packages/app/**.vue'
+      - 'packages/app/**.js'
+      - 'packages/backend/package.json'
+      - 'packages/backend/**.js'
     branches:
-    - '*'
+      - '*'
   pull_request:
+      - 'lerna.json'
+      - 'yarn.lock'
+      - 'packages/app/package.json'
+      - 'packages/app/**.vue'
+      - 'packages/app/**.js'
+      - 'packages/backend/package.json'
+      - 'packages/backend/**.js'
 
 env:
   YARN_CACHE_FOLDER: ~/.yarn
