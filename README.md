@@ -1,4 +1,4 @@
-# opnv-live
+# kiel-live
 
 [![Docker Build](https://github.com/anbraten/opnv-live/workflows/Docker%20Build/badge.svg)](https://github.com/anbraten/kiel-live/actions?query=workflow%3A%22Docker+Build%22)
 [![Linting](https://github.com/anbraten/opnv-live/workflows/Linting/badge.svg)](https://github.com/anbraten/kiel-live/actions?query=workflow%3ALinting)
