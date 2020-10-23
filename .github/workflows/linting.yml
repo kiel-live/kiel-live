@@ -13,6 +13,7 @@ on:
     branches:
       - '*'
   pull_request:
+    paths:
       - 'lerna.json'
       - 'yarn.lock'
       - 'packages/app/package.json'
