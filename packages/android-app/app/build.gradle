@@ -11,7 +11,7 @@ android {
         versionName "1.5.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders = [
-            hostName: "kiel.ju60.de"
+            hostName: "kiel-live.github.io"
         ]
     }
     buildTypes {
