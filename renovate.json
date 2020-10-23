@@ -6,5 +6,6 @@
     "enabled": true
   },
   "stabilityDays": 3,
-  "prCreation": "not-pending"
+  "prCreation": "not-pending",
+  "postUpdateOptions": ["yarnDedupeHighest"]
 }
