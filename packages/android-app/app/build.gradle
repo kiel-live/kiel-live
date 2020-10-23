@@ -7,8 +7,8 @@ android {
         applicationId "de.beechy.kiellive"
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 151
-        versionName "1.5.1"
+        versionCode 152
+        versionName "1.5.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders = [
             hostName: "kiel-live.github.io"
