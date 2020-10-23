@@ -1,24 +1,31 @@
 <template>
   <div v-if="driving" class="trip">
     <div class="header">
-      <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
-      <h1 class="title">{{ trip.routeName }} nach {{ trip.directionText }}</h1>
-      <div class="map button" @click="$router.push({ name: 'mapVehicle', params: { vehicle: vehicleId }})"><i class="fas fa-map-marked"/></div>
+      <a class="back button" @click="$router.go(-1)"><i class="fas fa-angle-double-left" /></a>
+      <h1 class="title">
+        {{ trip.routeName }} nach {{ trip.directionText }}
+      </h1>
+      <div class="map button" @click="$router.push({ name: 'mapVehicle', params: { vehicle: vehicleId }})">
+        <i class="fas fa-map-marked" />
+      </div>
     </div>
     <div class="stops">
       <template v-for="i in ['old', 'actual']">
         <div v-for="(stop, index) in trip[i]" :key="stop.tripId" class="stop" :class="i" @click="openStop(stop)">
-          <div class="time">{{ stop.actualTime }}</div>
+          <div class="time">
+            {{ stop.actualTime }}
+          </div>
           <div class="marker">
-
             <div v-if="i === 'actual' && index === 0" class="vehicle" :class="{ driving: (stop.status === 'PREDICTED') }">
-              <div class="ringring"></div>
+              <div class="ringring" />
             </div>
 
             <i v-if="i === 'old'" class="fas fa-blank" />
             <i v-else class="fas fa-circle" />
           </div>
-          <div class="name">{{ stop.stop.name }}</div>
+          <div class="name">
+            {{ stop.stop.name }}
+          </div>
         </div>
       </template>
     </div>
@@ -27,17 +34,17 @@
     <div class="notfound">
       <i class="fas fa-ban" />
       <p>Zu dieser Tour gibt es anscheinend keine live Daten.</p>
-      <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left" />Zurück</a>
+      <a class="back button" @click="$router.go(-1)"><i class="fas fa-angle-double-left" />Zurück</a>
     </div>
   </div>
   <div v-else-if="!trip" class="trip loading">
-    <i class="fas fa-circle-notch fa-spin"></i>
+    <i class="fas fa-circle-notch fa-spin" />
   </div>
   <div v-else class="trip">
     <div class="ended">
       <i class="fas fa-ban" />
       <p>Diese Tour ist wohl schon zu Ende.</p>
-      <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left" />Zurück</a>
+      <a class="back button" @click="$router.go(-1)"><i class="fas fa-angle-double-left" />Zurück</a>
     </div>
   </div>
 </template>
@@ -47,6 +54,11 @@ import { mapState } from 'vuex';
 
 export default {
   name: 'Trip',
+  beforeRouteUpdate(to, from, next) {
+    next();
+    this.unload();
+    this.load();
+  },
   computed: {
     ...mapState({
       trip: (state) => state.trip.trip,
@@ -61,10 +73,13 @@ export default {
       return this.trip && (this.trip.old.length > 0 || this.trip.actual.length > 0);
     },
   },
+  mounted() {
+    this.load();
+  },
+  beforeDestroy() {
+    this.unload();
+  },
   methods: {
-    updateTrip(trip) {
-      this.trip = trip;
-    },
     openStop(stop) {
       this.$router.push({ name: 'stop', params: { stop: stop.stop.shortName } });
     },
@@ -77,17 +92,6 @@ export default {
     unload() {
       this.$store.dispatch('trip/unload');
     },
-  },
-  mounted() {
-    this.load();
-  },
-  beforeDestroy() {
-    this.unload();
-  },
-  beforeRouteUpdate(to, from, next) {
-    next();
-    this.unload();
-    this.load();
   },
 };
 </script>

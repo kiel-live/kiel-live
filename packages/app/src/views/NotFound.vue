@@ -2,13 +2,15 @@
   <div class="notFound">
     <h1>OOPS!</h1>
     <h2>Seite nicht gefunden.</h2>
-    <router-link :to="{ name: 'home' }">Zurück zur Startseite</router-link>
+    <router-link :to="{ name: 'home' }">
+      Zurück zur Startseite
+    </router-link>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'notFound',
+  name: 'NotFound',
 };
 </script>
 

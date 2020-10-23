@@ -1,21 +1,23 @@
 <template>
   <div class="home">
     <div class="search">
-      <TextInput class="searchText" :value="stopQuery" @input="searchStop" :debounce="true" :wait="400" placeholder="Haltestelle suchen..." autofocus />
+      <TextInput class="searchText" :value="stopQuery" :debounce="true" :wait="400" placeholder="Haltestelle suchen..." autofocus @input="searchStop" />
       <div v-if="gpsSupport" class="button gps" :class="{ loading: gpsLoading }" @click="gps">
         <i v-if="gpsLoading" class="fas fa-circle-notch fa-spin" />
         <i v-else class="fas fa-crosshairs" />
       </div>
-      <div class="map button" @click="$router.push({ name: 'map' })"><i class="fas fa-map-marked"/></div>
+      <div class="map button" @click="$router.push({ name: 'map' })">
+        <i class="fas fa-map-marked" />
+      </div>
     </div>
     <div class="stops">
       <router-link v-for="stop in allStops" :key="stop.id" :to="{ name: 'stop', params: { stop: stop.id } }" class="stop" :class="{ favorite: stop.favorite }">
         <span class="name">{{ stop.name }}</span>
         <div class="details">
           <span v-if="stop.distance" class="direction">{{ stop.distance }}m</span>
-          <i v-if="stop.favorite" class="icon fas fa-star"></i>
+          <i v-if="stop.favorite" class="icon fas fa-star" />
           <i v-else-if="stop.distance" class="icon fas fa-crosshairs" />
-          <i v-else class="icon fas fa-arrow-right"></i>
+          <i v-else class="icon fas fa-arrow-right" />
         </div>
       </router-link>
     </div>
@@ -27,7 +29,7 @@ import { mapState, mapGetters } from 'vuex';
 import TextInput from '@/components/TextInput.vue';
 
 export default {
-  name: 'home',
+  name: 'Home',
 
   components: {
     TextInput,

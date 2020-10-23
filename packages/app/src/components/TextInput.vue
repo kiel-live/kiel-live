@@ -1,6 +1,6 @@
 <template>
   <div :class="{ input: true, typing }">
-    <input @input="input" type="text" v-model="innerValue" v-bind="$attrs" />
+    <input v-model="innerValue" type="text" v-bind="$attrs" @input="input">
   </div>
 </template>
 
@@ -8,13 +8,6 @@
 export default {
   name: 'TextInput',
   inheritAttrs: false,
-  data() {
-    return {
-      timeout: null,
-      typing: false,
-      innerValue: null,
-    };
-  },
   props: {
     debounce: {
       type: Boolean,
@@ -28,6 +21,16 @@ export default {
       type: String,
       default: null,
     },
+  },
+  data() {
+    return {
+      timeout: null,
+      typing: false,
+      innerValue: null,
+    };
+  },
+  mounted() {
+    this.innerValue = this.value;
   },
   methods: {
     input(event) {
@@ -47,9 +50,6 @@ export default {
         this.$emit('input', event.target.value);
       }, this.wait);
     },
-  },
-  mounted() {
-    this.innerValue = this.value;
   },
 };
 </script>

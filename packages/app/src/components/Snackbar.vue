@@ -2,7 +2,9 @@
   <div class="snackbar" :class="{ show }">
     <slot>
       {{ text }}
-      <div v-if="action" class="action" @click="click">{{ action }}</div>
+      <div v-if="action" class="action" @click="click">
+        {{ action }}
+      </div>
     </slot>
   </div>
 </template>
@@ -13,12 +15,15 @@ export default {
   props: {
     text: {
       required: true,
+      type: String,
     },
     show: {
       default: false,
+      type: Boolean,
     },
     action: {
       default: null,
+      type: String,
     },
   },
   methods: {

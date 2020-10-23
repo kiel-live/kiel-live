@@ -1,16 +1,16 @@
 <template>
   <div class="map-container">
-    <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
+    <a class="back button" @click="$router.go(-1)"><i class="fas fa-angle-double-left" /></a>
     <template v-if="mapStyle">
       <MglMap
         id="map"
-        :mapStyle="mapStyle"
+        :map-style="mapStyle"
         :center.sync="center"
-        :minZoom="minZoom"
-        :maxZoom="maxZoom"
+        :min-zoom="minZoom"
+        :max-zoom="maxZoom"
         :zoom.sync="zoom"
-        :maxBounds="maxBounds"
-        :attributionControl="false"
+        :max-bounds="maxBounds"
+        :attribution-control="false"
         @click="onClickMap"
         @load="onMapLoaded"
       >
@@ -18,18 +18,18 @@
         <MglNavigationControl position="bottom-right" />
         <MglGeolocateControl position="bottom-right" />
         <MglGeojsonLayer
-          sourceId= "stops"
+          source-id="stops"
           :source="{ type: 'geojson', data: stopsGeoJson }"
-          layerId="stops"
+          layer-id="stops"
           :layer="stopsLayer"
           @click="onClickStop"
           @mouseenter="onMouseEnter"
           @mouseleave="onMouseLeave"
         />
         <MglGeojsonLayer
-          sourceId= "vehicles"
+          source-id="vehicles"
           :source="{ type: 'geojson', data: vehiclesGeoJson }"
-          layerId="vehicles"
+          layer-id="vehicles"
           :layer="vehiclesLayer"
           @click="onClickVehicle"
           @mouseenter="onMouseEnter"
@@ -40,17 +40,19 @@
         <a v-if="focusStop" class="body" @click="$router.push({ name: 'stop', params: { stop: focusData && focusData.shortName } })">
           <i class="fas fa-sign" />
           <span>{{ focusData && focusData.name }}</span>
-          <i class="fas fa-external-link-alt"></i>
+          <i class="fas fa-external-link-alt" />
         </a>
         <a v-if="focusVehicle" class="body" @click="$router.push({ name: 'trip', params: { vehicle: focusVehicle, trip: focusData && focusData.tripId } })">
           <span class="route"><i v-if="focusData && focusData.category === 'bus'" class="icon fas fa-bus" />{{ focusData && focusData.name.split(' ')[0] }}</span>
           <span class="direction">{{ focusData && focusData.name.split(' ').slice(1).join(' ') }}</span>
-          <i class="fas fa-external-link-alt"></i>
+          <i class="fas fa-external-link-alt" />
         </a>
         <a class="close button" @click="$router.replace({ name: 'map' })"><i class="fas fa-times" /></a>
       </div>
     </template>
-    <p v-else>Die Map ist nicht konfiguriert ;-D</p>
+    <p v-else>
+      Die Map ist nicht konfiguriert ;-D
+    </p>
   </div>
 </template>
 
@@ -204,6 +206,31 @@ export default {
           || (this.focusStop && this.stops && this.stops.find((s) => s.id === this.focusStop));
     },
   },
+  created() {
+    // We need to set mapbox-gl library here in order to use it in template
+    this.mapbox = Mapbox;
+    this.map = null;
+  },
+  mounted() {
+    this.$store.dispatch('map/load');
+    if (this.focusVehicle || this.focusStop) {
+      this.needToFocus = true;
+    }
+    if (this.savedView) {
+      this.center = this.savedView.center;
+      this.zoom = this.savedView.zoom;
+    } else {
+      this.center = [10.1283, 54.3166];
+      this.zoom = 14;
+    }
+  },
+  beforeDestroy() {
+    const view = {
+      center: this.center,
+      zoom: this.zoom,
+    };
+    this.$store.dispatch('map/unload', view);
+  },
   methods: {
     convertLatLng(value) {
       return value / 3600000;
@@ -240,31 +267,6 @@ export default {
         this.needToFocus = false;
       }
     },
-  },
-  created() {
-    // We need to set mapbox-gl library here in order to use it in template
-    this.mapbox = Mapbox;
-    this.map = null;
-  },
-  mounted() {
-    this.$store.dispatch('map/load');
-    if (this.focusVehicle || this.focusStop) {
-      this.needToFocus = true;
-    }
-    if (this.savedView) {
-      this.center = this.savedView.center;
-      this.zoom = this.savedView.zoom;
-    } else {
-      this.center = [10.1283, 54.3166];
-      this.zoom = 14;
-    }
-  },
-  beforeDestroy() {
-    const view = {
-      center: this.center,
-      zoom: this.zoom,
-    };
-    this.$store.dispatch('map/unload', view);
   },
 };
 </script>

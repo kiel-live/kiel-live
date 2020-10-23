@@ -1,9 +1,13 @@
 <template>
   <div class="about">
-    <h1 class="title">{{ title }}</h1>
+    <h1 class="title">
+      {{ title }}
+    </h1>
     <p>Version: {{ version }}</p>
-    <br />
-    <div class="button" @click="setTester">{{ isTester ? 'Testmodus verlassen.' : 'Tester werden!' }}</div>
+    <br>
+    <div class="button" @click="setTester">
+      {{ isTester ? 'Testmodus verlassen.' : 'Tester werden!' }}
+    </div>
   </div>
 </template>
 

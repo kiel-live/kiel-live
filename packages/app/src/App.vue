@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <NavBar />
-    <router-view/>
+    <router-view />
     <Footer />
     <Snackbar :show="updateExists" text="Es steht ein neues Update bereit" action="Installieren" @click="refreshApp" />
     <Changelog />

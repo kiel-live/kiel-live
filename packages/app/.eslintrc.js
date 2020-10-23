@@ -6,15 +6,25 @@ module.exports = {
   },
 
   extends: [
-    'plugin:vue/essential',
+    'plugin:vue/recommended',
     '@vue/airbnb',
   ],
 
   rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'no-console': 'error',
+    'no-debugger': 'error',
     'no-param-reassign': ['error', { props: false }],
     'no-underscore-dangle': 'off',
+    'vue/no-unused-properties': ['error', {
+      groups: ['props', 'data', 'computed', 'methods', 'setup'],
+    }],
+    'vue/max-attributes-per-line': ['warn', {
+      singleline: 10,
+      multiline: {
+        max: 1,
+        allowFirstLine: false,
+      },
+    }],
   },
 
   parserOptions: {

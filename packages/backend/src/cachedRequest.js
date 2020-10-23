@@ -80,8 +80,10 @@ async function post(url, data) {
     return response.data;
   } catch (e) {
     if (process.env.NODE_ENV === 'developement') {
+      // eslint-disable-next-line no-console
       console.error('HTTP-ERROR', url, data, e.response.data || null);
     } else {
+      // eslint-disable-next-line no-console
       console.error('HTTP-ERROR', url, data);
     }
     return null;

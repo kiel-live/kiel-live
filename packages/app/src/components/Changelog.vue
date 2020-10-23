@@ -1,16 +1,25 @@
 <template>
   <div v-if="visible" class="modal" aria-modal="true">
-    <div class="modal-background"></div>
+    <div class="modal-background" />
     <div class="modal-card">
-      <header class="modal-card-head"><p class="modal-card-title">Neue Funktionen</p></header>
+      <header class="modal-card-head">
+        <p class="modal-card-title">
+          Neue Funktionen
+        </p>
+      </header>
       <section class="modal-card-body">
         <div v-for="change in changes" :key="change.timestamp" class="change-block">
-          <p class="change-title">{{ change.timestamp }}</p>
+          <p class="change-title">
+            {{ change.timestamp }}
+          </p>
+          <!-- eslint-disable-next-line vue/no-v-html -->
           <span class="change-content" v-html="change.content" />
         </div>
       </section>
       <footer class="modal-card-foot">
-        <div class="button" @click="setVersion">Okay<i class="fas fa-rocket icon"/></div>
+        <div class="button" @click="setVersion">
+          Okay<i class="fas fa-rocket icon" />
+        </div>
       </footer>
     </div>
   </div>

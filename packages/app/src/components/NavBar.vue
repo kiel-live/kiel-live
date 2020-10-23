@@ -2,11 +2,13 @@
   <div class="top">
     <div class="navbar">
       <div class="inner">
-        <router-link :to="{ name: 'home' }" class="title">{{ title }}</router-link>
-        <span v-if="!isConnected" class="offline"><i class="fas fa-signal"/>Offline</span>
+        <router-link :to="{ name: 'home' }" class="title">
+          {{ title }}
+        </router-link>
+        <span v-if="!isConnected" class="offline"><i class="fas fa-signal" />Offline</span>
       </div>
     </div>
-    <div class="placeholder"></div>
+    <div class="placeholder" />
   </div>
 </template>
 

@@ -1,6 +1,8 @@
 <template>
   <div v-if="visible" class="footer">
-    <router-link :to="{name: 'about'}">{{ title }} - Made with &#10084; and Vue.js</router-link>
+    <router-link :to="{name: 'about'}">
+      {{ title }} - Made with &#10084; and Vue.js
+    </router-link>
   </div>
 </template>
 

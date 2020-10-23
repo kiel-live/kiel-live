@@ -1,31 +1,47 @@
 <template>
   <div v-if="stop" class="stop">
     <div class="header">
-      <a @click="$router.go(-1)" class="back button"><i class="fas fa-angle-double-left"/></a>
-      <h1 class="title">{{ stop.stopName }}</h1>
-      <div v-if="isFavorite" class="favorite gold button" @click="removeFavoriteStop"><i class="fas fa-star"/></div>
-      <div v-else class="favorite button" @click="addFavoriteStop"><i class="far fa-star"/></div>
-      <div class="map button" @click="$router.push({ name: 'mapStop', params: { stop: stopId }})"><i class="fas fa-map-marked"/></div>
+      <a class="back button" @click="$router.go(-1)"><i class="fas fa-angle-double-left" /></a>
+      <h1 class="title">
+        {{ stop.stopName }}
+      </h1>
+      <div v-if="isFavorite" class="favorite gold button" @click="removeFavoriteStop">
+        <i class="fas fa-star" />
+      </div>
+      <div v-else class="favorite button" @click="addFavoriteStop">
+        <i class="far fa-star" />
+      </div>
+      <div class="map button" @click="$router.push({ name: 'mapStop', params: { stop: stopId }})">
+        <i class="fas fa-map-marked" />
+      </div>
     </div>
     <div v-if="alerts && alerts.length > 0" class="alerts">
       <div v-for="alert in alerts" :key="alert.title" class="alert">
         <i class="fas fa-exclamation-triangle icon" />
-        <div class="content">{{ alert.title }}</div>
+        <div class="content">
+          {{ alert.title }}
+        </div>
       </div>
     </div>
     <div class="arrivals">
-      <div class="bus" v-for="bus in arrivals" :key="bus.passageid" @click="openTrip(bus)">
+      <div v-for="bus in arrivals" :key="bus.passageid" class="bus" @click="openTrip(bus)">
         <div class="icon">
-          <i v-if="route(bus.routeId).routeType === 'bus'" class="fas fa-bus"></i>
-          <i v-if="route(bus.routeId).routeType === 'ferry'" class="fas fa-bus"></i>
+          <i v-if="route(bus.routeId).routeType === 'bus'" class="fas fa-bus" />
+          <i v-if="route(bus.routeId).routeType === 'ferry'" class="fas fa-bus" />
         </div>
-        <div class="line">{{ route(bus.routeId).name }}</div>
-        <div class="direction">{{ bus.direction }}</div>
-        <div class="eta">{{ eta(bus) }}</div>
+        <div class="line">
+          {{ route(bus.routeId).name }}
+        </div>
+        <div class="direction">
+          {{ bus.direction }}
+        </div>
+        <div class="eta">
+          {{ eta(bus) }}
+        </div>
         <div class="status">
-          <i v-if="bus.status === 'STOPPING'" class="fas fa-hand-paper"></i>
-          <i v-if="bus.status === 'PLANNED'" class="fas fa-clock"></i>
-          <i v-if="bus.status === 'PREDICTED'" class="fas fa-running"></i>
+          <i v-if="bus.status === 'STOPPING'" class="fas fa-hand-paper" />
+          <i v-if="bus.status === 'PLANNED'" class="fas fa-clock" />
+          <i v-if="bus.status === 'PREDICTED'" class="fas fa-running" />
         </div>
       </div>
       <div v-if="stop.actual.length == 0" class="no-data">
@@ -35,7 +51,7 @@
     </div>
   </div>
   <div v-else class="loading">
-    <i class="fas fa-circle-notch fa-spin"></i>
+    <i class="fas fa-circle-notch fa-spin" />
   </div>
 </template>
 
@@ -44,7 +60,12 @@ import { orderBy } from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 
 export default {
-  name: 'stop',
+  name: 'Stop',
+  beforeRouteUpdate(to, from, next) {
+    next();
+    this.unload();
+    this.load();
+  },
   computed: {
     ...mapState({
       stop: (state) => state.stop.stop,
@@ -92,6 +113,12 @@ export default {
         this.$store.commit('setTitle', stop.stopName);
       }
     },
+  },
+  mounted() {
+    this.load();
+  },
+  beforeDestroy() {
+    this.unload();
   },
   methods: {
     route(routeId) {
@@ -142,17 +169,6 @@ export default {
     unload() {
       this.$store.dispatch('stop/unload');
     },
-  },
-  mounted() {
-    this.load();
-  },
-  beforeDestroy() {
-    this.unload();
-  },
-  beforeRouteUpdate(to, from, next) {
-    next();
-    this.unload();
-    this.load();
   },
 };
 </script>

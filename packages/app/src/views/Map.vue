@@ -1,5 +1,5 @@
 <template>
-  <Map :focusVehicle="vehicleId" :focusStop="stopId" />
+  <Map :focus-vehicle="vehicleId" :focus-stop="stopId" />
 </template>
 
 <script>
