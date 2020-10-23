@@ -1,10 +1,10 @@
 # kiel-live
 
-[![Docker Build](https://github.com/anbraten/opnv-live/workflows/Docker%20Build/badge.svg)](https://github.com/anbraten/kiel-live/actions?query=workflow%3A%22Docker+Build%22)
-[![Linting](https://github.com/anbraten/opnv-live/workflows/Linting/badge.svg)](https://github.com/anbraten/kiel-live/actions?query=workflow%3ALinting)
-[![Docker layers](https://images.microbadger.com/badges/image/anbraten/opnv-live.svg)](https://microbadger.com/images/anbraten/opnv-live)
-
 This wep app allows you to view live updates of bus arrivals.
+
+[![Docker Build](https://github.com/kiel-live/kiel-live/workflows/Docker%20Build/badge.svg)](https://github.com/kiel-live/kiel-live/actions?query=workflow%3A%22Docker+Build%22)
+[![Linting](https://github.com/kiel-live/kiel-live/workflows/Linting/badge.svg)](https://github.com/kiel-live/kiel-live/actions?query=workflow%3ALinting)
+[![Docker layers](https://images.microbadger.com/badges/image/anbraten/opnv-live.svg)](https://microbadger.com/images/anbraten/opnv-live)
 
 [![Docker stats](https://dockeri.co/image/anbraten/opnv-live)](https://hub.docker.com/r/anbraten/opnv-live)
 
