@@ -20,11 +20,11 @@
     "release": "dotenv lerna version --conventional-commits --create-release github"
   },
   "resolutions": {
-    "**/workbox-webpack-plugin": "5.0.0"
+    "**/workbox-webpack-plugin": "5.1.4"
   },
   "dependencies": {
-    "concurrently": "^5.2.0",
-    "dotenv-cli": "^3.2.0"
+    "concurrently": "^5.3.0",
+    "dotenv-cli": "^4.0.0"
   },
   "devDependencies": {
     "lerna": "^3.22.1"
