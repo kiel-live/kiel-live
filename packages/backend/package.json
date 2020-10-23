@@ -1,6 +1,6 @@
 {
   "name": "@kiel-live/backend",
-  "version": "1.2.0",
+  "version": "1.2.4",
   "private": true,
   "scripts": {
     "dev": "nodemon --watch src src/",
