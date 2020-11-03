@@ -23,7 +23,7 @@
     "vue-matomo": "3.14.0-0",
     "vue-router": "3.4.8",
     "vuex": "3.5.1",
-    "webpack": "4.44.2",
+    "webpack": "5.4.0",
     "workbox-core": "5.1.4",
     "workbox-precaching": "5.1.4"
   },
