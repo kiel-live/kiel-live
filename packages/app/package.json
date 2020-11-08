@@ -21,7 +21,7 @@
     "vue": "2.6.12",
     "vue-mapbox": "0.4.1",
     "vue-matomo": "3.14.0-0",
-    "vue-router": "3.4.8",
+    "vue-router": "3.4.9",
     "vuex": "3.5.1",
     "webpack": "4.44.2",
     "workbox-core": "5.1.4",
