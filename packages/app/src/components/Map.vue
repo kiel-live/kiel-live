@@ -271,6 +271,10 @@ export default {
 };
 </script>
 
+<style lang="scss">
+  @import '~mapbox-gl/dist/mapbox-gl';
+</style>
+
 <style lang="scss" scoped>
   .map-container {
     position: relative;
