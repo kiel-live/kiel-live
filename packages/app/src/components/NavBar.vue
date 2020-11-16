@@ -46,7 +46,7 @@ export default {
       width: 100%;
       max-width: 40rem;
       margin: 0 auto;
-      padding: 0 0.5rem;
+      padding: 0 .5rem;
     }
   }
 

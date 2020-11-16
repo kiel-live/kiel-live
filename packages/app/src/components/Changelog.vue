@@ -67,7 +67,7 @@ export default {
     top: 0;
 
     &-background {
-      background-color: hsla(0,0%,4%,.86);
+      background-color: hsla(0, 0%, 4%, .86);
       bottom: 0;
       left: 0;
       position: absolute;
@@ -84,7 +84,8 @@ export default {
       max-width: 30rem;
       max-height: 30rem;
 
-      &-foot, &-head {
+      &-foot,
+      &-head {
         align-items: center;
         background-color: #f5f5f5;
         display: flex;
@@ -131,7 +132,7 @@ export default {
             position: absolute;
             background: #dbdbdb;
             left: 0;
-            bottom: -0.5rem;
+            bottom: -.5rem;
             width: 100%;
             height: 1px;
           }
@@ -159,7 +160,7 @@ export default {
         }
 
         .icon {
-            margin-left: .5rem;
+          margin-left: .5rem;
         }
       }
     }

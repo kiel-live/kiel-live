@@ -174,6 +174,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .title {
+    margin: 1rem 0;
+    font-size: 1.8rem;
+  }
+
   .stop {
     position: relative;
     display: flex;
@@ -229,11 +234,6 @@ export default {
     }
   }
 
-  .title {
-    margin: 1rem 0;
-    font-size: 1.8rem;
-  }
-
   .arrivals {
     display: flex;
     flex-flow: column;
@@ -245,13 +245,13 @@ export default {
     padding: 1rem;
     flex-flow: row;
     width: 100%;
-    box-shadow: inset 0 -1px 0 0 rgba(100,121,143,0.122);
+    box-shadow: inset 0 -1px 0 0 rgba(100, 121, 143, .122);
     text-align: left;
     cursor: pointer;
 
     &:hover {
-      -webkit-box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
-      box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+      -webkit-box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15);
+      box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15);
       z-index: 1;
     }
 
@@ -313,9 +313,8 @@ export default {
       position: relative;
       width: 100%;
       margin-bottom: .5rem;
-
       background-color: #ff3860;
-      border-color: rgba(0,0,0,0.12) !important;
+      border-color: rgba(0, 0, 0, .12) !important;
 
       .icon {
         margin-right: 1rem;

@@ -99,15 +99,15 @@ export default {
     padding: 1rem;
     flex-flow: row;
     width: 100%;
-    box-shadow: inset 0 -1px 0 0 rgba(100,121,143,0.122);
+    box-shadow: inset 0 -1px 0 0 rgba(100, 121, 143, .122);
     text-align: left;
     text-decoration: none;
     color: #000;
     cursor: pointer;
 
     &:hover {
-      -webkit-box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
-      box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+      -webkit-box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15);
+      box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15);
       z-index: 1;
     }
 

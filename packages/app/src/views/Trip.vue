@@ -162,8 +162,8 @@ export default {
     cursor: pointer;
 
     &:hover {
-      -webkit-box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
-      box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+      -webkit-box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15);
+      box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15);
       z-index: 1;
     }
 
@@ -226,7 +226,7 @@ export default {
         transform: translate(-50%, -50%);
         animation: pulsate 1.5s ease-out;
         animation-iteration-count: infinite;
-        opacity: 0.0
+        opacity: 0;
       }
     }
   }
@@ -255,8 +255,18 @@ export default {
   }
 
   @keyframes pulsate {
-    0% {-webkit-transform: scale(0.1, 0.1); opacity: 0.0;}
-    50% {opacity: 1.0;}
-    100% {-webkit-transform: scale(1.2, 1.2); opacity: 0.0;}
+    0% {
+      -webkit-transform: scale(.1, .1);
+      opacity: 0;
+    }
+
+    50% {
+      opacity: 1;
+    }
+
+    100% {
+      -webkit-transform: scale(1.2, 1.2);
+      opacity: 0;
+    }
   }
 </style>

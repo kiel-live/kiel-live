@@ -351,7 +351,7 @@ export default {
         margin-left: 1rem;
         margin-right: 0;
         height: auto;
-        padding: calc(.375em - 1px) 0.50em;
+        padding: calc(.375em - 1px) .5em;
       }
 
       @media only screen and (min-width: 768px) {

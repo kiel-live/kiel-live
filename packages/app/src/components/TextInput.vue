@@ -57,10 +57,11 @@ export default {
 <style lang="scss" scoped>
   @keyframes spinAround {
     0% {
-      transform: rotate(0deg)
+      transform: rotate(0deg);
     }
+
     100% {
-      transform: rotate(360deg)
+      transform: rotate(360deg);
     }
   }
 
@@ -90,11 +91,10 @@ export default {
       }
 
       &::after {
-        position: absolute !important;
+        position: absolute;
         right: .625em;
         top: .625em;
         z-index: 4;
-
         animation: spinAround .5s infinite linear;
         border: 2px solid #dbdbdb;
         border-radius: 290486px;
@@ -103,7 +103,6 @@ export default {
         content: "";
         display: block;
         height: 1em;
-        position: relative;
         width: 1em;
       }
     }

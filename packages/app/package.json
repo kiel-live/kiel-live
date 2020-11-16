@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "yarn lint:fix --no-fix",
-    "lint:fix": "vue-cli-service lint"
+    "lint": "vue-cli-service lint --no-fix && stylelint src",
+    "lint:fix": "vue-cli-service lint && stylelint src --fix"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.15.1",
@@ -41,6 +41,8 @@
     "eslint-plugin-vue": "7.1.0",
     "sass": "1.29.0",
     "sass-loader": "10.0.5",
+    "stylelint": "^13.7.2",
+    "stylelint-config-standard": "^20.0.0",
     "vue-template-compiler": "2.6.12"
   }
 }

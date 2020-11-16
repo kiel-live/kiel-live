@@ -61,7 +61,7 @@ export default {
     margin-left: 1rem;
     cursor: pointer;
     text-transform: uppercase;
-    color: #4CAF50;
+    color: #4caf50;
   }
 }
 
