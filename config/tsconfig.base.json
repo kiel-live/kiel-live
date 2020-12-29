@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "noImplicitAny": true,
+    // "noImplicitThis": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    // "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    // "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    // "isolatedModules": true,
+    "noEmit": true, // ensure that nobody can accidentally use this config for a build
+    "sourceMap": true,
+    "removeComments": true,
+    "downlevelIteration": true,
+    "paths": {
+      "@kiel-live/*": ["packages/*/src"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
