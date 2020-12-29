@@ -1,32 +1,14 @@
-import { Route } from '@kiel-live/commons';
-import socketIo, { Socket } from 'socket.io';
+import startPubServer from './pub-server';
+import startSubServer from './sub-server';
 
-const PORT = process.env.BACKEND_PORT ? parseInt(process.env.BACKEND_PORT) : 3000;
+const SUB_PORT = process.env.BACKEND_SUB_PORT ? parseInt(process.env.BACKEND_SUB_PORT) : 3000;
+const PUB_PORT = process.env.BACKEND_PUB_PORT ? parseInt(process.env.BACKEND_PUB_PORT) : 3030;
 
-interface PremiumSocket extends Socket {
-  on(event: 'route', listener: (route: Route) => void): this;
-  on(event: 'disconnect', listener: (socket: Socket) => void): this;
+async function start() {
+  await startPubServer(PUB_PORT);
+  await startSubServer(SUB_PORT);
+
+  console.log('Server started.');
 }
 
-function start() {
-  const io = socketIo({ path: '/api/socket' });
-
-  io.sockets.on('connection', (_socket) => {
-    const socket = _socket as PremiumSocket;
-
-    socket.on('route', (r) => {
-      console.log(r.name);
-    });
-
-    socket.on('disconnect', () => {
-      Api.leaveChannels(socket.id);
-    });
-  });
-
-  io.listen(PORT, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Server listening on port ${PORT}!`);
-  });
-}
-
-start();
+void start();
