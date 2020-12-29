@@ -1,4 +1,5 @@
-import { AbstractEntity } from './abstract-entity.class';
+import { LocationHeading } from './location';
+import { ProviderEntity } from './provider-entity.class';
 
 export enum VehicleType {
   BUS,
@@ -10,16 +11,10 @@ export enum VehicleType {
   SUBWAY,
 }
 
-export default class Vehicle extends AbstractEntity {
-  id: string;
-  name: string;
-  provider: string;
-  type: VehicleType;
-  state?: string;
+export class Vehicle extends ProviderEntity {
+  name!: string;
+  type!: VehicleType;
+  state?: string; // TODO define
   battery?: number;
-  location: {
-    heading: number;
-    longitude: number;
-    latitude: number;
-  };
+  location!: LocationHeading;
 }
