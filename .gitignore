@@ -21,3 +21,6 @@ lerna-debug.log*
 workspace.code-workspace
 
 .cache
+dist
+
+*.tsbuildinfo

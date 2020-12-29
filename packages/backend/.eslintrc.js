@@ -1,19 +1,13 @@
 module.exports = {
-  root: true,
+  extends: ['../../config/.eslintrc.base.js'],
+
   env: {
+    es6: true,
     node: true,
   },
-  extends: [
-    'airbnb-base',
-  ],
 
-  rules: {
-    'no-console': 'error',
-    'no-debugger': 'error',
-    'no-param-reassign': ['error', { props: false }],
-    'no-underscore-dangle': 'off',
-    'object-curly-newline': ['error', {
-      ObjectPattern: { minProperties: 10 },
-    }],
+  parserOptions: {
+    tsconfigRootDir: __dirname,
+    project: ['./tsconfig.eslint.json'],
   },
 };

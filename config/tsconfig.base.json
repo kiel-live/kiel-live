@@ -28,6 +28,7 @@
       "@kiel-live/*": ["packages/*/src"]
     }
   },
+
   "exclude": [
     "node_modules",
     "dist"

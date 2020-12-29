@@ -1,5 +1,5 @@
 {
-  "name": "@project-leek/commons",
+  "name": "@kiel-live/commons",
   "version": "2.0.0",
   "main": "dist/",
   "types": "dist/",
@@ -8,7 +8,9 @@
     "build": "yarn clean && tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "typecheck": "tsc --noEmit",
-    "clean": "shx rm -rf dist/",
-    "reset": "yarn clean"
+    "clean": "shx rm -rf dist/"
+  },
+  "devDependencies": {
+    "shx": "0.3.3"
   }
 }

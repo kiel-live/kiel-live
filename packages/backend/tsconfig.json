@@ -4,10 +4,12 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "baseUrl": "src",
-    "composite": true,
-    "noEmit": false,
+    "baseUrl": "src"
   },
+
+  "references": [
+    { "path": "../commons" }
+  ],
 
   "include": ["src"]
 }
