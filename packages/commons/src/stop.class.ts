@@ -1,5 +1,5 @@
+import { AbstractEntity } from './abstract-entity.class';
 import { Location } from './location';
-import { ProviderEntity } from './provider-entity.class';
 
 export enum StopType {
   BUS_STOP,
@@ -9,7 +9,7 @@ export enum StopType {
   SUBWAY_STOP,
 }
 
-export class Stop extends ProviderEntity {
+export class Stop extends AbstractEntity {
   name!: string;
   type!: StopType;
   location!: Location;

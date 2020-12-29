@@ -1,5 +1,4 @@
-import { Ref } from './abstract-entity.class';
-import { ProviderEntity } from './provider-entity.class';
+import { AbstractEntity, Ref } from './abstract-entity.class';
 import { Stop } from './stop.class';
 import { Trip } from './trip.class';
 import { Vehicle } from './vehicle.class';
@@ -10,7 +9,7 @@ export enum StopArrivalState {
   DEPARTED,
 }
 
-export class StopArrival extends ProviderEntity {
+export class StopArrival extends AbstractEntity {
   stop!: Ref<Stop>;
   name!: string;
   vehicle!: Ref<Vehicle>;

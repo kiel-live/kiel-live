@@ -1,5 +1,4 @@
-import { Ref } from './abstract-entity.class';
-import { ProviderEntity } from './provider-entity.class';
+import { AbstractEntity, Ref } from './abstract-entity.class';
 import { Route } from './route.class';
 
 export enum TripState {
@@ -16,7 +15,7 @@ export type TripStop = {
   eta?: number;
 };
 
-export class Trip extends ProviderEntity {
+export class Trip extends AbstractEntity {
   vehicle!: string;
   direction!: string;
   route!: Ref<Route>;
