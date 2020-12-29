@@ -1,4 +1,4 @@
-name: Linting
+name: Code Checks
 
 on:
   push:
@@ -43,3 +43,6 @@ jobs:
           node-version: '12.x'
       - run: yarn --frozen-lockfile
       - run: yarn lint
+      - run: yarn typecheck
+      - run: yarn test
+      - run: yarn build
