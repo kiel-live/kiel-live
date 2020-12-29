@@ -9,13 +9,27 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "dotenv concurrently \"yarn dev:app\" \"yarn dev:backend\"",
-    "dev:app": "yarn workspace @kiel-live/app run dev",
-    "dev:backend": "yarn workspace @kiel-live/backend run dev",
-    "build": "yarn workspace @kiel-live/app run build",
-    "build:preview": "yarn generate:config && yarn build",
-    "lint": "yarn workspaces run lint",
-    "lint:fix": "yarn workspaces run lint --fix",
+    "start": "yarn build:dependencies && dotenv -- lerna run --scope @kiel-live/app --scope @kiel-live/server --parallel start",
+    "start:app": "yarn build:dependencies && dotenv -- lerna run --scope @kiel-live/app --parallel start",
+    "start:server": "yarn build:dependencies && dotenv -- lerna run --scope @kiel-live/server --parallel start",
+    "start:commons": "yarn build:dependencies && dotenv -- lerna run --scope @kiel-live/commons --parallel start",
+    "build": "lerna run build",
+    "build:dependencies": "lerna run --scope @kiel-live/commons build",
+    "build:dep": "yarn build:dependencies",
+    "build:changed": "lerna run --since origin/master --include-dependents build",
+    "build:app": "lerna run --include-dependencies --scope @kiel-live/app build",
+    "build:server": "lerna run --include-dependencies --scope @kiel-live/server build",
+    "build:nfc-reader": "lerna run --include-dependencies --scope @kiel-live/nfc-reader build",
+    "lint": "lerna run lint",
+    "lint:changed": "lerna run --since origin/master --include-dependents lint",
+    "test": "lerna run test",
+    "test:changed": "lerna run --since origin/master --include-dependents test",
+    "test:update": "lerna run test -- -u",
+    "test:update:changed": "lerna run --since origin/master --include-dependents test -- -u",
+    "typecheck": "lerna run typecheck",
+    "typecheck:changed": "lerna run --since origin/master --include-dependents typecheck",
+    "clean": "lerna run clean",
+    "reset": "lerna run reset && lerna clean --yes && shx rm -rf node_modules/ && yarn setup",
     "generate:config": "./docker/set-env-vars.sh ./packages/app/public/env-config.js",
     "release": "dotenv lerna version --conventional-commits --create-release github"
   },
@@ -23,7 +37,6 @@
     "**/workbox-webpack-plugin": "5.1.4"
   },
   "dependencies": {
-    "concurrently": "5.3.0",
     "dotenv-cli": "4.0.0"
   },
   "devDependencies": {
