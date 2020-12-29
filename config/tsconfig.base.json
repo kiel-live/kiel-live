@@ -25,7 +25,7 @@
     "removeComments": true,
     "downlevelIteration": true,
     "paths": {
-      "@kiel-live/*": ["packages/*/src"]
+      "@kiel-live/*": ["./packages/*/src"]
     }
   },
 
