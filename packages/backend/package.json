@@ -10,7 +10,6 @@
     "clean": "shx rm -rf dist/"
   },
   "dependencies": {
-    "@kiel-live/commons": "*",
     "axios": "0.21.1",
     "express": "4.17.1",
     "flat-cache": "3.0.4",
@@ -19,7 +18,6 @@
     "socket.io": "2.3.0"
   },
   "devDependencies": {
-    "@types/socket.io": "2.1.12",
     "nodemon": "2.0.6"
   }
 }
