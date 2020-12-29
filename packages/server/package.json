@@ -3,8 +3,8 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon --watch src src/",
-    "build": "yarn clean && tsc",
+    "start": "nodemon",
+    "build": "yarn clean && esbuild src/index.ts --bundle --platform=node --outdir=dist/",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "typecheck": "tsc --noEmit",
     "clean": "shx rm -rf dist/"
@@ -16,10 +16,11 @@
     "flat-cache": "3.0.4",
     "geolocation-utils": "1.2.3",
     "querystring": "0.2.0",
-    "socket.io": "2.3.0"
+    "socket.io": "3.0.4"
   },
   "devDependencies": {
-    "@types/socket.io": "2.1.12",
+    "esbuild": "0.8.27",
+    "esbuild-node-tsc": "1.0.5",
     "nodemon": "2.0.6"
   }
 }
