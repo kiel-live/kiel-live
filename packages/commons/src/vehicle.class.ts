@@ -8,7 +8,7 @@ export enum VehicleType {
   FERRY,
   TRAIN,
   SUBWAY,
-};
+}
 
 export default class Vehicle extends AbstractEntity {
   id: string;

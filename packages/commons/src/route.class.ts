@@ -6,7 +6,7 @@ export enum RouteType {
   FERRY,
   TRAIN,
   SUBWAY,
-};
+}
 
 export default class Route extends AbstractEntity {
   id: string;

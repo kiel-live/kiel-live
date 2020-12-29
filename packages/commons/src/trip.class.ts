@@ -4,7 +4,7 @@ export enum TripState {
   PREDICTED,
   STOPPING,
   DEPARTED,
-};
+}
 
 export type TripStop = {
   id: string;

@@ -5,12 +5,6 @@ module.exports = {
 
   plugins: ['@typescript-eslint', 'import', 'simple-import-sort'],
 
-  // env: {
-  //   es6: true,
-  //   browser: true,
-  //   node: true,
-  // },
-
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
@@ -47,7 +41,8 @@ module.exports = {
     'import/no-cycle': 'error',
     'import/no-relative-parent-imports': 'error',
     'import/no-duplicates': 'error',
-    'simple-import-sort/sort': 'error',
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
     // disable different sort rules because simple-import-sort takes care of this
     'sort-imports': 'off',
     'import/order': 'off',

@@ -6,13 +6,13 @@ export enum StopType {
   FERRY_STOP,
   TRAIN_STOP,
   SUBWAY_STOP,
-};
+}
 
 export enum StopArrivalState {
   PREDICTED,
   STOPPING,
   DEPARTED,
-};
+}
 
 export type StopArrival = {
   name: string;
@@ -21,7 +21,7 @@ export type StopArrival = {
   route: string; // TODO ref
   direction: string;
   state: StopArrivalState;
-  planned: Date,
+  planned: Date;
   eta?: number;
 };
 
