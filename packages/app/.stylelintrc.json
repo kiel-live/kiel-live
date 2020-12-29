@@ -1,7 +1,0 @@
-{
-  "extends": "stylelint-config-standard",
-  "rules": {
-    "number-leading-zero": "never",
-    "selector-pseudo-element-no-unknown": [true, { "ignorePseudoElements": ["v-deep"] }]
-  }
-}
