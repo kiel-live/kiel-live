@@ -71,4 +71,13 @@ router.beforeEach((to, from, next) => {
   next();
 });
 
+router.afterEach((to) => {
+  if (to.matched.some((route) => route.meta.dontTrack)) {
+    return;
+  }
+
+  // eslint-disable-next-line no-undef
+  Shynet.newPageLoad();
+});
+
 export default router;
