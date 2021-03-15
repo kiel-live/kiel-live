@@ -22,8 +22,8 @@
     "vue-mapbox": "0.4.1",
     "vue-router": "3.4.9",
     "vuex": "3.6.2",
-    "workbox-core": "5.1.4",
-    "workbox-precaching": "5.1.4"
+    "workbox-core": "6.1.2",
+    "workbox-precaching": "6.1.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "4.5.11",
