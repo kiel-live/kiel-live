@@ -73,7 +73,7 @@ jobs:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@3.7.1
+        uses: JamesIves/github-pages-deploy-action@4.1.1
         with:
           SSH: true
           REPOSITORY_NAME: kiel-live/kiel-live.github.io
