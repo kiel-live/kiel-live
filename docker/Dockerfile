@@ -1,4 +1,4 @@
-FROM node:12.19.1-alpine as build-stage
+FROM node:12.22.1-alpine as build-stage
 ARG VERSION
 ENV VUE_APP_VERSION=${VERSION}
 WORKDIR /app
@@ -10,7 +10,7 @@ RUN yarn run build
 
 #####################################################
 
-FROM node:12.19.1-alpine
+FROM node:12.22.1-alpine
 ARG VERSION
 
 WORKDIR /app
