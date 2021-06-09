@@ -2,6 +2,7 @@ package webserver
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -48,7 +49,8 @@ func (webServer *WebServer) router() *http.ServeMux {
 	return mux
 }
 
-func (webServer *WebServer) Listen(addr string) error {
+func (webServer *WebServer) Listen(port int) error {
+	addr := fmt.Sprintf(":%d", port)
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
@@ -56,7 +58,8 @@ func (webServer *WebServer) Listen(addr string) error {
 
 	webServer.server = &http.Server{Addr: addr, Handler: webServer.router()}
 
-	log.Println("Server started!")
+	log.Println("🚀 Backend running at:")
+	log.Printf("> Local: http://localhost:%d\n", port)
 
 	return webServer.server.Serve(listener)
 }

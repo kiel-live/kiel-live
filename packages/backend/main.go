@@ -9,12 +9,13 @@ import (
 	"github.com/kiel-live/kiel-live/backend/websocket"
 )
 
-var addr = flag.String("addr", ":8080", "http service address")
+var port = flag.Int("addr", 4000, "server port")
 
 func main() {
 	flag.Parse()
 
-	log.Println("Starting server ...")
+	log.Printf("🚌 Kiel-Live backend version %s", "2.0.0") // TODO load proper version
+	log.Println("⚡ Backend starting ...")
 
 	hub := hub.NewHub()
 	go hub.Run()
@@ -22,7 +23,7 @@ func main() {
 	websocketServer := websocket.NewWebsocketServer(hub)
 
 	webServer := webserver.NewWebServer(websocketServer)
-	err := webServer.Listen(*addr)
+	err := webServer.Listen(*port)
 	if err != nil {
 		log.Panic("Can't start web-server")
 	}

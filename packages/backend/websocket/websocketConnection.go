@@ -3,6 +3,7 @@ package websocket
 import (
 	"encoding/binary"
 	"errors"
+	"log"
 	"net/http"
 	"sync"
 
@@ -26,6 +27,8 @@ func newWebsocketConnection(w http.ResponseWriter, r *http.Request, s *Websocket
 		Server: s,
 		Token:  uuid.New(),
 	}
+
+	log.Printf("Client connecting ...")
 
 	err := conn.handshake(w, r)
 	if err != nil {
