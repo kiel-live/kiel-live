@@ -61,31 +61,7 @@ func (c *websocketConnection) handshake(w http.ResponseWriter, r *http.Request) 
 
 	log.Printf("Client connecting ...")
 
-	err = c.readConn(&c.AuthData)
-	if err != nil {
-		c.Close(4400, err.Error())
-		return nil
-	}
-
-	// Expect auth packet first.
-	if c.AuthData.Type() != proto.AuthMessage {
-		c.writeConn(proto.NewErrorMessage(proto.AuthFailedMessage, errors.New("auth expected")))
-		c.Close(4401, "Auth expected")
-		return nil
-	}
-
-	if c.Server.CanConnect != nil && !c.Server.CanConnect(c.AuthData) {
-		c.writeConn(proto.NewErrorMessage(proto.AuthFailedMessage, errors.New("Unauthorized")))
-		c.Close(4401, "Unauthorized")
-		return nil
-	}
-
 	defer c.Cleanup()
-
-	err = c.writeConn(proto.NewMessage(proto.AuthOKMessage))
-	if err != nil {
-		return err
-	}
 
 	hub := c.Server.hub
 	err = hub.Connect(c)
@@ -114,6 +90,32 @@ func (c *websocketConnection) Run() {
 		log.Printf("Client > %s", m)
 
 		switch m.Type() {
+		case proto.AuthMessage:
+			if c.Server.CanConnect != nil && !c.Server.CanConnect(m) {
+				c.writeConn(proto.NewErrorMessage(proto.AuthFailedMessage, errors.New("Unauthorized")))
+				continue
+			}
+
+			c.writeConn(proto.NewMessage(proto.AuthOKMessage))
+
+			c.AuthData = m
+
+		case proto.PublishMessage:
+			channel := m.Channel()
+			if c.Server.CanPublish != nil && !c.Server.CanPublish(c.AuthData, channel) {
+				c.writeConn(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, errors.New("channel refused")))
+				continue
+			}
+
+			data := m.Data()
+			err := hub.Publish(c, channel, data)
+			if err != nil {
+				c.writeConn(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, err))
+				continue
+			}
+
+			c.writeConn(proto.NewChannelMessage(proto.PublishOKMessage, channel))
+
 		case proto.SubscribeMessage:
 			channel := m.Channel()
 			if c.Server.CanSubscribe != nil && !c.Server.CanSubscribe(c.AuthData, channel) {
@@ -124,9 +126,10 @@ func (c *websocketConnection) Run() {
 			err := hub.Subscribe(c, channel)
 			if err != nil {
 				c.writeConn(proto.NewChannelErrorMessage(proto.SubscribeErrorMessage, channel, err))
-			} else {
-				c.writeConn(proto.NewChannelMessage(proto.SubscribeOKMessage, channel))
+				continue
 			}
+
+			c.writeConn(proto.NewChannelMessage(proto.SubscribeOKMessage, channel))
 
 		case proto.UnsubscribeMessage:
 			channel := m.Channel()
@@ -136,6 +139,7 @@ func (c *websocketConnection) Run() {
 				c.writeConn(proto.NewChannelErrorMessage(proto.UnsubscribeErrorMessage, channel, err))
 				continue
 			}
+
 			c.writeConn(proto.NewChannelMessage(proto.UnsubscribeOKMessage, channel))
 
 		case proto.PingMessage:

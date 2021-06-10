@@ -3,13 +3,18 @@ package hub
 import (
 	"errors"
 	"sync"
-
-	"github.com/kiel-live/kiel-live/backend/proto"
 )
 
 type subscriptionRequest struct {
 	Connection connection
 	Channel    string
+	Done       chan error
+}
+
+type channelMessageRequest struct {
+	Connection connection
+	Channel    string
+	Data       string
 	Done       chan error
 }
 
@@ -27,7 +32,7 @@ type Hub struct {
 
 	newSubscriptions   chan subscriptionRequest
 	newUnsubscriptions chan subscriptionRequest
-	newChannelMessage  chan proto.ClientMessage
+	newChannelMessages chan channelMessageRequest
 
 	sync.Mutex
 }
@@ -52,6 +57,7 @@ func (h *Hub) Prepare() error {
 
 	h.newSubscriptions = make(chan subscriptionRequest, 100)
 	h.newUnsubscriptions = make(chan subscriptionRequest, 100)
+	h.newChannelMessages = make(chan channelMessageRequest, 100)
 
 	return nil
 }
@@ -63,7 +69,7 @@ func (h *Hub) Run() {
 			h.handleSubscribe(r)
 		case r := <-h.newUnsubscriptions:
 			h.handleUnsubscribe(r)
-		case m := <-h.newChannelMessage:
+		case m := <-h.newChannelMessages:
 			h.handleMessage(m)
 		case <-h.quit:
 			return
@@ -86,7 +92,7 @@ func (h *Hub) Connect(conn connection) error {
 
 func (h *Hub) Disconnect(conn connection) error {
 	if !h.hasConnection(conn) {
-		return errors.New("Unknown connection")
+		return errors.New("unknown connection")
 	}
 
 	h.Lock()
@@ -134,7 +140,7 @@ func (h *Hub) hasSubscription(conn connection, channel string) bool {
 
 func (h *Hub) Subscribe(conn connection, channel string) error {
 	if !h.hasConnection(conn) {
-		return errors.New("Unknown connection")
+		return errors.New("unknown connection")
 	}
 
 	r := subscriptionRequest{
@@ -162,7 +168,7 @@ func (h *Hub) handleSubscribe(r subscriptionRequest) {
 
 func (h *Hub) Unsubscribe(conn connection, channel string) error {
 	if !h.hasConnection(conn) {
-		return errors.New("Unknown connection")
+		return errors.New("unknown connection")
 	}
 	if !h.hasSubscription(conn, channel) {
 		// Some clients seem to be sending double unsubscribes,
@@ -201,19 +207,37 @@ func (h *Hub) handleUnsubscribe(r subscriptionRequest) {
 // 	}
 // }
 
-func (h *Hub) handleMessage(m proto.ClientMessage) {
+func (h *Hub) Publish(conn connection, channel string, data string) error {
+	if !h.hasConnection(conn) {
+		return errors.New("unknown connection")
+	}
+
+	r := channelMessageRequest{
+		Connection: conn,
+		Channel:    channel,
+		Data:       data,
+		Done:       make(chan error),
+	}
+	h.newChannelMessages <- r
+	return <-r.Done
+}
+
+func (h *Hub) handleMessage(m channelMessageRequest) {
 	h.Lock()
 	defer h.Unlock()
-	channel := m.Channel()
-	data := m.Data()
+	channel := m.Channel
+	data := m.Data
 
 	if _, ok := h.channels[channel]; !ok {
+		m.Done <- nil
 		return // No longer subscribed?
 	}
 
 	for conn, _ := range h.channels[channel] {
 		conn.Send(channel, data)
 	}
+
+	m.Done <- nil
 }
 
 type hubStats struct {

@@ -8,12 +8,16 @@ import (
 )
 
 type WebsocketServer struct {
-	// Invoked upon initial connection, can be used to enforce access control.
-	CanConnect func(data map[string]interface{}) bool
+	// Invoked upon authentication, can be used to enforce access control.
+	CanConnect func(authData map[string]interface{}) bool
 
 	// Invoked upon channel subscription, can be used to enforce access control
 	// for channels.
-	CanSubscribe func(data map[string]interface{}, channel string) bool
+	CanSubscribe func(authData map[string]interface{}, channel string) bool
+
+	// Invoked upon channel publish, can be used to enforce access control
+	// for channels.
+	CanPublish func(authData map[string]interface{}, channel string) bool
 
 	// Can be set to allow CORS requests.
 	CheckOrigin func(r *http.Request) bool

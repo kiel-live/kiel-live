@@ -6,31 +6,40 @@ const (
 	AuthMessage = "auth"
 
 	// Server: Authentication succeeded
-	AuthOKMessage = "authOk"
+	AuthOKMessage = "auth-ok"
 
 	// Server: Authentication failed
-	AuthFailedMessage = "authError"
+	AuthFailedMessage = "auth-error"
 
 	// Client: Subscribe to channel
 	SubscribeMessage = "subscribe"
 
 	// Server: Subscribe succeeded
-	SubscribeOKMessage = "subscribeOk"
+	SubscribeOKMessage = "subscribe-ok"
 
 	// Server: Subscribe failed
-	SubscribeErrorMessage = "subscribeError"
+	SubscribeErrorMessage = "subscribe-error"
 
-	// Server: Broadcast message
-	MessageMessage = "message"
+	// Client: Publish message
+	PublishMessage = "publish"
+
+	// Publish: Publish succeeded
+	PublishOKMessage = "publish-ok"
+
+	// Publish: Publish failed
+	PublishErrorMessage = "publish-error"
+
+	// Server: Channel message
+	ChannelMessage = "channel-message"
 
 	// Client: Unsubscribe from channel
 	UnsubscribeMessage = "unsubscribe"
 
 	// Server: Unsubscribe succeeded
-	UnsubscribeOKMessage = "unsubscribeOk"
+	UnsubscribeOKMessage = "unsubscribe-ok"
 
 	// Server: Unsubscribe failed
-	UnsubscribeErrorMessage = "unsubscribeError"
+	UnsubscribeErrorMessage = "unsubscribe-error"
 
 	// Client: Send me more messages
 	PollMessage = "poll"
@@ -42,5 +51,5 @@ const (
 	UnknownMessage = "unknown"
 
 	// Server: Server error
-	ServerErrorMessage = "serverError"
+	ServerErrorMessage = "server-error"
 )

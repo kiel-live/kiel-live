@@ -12,7 +12,7 @@ func (c ClientMessage) ResultId() string {
 	if t == UnsubscribeOKMessage {
 		t = UnsubscribeMessage
 	}
-	return fmt.Sprintf("%s_%s", t, c["channel"])
+	return fmt.Sprintf("%s_%s", t, c["__channel"])
 }
 
 func (c ClientMessage) Type() string {
@@ -54,23 +54,23 @@ func NewErrorMessage(t string, err error) ClientMessage {
 
 func NewChannelMessage(t, channel string) ClientMessage {
 	return ClientMessage{
-		"__type":  t,
-		"channel": channel,
+		"__type":    t,
+		"__channel": channel,
 	}
 }
 
-func NewBroadcastMessage(channel, body string) ClientMessage {
+func NewBroadcastMessage(channel, data string) ClientMessage {
 	return ClientMessage{
-		"__type":  MessageMessage,
-		"channel": channel,
-		"body":    body,
+		"__type":    ChannelMessage,
+		"__channel": channel,
+		"data":      data,
 	}
 }
 
 func NewChannelErrorMessage(t, channel string, err error) ClientMessage {
 	return ClientMessage{
-		"__type":  t,
-		"channel": channel,
-		"reason":  err.Error(),
+		"__type":    t,
+		"__channel": channel,
+		"reason":    err.Error(),
 	}
 }
