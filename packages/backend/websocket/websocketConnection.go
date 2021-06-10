@@ -28,8 +28,6 @@ func newWebsocketConnection(w http.ResponseWriter, r *http.Request, s *Websocket
 		Token:  uuid.New(),
 	}
 
-	log.Printf("Client connecting ...")
-
 	err := conn.handshake(w, r)
 	if err != nil {
 		if conn.Conn != nil {
@@ -60,6 +58,8 @@ func (c *websocketConnection) handshake(w http.ResponseWriter, r *http.Request) 
 		return nil
 	}
 	c.Conn = conn
+
+	log.Printf("Client connecting ...")
 
 	err = c.readConn(&c.AuthData)
 	if err != nil {
@@ -93,6 +93,8 @@ func (c *websocketConnection) handshake(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
+	log.Printf("Client connected")
+
 	c.Run()
 
 	return nil
@@ -108,6 +110,8 @@ func (c *websocketConnection) Run() {
 			c.Close(4400, err.Error())
 			break
 		}
+
+		log.Printf("Client > %s", m)
 
 		switch m.Type() {
 		case proto.SubscribeMessage:
