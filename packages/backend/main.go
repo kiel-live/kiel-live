@@ -4,9 +4,9 @@ import (
 	"flag"
 	"log"
 
-	"github.com/kiel-live/kiel-live/backend/hub"
-	"github.com/kiel-live/kiel-live/backend/webserver"
-	"github.com/kiel-live/kiel-live/backend/websocket"
+	"github.com/kiel-live/kiel-live/packages/backend/hub"
+	"github.com/kiel-live/kiel-live/packages/backend/webserver"
+	"github.com/kiel-live/kiel-live/packages/backend/websocket"
 )
 
 var port = flag.Int("addr", 4000, "server port")

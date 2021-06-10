@@ -1,4 +1,4 @@
-module github.com/kiel-live/kiel-live/backend
+module github.com/kiel-live/kiel-live/packages/backend
 
 go 1.16
 

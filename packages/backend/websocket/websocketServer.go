@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
-	"github.com/kiel-live/kiel-live/backend/hub"
-	"github.com/kiel-live/kiel-live/backend/proto"
+	"github.com/kiel-live/kiel-live/packages/backend/hub"
+	"github.com/kiel-live/kiel-live/packages/backend/proto"
 )
 
 type WebsocketServer struct {
