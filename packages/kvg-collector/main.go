@@ -38,6 +38,7 @@ func post(url string, data url.Values) ([]byte, error) {
 		println(err)
 		return nil, err
 	}
+	defer resp.Body.Close()
 	fmt.Println(resp.Status)
 	body, err := io.ReadAll(resp.Body)
 	return body, err
