@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
-	"github.com/kiel-live/kiel-live/packages/backend/proto"
+	proto "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
 	"github.com/pborman/uuid"
 )
 

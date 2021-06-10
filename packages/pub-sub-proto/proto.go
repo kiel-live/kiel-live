@@ -1,4 +1,4 @@
-package proto
+package protocol
 
 // Message types used between server and client.
 const (
