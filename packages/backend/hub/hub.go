@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+
+	protocol "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
 )
 
 type subscriptionRequest struct {
@@ -220,7 +222,7 @@ func (h *Hub) publishListOfChannels() {
 
 	r := channelMessageRequest{
 		Connection: nil,
-		Channel:    "subscribed-channels",
+		Channel:    protocol.SubscribedChannelName,
 		Data:       string(data),
 		Done:       nil,
 	}
@@ -232,7 +234,7 @@ func (h *Hub) Publish(conn connection, channel string, data string) error {
 		return errors.New("unknown connection")
 	}
 
-	if conn != nil && channel == "subscribed-channels" {
+	if conn != nil && channel == protocol.SubscribedChannelName {
 		return errors.New("you are not allowed to publish to this channel")
 	}
 
