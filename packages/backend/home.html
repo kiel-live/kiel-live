@@ -23,8 +23,35 @@ window.onload = function () {
         if (!msg.value) {
             return false;
         }
-        conn.send(msg.value);
+        // conn.send(msg.value);
+        conn.send(JSON.stringify({
+            __type: 'publish',
+            __channel: 'hello',
+            data: msg.value,
+        }));
         msg.value = "";
+        return false;
+    };
+
+    document.getElementById("btn-subscribe").onclick = function () {
+        if (!conn) {
+            return false;
+        }
+        conn.send(JSON.stringify({
+            __type: 'subscribe',
+            __channel: 'hello',
+        }));
+        return false;
+    };
+
+    document.getElementById("btn-unsubscribe").onclick = function () {
+        if (!conn) {
+            return false;
+        }
+        conn.send(JSON.stringify({
+            __type: 'unsubscribe',
+            __channel: 'hello',
+        }));
         return false;
     };
 
@@ -32,12 +59,8 @@ window.onload = function () {
         conn = new WebSocket("ws://" + document.location.host + "/ws");
         conn.onopen = function (evt) {
             var item = document.createElement("div");
-            item.innerHTML = "<b>Connecting ...</b>";
+            item.innerHTML = "<b>Connected</b>";
             appendLog(item);
-            conn.send(JSON.stringify({
-                __type: 'auth',
-                data: 'huhu',
-            }));
         };
         conn.onclose = function (evt) {
             var item = document.createElement("div");
@@ -100,8 +123,10 @@ body {
 <body>
 <div id="log"></div>
 <form id="form">
-    <input type="submit" value="Send" />
+    <button id="btn-subscribe" type="button">Subscribe</button>
+    <button id="btn-unsubscribe" type="button">Unsubscribe</button>
     <input type="text" id="msg" size="64" autofocus />
+    <input type="submit" value="Publish" />
 </form>
 </body>
 </html>
