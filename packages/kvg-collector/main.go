@@ -12,11 +12,11 @@ import (
 	funk "github.com/thoas/go-funk"
 )
 
-var baseUrl = "https://www.kvg-kiel.de"
-var stopUrl = baseUrl + "/internetservice/services/passageInfo/stopPassages/stop"
-var tripUrl = baseUrl + "/internetservice/services/tripInfo/tripPassages"
-var vehiclesUrl = baseUrl + "/internetservice/geoserviceDispatcher/services/vehicleinfo/vehicles"
-var stopsUrl = baseUrl + "/internetservice/geoserviceDispatcher/services/stopinfo/stops"
+var baseURL = "https://www.kvg-kiel.de"
+var stopURL = baseURL + "/internetservice/services/passageInfo/stopPassages/stop"
+var tripURL = baseURL + "/internetservice/services/tripInfo/tripPassages"
+var vehiclesURL = baseURL + "/internetservice/geoserviceDispatcher/services/vehicleinfo/vehicles"
+var stopsURL = baseURL + "/internetservice/geoserviceDispatcher/services/stopinfo/stops"
 
 func main() {
 	stops := getStops()
@@ -28,7 +28,7 @@ func main() {
 	stop := getStop(stops.Stops[0].ShortName)
 	fmt.Println(stop)
 
-	trip := getTrip(stop.Departures[0].TripId)
+	trip := getTrip(stop.Departures[0].TripID)
 	fmt.Println(trip)
 }
 
@@ -45,7 +45,7 @@ func post(url string, data url.Values) ([]byte, error) {
 }
 
 type stop struct {
-	Id        string `json:"id"`
+	ID        string `json:"id"`
 	ShortName string `json:"shortName"`
 	Name      string `json:"name"`
 	Latitude  int    `json:"latitude"`
@@ -63,7 +63,7 @@ func getStops() stops {
 	data.Set("left", "-648000000")
 	data.Set("right", "648000000")
 
-	body, _ := post(stopsUrl, data)
+	body, _ := post(stopsURL, data)
 	fmt.Printf("Body: %s\n", body)
 	var stops stops
 	if err := json.Unmarshal(body, &stops); err != nil {
@@ -73,12 +73,12 @@ func getStops() stops {
 }
 
 type vehicle struct {
-	Id        string `json:"id"`
+	ID        string `json:"id"`
 	Name      string `json:"name"`
 	Heading   int    `json:"heading"`
 	Latitude  int    `json:"latitude"`
 	Longitude int    `json:"longitude"`
-	TripId    string `json:"tripId"`
+	TripID    string `json:"tripId"`
 }
 
 type vehicles struct {
@@ -86,7 +86,7 @@ type vehicles struct {
 }
 
 func getVehicles() vehicles {
-	body, _ := post(vehiclesUrl, nil)
+	body, _ := post(vehiclesURL, nil)
 	var vehicles vehicles
 	if err := json.Unmarshal(body, &vehicles); err != nil {
 		log.Fatalf("Parse response failed, reason: %v \n", err)
@@ -100,7 +100,7 @@ func getVehicles() vehicles {
 }
 
 type departure struct {
-	TripId             string `json:"tripId"`
+	TripID             string `json:"tripId"`
 	Status             string `json:"status"`
 	Stop               string `json:"plannedTime"`
 	ActualTime         string `json:"actualTime"`
@@ -115,7 +115,7 @@ func getStop(stopShortName string) stopDepartures {
 	data := url.Values{}
 	data.Set("stop", stopShortName)
 
-	resp, _ := post(stopUrl, data)
+	resp, _ := post(stopURL, data)
 	var stop stopDepartures
 	if err := json.Unmarshal(resp, &stop); err != nil {
 		log.Fatalf("Parse response failed, reason: %v \n", err)
@@ -136,11 +136,11 @@ type trip struct {
 	RouteName     string      `json:"routeName"`
 }
 
-func getTrip(tripId string) trip {
+func getTrip(tripID string) trip {
 	data := url.Values{}
-	data.Set("tripId", tripId)
+	data.Set("tripId", tripID)
 
-	resp, _ := post(tripUrl, data)
+	resp, _ := post(tripURL, data)
 	var trip trip
 	if err := json.Unmarshal(resp, &trip); err != nil {
 		log.Fatalf("Parse response failed, reason: %v \n", err)
