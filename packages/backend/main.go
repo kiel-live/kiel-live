@@ -17,13 +17,16 @@ func main() {
 	log.Printf("🚌 Kiel-Live backend version %s", "2.0.0") // TODO load proper version
 	log.Println("⚡ Backend starting ...")
 
-	hub := hub.NewHub()
+	hub, err := hub.NewHub()
+	if err != nil {
+		log.Panic("Can't start hub")
+	}
 	go hub.Run()
 
 	websocketServer := websocket.NewWebsocketServer(hub)
 
 	webServer := webserver.NewWebServer(websocketServer)
-	err := webServer.Listen(*port)
+	err = webServer.Listen(*port)
 	if err != nil {
 		log.Panic("Can't start web-server")
 	}

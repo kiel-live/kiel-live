@@ -32,8 +32,15 @@ type Hub struct {
 	sync.Mutex
 }
 
-func NewHub() *Hub {
-	return &Hub{}
+func NewHub() (*Hub, error) {
+	hub := &Hub{}
+
+	err := hub.Prepare()
+	if err != nil {
+		return nil, err
+	}
+
+	return hub, nil
 }
 
 func (h *Hub) Prepare() error {
