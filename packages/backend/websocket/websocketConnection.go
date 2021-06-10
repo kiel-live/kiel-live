@@ -61,6 +61,11 @@ func (c *websocketConnection) handshake(w http.ResponseWriter, r *http.Request) 
 
 	log.Printf("Client connecting ...")
 
+	if c.Server.CanConnect != nil && !c.Server.CanConnect(c) {
+		c.Close(4400, err.Error())
+		return nil
+	}
+
 	defer c.Cleanup()
 
 	hub := c.Server.hub
@@ -89,7 +94,7 @@ func (c *websocketConnection) Run() {
 
 		switch m.Type() {
 		case proto.AuthMessage:
-			if c.Server.CanConnect != nil && !c.Server.CanConnect(m) {
+			if c.Server.CanAuthenticate != nil && !c.Server.CanAuthenticate(m) {
 				c.writeConn(proto.NewErrorMessage(proto.AuthFailedMessage, errors.New("Unauthorized")))
 				continue
 			}

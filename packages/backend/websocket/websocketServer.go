@@ -5,11 +5,15 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/kiel-live/kiel-live/backend/hub"
+	"github.com/kiel-live/kiel-live/backend/proto"
 )
 
 type WebsocketServer struct {
+	// Invoked upon connection, can be used to do pre-connect checks.
+	CanConnect func(conn *websocketConnection) bool
+
 	// Invoked upon authentication, can be used to enforce access control.
-	CanConnect func(authData map[string]interface{}) bool
+	CanAuthenticate func(authMessage proto.ClientMessage) bool
 
 	// Invoked upon channel subscription, can be used to enforce access control
 	// for channels.
@@ -32,6 +36,12 @@ type WebsocketServer struct {
 func NewWebsocketServer(hub *hub.Hub) *WebsocketServer {
 	return &WebsocketServer{
 		hub: hub,
+		CanAuthenticate: func(authMessage proto.ClientMessage) bool {
+			return authMessage.Data() == "i-wont-tell-you-my-secret" // TODO load secret from env
+		},
+		CanPublish: func(authData map[string]interface{}, channel string) bool {
+			return authData != nil // require authentication
+		},
 	}
 }
 
