@@ -87,8 +87,6 @@ func (c *websocketConnection) Run() {
 			break
 		}
 
-		log.Printf("Client > %s", m)
-
 		switch m.Type() {
 		case proto.AuthMessage:
 			if c.Server.CanConnect != nil && !c.Server.CanConnect(m) {
@@ -172,10 +170,6 @@ func (c *websocketConnection) Close(code uint16, msg string) {
 
 func (c *websocketConnection) Send(channel, message string) {
 	c.writeConn(proto.NewBroadcastMessage(channel, message))
-}
-
-func (c *websocketConnection) Process(t string, args []string) {
-	panic("Websocket connections don't use control messages!")
 }
 
 func (c *websocketConnection) GetToken() string {
