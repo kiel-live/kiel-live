@@ -52,7 +52,7 @@ func NewErrorMessage(t string, err error) ClientMessage {
 	}
 }
 
-func NewChannelMessage(t, channel string) ClientMessage {
+func NewChannelMessage(t string, channel string) ClientMessage {
 	return ClientMessage{
 		"__type":    t,
 		"__channel": channel,
@@ -67,10 +67,39 @@ func NewBroadcastMessage(channel, data string) ClientMessage {
 	}
 }
 
-func NewChannelErrorMessage(t, channel string, err error) ClientMessage {
+func NewChannelErrorMessage(t string, channel string, err error) ClientMessage {
 	return ClientMessage{
 		"__type":    t,
 		"__channel": channel,
 		"reason":    err.Error(),
+	}
+}
+
+func NewSubscribeMessage(channel string) ClientMessage {
+	return ClientMessage{
+		"__type":    SubscribeMessage,
+		"__channel": channel,
+	}
+}
+
+func NewUnsubscribeMessage(channel string) ClientMessage {
+	return ClientMessage{
+		"__type":    UnsubscribeMessage,
+		"__channel": channel,
+	}
+}
+
+func NewAuthenticateMessage(data string) ClientMessage {
+	return ClientMessage{
+		"__type": AuthMessage,
+		"data":   data,
+	}
+}
+
+func NewPublishMessage(channel string, data string) ClientMessage {
+	return ClientMessage{
+		"__type":    PublishMessage,
+		"__channel": channel,
+		"data":      data,
 	}
 }
