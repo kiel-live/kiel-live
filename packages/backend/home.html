@@ -7,6 +7,7 @@ window.onload = function () {
     var conn;
     var msg = document.getElementById("msg");
     var log = document.getElementById("log");
+    var channel = document.getElementById("channel");
 
     function appendLog(item) {
         var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
@@ -16,6 +17,20 @@ window.onload = function () {
         }
     }
 
+    function receive(message) {
+        var item = document.createElement("div");
+        item.innerText = `> ${message}`;
+        appendLog(item);
+    }
+
+    function send(data) {
+        var message = JSON.stringify(data);
+        conn.send(message);
+        var item = document.createElement("div");
+        item.innerText = `< ${message}`;
+        appendLog(item);
+    }
+
     document.getElementById("form").onsubmit = function () {
         if (!conn) {
             return false;
@@ -23,13 +38,15 @@ window.onload = function () {
         if (!msg.value) {
             return false;
         }
-        // conn.send(msg.value);
-        conn.send(JSON.stringify({
+
+        send({
             __type: 'publish',
             __channel: 'hello',
             data: msg.value,
-        }));
+        });
+
         msg.value = "";
+
         return false;
     };
 
@@ -37,10 +54,11 @@ window.onload = function () {
         if (!conn) {
             return false;
         }
-        conn.send(JSON.stringify({
+        send({
             __type: 'subscribe',
-            __channel: 'hello',
-        }));
+            __channel: channel.value,
+        });
+        channel.value = "hello";
         return false;
     };
 
@@ -48,10 +66,11 @@ window.onload = function () {
         if (!conn) {
             return false;
         }
-        conn.send(JSON.stringify({
+        send({
             __type: 'unsubscribe',
-            __channel: 'hello',
-        }));
+            __channel: channel.value,
+        });
+        channel.value = "hello";
         return false;
     };
 
@@ -70,9 +89,7 @@ window.onload = function () {
         conn.onmessage = function (evt) {
             var messages = evt.data.split('\n');
             for (var i = 0; i < messages.length; i++) {
-                var item = document.createElement("div");
-                item.innerText = messages[i];
-                appendLog(item);
+                receive(messages[i]);
             }
         };
     } else {
@@ -83,6 +100,11 @@ window.onload = function () {
 };
 </script>
 <style type="text/css">
+* {
+    margin: 0;
+    box-sizing: border-box;
+}
+
 html {
     overflow: hidden;
 }
@@ -108,25 +130,35 @@ body {
     overflow: auto;
 }
 
-#form {
-    padding: 0 0.5em 0 0.5em;
-    margin: 0;
+#footer {
+    display: flex;
+    padding: 1rem;
     position: absolute;
-    bottom: 1em;
-    left: 0px;
+    margin: 0;
+    bottom: 0;
+    left: 0;
     width: 100%;
     overflow: hidden;
+}
+
+#form {
+    margin-right: auto;
 }
 
 </style>
 </head>
 <body>
 <div id="log"></div>
-<form id="form">
-    <button id="btn-subscribe" type="button">Subscribe</button>
-    <button id="btn-unsubscribe" type="button">Unsubscribe</button>
-    <input type="text" id="msg" size="64" autofocus />
-    <input type="submit" value="Publish" />
-</form>
+<div id="footer">
+    <form id="form">
+        <input type="text" id="msg" size="64" autofocus />
+        <input type="submit" value="Publish" />
+    </form>
+    <div>
+        <input type="text" id="channel" size="64" value="hello" />
+        <button id="btn-unsubscribe" type="button">Unsubscribe</button>
+        <button id="btn-subscribe" type="button">Subscribe</button>
+    </div>
+</div>
 </body>
 </html>
