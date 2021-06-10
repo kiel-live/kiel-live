@@ -24,17 +24,17 @@ func main() {
 
 	vehicles := getVehicles()
 	fmt.Println(vehicles.Vehicles[0])
-	
+
 	stop := getStop(stops.Stops[0].ShortName)
 	fmt.Println(stop)
-	
+
 	trip := getTrip(stop.Departures[0].TripId)
 	fmt.Println(trip)
 }
 
 func post(url string, data url.Values) ([]byte, error) {
 	resp, err := http.Post(url, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
-	if (err != nil) {
+	if err != nil {
 		println(err)
 		return nil, err
 	}
@@ -45,11 +45,11 @@ func post(url string, data url.Values) ([]byte, error) {
 }
 
 type stop struct {
-	Id string `json:"id"`
+	Id        string `json:"id"`
 	ShortName string `json:"shortName"`
-	Name string `json:"name"`
-	Latitude int `json:"latitude"`
-	Longitude int `json:"longitude"`
+	Name      string `json:"name"`
+	Latitude  int    `json:"latitude"`
+	Longitude int    `json:"longitude"`
 }
 
 type stops struct {
@@ -73,12 +73,12 @@ func getStops() stops {
 }
 
 type vehicle struct {
-	Id string `json:"id"`
-	Name string `json:"name"`
-	Heading int `json:"heading"`
-	Latitude int `json:"latitude"`
-	Longitude int `json:"longitude"`
-	TripId string `json:"tripId"`
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	Heading   int    `json:"heading"`
+	Latitude  int    `json:"latitude"`
+	Longitude int    `json:"longitude"`
+	TripId    string `json:"tripId"`
 }
 
 type vehicles struct {
@@ -100,11 +100,11 @@ func getVehicles() vehicles {
 }
 
 type departure struct {
-	TripId string `json:"tripId"`
-	Status string `json:"status"`
-	Stop string `json:"plannedTime"`
-	ActualTime string `json:"actualTime"`
-	ActualRelativeTime int `json:"actualRelativeTime"`
+	TripId             string `json:"tripId"`
+	Status             string `json:"status"`
+	Stop               string `json:"plannedTime"`
+	ActualTime         string `json:"actualTime"`
+	ActualRelativeTime int    `json:"actualRelativeTime"`
 }
 
 type stopDepartures struct {
@@ -113,7 +113,7 @@ type stopDepartures struct {
 
 func getStop(stopShortName string) stopDepartures {
 	data := url.Values{}
-    data.Set("stop", stopShortName)
+	data.Set("stop", stopShortName)
 
 	resp, _ := post(stopUrl, data)
 	var stop stopDepartures
@@ -124,21 +124,21 @@ func getStop(stopShortName string) stopDepartures {
 }
 
 type tripStops struct {
-	Stop stop `json:"stop"`
-	Status string `json:"status"`
+	Stop       stop   `json:"stop"`
+	Status     string `json:"status"`
 	ActualTime string `json:"actualTime"`
 }
 
 type trip struct {
-	Stops []tripStops `json:"actual"`
-	OldStops []tripStops `json:"old"`
-	DirectionText string `json:"directionText"`
-	RouteName string `json:"routeName"`
+	Stops         []tripStops `json:"actual"`
+	OldStops      []tripStops `json:"old"`
+	DirectionText string      `json:"directionText"`
+	RouteName     string      `json:"routeName"`
 }
 
 func getTrip(tripId string) trip {
 	data := url.Values{}
-    data.Set("tripId", tripId)
+	data.Set("tripId", tripId)
 
 	resp, _ := post(tripUrl, data)
 	var trip trip
