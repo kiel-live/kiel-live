@@ -29,7 +29,7 @@ type WebSocketClient struct {
 }
 
 // NewWebSocketClient create new websocket connection
-func NewWebSocketClient(host string, listen func(msg proto.ClientMessage)) (*WebSocketClient, error) {
+func NewWebSocketClient(host string, listen func(msg proto.ClientMessage)) *WebSocketClient {
 	conn := WebSocketClient{
 		Listen:  listen,
 		sendBuf: make(chan []byte, 10),
@@ -42,7 +42,7 @@ func NewWebSocketClient(host string, listen func(msg proto.ClientMessage)) (*Web
 	go conn.listen()
 	go conn.listenWrite()
 	go conn.ping()
-	return &conn, nil
+	return &conn
 }
 
 func (conn *WebSocketClient) Connect() *websocket.Conn {
@@ -93,7 +93,6 @@ func (conn *WebSocketClient) listen() {
 					conn.closeWs()
 					break
 				}
-				conn.log("listen", nil, fmt.Sprintf("websocket msg: %s\n", m))
 				if conn.Listen != nil {
 					conn.Listen(m)
 				}
@@ -115,7 +114,6 @@ func (conn *WebSocketClient) listenWrite() {
 		if err != nil {
 			conn.log("listenWrite", nil, "WebSocket Write Error")
 		}
-		conn.log("listenWrite", nil, fmt.Sprintf("send: %s", data))
 	}
 }
 
@@ -172,7 +170,6 @@ func (conn *WebSocketClient) closeWs() {
 }
 
 func (conn *WebSocketClient) ping() {
-	conn.log("ping", nil, "ping pong started")
 	ticker := time.NewTicker(pingPeriod)
 	defer ticker.Stop()
 	for {
