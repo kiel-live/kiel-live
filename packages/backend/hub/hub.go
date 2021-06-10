@@ -1,7 +1,9 @@
 package hub
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"sync"
 )
 
@@ -97,7 +99,7 @@ func (h *Hub) Disconnect(conn connection) error {
 
 	h.Lock()
 	channels := make([]string, 0)
-	for channel, _ := range h.subscriptions[conn] {
+	for channel := range h.subscriptions[conn] {
 		channels = append(channels, channel)
 	}
 	h.Unlock()
@@ -157,9 +159,11 @@ func (h *Hub) handleSubscribe(r subscriptionRequest) {
 	defer h.Unlock()
 
 	if _, ok := h.channels[r.Channel]; !ok {
-		// New channel! Try to connect to Redis first
+		// New channel!
 		h.channels[r.Channel] = make(map[connection]bool)
 	}
+
+	h.publishListOfChannels()
 
 	h.subscriptions[r.Connection][r.Channel] = true
 	h.channels[r.Channel][r.Connection] = true
@@ -171,10 +175,7 @@ func (h *Hub) Unsubscribe(conn connection, channel string) error {
 		return errors.New("unknown connection")
 	}
 	if !h.hasSubscription(conn, channel) {
-		// Some clients seem to be sending double unsubscribes,
-		// ignore those for now:
-		//return fmt.Errorf("Not subscribed to channel %s", channel)
-		return nil
+		return fmt.Errorf("not subscribed to channel %s", channel)
 	}
 
 	r := subscriptionRequest{
@@ -194,22 +195,45 @@ func (h *Hub) handleUnsubscribe(r subscriptionRequest) {
 	delete(h.channels[r.Channel], r.Connection)
 
 	if len(h.channels[r.Channel]) == 0 {
-		// Last subscriber, release it.
+		// Last subscriber, release channel.
 		delete(h.channels, r.Channel)
 	}
+
+	h.publishListOfChannels()
 
 	r.Done <- nil
 }
 
-// func (h *Hub) processClient(t, token string, args []string) {
-// 	if c, ok := h.connections[token]; ok {
-// 		c.Process(t, args)
-// 	}
-// }
+func (h *Hub) publishListOfChannels() {
+	channelNames := make([]string, len(h.channels))
+
+	i := 0
+	for k := range h.channels {
+		channelNames[i] = k
+		i++
+	}
+
+	data, err := json.Marshal(channelNames)
+	if err != nil {
+		return
+	}
+
+	r := channelMessageRequest{
+		Connection: nil,
+		Channel:    "subscribed-channels",
+		Data:       string(data),
+		Done:       nil,
+	}
+	h.newChannelMessages <- r
+}
 
 func (h *Hub) Publish(conn connection, channel string, data string) error {
 	if !h.hasConnection(conn) {
 		return errors.New("unknown connection")
+	}
+
+	if conn != nil && channel == "subscribed-channels" {
+		return errors.New("you are not allowed to publish to this channel")
 	}
 
 	r := channelMessageRequest{
@@ -229,15 +253,20 @@ func (h *Hub) handleMessage(m channelMessageRequest) {
 	data := m.Data
 
 	if _, ok := h.channels[channel]; !ok {
-		m.Done <- nil
-		return // No longer subscribed?
+		// no one subscribed to this channel
+		if m.Done != nil {
+			m.Done <- nil
+		}
+		return
 	}
 
-	for conn, _ := range h.channels[channel] {
+	for conn := range h.channels[channel] {
 		conn.Send(channel, data)
 	}
 
-	m.Done <- nil
+	if m.Done != nil {
+		m.Done <- nil
+	}
 }
 
 type hubStats struct {
