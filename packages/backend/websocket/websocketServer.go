@@ -8,7 +8,7 @@ import (
 	proto "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
 )
 
-type WebsocketServer struct {
+type Server struct {
 	// Invoked upon connection, can be used to do pre-connect checks.
 	CanConnect func(conn *websocketConnection) bool
 
@@ -33,8 +33,8 @@ type WebsocketServer struct {
 	hub *hub.Hub
 }
 
-func NewWebsocketServer(hub *hub.Hub) *WebsocketServer {
-	return &WebsocketServer{
+func NewServer(hub *hub.Hub) *Server {
+	return &Server{
 		hub: hub,
 		CanAuthenticate: func(authMessage proto.ClientMessage) bool {
 			return authMessage.Data() == "i-wont-tell-you-my-secret" // TODO load secret from env
@@ -45,6 +45,6 @@ func NewWebsocketServer(hub *hub.Hub) *WebsocketServer {
 	}
 }
 
-func (server *WebsocketServer) WebsocketEndpoint(w http.ResponseWriter, r *http.Request) {
+func (server *Server) WebsocketEndpoint(w http.ResponseWriter, r *http.Request) {
 	newWebsocketConnection(w, r, server)
 }

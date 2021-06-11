@@ -23,7 +23,7 @@ func main() {
 	}
 	go hub.Run()
 
-	websocketServer := websocket.NewWebsocketServer(hub)
+	websocketServer := websocket.NewServer(hub)
 
 	webServer := webserver.NewWebServer(websocketServer)
 	err = webServer.Listen(*port)

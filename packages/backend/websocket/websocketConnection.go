@@ -15,14 +15,14 @@ import (
 type websocketConnection struct {
 	Token    string
 	Conn     *websocket.Conn
-	Server   *WebsocketServer
+	Server   *Server
 	AuthData proto.ClientMessage
 
 	writeLock sync.Mutex
 	readLock  sync.Mutex
 }
 
-func newWebsocketConnection(w http.ResponseWriter, r *http.Request, s *WebsocketServer) {
+func newWebsocketConnection(w http.ResponseWriter, r *http.Request, s *Server) {
 	conn := &websocketConnection{
 		Server: s,
 		Token:  uuid.New(),

@@ -12,10 +12,10 @@ import (
 
 type WebServer struct {
 	server          *http.Server
-	websocketServer *websocket.WebsocketServer
+	websocketServer *websocket.Server
 }
 
-func NewWebServer(websocketServer *websocket.WebsocketServer) *WebServer {
+func NewWebServer(websocketServer *websocket.Server) *WebServer {
 	return &WebServer{
 		websocketServer: websocketServer,
 	}
