@@ -25,25 +25,25 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: golangci-lint backend
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v2.5.2
         with:
           version: v1.40.1
           working-directory: packages/backend
 
       - name: golangci-lint client
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v2.5.2
         with:
           version: v1.40.1
           working-directory: packages/client
 
       - name: golangci-lint pub-sub-proto
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v2.5.2
         with:
           version: v1.40.1
           working-directory: packages/pub-sub-proto
 
       - name: golangci-lint collector-kvg
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v2.5.2
         with:
           version: v1.40.1
           working-directory: packages/pub-sub-proto
