@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"sync"
 
+	"github.com/kiel-live/kiel-live/packages/backend/store"
 	protocol "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
 )
 
@@ -38,11 +40,15 @@ type Hub struct {
 	newUnsubscriptions chan subscriptionRequest
 	newChannelMessages chan channelMessageRequest
 
+	store store.Store
+
 	sync.Mutex
 }
 
-func NewHub() (*Hub, error) {
-	hub := &Hub{}
+func NewHub(store store.Store) (*Hub, error) {
+	hub := &Hub{
+		store: store,
+	}
 
 	err := hub.Prepare()
 	if err != nil {
@@ -163,12 +169,20 @@ func (h *Hub) handleSubscribe(r subscriptionRequest) {
 	if _, ok := h.channels[r.Channel]; !ok {
 		// New channel!
 		h.channels[r.Channel] = make(map[connection]bool)
+		h.publishListOfChannels()
 	}
-
-	h.publishListOfChannels()
 
 	h.subscriptions[r.Connection][r.Channel] = true
 	h.channels[r.Channel][r.Connection] = true
+
+	// send cached data of channel to client if it exists
+	data, err := h.store.Get(r.Channel)
+	log.Println("get", h.store)
+	log.Println("get-data", data)
+	if err == nil {
+		r.Connection.Send(r.Channel, data)
+	}
+
 	r.Done <- nil
 }
 
@@ -199,9 +213,8 @@ func (h *Hub) handleUnsubscribe(r subscriptionRequest) {
 	if len(h.channels[r.Channel]) == 0 {
 		// Last subscriber, release channel.
 		delete(h.channels, r.Channel)
+		h.publishListOfChannels()
 	}
-
-	h.publishListOfChannels()
 
 	r.Done <- nil
 }
@@ -253,6 +266,13 @@ func (h *Hub) handleMessage(m channelMessageRequest) {
 	defer h.Unlock()
 	channel := m.Channel
 	data := m.Data
+
+	// write data to cache of data-store
+	err := h.store.Set(channel, data)
+	if err != nil {
+		log.Printf("error saving data to store: %s", err)
+	}
+	log.Println("set", h.store)
 
 	if _, ok := h.channels[channel]; !ok {
 		// no one subscribed to this channel
