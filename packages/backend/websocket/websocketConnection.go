@@ -18,8 +18,8 @@ type websocketConnection struct {
 	Server   *WebsocketServer
 	AuthData proto.ClientMessage
 
-	write_lock sync.Mutex
-	read_lock  sync.Mutex
+	writeLock sync.Mutex
+	readLock  sync.Mutex
 }
 
 func newWebsocketConnection(w http.ResponseWriter, r *http.Request, s *WebsocketServer) {
@@ -40,14 +40,14 @@ func newWebsocketConnection(w http.ResponseWriter, r *http.Request, s *Websocket
 }
 
 func (c *websocketConnection) writeConn(msg proto.ClientMessage) error {
-	c.write_lock.Lock()
-	defer c.write_lock.Unlock()
+	c.writeLock.Lock()
+	defer c.writeLock.Unlock()
 	return c.Conn.WriteJSON(msg)
 }
 
 func (c *websocketConnection) readConn(v interface{}) error {
-	c.read_lock.Lock()
-	defer c.read_lock.Unlock()
+	c.readLock.Lock()
+	defer c.readLock.Unlock()
 	return c.Conn.ReadJSON(v)
 }
 
@@ -95,7 +95,10 @@ func (c *websocketConnection) Run() {
 		switch m.Type() {
 		case proto.AuthMessage:
 			if c.Server.CanAuthenticate != nil && !c.Server.CanAuthenticate(m) {
-				c.writeConn(proto.NewErrorMessage(proto.AuthFailedMessage, errors.New("Unauthorized")))
+				err := c.writeConn(proto.NewErrorMessage(proto.AuthFailedMessage, errors.New("Unauthorized")))
+				if err != nil {
+					log.Printf("can't send message: %s", err)
+				}
 				continue
 			}
 
@@ -106,14 +109,20 @@ func (c *websocketConnection) Run() {
 		case proto.PublishMessage:
 			channel := m.Channel()
 			if c.Server.CanPublish != nil && !c.Server.CanPublish(c.AuthData, channel) {
-				c.writeConn(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, errors.New("channel refused")))
+				err := c.writeConn(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, errors.New("channel refused")))
+				if err != nil {
+					log.Printf("can't send message: %s", err)
+				}
 				continue
 			}
 
 			data := m.Data()
 			err := hub.Publish(c, channel, data)
 			if err != nil {
-				c.writeConn(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, err))
+				err := c.writeConn(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, err))
+				if err != nil {
+					log.Printf("can't send message: %s", err)
+				}
 				continue
 			}
 
@@ -122,17 +131,26 @@ func (c *websocketConnection) Run() {
 		case proto.SubscribeMessage:
 			channel := m.Channel()
 			if c.Server.CanSubscribe != nil && !c.Server.CanSubscribe(c.AuthData, channel) {
-				c.writeConn(proto.NewChannelErrorMessage(proto.SubscribeErrorMessage, channel, errors.New("channel refused")))
+				err := c.writeConn(proto.NewChannelErrorMessage(proto.SubscribeErrorMessage, channel, errors.New("channel refused")))
+				if err != nil {
+					log.Printf("can't send message: %s", err)
+				}
 				continue
 			}
 
 			err := hub.Subscribe(c, channel)
 			if err != nil {
-				c.writeConn(proto.NewChannelErrorMessage(proto.SubscribeErrorMessage, channel, err))
+				err := c.writeConn(proto.NewChannelErrorMessage(proto.SubscribeErrorMessage, channel, err))
+				if err != nil {
+					log.Printf("can't send message: %s", err)
+				}
 				continue
 			}
 
-			c.writeConn(proto.NewChannelMessage(proto.SubscribeOKMessage, channel))
+			err = c.writeConn(proto.NewChannelMessage(proto.SubscribeOKMessage, channel))
+			if err != nil {
+				log.Printf("can't send message: %s", err)
+			}
 
 		case proto.UnsubscribeMessage:
 			channel := m.Channel()
@@ -143,13 +161,19 @@ func (c *websocketConnection) Run() {
 				continue
 			}
 
-			c.writeConn(proto.NewChannelMessage(proto.UnsubscribeOKMessage, channel))
+			err = c.writeConn(proto.NewChannelMessage(proto.UnsubscribeOKMessage, channel))
+			if err != nil {
+				log.Printf("can't send message: %s", err)
+			}
 
 		case proto.PingMessage:
 			// Do nothing
 
 		default:
-			c.writeConn(proto.NewMessage(proto.UnknownMessage))
+			err := c.writeConn(proto.NewMessage(proto.UnknownMessage))
+			if err != nil {
+				log.Printf("can't send message: %s", err)
+			}
 		}
 	}
 }
@@ -159,7 +183,10 @@ func (c *websocketConnection) Cleanup() {
 
 	err := hub.Disconnect(c)
 	if err != nil {
-		c.writeConn(proto.NewErrorMessage(proto.ServerErrorMessage, err))
+		err := c.writeConn(proto.NewErrorMessage(proto.ServerErrorMessage, err))
+		if err != nil {
+			log.Printf("can't send message: %s", err)
+		}
 	}
 
 	c.Conn.Close()
@@ -169,12 +196,23 @@ func (c *websocketConnection) Close(code uint16, msg string) {
 	payload := make([]byte, 2)
 	binary.BigEndian.PutUint16(payload, code)
 	payload = append(payload, []byte(msg)...)
-	c.Conn.WriteMessage(websocket.CloseMessage, payload)
-	c.Conn.Close()
+	err := c.Conn.WriteMessage(websocket.CloseMessage, payload)
+	if err != nil {
+		log.Printf("can't send message: %s", err)
+	}
+
+	err = c.Conn.Close()
+	if err != nil {
+		log.Printf("can't close socket: %s", err)
+	}
+
 }
 
 func (c *websocketConnection) Send(channel, message string) {
-	c.writeConn(proto.NewBroadcastMessage(channel, message))
+	err := c.writeConn(proto.NewBroadcastMessage(channel, message))
+	if err != nil {
+		log.Printf("can't send message: %s", err)
+	}
 }
 
 func (c *websocketConnection) GetToken() string {
