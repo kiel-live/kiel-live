@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"sync"
 
 	"github.com/kiel-live/kiel-live/packages/backend/store"
 	protocol "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
+	"github.com/sirupsen/logrus"
 )
+
+var log = logrus.WithField("origin", "Hub")
 
 type subscriptionRequest struct {
 	Connection connection
@@ -268,7 +270,7 @@ func (h *Hub) handleMessage(m channelMessageRequest) {
 	// write data to cache of data-store
 	err := h.store.Set(channel, data)
 	if err != nil {
-		log.Printf("error saving data to store: %s", err)
+		log.Errorln("error saving data to store: %s", err)
 	}
 
 	if _, ok := h.channels[channel]; !ok {

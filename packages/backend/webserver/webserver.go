@@ -3,12 +3,14 @@ package webserver
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 
 	"github.com/kiel-live/kiel-live/packages/backend/websocket"
+	"github.com/sirupsen/logrus"
 )
+
+var log = logrus.WithField("origin", "WebServer")
 
 type WebServer struct {
 	server          *http.Server
@@ -56,8 +58,8 @@ func (webServer *WebServer) Listen(port int) error {
 
 	webServer.server = &http.Server{Addr: addr, Handler: webServer.router()}
 
-	log.Println("🚀 Backend running at:")
-	log.Printf("> Local: http://localhost:%d\n", port)
+	log.Infoln("🚀 Backend running at:")
+	log.Infof("> Local: http://localhost:%d\n", port)
 
 	return webServer.server.Serve(listener)
 }

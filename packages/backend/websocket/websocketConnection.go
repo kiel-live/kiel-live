@@ -3,14 +3,16 @@ package websocket
 import (
 	"encoding/binary"
 	"errors"
-	"log"
 	"net/http"
 	"sync"
 
 	"github.com/gorilla/websocket"
 	proto "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
 	"github.com/pborman/uuid"
+	"github.com/sirupsen/logrus"
 )
+
+var log = logrus.WithField("origin", "WebsocketConnection")
 
 type websocketConnection struct {
 	Token    string
@@ -59,7 +61,7 @@ func (c *websocketConnection) handshake(w http.ResponseWriter, r *http.Request) 
 	}
 	c.Conn = conn
 
-	log.Printf("Client connecting ...")
+	log.Debugln("Client connecting ...")
 
 	if c.Server.CanConnect != nil && !c.Server.CanConnect(c) {
 		c.Close(4400, err.Error())
@@ -74,7 +76,7 @@ func (c *websocketConnection) handshake(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	log.Printf("Client connected")
+	log.Debugln("Client connected")
 
 	c.Run()
 
@@ -171,12 +173,12 @@ func (c *websocketConnection) Close(code uint16, msg string) {
 	payload = append(payload, []byte(msg)...)
 	err := c.Conn.WriteMessage(websocket.CloseMessage, payload)
 	if err != nil {
-		log.Printf("can't send message: %s", err)
+		log.Errorln("can't send message: %s", err)
 	}
 
 	err = c.Conn.Close()
 	if err != nil {
-		log.Printf("can't close socket: %s", err)
+		log.Errorln("can't close socket: %s", err)
 	}
 
 }
@@ -184,14 +186,14 @@ func (c *websocketConnection) Close(code uint16, msg string) {
 func (c *websocketConnection) Send(channel, message string) {
 	err := c.writeConn(proto.NewBroadcastMessage(channel, message))
 	if err != nil {
-		log.Printf("can't send message: %s", err)
+		log.Errorln("can't send message: %s", err)
 	}
 }
 
 func (c *websocketConnection) SendMessage(message proto.ClientMessage) {
 	err := c.writeConn(message)
 	if err != nil {
-		log.Printf("can't send message: %s", err)
+		log.Errorln("can't send message: %s", err)
 	}
 }
 

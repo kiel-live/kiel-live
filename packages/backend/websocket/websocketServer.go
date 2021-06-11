@@ -33,11 +33,11 @@ type Server struct {
 	hub *hub.Hub
 }
 
-func NewServer(hub *hub.Hub) *Server {
+func NewServer(hub *hub.Hub, token string) *Server {
 	return &Server{
 		hub: hub,
 		CanAuthenticate: func(authMessage proto.ClientMessage) bool {
-			return authMessage.Data() == "i-wont-tell-you-my-secret" // TODO load secret from env
+			return authMessage.Data() == token
 		},
 		CanPublish: func(authData map[string]interface{}, channel string) bool {
 			return authData != nil // require authentication
