@@ -115,7 +115,7 @@ func (c *websocketConnection) Run() {
 		case proto.PublishMessage:
 			channel := m.Channel()
 			if c.Server.CanPublish != nil && !c.Server.CanPublish(c.AuthData, channel) {
-				err := c.writeConn(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, errors.New("channel refused")))
+				err := c.writeConn(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, errors.New("Access denied")))
 				if err != nil {
 					log.Printf("can't send message: %s", err)
 				}
