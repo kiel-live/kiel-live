@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"os"
 	"strconv"
 
@@ -9,36 +10,49 @@ import (
 	"github.com/kiel-live/kiel-live/packages/backend/store"
 	"github.com/kiel-live/kiel-live/packages/backend/webserver"
 	"github.com/kiel-live/kiel-live/packages/backend/websocket"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
-var log = logrus.WithField("prefix", "Main")
+var (
+	port           = 4000
+	collectorToken = ""
+)
 
-func main() {
+func loadEnv() error {
 	err := godotenv.Load()
 	if err != nil {
 		log.Debug("No .env file found")
 	}
 
 	if os.Getenv("LOG") == "debug" {
-		logrus.SetLevel(logrus.DebugLevel)
+		log.SetLevel(log.DebugLevel)
 	}
 
-	port := 4000
 	if _port, ok := os.LookupEnv("PORT"); ok {
 		port, err = strconv.Atoi(_port)
 		if err != nil {
-			log.Panic("Please provide a port as number with PORT")
+			return errors.New("Please provide a port as number with PORT")
 		}
 	}
 
 	collectorToken := os.Getenv("COLLECTOR_TOKEN")
 	if collectorToken == "" {
-		log.Panic("Please provide a token for collector access with COLLECTOR_TOKEN")
+		return errors.New("Please provide a token for collector access with COLLECTOR_TOKEN")
 	}
 
-	log.Printf("🚌 Kiel-Live backend version %s", "2.0.0") // TODO load proper version
-	log.Println("⚡ Backend starting ...")
+	return nil
+}
+
+func main() {
+	log.Infoln("🚌 Kiel-Live backend version %s", "2.0.0") // TODO load proper version
+
+	err := loadEnv()
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
+
+	log.Infoln("⚡ Backend starting ...")
 
 	store := store.NewMemoryStore()
 	store.Load()
