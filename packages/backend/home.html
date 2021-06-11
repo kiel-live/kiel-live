@@ -50,6 +50,18 @@ window.onload = function () {
         return false;
     };
 
+    document.getElementById("btn-authenticate").onclick = function () {
+        if (!conn) {
+            return false;
+        }
+        send({
+            __type: 'auth',
+            data: msg.value,
+        });
+        msg.value = "";
+        return false;
+    };
+
     document.getElementById("btn-subscribe").onclick = function () {
         if (!conn) {
             return false;
@@ -153,6 +165,7 @@ body {
     <form id="form">
         <input type="text" id="msg" size="64" autofocus />
         <input type="submit" value="Publish" />
+        <button id="btn-authenticate" type="button">Authenticate</button>
     </form>
     <div>
         <input type="text" id="channel" size="64" value="hello" />
