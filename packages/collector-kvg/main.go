@@ -17,7 +17,7 @@ func main() {
 	client.Connect()
 	defer client.Disconnect()
 
-	client.Subscribe(protocol.SubscribedChannelName)
+	client.Subscribe(protocol.ChannelNameSubscribedChannels)
 
 	s := gocron.NewScheduler(time.UTC)
 	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode) // prevent parallel execution and skip if last run hasn't finished yet

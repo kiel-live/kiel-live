@@ -222,7 +222,7 @@ func (h *Hub) publishListOfChannels() {
 
 	r := channelMessageRequest{
 		Connection: nil,
-		Channel:    protocol.SubscribedChannelName,
+		Channel:    protocol.ChannelNameSubscribedChannels,
 		Data:       string(data),
 		Done:       nil,
 	}
@@ -234,7 +234,7 @@ func (h *Hub) Publish(conn connection, channel string, data string) error {
 		return errors.New("unknown connection")
 	}
 
-	if conn != nil && channel == protocol.SubscribedChannelName {
+	if conn != nil && channel == protocol.ChannelNameSubscribedChannels {
 		return errors.New("you are not allowed to publish to this channel")
 	}
 

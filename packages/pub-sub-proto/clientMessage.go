@@ -4,7 +4,7 @@ import "fmt"
 
 type ClientMessage map[string]interface{}
 
-func (c ClientMessage) ResultId() string {
+func (c ClientMessage) ResultID() string {
 	t := c.Type()
 	if t == SubscribeOKMessage || t == SubscribeErrorMessage {
 		t = SubscribeMessage
