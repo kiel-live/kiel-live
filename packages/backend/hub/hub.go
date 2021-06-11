@@ -177,8 +177,6 @@ func (h *Hub) handleSubscribe(r subscriptionRequest) {
 
 	// send cached data of channel to client if it exists
 	data, err := h.store.Get(r.Channel)
-	log.Println("get", h.store)
-	log.Println("get-data", data)
 	if err == nil {
 		r.Connection.Send(r.Channel, data)
 	}
@@ -272,7 +270,6 @@ func (h *Hub) handleMessage(m channelMessageRequest) {
 	if err != nil {
 		log.Printf("error saving data to store: %s", err)
 	}
-	log.Println("set", h.store)
 
 	if _, ok := h.channels[channel]; !ok {
 		// no one subscribed to this channel
