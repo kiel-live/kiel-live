@@ -132,7 +132,10 @@ func (c *websocketConnection) Run() {
 				continue
 			}
 
-			c.writeConn(proto.NewChannelMessage(proto.PublishOKMessage, channel))
+			err = c.writeConn(proto.NewChannelMessage(proto.PublishOKMessage, channel))
+			if err != nil {
+				log.Printf("can't send message: %s", err)
+			}
 
 		case proto.SubscribeMessage:
 			channel := m.Channel()
@@ -163,7 +166,10 @@ func (c *websocketConnection) Run() {
 
 			err := hub.Unsubscribe(c, channel)
 			if err != nil {
-				c.writeConn(proto.NewChannelErrorMessage(proto.UnsubscribeErrorMessage, channel, err))
+				err := c.writeConn(proto.NewChannelErrorMessage(proto.UnsubscribeErrorMessage, channel, err))
+				if err != nil {
+					log.Printf("can't send message: %s", err)
+				}
 				continue
 			}
 
