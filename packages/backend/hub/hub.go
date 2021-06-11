@@ -271,11 +271,11 @@ func (h *Hub) handleMessage(m channelMessageRequest) {
 	}
 }
 
-type HubStats struct {
+type Stats struct {
 	LocalSubscriptions map[string]int
 }
 
-func (h *Hub) Stats() (HubStats, error) {
+func (h *Hub) Stats() (Stats, error) {
 	h.Lock()
 	defer h.Unlock()
 
@@ -284,7 +284,7 @@ func (h *Hub) Stats() (HubStats, error) {
 		subscriptions[k] = len(v)
 	}
 
-	return HubStats{
+	return Stats{
 		LocalSubscriptions: subscriptions,
 	}, nil
 }

@@ -31,7 +31,10 @@ func newWebsocketConnection(w http.ResponseWriter, r *http.Request, s *Websocket
 	err := conn.handshake(w, r)
 	if err != nil {
 		if conn.Conn != nil {
-			conn.Conn.WriteJSON(proto.NewErrorMessage(proto.ServerErrorMessage, err))
+			err = conn.Conn.WriteJSON(proto.NewErrorMessage(proto.ServerErrorMessage, err))
+			if err != nil {
+				log.Printf("can't send message: %s", err)
+			}
 			conn.Conn.Close()
 		} else {
 			http.Error(w, err.Error(), 500)
@@ -102,7 +105,10 @@ func (c *websocketConnection) Run() {
 				continue
 			}
 
-			c.writeConn(proto.NewMessage(proto.AuthOKMessage))
+			err := c.writeConn(proto.NewMessage(proto.AuthOKMessage))
+			if err != nil {
+				log.Printf("can't send message: %s", err)
+			}
 
 			c.AuthData = m
 
