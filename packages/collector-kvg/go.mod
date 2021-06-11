@@ -1,4 +1,4 @@
-module github.com/kiel-live/kiel-live/packages/kvg-collector
+module github.com/kiel-live/kiel-live/packages/collector-kvg
 
 go 1.16
 
