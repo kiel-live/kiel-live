@@ -23,19 +23,16 @@ type websocketConnection struct {
 }
 
 func newWebsocketConnection(w http.ResponseWriter, r *http.Request, s *Server) {
-	conn := &websocketConnection{
+	c := &websocketConnection{
 		Server: s,
 		Token:  uuid.New(),
 	}
 
-	err := conn.handshake(w, r)
+	err := c.handshake(w, r)
 	if err != nil {
-		if conn.Conn != nil {
-			err = conn.Conn.WriteJSON(proto.NewErrorMessage(proto.ServerErrorMessage, err))
-			if err != nil {
-				log.Printf("can't send message: %s", err)
-			}
-			conn.Conn.Close()
+		if c.Conn != nil {
+			c.SendMessage(proto.NewErrorMessage(proto.ServerErrorMessage, err))
+			c.Conn.Close()
 		} else {
 			http.Error(w, err.Error(), 500)
 		}
@@ -98,94 +95,61 @@ func (c *websocketConnection) Run() {
 		switch m.Type() {
 		case proto.AuthMessage:
 			if c.Server.CanAuthenticate != nil && !c.Server.CanAuthenticate(m) {
-				err := c.writeConn(proto.NewErrorMessage(proto.AuthFailedMessage, errors.New("Unauthorized")))
-				if err != nil {
-					log.Printf("can't send message: %s", err)
-				}
+				c.SendMessage(proto.NewErrorMessage(proto.AuthFailedMessage, errors.New("Unauthorized")))
 				continue
 			}
 
-			err := c.writeConn(proto.NewMessage(proto.AuthOKMessage))
-			if err != nil {
-				log.Printf("can't send message: %s", err)
-			}
+			c.SendMessage(proto.NewMessage(proto.AuthOKMessage))
 
 			c.AuthData = m
 
 		case proto.PublishMessage:
 			channel := m.Channel()
 			if c.Server.CanPublish != nil && !c.Server.CanPublish(c.AuthData, channel) {
-				err := c.writeConn(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, errors.New("Access denied")))
-				if err != nil {
-					log.Printf("can't send message: %s", err)
-				}
+				c.SendMessage(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, errors.New("Access denied")))
 				continue
 			}
 
 			data := m.Data()
 			err := hub.Publish(c, channel, data)
 			if err != nil {
-				err := c.writeConn(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, err))
-				if err != nil {
-					log.Printf("can't send message: %s", err)
-				}
+				c.SendMessage(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, err))
 				continue
 			}
 
-			err = c.writeConn(proto.NewChannelMessage(proto.PublishOKMessage, channel))
-			if err != nil {
-				log.Printf("can't send message: %s", err)
-			}
+			c.SendMessage(proto.NewChannelMessage(proto.PublishOKMessage, channel))
 
 		case proto.SubscribeMessage:
 			channel := m.Channel()
 			if c.Server.CanSubscribe != nil && !c.Server.CanSubscribe(c.AuthData, channel) {
-				err := c.writeConn(proto.NewChannelErrorMessage(proto.SubscribeErrorMessage, channel, errors.New("channel refused")))
-				if err != nil {
-					log.Printf("can't send message: %s", err)
-				}
+				c.SendMessage(proto.NewChannelErrorMessage(proto.SubscribeErrorMessage, channel, errors.New("channel refused")))
 				continue
 			}
 
 			err := hub.Subscribe(c, channel)
 			if err != nil {
-				err := c.writeConn(proto.NewChannelErrorMessage(proto.SubscribeErrorMessage, channel, err))
-				if err != nil {
-					log.Printf("can't send message: %s", err)
-				}
+				c.SendMessage(proto.NewChannelErrorMessage(proto.SubscribeErrorMessage, channel, err))
 				continue
 			}
 
-			err = c.writeConn(proto.NewChannelMessage(proto.SubscribeOKMessage, channel))
-			if err != nil {
-				log.Printf("can't send message: %s", err)
-			}
+			c.SendMessage(proto.NewChannelMessage(proto.SubscribeOKMessage, channel))
 
 		case proto.UnsubscribeMessage:
 			channel := m.Channel()
 
 			err := hub.Unsubscribe(c, channel)
 			if err != nil {
-				err := c.writeConn(proto.NewChannelErrorMessage(proto.UnsubscribeErrorMessage, channel, err))
-				if err != nil {
-					log.Printf("can't send message: %s", err)
-				}
+				c.SendMessage(proto.NewChannelErrorMessage(proto.UnsubscribeErrorMessage, channel, err))
 				continue
 			}
 
-			err = c.writeConn(proto.NewChannelMessage(proto.UnsubscribeOKMessage, channel))
-			if err != nil {
-				log.Printf("can't send message: %s", err)
-			}
+			c.SendMessage(proto.NewChannelMessage(proto.UnsubscribeOKMessage, channel))
 
 		case proto.PingMessage:
 			// Do nothing
 
 		default:
-			err := c.writeConn(proto.NewMessage(proto.UnknownMessage))
-			if err != nil {
-				log.Printf("can't send message: %s", err)
-			}
+			c.SendMessage(proto.NewMessage(proto.UnknownMessage))
 		}
 	}
 }
@@ -195,10 +159,7 @@ func (c *websocketConnection) Cleanup() {
 
 	err := hub.Disconnect(c)
 	if err != nil {
-		err := c.writeConn(proto.NewErrorMessage(proto.ServerErrorMessage, err))
-		if err != nil {
-			log.Printf("can't send message: %s", err)
-		}
+		c.SendMessage(proto.NewErrorMessage(proto.ServerErrorMessage, err))
 	}
 
 	c.Conn.Close()
@@ -222,6 +183,13 @@ func (c *websocketConnection) Close(code uint16, msg string) {
 
 func (c *websocketConnection) Send(channel, message string) {
 	err := c.writeConn(proto.NewBroadcastMessage(channel, message))
+	if err != nil {
+		log.Printf("can't send message: %s", err)
+	}
+}
+
+func (c *websocketConnection) SendMessage(message proto.ClientMessage) {
+	err := c.writeConn(message)
 	if err != nil {
 		log.Printf("can't send message: %s", err)
 	}
