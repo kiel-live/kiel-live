@@ -267,6 +267,14 @@ func (h *Hub) handleMessage(m channelMessageRequest) {
 	channel := m.Channel
 	data := m.Data
 
+	if storedData, _ := h.store.Get(channel); storedData == data {
+		log.Infoln("Data of %s has already been published. Skipping ...")
+		if m.Done != nil {
+			m.Done <- nil
+		}
+		return
+	}
+
 	// write data to cache of data-store
 	err := h.store.Set(channel, data)
 	if err != nil {
