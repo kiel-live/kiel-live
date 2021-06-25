@@ -35,7 +35,7 @@ func loadEnv() error {
 		}
 	}
 
-	collectorToken := os.Getenv("COLLECTOR_TOKEN")
+	collectorToken = os.Getenv("COLLECTOR_TOKEN")
 	if collectorToken == "" {
 		return errors.New("Please provide a token for collector access with COLLECTOR_TOKEN")
 	}
@@ -44,7 +44,7 @@ func loadEnv() error {
 }
 
 func main() {
-	log.Infoln("🚌 Kiel-Live backend version %s", "2.0.0") // TODO load proper version
+	log.Infof("🚌 Kiel-Live backend version %s", "2.0.0") // TODO load proper version
 
 	err := loadEnv()
 	if err != nil {
