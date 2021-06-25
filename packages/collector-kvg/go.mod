@@ -11,5 +11,6 @@ require (
 	github.com/go-co-op/gocron v1.6.2
 	github.com/kiel-live/kiel-live/packages/client v2.0.0+incompatible
 	github.com/kiel-live/kiel-live/packages/pub-sub-proto v2.0.0+incompatible
+	github.com/stretchr/testify v1.7.0
 	github.com/thoas/go-funk v0.8.0
 )
