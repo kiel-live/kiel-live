@@ -44,6 +44,7 @@ func newWebsocketConnection(w http.ResponseWriter, r *http.Request, s *Server) {
 func (c *websocketConnection) writeConn(msg protocol.ClientMessage) error {
 	c.writeLock.Lock()
 	defer c.writeLock.Unlock()
+	log.Debug(">>> ", msg)
 	return c.Conn.WriteJSON(msg)
 }
 

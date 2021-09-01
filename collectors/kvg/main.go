@@ -19,13 +19,17 @@ func main() {
 	client := client.NewWebSocketClient("localhost:4000", func(msg protocol.ClientMessage) {
 		if msg.Type() == protocol.AuthFailedMessage {
 			log.Fatalln("Authentication failed")
+			return
 		}
 
-		if msg.Channel() == protocol.ChannelNameSubscribedChannels {
+		if msg.Type() == protocol.ChannelMessage && msg.Channel() == protocol.ChannelNameSubscribedChannels {
 			fmt.Println("subscribed-channels > " + msg.Data())
 			// TODO check which channel is new and needs a collector
 			// TODO remove collectors of channels not being subscribed anymore
+			return
 		}
+
+		log.Println(">>>", msg)
 	})
 
 	collectors = make(map[string]*collector)
@@ -45,8 +49,12 @@ func main() {
 	client.Subscribe(protocol.ChannelNameSubscribedChannels)
 
 	s := gocron.NewScheduler(time.UTC)
-	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode) // prevent parallel execution and skip if last run hasn't finished yet
-	s.Every(5).Seconds().Do(func() {
+	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
+	s.Every(30).Seconds().Do(func() {
+		if !client.IsConnected() {
+			return
+		}
+
 		for _, c := range collectors {
 			// TODO maybe run in go routine
 			fmt.Println("Collector for", c.channel, "running ...")

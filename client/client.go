@@ -64,7 +64,7 @@ func (c *WebSocketClient) Connect() *websocket.Conn {
 				c.log("connect", err, fmt.Sprintf("Cannot connect to websocket: %s", c.configStr))
 				continue
 			}
-			c.log("connect", nil, fmt.Sprintf("connect to websocket to %s", c.configStr))
+			c.log("connect", nil, fmt.Sprintf("connect websocket to %s", c.configStr))
 			c.wsc = ws
 			return c.wsc
 		}
@@ -77,30 +77,28 @@ func (c *WebSocketClient) IsConnected() bool {
 }
 
 func (c *WebSocketClient) listen() {
-	c.log("listen", nil, fmt.Sprintf("listen for the messages: %s", c.configStr))
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
-	m := protocol.ClientMessage{}
+	c.log("listen", nil, fmt.Sprintf("listening for messages: %s", c.configStr))
 	for {
+		ws := c.Connect()
+		if ws == nil {
+			err := fmt.Errorf("c.ws is nil")
+			c.log("listen", err, "No websocket connection")
+			continue
+		}
+
 		select {
 		case <-c.ctx.Done():
 			return
-		case <-ticker.C:
-			for {
-				ws := c.Connect()
-				if ws == nil {
-					return
-				}
-
-				err := ws.ReadJSON(&m)
-				if err != nil {
-					c.log("listen", err, "Cannot read websocket message")
-					c.closeWs()
-					break
-				}
-				if c.Listen != nil {
-					c.Listen(m)
-				}
+		default:
+			m := protocol.ClientMessage{}
+			err := ws.ReadJSON(&m)
+			if err != nil {
+				c.log("listen", err, "Cannot read websocket message")
+				c.closeWs()
+				break
+			}
+			if c.Listen != nil {
+				c.Listen(m)
 			}
 		}
 	}
