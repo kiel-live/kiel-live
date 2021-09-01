@@ -8,9 +8,17 @@
       "name": "Launch Backend",
       "type": "go",
       "request": "launch",
-      "mode": "auto",
-      "program": "${workspaceRoot}/packages/backend/main.go",
-      "cwd": "${workspaceRoot}/packages/backend/"
+      "mode": "debug",
+      "program": "${workspaceRoot}/cmd/backend/",
+      "cwd": "${workspaceRoot}"
+    },
+    {
+      "name": "Launch KVG collector",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceRoot}/collectors/kvg/",
+      "cwd": "${workspaceRoot}"
     }
   ]
 }

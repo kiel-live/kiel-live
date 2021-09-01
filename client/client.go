@@ -24,108 +24,108 @@ type WebSocketClient struct {
 	ctx       context.Context
 	ctxCancel context.CancelFunc
 
-	mu     sync.RWMutex
-	wsconn *websocket.Conn
+	mu  sync.RWMutex
+	wsc *websocket.Conn
 }
 
 // NewWebSocketClient create new websocket connection
 func NewWebSocketClient(host string, listen func(msg protocol.ClientMessage)) *WebSocketClient {
-	conn := WebSocketClient{
+	c := WebSocketClient{
 		Listen:  listen,
 		sendBuf: make(chan []byte, 10),
 	}
-	conn.ctx, conn.ctxCancel = context.WithCancel(context.Background())
+	c.ctx, c.ctxCancel = context.WithCancel(context.Background())
 
 	u := url.URL{Scheme: "ws", Host: host, Path: "/ws"}
-	conn.configStr = u.String()
+	c.configStr = u.String()
 
-	go conn.listen()
-	go conn.listenWrite()
-	go conn.ping()
-	return &conn
+	go c.listen()
+	go c.listenWrite()
+	go c.ping()
+	return &c
 }
 
-func (conn *WebSocketClient) Connect() *websocket.Conn {
-	conn.mu.Lock()
-	defer conn.mu.Unlock()
-	if conn.wsconn != nil {
-		return conn.wsconn
+func (c *WebSocketClient) Connect() *websocket.Conn {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.wsc != nil {
+		return c.wsc
 	}
 
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 	for ; ; <-ticker.C {
 		select {
-		case <-conn.ctx.Done():
+		case <-c.ctx.Done():
 			return nil
 		default:
-			ws, _, err := websocket.DefaultDialer.Dial(conn.configStr, nil)
+			ws, _, err := websocket.DefaultDialer.Dial(c.configStr, nil)
 			if err != nil {
-				conn.log("connect", err, fmt.Sprintf("Cannot connect to websocket: %s", conn.configStr))
+				c.log("connect", err, fmt.Sprintf("Cannot connect to websocket: %s", c.configStr))
 				continue
 			}
-			conn.log("connect", nil, fmt.Sprintf("connected to websocket to %s", conn.configStr))
-			conn.wsconn = ws
-			return conn.wsconn
+			c.log("connect", nil, fmt.Sprintf("connect to websocket to %s", c.configStr))
+			c.wsc = ws
+			return c.wsc
 		}
 	}
 }
 
-func (conn *WebSocketClient) IsConnected() bool {
+func (c *WebSocketClient) IsConnected() bool {
 	// TODO
 	return true
 }
 
-func (conn *WebSocketClient) listen() {
-	conn.log("listen", nil, fmt.Sprintf("listen for the messages: %s", conn.configStr))
+func (c *WebSocketClient) listen() {
+	c.log("listen", nil, fmt.Sprintf("listen for the messages: %s", c.configStr))
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 	m := protocol.ClientMessage{}
 	for {
 		select {
-		case <-conn.ctx.Done():
+		case <-c.ctx.Done():
 			return
 		case <-ticker.C:
 			for {
-				ws := conn.Connect()
+				ws := c.Connect()
 				if ws == nil {
 					return
 				}
 
 				err := ws.ReadJSON(&m)
 				if err != nil {
-					conn.log("listen", err, "Cannot read websocket message")
-					conn.closeWs()
+					c.log("listen", err, "Cannot read websocket message")
+					c.closeWs()
 					break
 				}
-				if conn.Listen != nil {
-					conn.Listen(m)
+				if c.Listen != nil {
+					c.Listen(m)
 				}
 			}
 		}
 	}
 }
 
-func (conn *WebSocketClient) listenWrite() {
-	for data := range conn.sendBuf {
-		ws := conn.Connect()
+func (c *WebSocketClient) listenWrite() {
+	for data := range c.sendBuf {
+		ws := c.Connect()
 		if ws == nil {
-			err := fmt.Errorf("conn.ws is nil")
-			conn.log("listenWrite", err, "No websocket connection")
+			err := fmt.Errorf("c.ws is nil")
+			c.log("listenWrite", err, "No websocket connection")
 			continue
 		}
 
 		err := ws.WriteMessage(websocket.TextMessage, data)
 		if err != nil {
-			conn.log("listenWrite", nil, "WebSocket Write Error")
+			c.log("listenWrite", nil, "WebSocket Write Error")
 		}
 	}
 }
 
 // Close will send close message and shutdown websocket connection
-func (conn *WebSocketClient) Disconnect() {
-	conn.ctxCancel()
-	conn.closeWs()
+func (c *WebSocketClient) Disconnect() {
+	c.ctxCancel()
+	c.closeWs()
 }
 
 func (c *WebSocketClient) Subscribe(channel string) error {
@@ -145,7 +145,7 @@ func (c *WebSocketClient) Publish(channel string, data string) error {
 }
 
 // Write data to the websocket server
-func (conn *WebSocketClient) write(msg protocol.ClientMessage) error {
+func (c *WebSocketClient) write(msg protocol.ClientMessage) error {
 	data, err := json.Marshal(msg)
 	if err != nil {
 		return err
@@ -155,7 +155,7 @@ func (conn *WebSocketClient) write(msg protocol.ClientMessage) error {
 
 	for {
 		select {
-		case conn.sendBuf <- data:
+		case c.sendBuf <- data:
 			return nil
 		case <-ctx.Done():
 			return fmt.Errorf("context canceled")
@@ -164,30 +164,30 @@ func (conn *WebSocketClient) write(msg protocol.ClientMessage) error {
 }
 
 // Close will send close message and shutdown websocket connection
-func (conn *WebSocketClient) closeWs() {
-	conn.mu.Lock()
-	if conn.wsconn != nil {
-		conn.wsconn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-		conn.wsconn.Close()
-		conn.wsconn = nil
+func (c *WebSocketClient) closeWs() {
+	c.mu.Lock()
+	if c.wsc != nil {
+		c.wsc.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+		c.wsc.Close()
+		c.wsc = nil
 	}
-	conn.mu.Unlock()
+	c.mu.Unlock()
 }
 
-func (conn *WebSocketClient) ping() {
+func (c *WebSocketClient) ping() {
 	ticker := time.NewTicker(pingPeriod)
 	defer ticker.Stop()
 	for {
 		select {
 		case <-ticker.C:
-			ws := conn.Connect()
+			ws := c.Connect()
 			if ws == nil {
 				continue
 			}
-			if err := conn.wsconn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(pingPeriod/2)); err != nil {
-				conn.closeWs()
+			if err := c.wsc.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(pingPeriod/2)); err != nil {
+				c.closeWs()
 			}
-		case <-conn.ctx.Done():
+		case <-c.ctx.Done():
 			return
 		}
 	}
@@ -195,7 +195,7 @@ func (conn *WebSocketClient) ping() {
 
 // Log print log statement
 // In real word I would recommend to use zerolog or any other solution
-func (conn *WebSocketClient) log(f string, err error, msg string) {
+func (c *WebSocketClient) log(f string, err error, msg string) {
 	if err != nil {
 		fmt.Printf("Error in func: %s, err: %v, msg: %s\n", f, err, msg)
 	} else {
