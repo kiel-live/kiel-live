@@ -1,6 +1,6 @@
 package api
 
-import protocol "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
+import "github.com/kiel-live/kiel-live/protocol"
 
 type route struct {
 	Stops         []tripStops `json:"actual"`

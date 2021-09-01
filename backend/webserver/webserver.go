@@ -6,7 +6,7 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/kiel-live/kiel-live/packages/backend/websocket"
+	"github.com/kiel-live/kiel-live/backend/websocket"
 	"github.com/sirupsen/logrus"
 )
 

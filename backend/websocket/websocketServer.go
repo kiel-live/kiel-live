@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
-	"github.com/kiel-live/kiel-live/packages/backend/hub"
-	proto "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
+	"github.com/kiel-live/kiel-live/backend/hub"
+	"github.com/kiel-live/kiel-live/protocol"
 )
 
 type Server struct {
@@ -13,7 +13,7 @@ type Server struct {
 	CanConnect func(conn *websocketConnection) bool
 
 	// Invoked upon authentication, can be used to enforce access control.
-	CanAuthenticate func(authMessage proto.ClientMessage) bool
+	CanAuthenticate func(authMessage protocol.ClientMessage) bool
 
 	// Invoked upon channel subscription, can be used to enforce access control
 	// for channels.
@@ -36,7 +36,7 @@ type Server struct {
 func NewServer(hub *hub.Hub, token string) *Server {
 	return &Server{
 		hub: hub,
-		CanAuthenticate: func(authMessage proto.ClientMessage) bool {
+		CanAuthenticate: func(authMessage protocol.ClientMessage) bool {
 			return authMessage.Data() == token
 		},
 		CanPublish: func(authData map[string]interface{}, channel string) bool {

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 
-	protocol "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
+	"github.com/kiel-live/kiel-live/protocol"
 	"github.com/thoas/go-funk"
 )
 

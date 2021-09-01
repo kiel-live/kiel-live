@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/kiel-live/kiel-live/packages/backend/store"
-	protocol "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
+	"github.com/kiel-live/kiel-live/backend/store"
+	"github.com/kiel-live/kiel-live/protocol"
 	"github.com/sirupsen/logrus"
 )
 

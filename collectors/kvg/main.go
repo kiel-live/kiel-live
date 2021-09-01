@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron"
-	"github.com/kiel-live/kiel-live/packages/client"
-	protocol "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
+	"github.com/kiel-live/kiel-live/client"
+	"github.com/kiel-live/kiel-live/protocol"
 )
 
 const ProviderID = "kvg"

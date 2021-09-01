@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	proto "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
+	"github.com/kiel-live/kiel-live/protocol"
 )
 
 // Send pings to peer with this period
@@ -17,7 +17,7 @@ const pingPeriod = 30 * time.Second
 
 // WebSocketClient return websocket client connection
 type WebSocketClient struct {
-	Listen func(msg proto.ClientMessage)
+	Listen func(msg protocol.ClientMessage)
 
 	configStr string
 	sendBuf   chan []byte
@@ -29,7 +29,7 @@ type WebSocketClient struct {
 }
 
 // NewWebSocketClient create new websocket connection
-func NewWebSocketClient(host string, listen func(msg proto.ClientMessage)) *WebSocketClient {
+func NewWebSocketClient(host string, listen func(msg protocol.ClientMessage)) *WebSocketClient {
 	conn := WebSocketClient{
 		Listen:  listen,
 		sendBuf: make(chan []byte, 10),
@@ -80,7 +80,7 @@ func (conn *WebSocketClient) listen() {
 	conn.log("listen", nil, fmt.Sprintf("listen for the messages: %s", conn.configStr))
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
-	m := proto.ClientMessage{}
+	m := protocol.ClientMessage{}
 	for {
 		select {
 		case <-conn.ctx.Done():
@@ -129,23 +129,23 @@ func (conn *WebSocketClient) Disconnect() {
 }
 
 func (c *WebSocketClient) Subscribe(channel string) error {
-	return c.write(proto.NewSubscribeMessage(channel))
+	return c.write(protocol.NewSubscribeMessage(channel))
 }
 
 func (c *WebSocketClient) Unsubscribe(channel string) error {
-	return c.write(proto.NewUnsubscribeMessage(channel))
+	return c.write(protocol.NewUnsubscribeMessage(channel))
 }
 
 func (c *WebSocketClient) Authenticate(token string) error {
-	return c.write(proto.NewAuthenticateMessage(token))
+	return c.write(protocol.NewAuthenticateMessage(token))
 }
 
 func (c *WebSocketClient) Publish(channel string, data string) error {
-	return c.write(proto.NewPublishMessage(channel, data))
+	return c.write(protocol.NewPublishMessage(channel, data))
 }
 
 // Write data to the websocket server
-func (conn *WebSocketClient) write(msg proto.ClientMessage) error {
+func (conn *WebSocketClient) write(msg protocol.ClientMessage) error {
 	data, err := json.Marshal(msg)
 	if err != nil {
 		return err

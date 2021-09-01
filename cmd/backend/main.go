@@ -6,10 +6,10 @@ import (
 	"strconv"
 
 	"github.com/joho/godotenv"
-	"github.com/kiel-live/kiel-live/packages/backend/hub"
-	"github.com/kiel-live/kiel-live/packages/backend/store"
-	"github.com/kiel-live/kiel-live/packages/backend/webserver"
-	"github.com/kiel-live/kiel-live/packages/backend/websocket"
+	"github.com/kiel-live/kiel-live/backend/hub"
+	"github.com/kiel-live/kiel-live/backend/store"
+	"github.com/kiel-live/kiel-live/backend/webserver"
+	"github.com/kiel-live/kiel-live/backend/websocket"
 	log "github.com/sirupsen/logrus"
 )
 

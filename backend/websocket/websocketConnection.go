@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
-	proto "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
+	"github.com/kiel-live/kiel-live/protocol"
 	"github.com/pborman/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -18,7 +18,7 @@ type websocketConnection struct {
 	Token    string
 	Conn     *websocket.Conn
 	Server   *Server
-	AuthData proto.ClientMessage
+	AuthData protocol.ClientMessage
 
 	writeLock sync.Mutex
 	readLock  sync.Mutex
@@ -33,7 +33,7 @@ func newWebsocketConnection(w http.ResponseWriter, r *http.Request, s *Server) {
 	err := c.handshake(w, r)
 	if err != nil {
 		if c.Conn != nil {
-			c.SendMessage(proto.NewErrorMessage(proto.ServerErrorMessage, err))
+			c.SendMessage(protocol.NewErrorMessage(protocol.ServerErrorMessage, err))
 			c.Conn.Close()
 		} else {
 			http.Error(w, err.Error(), 500)
@@ -41,7 +41,7 @@ func newWebsocketConnection(w http.ResponseWriter, r *http.Request, s *Server) {
 	}
 }
 
-func (c *websocketConnection) writeConn(msg proto.ClientMessage) error {
+func (c *websocketConnection) writeConn(msg protocol.ClientMessage) error {
 	c.writeLock.Lock()
 	defer c.writeLock.Unlock()
 	return c.Conn.WriteJSON(msg)
@@ -86,7 +86,7 @@ func (c *websocketConnection) handshake(w http.ResponseWriter, r *http.Request) 
 func (c *websocketConnection) Run() {
 	hub := c.Server.hub
 
-	m := proto.ClientMessage{}
+	m := protocol.ClientMessage{}
 	for {
 		err := c.readConn(&m)
 		if err != nil {
@@ -95,63 +95,63 @@ func (c *websocketConnection) Run() {
 		}
 
 		switch m.Type() {
-		case proto.AuthMessage:
+		case protocol.AuthMessage:
 			if c.Server.CanAuthenticate != nil && !c.Server.CanAuthenticate(m) {
-				c.SendMessage(proto.NewErrorMessage(proto.AuthFailedMessage, errors.New("Unauthorized")))
+				c.SendMessage(protocol.NewErrorMessage(protocol.AuthFailedMessage, errors.New("Unauthorized")))
 				continue
 			}
 
-			c.SendMessage(proto.NewMessage(proto.AuthOKMessage))
+			c.SendMessage(protocol.NewMessage(protocol.AuthOKMessage))
 
 			c.AuthData = m
 
-		case proto.PublishMessage:
+		case protocol.PublishMessage:
 			channel := m.Channel()
 			if c.Server.CanPublish != nil && !c.Server.CanPublish(c.AuthData, channel) {
-				c.SendMessage(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, errors.New("Access denied")))
+				c.SendMessage(protocol.NewChannelErrorMessage(protocol.PublishErrorMessage, channel, errors.New("Access denied")))
 				continue
 			}
 
 			data := m.Data()
 			err := hub.Publish(c, channel, data)
 			if err != nil {
-				c.SendMessage(proto.NewChannelErrorMessage(proto.PublishErrorMessage, channel, err))
+				c.SendMessage(protocol.NewChannelErrorMessage(protocol.PublishErrorMessage, channel, err))
 				continue
 			}
 
-			c.SendMessage(proto.NewChannelMessage(proto.PublishOKMessage, channel))
+			c.SendMessage(protocol.NewChannelMessage(protocol.PublishOKMessage, channel))
 
-		case proto.SubscribeMessage:
+		case protocol.SubscribeMessage:
 			channel := m.Channel()
 			if c.Server.CanSubscribe != nil && !c.Server.CanSubscribe(c.AuthData, channel) {
-				c.SendMessage(proto.NewChannelErrorMessage(proto.SubscribeErrorMessage, channel, errors.New("channel refused")))
+				c.SendMessage(protocol.NewChannelErrorMessage(protocol.SubscribeErrorMessage, channel, errors.New("channel refused")))
 				continue
 			}
 
 			err := hub.Subscribe(c, channel)
 			if err != nil {
-				c.SendMessage(proto.NewChannelErrorMessage(proto.SubscribeErrorMessage, channel, err))
+				c.SendMessage(protocol.NewChannelErrorMessage(protocol.SubscribeErrorMessage, channel, err))
 				continue
 			}
 
-			c.SendMessage(proto.NewChannelMessage(proto.SubscribeOKMessage, channel))
+			c.SendMessage(protocol.NewChannelMessage(protocol.SubscribeOKMessage, channel))
 
-		case proto.UnsubscribeMessage:
+		case protocol.UnsubscribeMessage:
 			channel := m.Channel()
 
 			err := hub.Unsubscribe(c, channel)
 			if err != nil {
-				c.SendMessage(proto.NewChannelErrorMessage(proto.UnsubscribeErrorMessage, channel, err))
+				c.SendMessage(protocol.NewChannelErrorMessage(protocol.UnsubscribeErrorMessage, channel, err))
 				continue
 			}
 
-			c.SendMessage(proto.NewChannelMessage(proto.UnsubscribeOKMessage, channel))
+			c.SendMessage(protocol.NewChannelMessage(protocol.UnsubscribeOKMessage, channel))
 
-		case proto.PingMessage:
+		case protocol.PingMessage:
 			// Do nothing
 
 		default:
-			c.SendMessage(proto.NewMessage(proto.UnknownMessage))
+			c.SendMessage(protocol.NewMessage(protocol.UnknownMessage))
 		}
 	}
 }
@@ -161,7 +161,7 @@ func (c *websocketConnection) Cleanup() {
 
 	err := hub.Disconnect(c)
 	if err != nil {
-		c.SendMessage(proto.NewErrorMessage(proto.ServerErrorMessage, err))
+		c.SendMessage(protocol.NewErrorMessage(protocol.ServerErrorMessage, err))
 	}
 
 	c.Conn.Close()
@@ -184,13 +184,13 @@ func (c *websocketConnection) Close(code uint16, msg string) {
 }
 
 func (c *websocketConnection) Send(channel, message string) {
-	err := c.writeConn(proto.NewBroadcastMessage(channel, message))
+	err := c.writeConn(protocol.NewBroadcastMessage(channel, message))
 	if err != nil {
 		log.Errorln("can't send message: %s", err)
 	}
 }
 
-func (c *websocketConnection) SendMessage(message proto.ClientMessage) {
+func (c *websocketConnection) SendMessage(message protocol.ClientMessage) {
 	err := c.writeConn(message)
 	if err != nil {
 		log.Errorln("can't send message: %s", err)

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/kiel-live/kiel-live/packages/client"
-	"github.com/kiel-live/kiel-live/packages/collector-kvg/api"
+	"github.com/kiel-live/kiel-live/client"
+	"github.com/kiel-live/kiel-live/collectors/kvg/api"
 )
 
 type collector struct {

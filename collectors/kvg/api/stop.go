@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/url"
 
-	protocol "github.com/kiel-live/kiel-live/packages/pub-sub-proto"
+	"github.com/kiel-live/kiel-live/protocol"
 )
 
 type stop struct {
