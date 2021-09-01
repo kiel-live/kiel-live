@@ -71,6 +71,11 @@ func (conn *WebSocketClient) Connect() *websocket.Conn {
 	}
 }
 
+func (conn *WebSocketClient) IsConnected() bool {
+	// TODO
+	return true
+}
+
 func (conn *WebSocketClient) listen() {
 	conn.log("listen", nil, fmt.Sprintf("listen for the messages: %s", conn.configStr))
 	ticker := time.NewTicker(time.Second)
