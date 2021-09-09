@@ -1,30 +1,14 @@
 <template>
-  <div class="notFound">
-    <h1>OOPS!</h1>
-    <h2>Seite nicht gefunden.</h2>
-    <router-link :to="{ name: 'home' }">
-      Zurück zur Startseite
-    </router-link>
+  <div class="flex flex-col h-full w-full items-center justify-center">
+    <p class="text-2xl mb-8">Whoa 404, either we broke something or you had a typing mishap :-/</p>
+    <span>Back to <router-link class="text-blue-400" replace :to="{ name: 'home' }">home</router-link></span>
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
   name: 'NotFound',
-};
+});
 </script>
-
-<style lang="scss" scoped>
-  .notFound {
-    margin: auto 0;
-
-    h1 {
-      font-size: 5rem;
-    }
-
-    h2 {
-      font-size: 2rem;
-      margin-bottom: 2rem;
-    }
-  }
-</style>

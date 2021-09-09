@@ -1,2 +1,7 @@
-/public/env-config.js
-/dist/
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+
+old/
