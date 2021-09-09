@@ -7,8 +7,8 @@ import (
 	"sync"
 
 	"github.com/joho/godotenv"
-	"github.com/kiel-live/kiel-live/backend/store"
 	"github.com/kiel-live/kiel-live/client"
+	"github.com/kiel-live/kiel-live/manager/store"
 	"github.com/kiel-live/kiel-live/protocol"
 	log "github.com/sirupsen/logrus"
 )
