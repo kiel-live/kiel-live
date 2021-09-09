@@ -7,6 +7,10 @@ services:
       - 4222:4222
       - 4223:4223
       - 8222:8222
+    environment:
+      - NATS_TOKEN_ADMIN=${ADMIN_TOKEN}
+      - NATS_TOKEN_MANAGER=${MANAGER_TOKEN}
+      - NATS_TOKEN_COLLECTOR=${COLLECTOR_TOKEN}
     volumes:
       - ./nats-server.conf:/nats-server.conf
   # transport:
