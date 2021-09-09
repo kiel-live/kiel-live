@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-
 	c := client.NewClient("localhost")
 	c.Connect()
 	defer c.Disconnect()

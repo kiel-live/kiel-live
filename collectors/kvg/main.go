@@ -1,66 +1,79 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"os"
 	"time"
 
 	"github.com/go-co-op/gocron"
+	"github.com/joho/godotenv"
 	"github.com/kiel-live/kiel-live/client"
+	"github.com/kiel-live/kiel-live/collectors/kvg/collector"
 	"github.com/kiel-live/kiel-live/protocol"
+	log "github.com/sirupsen/logrus"
 )
 
-const ProviderID = "kvg"
-
-var collectors map[string]*collector
+var collectors map[string]collector.Collector
 
 func main() {
-	// TODO load client address from env
-	client := client.NewWebSocketClient("localhost:4000", func(msg protocol.ClientMessage) {
-		if msg.Type() == protocol.AuthFailedMessage {
-			log.Fatalln("Authentication failed")
-			return
-		}
+	log.Infof("🚌 Kiel-Live KVG collector version %s", "1.0.0") // TODO use proper version
 
-		if msg.Type() == protocol.ChannelMessage && msg.Channel() == protocol.ChannelNameSubscribedChannels {
-			fmt.Println("subscribed-channels > " + msg.Data())
-			// TODO check which channel is new and needs a collector
-			// TODO remove collectors of channels not being subscribed anymore
-			return
-		}
+	err := godotenv.Load()
+	if err != nil {
+		log.Debug("No .env file found")
+	}
 
-		log.Println(">>>", msg)
-	})
+	if os.Getenv("LOG") == "debug" {
+		log.SetLevel(log.DebugLevel)
+	}
 
-	collectors = make(map[string]*collector)
+	server := os.Getenv("COLLECTOR_SERVER")
+	if server == "" {
+		log.Fatalln("Please provide a server address for the collector with COLLECTOR_SERVER")
+	}
+
+	token := os.Getenv("COLLECTOR_TOKEN")
+	if token == "" {
+		log.Fatalln("Please provide a token for the collector with MANAGER_TOKEN")
+	}
+
+	c := client.NewClient(server, client.WithAuth("collector", token))
+	c.Connect()
+	defer c.Disconnect()
+
+	collectors = make(map[string]collector.Collector)
 
 	// auto load following collectors
-	collector, _ := newCollector(client, protocol.ChannelNameVehicles)
-	collectors[protocol.ChannelNameVehicles] = collector
-	collector, _ = newCollector(client, protocol.ChannelNameStops)
-	collectors[protocol.ChannelNameStops] = collector
+	collector, err := collector.NewCollector(c, "map-vehicles")
+	collectors["map-vehicles"] = collector
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
 
-	client.Connect()
-	defer client.Disconnect()
-
-	// TODO get token from env
-	client.Authenticate("123")
-
-	client.Subscribe(protocol.ChannelNameSubscribedChannels)
+	err = c.Subscribe(protocol.SubjectSubscriptions, func(msg *client.SubjectMessage) {
+		log.Debugln("Subscriptions", msg.Data)
+		// TODO start & stop on-demand collectors
+	}, c.WithCache())
+	if err != nil {
+		log.Errorln("Ups", err)
+		return
+	}
 
 	s := gocron.NewScheduler(time.UTC)
 	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
 	s.Every(30).Seconds().Do(func() {
-		if !client.IsConnected() {
+		if !c.IsConnected() {
 			return
 		}
 
-		for _, c := range collectors {
+		for name, c := range collectors {
 			// TODO maybe run in go routine
-			fmt.Println("Collector for", c.channel, "running ...")
-			c.run()
+			log.Debugln("Collector for", name, "running ...")
+			c.Run()
 		}
 	})
+
+	log.Infoln("⚡ KVG collector started")
 
 	s.StartBlocking()
 }
