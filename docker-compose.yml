@@ -1,18 +1,26 @@
 version: '3'
 
 services:
-  transport:
-    build: 
-      dockerfile: docker/Dockerfile
-      context: .
-    env_file:
-    - .env.local
-    environment:
-      - PORT
-      - NODE_ENV
-      - VUE_APP_MATOMO_URL
-      - VUE_APP_MATOMO_SITE
-      - VUE_APP_TITLE
-    restart: always
+  server:
+    image: nats:2.4-scratch
     ports:
-      - 8080:8080
+      - 4222:4222
+      - 4223:4223
+      - 8222:8222
+    volumes:
+      - ./nats-server.conf:/nats-server.conf
+  # transport:
+  #   build:
+  #     dockerfile: docker/Dockerfile
+  #     context: .
+  #   env_file:
+  #   - .env.local
+  #   environment:
+  #     - PORT
+  #     - NODE_ENV
+  #     - VUE_APP_MATOMO_URL
+  #     - VUE_APP_MATOMO_SITE
+  #     - VUE_APP_TITLE
+  #   restart: always
+  #   ports:
+  #     - 8080:8080

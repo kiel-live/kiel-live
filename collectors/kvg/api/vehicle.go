@@ -23,14 +23,14 @@ type vehicles struct {
 
 func (v *vehicle) parse() protocol.Vehicle {
 	return protocol.Vehicle{
-		ID:       v.ID,
+		ID:       "kvg-" + v.ID,
 		Provider: "kvg", // TODO
 		Name:     v.Name,
 		Type:     protocol.VehicleTypeBus,
 		State:    "onfire", // TODO
 		Location: protocol.Location{
-			Longitude: float32(v.Longitude),
-			Latitude:  float32(v.Latitude),
+			Longitude: v.Longitude,
+			Latitude:  v.Latitude,
 		},
 	}
 }

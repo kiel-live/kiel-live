@@ -1,24 +1,39 @@
 package protocol
 
 const (
-	// ChannelNameSubscribedChannels `/subscribed-channels` List of all currently subscribed channels
-	ChannelNameSubscribedChannels = "/subscribed-channels"
+	// ___ Ctrl ___
 
-	// ChannelNameStops `/stops` List of all stops
-	ChannelNameStops = "/stops"
+	// List of all currently subscribed subjects of all clients
+	SubjectSubscriptions = "ctrl.subscriptions"
 
-	// ChannelNameStop `/stop/<provider>/<stop-id>` Details of a specific stop
-	ChannelNameStop = "/stop/%s/%s"
+	// Request to subscribe to a subject
+	SubjectRequestSubscribe = "ctrl.subscribe"
 
-	// ChannelNameVehicles List of all vehicles
-	ChannelNameVehicles = "/vehicles"
+	// Request to unsubscribe from a subject
+	SubjectRequestUnsubscribe = "ctrl.unsubscribe"
 
-	// ChannelNameVehicle `/vehicle/<provider>/<vehicle-id>` Details of a specific vehicle
-	ChannelNameVehicle = "/vehicle/%s/%s"
+	// Request to get the cache of a subject
+	SubjectRequestCache = "ctrl.cache.request"
 
-	// ChannelNameTrip `/trip/<provider>/<trip-id>` Details of a specific trip
-	ChannelNameTrip = "/trip/%s/%s"
+	// ___ Map ___
 
-	// ChannelNameRoute `/route/<provider>/<route-id>` Details of a specific route
-	ChannelNameRoute = "/route/%s/%s"
+	// Single stops with gps position (data.map.<longitude>.<latitude>.stop.<id>)
+	SubjectMapStop = "data.map.%d.%d.stop.%s"
+
+	// Single vehicle with gps position (data.map.<longitude>.<latitude>.vehicle.<id>)
+	SubjectMapVehicle = "data.map.%d.%d.vehicle.%s"
+
+	// ___ Details ___
+
+	// Details of a specific stop (data.stop.<id>)
+	SubjectDetailsStop = "data.stop.%s"
+
+	// Details of a specific vehicle (data.vehicle.<id>)
+	SubjectDetailsVehicle = "data.vehicle.%s"
+
+	// Details of a specific trip (data.trip.<id>)
+	SubjectDetailsTrip = "data.trip.%s"
+
+	// Details of a specific route (data.route.<id>)
+	SubjectDetailsRoute = "data.route.%s"
 )

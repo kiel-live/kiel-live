@@ -1,0 +1,46 @@
+package collector
+
+import (
+	"fmt"
+
+	"github.com/kiel-live/kiel-live/client"
+)
+
+type Collector interface {
+	Run()
+}
+
+func NewCollector(client *client.Client, collectorType string) (Collector, error) {
+	// 	if c.channelType == "stops" {
+	// 		return api.GetStops()
+	// 	}
+
+	// 	if c.channelType == "stop" {
+	// 		return api.GetStop(c.entityID)
+	// 	}
+
+	// 	if c.channelType == "vehicles" {
+	// 		return api.GetVehicles()
+	// 	}
+
+	// 	if c.channelType == "vehicle" {
+	// 		return api.GetVehicle(c.entityID)
+	// 	}
+
+	// 	if c.channelType == "trip" {
+	// 		return api.GetTrip(c.entityID)
+	// 	}
+
+	// 	if c.channelType == "route" {
+	// 		return api.GetRoute(c.entityID)
+	// 	}
+
+	switch collectorType {
+	case "map-vehicles":
+		return &VehicleCollector{
+			client: client,
+		}, nil
+	}
+
+	return nil, fmt.Errorf("Collector type not supported")
+}

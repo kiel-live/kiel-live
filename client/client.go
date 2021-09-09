@@ -1,199 +1,195 @@
 package client
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
-	"net/url"
-	"sync"
+	"strings"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/nats-io/nats.go"
 )
 
 // Send pings to peer with this period
 const pingPeriod = 30 * time.Second
 
 // WebSocketClient return websocket client connection
-type WebSocketClient struct {
-	Listen func(msg protocol.ClientMessage)
-
-	configStr string
-	sendBuf   chan []byte
-	ctx       context.Context
-	ctxCancel context.CancelFunc
-
-	mu  sync.RWMutex
-	wsc *websocket.Conn
+type Client struct {
+	nc            *nats.Conn
+	subscriptions map[string]*nats.Subscription
+	host          string
+	username      string
+	password      string
 }
 
-// NewWebSocketClient create new websocket connection
-func NewWebSocketClient(host string, listen func(msg protocol.ClientMessage)) *WebSocketClient {
-	c := WebSocketClient{
-		Listen:  listen,
-		sendBuf: make(chan []byte, 10),
+type ClientOption func(c *Client)
+
+// NewClient create new connection
+func NewClient(host string, opts ...ClientOption) *Client {
+	client := &Client{
+		subscriptions: make(map[string]*nats.Subscription),
+		host:          host,
+		username:      "",
+		password:      "",
 	}
-	c.ctx, c.ctxCancel = context.WithCancel(context.Background())
 
-	u := url.URL{Scheme: "ws", Host: host, Path: "/ws"}
-	c.configStr = u.String()
+	for _, opt := range opts {
+		opt(client)
+	}
 
-	go c.listen()
-	go c.listenWrite()
-	go c.ping()
-	return &c
+	return client
 }
 
-func (c *WebSocketClient) Connect() *websocket.Conn {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.wsc != nil {
-		return c.wsc
-	}
-
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
-	for ; ; <-ticker.C {
-		select {
-		case <-c.ctx.Done():
-			return nil
-		default:
-			ws, _, err := websocket.DefaultDialer.Dial(c.configStr, nil)
-			if err != nil {
-				c.log("connect", err, fmt.Sprintf("Cannot connect to websocket: %s", c.configStr))
-				continue
-			}
-			c.log("connect", nil, fmt.Sprintf("connect websocket to %s", c.configStr))
-			c.wsc = ws
-			return c.wsc
-		}
+func WithAuth(username string, password string) ClientOption {
+	return func(c *Client) {
+		c.username = username
+		c.password = password
 	}
 }
 
-func (c *WebSocketClient) IsConnected() bool {
-	// TODO
-	return true
-}
+func (c *Client) Connect() (err error) {
+	var nc *nats.Conn
 
-func (c *WebSocketClient) listen() {
-	c.log("listen", nil, fmt.Sprintf("listening for messages: %s", c.configStr))
-	for {
-		ws := c.Connect()
-		if ws == nil {
-			err := fmt.Errorf("c.ws is nil")
-			c.log("listen", err, "No websocket connection")
-			continue
-		}
-
-		select {
-		case <-c.ctx.Done():
-			return
-		default:
-			m := protocol.ClientMessage{}
-			err := ws.ReadJSON(&m)
-			if err != nil {
-				c.log("listen", err, "Cannot read websocket message")
-				c.closeWs()
-				break
-			}
-			if c.Listen != nil {
-				c.Listen(m)
-			}
-		}
+	if len(c.username) < 1 && len(c.password) < 1 {
+		nc, err = nats.Connect(nats.DefaultURL)
+	} else {
+		nc, err = nats.Connect(nats.DefaultURL, nats.UserInfo(c.username, c.password))
 	}
+
+	c.nc = nc
+
+	return err
 }
 
-func (c *WebSocketClient) listenWrite() {
-	for data := range c.sendBuf {
-		ws := c.Connect()
-		if ws == nil {
-			err := fmt.Errorf("c.ws is nil")
-			c.log("listenWrite", err, "No websocket connection")
-			continue
-		}
+func (c *Client) IsConnected() bool {
+	return c.nc.IsConnected()
+}
 
-		err := ws.WriteMessage(websocket.TextMessage, data)
+// Close will unsubscribe all subjects and shutdown connection
+func (c *Client) Disconnect() error {
+	for subject := range c.subscriptions {
+		err := c.Unsubscribe(subject)
 		if err != nil {
-			c.log("listenWrite", nil, "WebSocket Write Error")
+			return err
 		}
 	}
+	c.nc.Close()
+	return nil
 }
 
-// Close will send close message and shutdown websocket connection
-func (c *WebSocketClient) Disconnect() {
-	c.ctxCancel()
-	c.closeWs()
+type SubjectMessage struct {
+	Subject string
+	Data    string
+	Raw     *nats.Msg
 }
+type SubscribeCallback func(msg *SubjectMessage)
+type SubscribeOption func(subject string, cb SubscribeCallback) error
 
-func (c *WebSocketClient) Subscribe(channel string) error {
-	return c.write(protocol.NewSubscribeMessage(channel))
-}
+func (c *Client) Subscribe(subject string, cb SubscribeCallback, opts ...SubscribeOption) error {
+	if c.subscriptions[subject] != nil {
+		return fmt.Errorf("Already subscribed to '%s'", subject)
+	}
 
-func (c *WebSocketClient) Unsubscribe(channel string) error {
-	return c.write(protocol.NewUnsubscribeMessage(channel))
-}
-
-func (c *WebSocketClient) Authenticate(token string) error {
-	return c.write(protocol.NewAuthenticateMessage(token))
-}
-
-func (c *WebSocketClient) Publish(channel string, data string) error {
-	return c.write(protocol.NewPublishMessage(channel, data))
-}
-
-// Write data to the websocket server
-func (c *WebSocketClient) write(msg protocol.ClientMessage) error {
-	data, err := json.Marshal(msg)
+	sub, err := c.nc.Subscribe(subject, func(msg *nats.Msg) {
+		cb(&SubjectMessage{
+			Subject: msg.Subject,
+			Data:    string(msg.Data),
+			Raw:     msg,
+		})
+	})
 	if err != nil {
 		return err
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*50)
-	defer cancel()
 
-	for {
-		select {
-		case c.sendBuf <- data:
+	c.subscriptions[subject] = sub
+
+	for _, opt := range opts {
+		err := opt(subject, cb)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (c *Client) WithAck() SubscribeOption {
+	return func(subject string, cb SubscribeCallback) error {
+		msg, err := c.nc.Request(protocol.SubjectRequestSubscribe, []byte(subject), 1*time.Second)
+		if err != nil {
+			if err.Error() == "nats: timeout" {
+				return fmt.Errorf("No one is answering us")
+			}
+			return err
+		}
+
+		if !strings.HasPrefix(string(msg.Data), "ok") {
+			return fmt.Errorf("Can't subscribe to '%s'", subject)
+		}
+
+		return nil
+	}
+}
+
+func (c *Client) WithCache() SubscribeOption {
+	return func(subject string, cb SubscribeCallback) error {
+		msg, err := c.nc.Request(protocol.SubjectRequestCache, []byte(subject), 1*time.Second)
+		if err != nil {
+			// TODO ignore cache miss or timeouts
+			// return err
 			return nil
-		case <-ctx.Done():
-			return fmt.Errorf("context canceled")
 		}
+
+		data := string(msg.Data)
+		if data == "err" {
+			// return fmt.Errorf("Miss on cache")
+			return nil
+		}
+
+		cb(&SubjectMessage{
+			Subject: msg.Subject,
+			Data:    data,
+			Raw:     msg,
+		})
+
+		return nil
 	}
 }
 
-// Close will send close message and shutdown websocket connection
-func (c *WebSocketClient) closeWs() {
-	c.mu.Lock()
-	if c.wsc != nil {
-		c.wsc.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-		c.wsc.Close()
-		c.wsc = nil
+func (c *Client) Unsubscribe(subject string) error {
+	sub := c.subscriptions[subject]
+	if sub != nil {
+		return fmt.Errorf("You have not subscribed to that subject '%s'", subject)
 	}
-	c.mu.Unlock()
+
+	msg, err := c.nc.Request(protocol.SubjectRequestUnsubscribe, []byte(subject), 1*time.Second)
+	if err != nil {
+		return err
+	}
+
+	if string(msg.Data) != "ok" {
+		return fmt.Errorf("Unsubscription failed '%s'", subject)
+	}
+
+	err = sub.Unsubscribe()
+	if err != nil {
+		return err
+	}
+
+	delete(c.subscriptions, subject)
+
+	return nil
 }
 
-func (c *WebSocketClient) ping() {
-	ticker := time.NewTicker(pingPeriod)
-	defer ticker.Stop()
-	for {
-		select {
-		case <-ticker.C:
-			ws := c.Connect()
-			if ws == nil {
-				continue
-			}
-			if err := c.wsc.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(pingPeriod/2)); err != nil {
-				c.closeWs()
-			}
-		case <-c.ctx.Done():
-			return
-		}
-	}
+func (c *Client) Publish(subject string, data string) error {
+	return c.PublishRaw(subject, []byte(data))
+}
+
+func (c *Client) PublishRaw(subject string, data []byte) error {
+	return c.nc.Publish(subject, data)
 }
 
 // Log print log statement
-// In real word I would recommend to use zerolog or any other solution
-func (c *WebSocketClient) log(f string, err error, msg string) {
+func (c *Client) log(f string, err error, msg string) {
 	if err != nil {
 		fmt.Printf("Error in func: %s, err: %v, msg: %s\n", f, err, msg)
 	} else {

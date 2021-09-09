@@ -18,13 +18,13 @@ type stop struct {
 
 func (s *stop) parse() protocol.Stop {
 	return protocol.Stop{
-		ID:       s.ID,
+		ID:       "kvg-" + s.ID,
 		Provider: "kvg", // TODO
 		Name:     s.Name,
 		Type:     protocol.VehicleTypeBus,
 		Location: protocol.Location{
-			Longitude: float32(s.Longitude),
-			Latitude:  float32(s.Latitude),
+			Longitude: s.Longitude,
+			Latitude:  s.Latitude,
 		},
 	}
 }

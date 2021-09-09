@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Backend",
+      "name": "Backend",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -13,7 +13,15 @@
       "cwd": "${workspaceRoot}"
     },
     {
-      "name": "Launch KVG collector",
+      "name": "Manager",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceRoot}/cmd/manager/",
+      "cwd": "${workspaceRoot}"
+    },
+    {
+      "name": "KVG collector",
       "type": "go",
       "request": "launch",
       "mode": "debug",
