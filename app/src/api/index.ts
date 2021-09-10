@@ -5,18 +5,7 @@ import { Vehicle, Stop } from '~/api/types';
 const sc = StringCodec();
 
 export const vehicles = ref<Record<string, Vehicle>>({});
-export const stops = ref<Record<string, Stop>>({
-  test: {
-    id: 'stop-123',
-    location: { heading: 0, latitude: 54.3166, longitude: 10.1283 },
-    name: 'test',
-    type: 'bus-stop',
-    alerts: [],
-    arrivals: [],
-    provider: 'kvg-dummy',
-    routes: [],
-  },
-});
+export const stops = ref<Record<string, Stop>>({});
 export const isConnected = ref(false);
 
 export const loadApi = async () => {
