@@ -50,9 +50,9 @@ func (c *Client) Connect() (err error) {
 	var nc *nats.Conn
 
 	if len(c.username) < 1 && len(c.password) < 1 {
-		nc, err = nats.Connect(nats.DefaultURL)
+		nc, err = nats.Connect(c.host)
 	} else {
-		nc, err = nats.Connect(nats.DefaultURL, nats.UserInfo(c.username, c.password))
+		nc, err = nats.Connect(c.host, nats.UserInfo(c.username, c.password))
 	}
 
 	c.nc = nc
