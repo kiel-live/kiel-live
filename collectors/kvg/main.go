@@ -61,7 +61,7 @@ func main() {
 
 	s := gocron.NewScheduler(time.UTC)
 	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
-	s.Every(30).Seconds().Do(func() {
+	s.Every(1).Seconds().Do(func() {
 		if !c.IsConnected() {
 			return
 		}
