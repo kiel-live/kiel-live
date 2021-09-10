@@ -21,6 +21,11 @@ body,
   width: 100%;
   height: 100%;
 }
+
+body {
+  /* disable android pull to refresh feature */
+  overflow-y: hidden;
+}
 </style>
 
 <style scoped>

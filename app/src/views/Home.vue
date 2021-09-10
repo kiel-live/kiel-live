@@ -1,34 +1,91 @@
 <template>
-  <div class="flex flex-col h-full w-full items-center justify-center">
-    <div id="map" class="w-full h-full" />
+  <div class="relative h-full w-full items-center justify-center overflow-hidden">
+    <Map :geojson="geojson" @marker-click="selectedMarker = $event" />
+    <DetailsPopup :is-open="!!selectedMarker" @close="selectedMarker = undefined">
+      <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
+    </DetailsPopup>
+    <Appbar />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
-import MapLibre from 'maplibre-gl';
+import { computed, defineComponent, onMounted, ref } from 'vue';
+import { GeoJSONSourceRaw } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+
+import { vehicles, stops, loadApi } from '~/api';
+import Map from '~/components/Map.vue';
+import DetailsPopup from '~/components/DetailsPopup.vue';
+import Appbar from '~/components/Appbar.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { Marker } from '~/types';
+import MarkerPopup from '~/components/popups/MarkerPopup.vue';
 
 export default defineComponent({
   name: 'Home',
 
-  setup() {
-    let map: MapLibre.Map;
+  components: { Map, DetailsPopup, Appbar, MarkerPopup },
 
-    onMounted(() => {
-      map = new MapLibre.Map({
-        container: 'map',
-        // style: 'https://demotiles.maplibre.org/style.json',
-        style: 'https://tiles.slucky.de/styles/gray-matter/style.json',
-        accessToken: '',
-        minZoom: 11,
-        maxZoom: 18,
-        center: [10.1283, 54.3166],
-        zoom: 14,
-        // [west, south, east, north]
-        maxBounds: [9.8, 54.21, 10.44, 54.52],
-      });
+  setup() {
+    const route = useRoute();
+    const router = useRouter();
+    const selectedMarker = computed<Marker | undefined>({
+      get() {
+        if (route.name !== 'map-marker') {
+          return undefined;
+        }
+
+        return {
+          type: route.params.markerType,
+          id: route.params.markerId,
+        } as Marker;
+      },
+      set(marker) {
+        if (!marker) {
+          router.replace({ name: 'home' });
+          return;
+        }
+        router.replace({ name: 'map-marker', params: { markerType: marker.type, markerId: marker.id } });
+      },
     });
+
+    const vehiclesGeoJson = computed(() =>
+      Object.values(vehicles.value).map((v) => ({
+        type: 'Feature',
+        properties: { type: 'vehicle', name: v.name, id: v.id },
+        geometry: {
+          type: 'Point',
+          coordinates: [v.location.longitude, v.location.latitude],
+        },
+      })),
+    );
+
+    const stopGeoJson = computed(() =>
+      Object.values(stops.value).map((s) => ({
+        type: 'Feature',
+        properties: { type: 'stop', name: s.name, id: s.id },
+        geometry: {
+          type: 'Point',
+          coordinates: [s.location.longitude, s.location.latitude],
+        },
+      })),
+    );
+
+    const geojson = computed<GeoJSONSourceRaw>(() => ({
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: [...vehiclesGeoJson.value, ...stopGeoJson.value],
+      },
+      cluster: true,
+      clusterMaxZoom: 12,
+    }));
+
+    onMounted(async () => {
+      await loadApi();
+    });
+
+    return { geojson, selectedMarker };
   },
 });
 </script>

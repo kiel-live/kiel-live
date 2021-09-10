@@ -8,6 +8,12 @@ const routes: RouteRecordRaw[] = [
     component: (): Component => import('~/views/Home.vue'),
   },
   {
+    path: '/map/:markerType/:markerId',
+    name: 'map-marker',
+    component: (): Component => import('~/views/Home.vue'),
+    props: true,
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: (): Component => import('~/views/NotFound.vue'),
