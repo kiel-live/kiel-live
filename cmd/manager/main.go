@@ -33,7 +33,11 @@ func main() {
 	}
 
 	c := client.NewClient(server, client.WithAuth("manager", token))
-	c.Connect()
+	err = c.Connect()
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
 	defer c.Disconnect()
 
 	hub := manager.NewHub()

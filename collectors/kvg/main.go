@@ -37,7 +37,11 @@ func main() {
 	}
 
 	c := client.NewClient(server, client.WithAuth("collector", token))
-	c.Connect()
+	err = c.Connect()
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
 	defer c.Disconnect()
 
 	collectors = make(map[string]collector.Collector)
