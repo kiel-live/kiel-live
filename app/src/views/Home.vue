@@ -52,7 +52,16 @@ export default defineComponent({
     const vehiclesGeoJson = computed(() =>
       Object.values(vehicles.value).map((v) => ({
         type: 'Feature',
-        properties: { type: 'vehicle', name: v.name, id: v.id },
+        properties: {
+          type: 'vehicle',
+          name: v.name,
+          id: v.id,
+          number: v.name.split(' ')[0],
+          to: v.name.split(' ').slice(1).join(' '),
+          iconName: `busIcon-unfocused-${v.name.split(' ')[0]}-${v.location.heading}`,
+          iconNameFocused: `busIcon-focused-${v.name.split(' ')[0]}-${v.location.heading}`,
+        },
+
         geometry: {
           type: 'Point',
           coordinates: [v.location.longitude, v.location.latitude],
@@ -71,14 +80,9 @@ export default defineComponent({
       })),
     );
 
-    const geojson = computed<GeoJSONSourceRaw>(() => ({
-      type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: [...vehiclesGeoJson.value, ...stopGeoJson.value],
-      },
-      cluster: true,
-      clusterMaxZoom: 12,
+    const geojson = computed<GeoJSONSourceRaw['data']>(() => ({
+      type: 'FeatureCollection',
+      features: [...vehiclesGeoJson.value, ...stopGeoJson.value],
     }));
 
     onMounted(async () => {

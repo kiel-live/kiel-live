@@ -7,13 +7,14 @@ import { defineComponent, onMounted, PropType, ref, toRef, watch } from 'vue';
 import MapLibre, { GeoJSONSource, GeoJSONSourceRaw } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Marker } from '~/types';
+import BusIcon from '~/components/busIcon';
 
 export default defineComponent({
   name: 'Map',
 
   props: {
     geojson: {
-      type: Object as PropType<GeoJSONSourceRaw>,
+      type: Object as PropType<GeoJSONSourceRaw['data']>,
       required: true,
     },
   },
@@ -44,8 +45,18 @@ export default defineComponent({
       // var nav = new MapLibre.NavigationControl();
       // map.addControl(nav, 'bottom-right');
 
+      map.on('styleimagemissing', (e) => {
+        const [, focus, route, heading] = e.id.split('-');
+        map.addImage(e.id, new BusIcon(map, focus === 'focused', route, heading), { pixelRatio: 2 });
+      });
+
       map.on('load', () => {
-        map.addSource('geojson', geojson.value);
+        map.addSource('geojson', {
+          type: 'geojson',
+          data: Object.freeze(geojson.value),
+          cluster: true,
+          clusterMaxZoom: 12,
+        });
 
         map.addLayer({
           id: 'vehicles',
@@ -60,13 +71,22 @@ export default defineComponent({
 
         map.addLayer({
           id: 'vehicles-unclustered',
+          type: 'symbol',
           source: 'geojson',
-          type: 'circle',
-          filter: ['!', ['has', 'point_count']],
           paint: {
-            'circle-color': '#007cbf',
-            'circle-radius': 7,
+            'icon-opacity': ['match', ['get', 'number'], '', 1, 1],
           },
+          layout: {
+            'icon-image': ['match', ['get', 'id'], '', ['get', 'iconNameFocused'], ['get', 'iconName']],
+            'icon-rotation-alignment': 'map',
+            'icon-allow-overlap': true,
+            'symbol-sort-key': ['match', ['get', 'number'], '', 2, 1],
+          },
+          // filter: ['!', ['has', 'point_count']],
+          // paint: {
+          //   'circle-color': '#007cbf',
+          //   'circle-radius': 7,
+          // },
         });
       });
 
@@ -98,7 +118,7 @@ export default defineComponent({
       }
 
       const source = map.getSource('geojson') as GeoJSONSource | undefined;
-      source?.setData(Object.freeze(geojson.value.data));
+      source?.setData(Object.freeze(geojson.value));
     });
   },
 });
