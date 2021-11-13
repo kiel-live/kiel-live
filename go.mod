@@ -3,6 +3,7 @@ module github.com/kiel-live/kiel-live
 go 1.16
 
 require (
+	github.com/BertoldVdb/go-ais v0.1.0
 	github.com/go-co-op/gocron v1.7.1
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/websocket v1.4.2
