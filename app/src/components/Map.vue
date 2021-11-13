@@ -20,7 +20,7 @@ export default defineComponent({
   },
 
   emits: {
-    markerClick: (marker: Marker) => true,
+    markerClick: (_marker?: Marker) => true,
   },
 
   setup(props, { emit }) {
@@ -129,6 +129,17 @@ export default defineComponent({
       // Change it back to a pointer when it leaves.
       map.on('mouseleave', 'stops', function () {
         map.getCanvas().style.cursor = '';
+      });
+
+      // Deselect marker when the map is clicked.
+      map.on('click', function (e) {
+        const features = map.queryRenderedFeatures(e.point, {
+          layers: ['stops', 'vehicles'],
+        });
+
+        if (features.length === 0) {
+          emit('markerClick');
+        }
       });
     });
 
