@@ -15,6 +15,7 @@ const pingPeriod = 30 * time.Second
 // WebSocketClient return websocket client connection
 type Client struct {
 	nc            *nats.Conn
+	JS            nats.JetStreamContext
 	subscriptions map[string]*nats.Subscription
 	host          string
 	username      string
@@ -56,6 +57,7 @@ func (c *Client) Connect() (err error) {
 	}
 
 	c.nc = nc
+	c.JS, err = nc.JetStream()
 
 	return err
 }

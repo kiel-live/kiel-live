@@ -69,14 +69,6 @@ func (h *Hub) Unsubscribe(subject string) error {
 	return nil
 }
 
-func (h *Hub) GetCache(subject string) (string, error) {
-	return h.store.Get(subject)
-}
-
-func (h *Hub) SetCache(subject string, data string) error {
-	return h.store.Set(subject, data)
-}
-
 func (h *Hub) updateSubscriptions() error {
 	subscriptions := make([]string, len(h.subscriptions))
 
@@ -90,8 +82,6 @@ func (h *Hub) updateSubscriptions() error {
 	if err != nil {
 		return err
 	}
-
-	h.SetCache(protocol.SubjectSubscriptions, string(data))
 
 	return h.client.Publish(protocol.SubjectSubscriptions, string(data))
 }

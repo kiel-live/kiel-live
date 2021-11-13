@@ -2,11 +2,13 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/manager"
 	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/nats-io/nats.go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -82,38 +84,14 @@ func main() {
 		return
 	}
 
-	err = c.Subscribe(protocol.SubjectRequestCache, func(msg *client.SubjectMessage) {
-		subject := string(msg.Data)
-		log.Debugln("Requested cache for", subject)
-		data, err := hub.GetCache(subject)
-		if err != nil {
-			log.Errorln(err)
-			msg.Raw.Respond([]byte("err"))
-			return
-		}
-
-		msg.Raw.Respond([]byte(data))
+	c.JS.AddStream(&nats.StreamConfig{
+		Name:              "data",
+		Subjects:          []string{"data.>"},
+		Retention:         nats.LimitsPolicy,
+		MaxMsgsPerSubject: 1,
+		Discard:           nats.DiscardOld,
+		MaxAge:            time.Duration(5 * time.Minute),
 	})
-	if err != nil {
-		log.Fatalln(err)
-		return
-	}
-
-	// save all latest data messages to cache
-	err = c.Subscribe("data.>", func(msg *client.SubjectMessage) {
-		subject := msg.Subject
-		data := string(msg.Data)
-		// fmt.Println("Updating cache for", subject, "with:", data)
-		err := hub.SetCache(subject, data)
-		if err != nil {
-			log.Errorln(err)
-			return
-		}
-	})
-	if err != nil {
-		log.Fatalln(err)
-		return
-	}
 
 	log.Infoln("⚡ Manager started")
 

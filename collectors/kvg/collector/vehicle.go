@@ -53,7 +53,7 @@ func (c *VehicleCollector) getRemovedVehicles(vehicles map[string]*protocol.Vehi
 }
 
 func (c *VehicleCollector) publish(vehicle *protocol.Vehicle) error {
-	subject := fmt.Sprintf(protocol.SubjectMapVehicle, vehicle.Location.Longitude, vehicle.Location.Latitude, vehicle.ID)
+	subject := fmt.Sprintf(protocol.SubjectMapVehicle, vehicle.ID)
 
 	jsonData, err := json.Marshal(vehicle)
 	if err != nil {
@@ -69,7 +69,7 @@ func (c *VehicleCollector) publish(vehicle *protocol.Vehicle) error {
 }
 
 func (c *VehicleCollector) publishRemoved(vehicle *protocol.Vehicle) error {
-	subject := fmt.Sprintf(protocol.SubjectMapVehicle, vehicle.Location.Longitude, vehicle.Location.Latitude, vehicle.ID)
+	subject := fmt.Sprintf(protocol.SubjectMapVehicle, vehicle.ID)
 
 	err := c.client.Publish(subject, string("---"))
 	if err != nil {

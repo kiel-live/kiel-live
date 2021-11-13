@@ -6,7 +6,7 @@ specifiers:
   '@vitejs/plugin-vue': ^1.3.0
   '@vue/compiler-sfc': ^3.1.5
   maplibre-gl: v1.15.2
-  nats.ws: ^1.3.0
+  nats.ws: 1.5.0
   pinia: ^2.0.0-rc.0
   prettier: ^2.3.2
   surge: ^0.23.0
@@ -21,7 +21,7 @@ specifiers:
 
 dependencies:
   maplibre-gl: 1.15.2
-  nats.ws: 1.3.0
+  nats.ws: 1.5.0
   pinia: 2.0.0-rc.8_typescript@4.4.2+vue@3.2.11
   vue: 3.2.11
   vue-router: 4.0.10_vue@3.2.11
@@ -1388,8 +1388,8 @@ packages:
     hasBin: true
     dev: true
 
-  /nats.ws/1.3.0:
-    resolution: {integrity: sha512-BIeWvvRca/Qnh7PJzOBBOjcFbgmKBuTfTifxpkGAKQlSEX/AgM/CS957TrTEgb12UzcCIS4IhXwbTNK1K0PMGw==}
+  /nats.ws/1.5.0:
+    resolution: {integrity: sha512-5xjhEA6Z3H8Usnk1MS/ejYirQchVe9yJPMBbnwygYyD0F1aIJ8twNXjQdk3cAasac7JpCHAvaGKWqFB1idpr1w==}
     optionalDependencies:
       nkeys.js: 1.0.0-9
     dev: false

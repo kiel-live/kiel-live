@@ -18,10 +18,10 @@ const (
 	// ___ Map ___
 
 	// Single stops with gps position (data.map.<longitude>.<latitude>.stop.<id>)
-	SubjectMapStop = "data.map.%d.%d.stop.%s"
+	SubjectMapStop = "data.map.stop.%s"
 
 	// Single vehicle with gps position (data.map.<longitude>.<latitude>.vehicle.<id>)
-	SubjectMapVehicle = "data.map.%d.%d.vehicle.%s"
+	SubjectMapVehicle = "data.map.vehicle.%s"
 
 	// ___ Details ___
 
