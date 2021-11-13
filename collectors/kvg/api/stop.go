@@ -45,7 +45,8 @@ type stopDepartures struct {
 	Departures []departure `json:"actual"`
 }
 
-func GetStops() []protocol.Stop {
+func GetStops() (res map[string]*protocol.Stop) {
+	res = make(map[string]*protocol.Stop)
 	data := url.Values{}
 	data.Set("top", "324000000")
 	data.Set("bottom", "-324000000")
@@ -53,17 +54,17 @@ func GetStops() []protocol.Stop {
 	data.Set("right", "648000000")
 
 	body, _ := post(stopsURL, data)
-	var rawStops stops
-	if err := json.Unmarshal(body, &rawStops); err != nil {
+	var stops stops
+	if err := json.Unmarshal(body, &stops); err != nil {
 		log.Fatalf("Parse response failed, reason: %v \n", err)
 	}
 
-	var stops []protocol.Stop
-	for _, stop := range rawStops.Stops {
-		stops = append(stops, stop.parse())
+	for _, stop := range stops.Stops {
+		v := stop.parse()
+		res[v.ID] = &v
 	}
 
-	return stops
+	return res
 }
 
 func GetStop(stopShortName string) stopDepartures {

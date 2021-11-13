@@ -54,28 +54,16 @@ export default defineComponent({
         map.addSource('geojson', {
           type: 'geojson',
           data: Object.freeze(geojson.value),
-          cluster: true,
-          clusterMaxZoom: 12,
         });
 
         map.addLayer({
           id: 'vehicles',
-          source: 'geojson',
-          type: 'circle',
-          filter: ['has', 'point_count'],
-          paint: {
-            'circle-color': ['step', ['get', 'point_count'], '#bfbc00', 5, '#bf7c00', 10, '#bf3c00'],
-            'circle-radius': ['step', ['get', 'point_count'], 10, 5, 15, 10, 20],
-          },
-        });
-
-        map.addLayer({
-          id: 'vehicles-unclustered',
           type: 'symbol',
           source: 'geojson',
           paint: {
             'icon-opacity': ['match', ['get', 'number'], '', 1, 1],
           },
+          filter: ['==', 'type', 'vehicle'],
           layout: {
             'icon-image': ['match', ['get', 'id'], '', ['get', 'iconNameFocused'], ['get', 'iconName']],
             'icon-rotation-alignment': 'map',
@@ -88,9 +76,20 @@ export default defineComponent({
           //   'circle-radius': 7,
           // },
         });
+
+        map.addLayer({
+          id: 'stops',
+          type: 'circle',
+          source: 'geojson',
+          filter: ['==', 'type', 'stop'],
+          paint: {
+            'circle-color': '#4f96fc',
+            'circle-radius': 5,
+          },
+        });
       });
 
-      map.on('click', 'vehicles-unclustered', (e) => {
+      map.on('click', 'vehicles', (e) => {
         if (!e.features || e.features.length === 0) {
           return;
         }
@@ -102,12 +101,33 @@ export default defineComponent({
       });
 
       // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
-      map.on('mouseenter', 'vehicles-unclustered', function () {
+      map.on('mouseenter', 'vehicles', function () {
         map.getCanvas().style.cursor = 'pointer';
       });
 
       // Change it back to a pointer when it leaves.
-      map.on('mouseleave', 'vehicles-unclustered', function () {
+      map.on('mouseleave', 'vehicles', function () {
+        map.getCanvas().style.cursor = '';
+      });
+
+      map.on('click', 'stops', (e) => {
+        if (!e.features || e.features.length === 0) {
+          return;
+        }
+        const feature = e.features[0];
+        map.flyTo({
+          center: feature.geometry.coordinates,
+        });
+        emit('markerClick', { type: feature.properties.type, id: feature.properties.id });
+      });
+
+      // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
+      map.on('mouseenter', 'stops', function () {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+
+      // Change it back to a pointer when it leaves.
+      map.on('mouseleave', 'stops', function () {
         map.getCanvas().style.cursor = '';
       });
     });

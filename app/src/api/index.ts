@@ -19,8 +19,16 @@ export const loadApi = async () => {
   const opts = consumerOpts();
   opts.deliverTo(createInbox());
   opts.deliverAll();
+  opts.ackNone()
   opts.replayInstantly();
-  const sub = await js.subscribe('data.>', opts);
+  const sub = await js.subscribe('data.map.vehicle.>', opts);
+
+  const optsStops = consumerOpts();
+  optsStops.deliverTo(createInbox());
+  optsStops.deliverAll();
+  optsStops.ackNone()
+  optsStops.replayInstantly();
+  const subStops = await js.subscribe('data.map.stop.>', optsStops);
 
   (async () => {
     console.info(`connected ${nc.getServer()}`);
@@ -52,6 +60,27 @@ export const loadApi = async () => {
       vehicles.value = Object.freeze({
         ...vehicles.value,
         [`${vehicle.provider}/${vehicle.id}`]: Object.freeze(vehicle),
+      });
+    }
+  })();
+
+  (async () => {
+    for await (const m of subStops) {
+      // console.log(m.subject);
+      const raw = sc.decode(m.data);
+      if (raw === '---') {
+        const id = m.subject;
+        console.log('### remove', id);
+        // delete vehicles.value[''];
+        continue;
+      }
+
+      const stop = JSON.parse(raw) as Stop;
+      stop.location.latitude = stop.location.latitude / 3600000;
+      stop.location.longitude = stop.location.longitude / 3600000;
+      stops.value = Object.freeze({
+        ...stops.value,
+        [`${stop.provider}/${stop.id}`]: Object.freeze(stop),
       });
     }
   })();

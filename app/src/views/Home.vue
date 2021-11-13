@@ -69,7 +69,7 @@ export default defineComponent({
       })),
     );
 
-    const stopGeoJson = computed(() =>
+    const stopsGeoJson = computed(() =>
       Object.values(stops.value).map((s) => ({
         type: 'Feature',
         properties: { type: 'stop', name: s.name, id: s.id },
@@ -82,7 +82,7 @@ export default defineComponent({
 
     const geojson = computed<GeoJSONSourceRaw['data']>(() => ({
       type: 'FeatureCollection',
-      features: [...vehiclesGeoJson.value, ...stopGeoJson.value],
+      features: [...vehiclesGeoJson.value, ...stopsGeoJson.value],
     }));
 
     onMounted(async () => {

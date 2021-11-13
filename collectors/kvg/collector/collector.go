@@ -40,6 +40,10 @@ func NewCollector(client *client.Client, collectorType string) (Collector, error
 		return &VehicleCollector{
 			client: client,
 		}, nil
+	case "map-stops":
+		return &StopCollector{
+			client: client,
+		}, nil
 	}
 
 	return nil, fmt.Errorf("Collector type not supported")

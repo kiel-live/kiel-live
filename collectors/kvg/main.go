@@ -47,8 +47,12 @@ func main() {
 	collectors = make(map[string]collector.Collector)
 
 	// auto load following collectors
-	collector, err := collector.NewCollector(c, "map-vehicles")
-	collectors["map-vehicles"] = collector
+	collectors["map-vehicles"], err = collector.NewCollector(c, "map-vehicles")
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
+	collectors["map-stops"], err = collector.NewCollector(c, "map-stops")
 	if err != nil {
 		log.Errorln(err)
 		return
