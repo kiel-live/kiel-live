@@ -43,7 +43,7 @@ export const loadApi = async () => {
         const id = m.subject;
         console.log('### remove', id);
         // delete vehicles.value[''];
-        return;
+        continue;
       }
 
       const vehicle = JSON.parse(raw) as Vehicle;
