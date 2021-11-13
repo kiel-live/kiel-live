@@ -8,6 +8,8 @@ import MapLibre, { GeoJSONSource, GeoJSONSourceRaw } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Marker } from '~/types';
 import BusIcon from '~/components/busIcon';
+import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
+import { log } from 'console';
 
 export default defineComponent({
   name: 'Map',
@@ -141,6 +143,14 @@ export default defineComponent({
           emit('markerClick');
         }
       });
+    });
+
+    watch(usePrefersColorSchemeDark(), (prefersColorSchemeDark) => {
+      if (prefersColorSchemeDark) {
+        map.setStyle('https://tiles.slucky.de/styles/gray-matter/style.json');
+      } else {
+        map.setStyle('https://tiles.slucky.de/styles/bright-matter/style.json');
+      }
     });
 
     watch(geojson, () => {
