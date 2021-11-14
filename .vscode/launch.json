@@ -19,6 +19,14 @@
       "mode": "debug",
       "program": "${workspaceRoot}/collectors/kvg/",
       "cwd": "${workspaceRoot}"
+    },
+    {
+      "name": "AIS collector",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceRoot}/collectors/ais/",
+      "cwd": "${workspaceRoot}"
     }
   ]
 }
