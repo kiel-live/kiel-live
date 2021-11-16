@@ -3,6 +3,7 @@ package collector
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
@@ -11,8 +12,9 @@ import (
 )
 
 type StopCollector struct {
-	client *client.Client
-	stops  map[string]*protocol.Stop
+	client        *client.Client
+	stops         map[string]*protocol.Stop
+	subscriptions *[]string
 }
 
 func isSameStop(a *protocol.Stop, b *protocol.Stop) bool {
@@ -74,6 +76,18 @@ func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
 
 func (c *StopCollector) Run() {
 	stops := api.GetStops()
+
+	for _, subject := range *c.subscriptions {
+		if !strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")) || subject == fmt.Sprintf(protocol.SubjectMapStop, ">") {
+			continue
+		}
+		// trim prefix of subject
+		stopID := strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")+"kvg-")
+		log.Debug("StopCollector: Run: ", stopID)
+		departures := api.GetStopDepartures(stopID)
+		log.Debug("StopCollector: publish stop", departures)
+		stops["kvg-"+stopID].Arrivals = departures
+	}
 
 	// publish all changed stops
 	changed := c.getChangedStops(stops)

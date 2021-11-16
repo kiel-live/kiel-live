@@ -18,7 +18,7 @@ type stop struct {
 
 func (s *stop) parse() protocol.Stop {
 	return protocol.Stop{
-		ID:       "kvg-" + s.ID,
+		ID:       "kvg-" + s.ShortName,
 		Provider: "kvg", // TODO
 		Name:     s.Name,
 		Type:     protocol.VehicleTypeBus,
@@ -39,9 +39,24 @@ type departure struct {
 	Stop               string `json:"plannedTime"`
 	ActualTime         string `json:"actualTime"`
 	ActualRelativeTime int    `json:"actualRelativeTime"`
+	VehicleID          string `json:"vehicleId"`
+	RouteID            string `json:"routeId"`
+	Direction          string `json:"direction"`
 }
 
-type stopDepartures struct {
+func (d *departure) parse() protocol.StopArrival {
+	return protocol.StopArrival{
+		Name:      d.Direction,
+		VehicleID: d.VehicleID,
+		TripID:    d.TripID,
+		RouteID:   d.RouteID,
+		Direction: d.Direction,
+		State:     d.Status,
+		ETA:       d.ActualRelativeTime,
+	}
+}
+
+type StopDepartures struct {
 	Departures []departure `json:"actual"`
 }
 
@@ -67,14 +82,19 @@ func GetStops() (res map[string]*protocol.Stop) {
 	return res
 }
 
-func GetStop(stopShortName string) stopDepartures {
+func GetStopDepartures(stopShortName string) []protocol.StopArrival {
 	data := url.Values{}
 	data.Set("stop", stopShortName)
 
 	resp, _ := post(stopURL, data)
-	var stop stopDepartures
+	var stop StopDepartures
 	if err := json.Unmarshal(resp, &stop); err != nil {
-		log.Fatalf("Parse response failed, reason: %v \n", err)
+		log.Fatalf("Parse response failed, reason: %v \n response: %v", err, string(resp))
 	}
-	return stop
+
+	departures := []protocol.StopArrival{}
+	for _, departure := range stop.Departures {
+		departures = append(departures, departure.parse())
+	}
+	return departures
 }
