@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 	"time"
 
@@ -13,6 +14,15 @@ import (
 )
 
 var collectors map[string]collector.Collector
+
+// keep list of consumers for easy deletion
+var consumers map[string]string
+
+// keep track of duplicate subscriptions
+var subjects map[string]int
+
+// plain list of subscriptions without duplicates
+var subscriptions []string
 
 func main() {
 	log.Infof("🚌 Kiel-Live KVG collector version %s", "1.0.0") // TODO use proper version
@@ -47,12 +57,12 @@ func main() {
 	collectors = make(map[string]collector.Collector)
 
 	// auto load following collectors
-	collectors["map-vehicles"], err = collector.NewCollector(c, "map-vehicles")
+	collectors["map-vehicles"], err = collector.NewCollector(c, "map-vehicles", &subscriptions)
 	if err != nil {
 		log.Errorln(err)
 		return
 	}
-	collectors["map-stops"], err = collector.NewCollector(c, "map-stops")
+	collectors["map-stops"], err = collector.NewCollector(c, "map-stops", &subscriptions)
 	if err != nil {
 		log.Errorln(err)
 		return
@@ -67,9 +77,69 @@ func main() {
 		return
 	}
 
+	// TODO: move to Subscriptions Handler package
+	type consumerEvent struct {
+		Stream   string `json:"stream"`
+		Consumer string `json:"consumer"`
+	}
+
+	consumers = make(map[string]string)
+	subjects = make(map[string]int)
+	subscriptions = []string{}
+
+	// already existing consumers
+	for consumerInfo := range c.JS.ConsumersInfo("data") {
+		consumers[consumerInfo.Name] = consumerInfo.Config.FilterSubject
+		subjects[consumerInfo.Config.FilterSubject]++
+		subscriptions = []string{}
+		for subject := range subjects {
+			subscriptions = append(subscriptions, subject)
+		}
+	}
+
+	// new consumers
+	c.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.CREATED.>", func(msg *client.SubjectMessage) {
+		var consumerEvent consumerEvent
+		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
+			log.Fatalf("Parse response failed, reason: %v \n", err)
+		}
+		consumerInfo, _ := c.JS.ConsumerInfo(consumerEvent.Stream, consumerEvent.Consumer)
+		consumers[consumerInfo.Name] = consumerInfo.Config.FilterSubject
+		subjects[consumerInfo.Config.FilterSubject]++
+		subscriptions = []string{}
+		for subject := range subjects {
+			subscriptions = append(subscriptions, subject)
+		}
+		log.Debugln("Subscriptions", consumers)
+		log.Debugln("Subscriptions", subjects)
+		log.Debugln("Subscriptions", subscriptions)
+		collectors["map-stops"].Run()
+	})
+
+	// remove consumers
+	c.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.DELETED.>", func(msg *client.SubjectMessage) {
+		var consumerEvent consumerEvent
+		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
+			log.Fatalf("Parse response failed, reason: %v \n", err)
+		}
+		if subjects[consumers[consumerEvent.Consumer]] > 1 {
+			subjects[consumers[consumerEvent.Consumer]]--
+		} else {
+			delete(subjects, consumers[consumerEvent.Consumer])
+		}
+		delete(consumers, consumerEvent.Consumer)
+		subscriptions = []string{}
+		for subject := range subjects {
+			subscriptions = append(subscriptions, subject)
+		}
+		log.Debugln("Subscriptions", consumers)
+		log.Debugln("Subscriptions", subjects)
+		log.Debugln("Subscriptions", subscriptions)
+	})
+
 	s := gocron.NewScheduler(time.UTC)
 	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
-	s.Every(1).Seconds().Do(func() {
+	s.Every(5).Seconds().Do(func() {
 		if !c.IsConnected() {
 			return
 		}

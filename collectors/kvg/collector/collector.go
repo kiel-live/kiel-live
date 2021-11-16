@@ -10,7 +10,7 @@ type Collector interface {
 	Run()
 }
 
-func NewCollector(client *client.Client, collectorType string) (Collector, error) {
+func NewCollector(client *client.Client, collectorType string, subscriptions *[]string) (Collector, error) {
 	// 	if c.channelType == "stops" {
 	// 		return api.GetStops()
 	// 	}
@@ -42,7 +42,8 @@ func NewCollector(client *client.Client, collectorType string) (Collector, error
 		}, nil
 	case "map-stops":
 		return &StopCollector{
-			client: client,
+			client:        client,
+			subscriptions: subscriptions,
 		}, nil
 	}
 
