@@ -2,6 +2,7 @@ package subscriptions
 
 import (
 	"encoding/json"
+	"sync"
 
 	"github.com/kiel-live/kiel-live/client"
 	log "github.com/sirupsen/logrus"
@@ -11,6 +12,7 @@ type Subscriptions struct {
 	client                          *client.Client
 	mapConsumer2Subject             map[string]string // for easy deletion
 	numberOfSubscriptionsPerSubject map[string]int    // keep track of duplicate subscriptions
+	sync.Mutex
 }
 
 type consumerEvent struct {
@@ -20,6 +22,8 @@ type consumerEvent struct {
 
 func (s *Subscriptions) GetSubscriptions() []string {
 	subscriptions := []string{}
+	s.Lock()
+	defer s.Unlock()
 	for subject := range s.numberOfSubscriptionsPerSubject {
 		subscriptions = append(subscriptions, subject)
 	}
@@ -31,6 +35,8 @@ func New(client *client.Client) *Subscriptions {
 }
 
 func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func()) {
+	s.Lock()
+	defer s.Unlock()
 	s.mapConsumer2Subject = make(map[string]string)
 	s.numberOfSubscriptionsPerSubject = make(map[string]int)
 
@@ -47,6 +53,8 @@ func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func()) {
 			log.Fatalf("Parse response failed, reason: %v \n", err)
 		}
 		consumerInfo, _ := s.client.JS.ConsumerInfo(consumerEvent.Stream, consumerEvent.Consumer)
+		s.Lock()
+		defer s.Unlock()
 		s.mapConsumer2Subject[consumerInfo.Name] = consumerInfo.Config.FilterSubject
 		s.numberOfSubscriptionsPerSubject[consumerInfo.Config.FilterSubject]++
 		log.Debugln("Subscriptions", s.mapConsumer2Subject)
@@ -63,6 +71,8 @@ func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func()) {
 		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
 			log.Fatalf("Parse response failed, reason: %v \n", err)
 		}
+		s.Lock()
+		defer s.Unlock()
 		if s.numberOfSubscriptionsPerSubject[s.mapConsumer2Subject[consumerEvent.Consumer]] > 1 {
 			s.numberOfSubscriptionsPerSubject[s.mapConsumer2Subject[consumerEvent.Consumer]]--
 		} else {
