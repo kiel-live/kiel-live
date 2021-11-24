@@ -7,6 +7,7 @@ import (
 
 	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
+	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
 	"github.com/kiel-live/kiel-live/protocol"
 	log "github.com/sirupsen/logrus"
 )
@@ -14,7 +15,7 @@ import (
 type StopCollector struct {
 	client        *client.Client
 	stops         map[string]*protocol.Stop
-	subscriptions *[]string
+	subscriptions *subscriptions.Subscriptions
 }
 
 func isSameStop(a *protocol.Stop, b *protocol.Stop) bool {
@@ -77,7 +78,7 @@ func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
 func (c *StopCollector) Run() {
 	stops := api.GetStops()
 
-	for _, subject := range *c.subscriptions {
+	for _, subject := range c.subscriptions.GetSubscriptions() {
 		if !strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")) || subject == fmt.Sprintf(protocol.SubjectMapStop, ">") {
 			continue
 		}

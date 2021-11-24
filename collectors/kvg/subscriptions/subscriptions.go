@@ -1,0 +1,78 @@
+package subscriptions
+
+import (
+	"encoding/json"
+
+	"github.com/kiel-live/kiel-live/client"
+	log "github.com/sirupsen/logrus"
+)
+
+type Subscriptions struct {
+	client                          *client.Client
+	mapConsumer2Subject             map[string]string // for easy deletion
+	numberOfSubscriptionsPerSubject map[string]int    // keep track of duplicate subscriptions
+}
+
+type consumerEvent struct {
+	Stream   string `json:"stream"`
+	Consumer string `json:"consumer"`
+}
+
+func (s *Subscriptions) GetSubscriptions() []string {
+	subscriptions := []string{}
+	for subject := range s.numberOfSubscriptionsPerSubject {
+		subscriptions = append(subscriptions, subject)
+	}
+	return subscriptions
+}
+
+func New(client *client.Client) *Subscriptions {
+	return &Subscriptions{client: client}
+}
+
+func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func()) {
+	s.mapConsumer2Subject = make(map[string]string)
+	s.numberOfSubscriptionsPerSubject = make(map[string]int)
+
+	// already existing consumers
+	for consumerInfo := range s.client.JS.ConsumersInfo("data") {
+		s.mapConsumer2Subject[consumerInfo.Name] = consumerInfo.Config.FilterSubject
+		s.numberOfSubscriptionsPerSubject[consumerInfo.Config.FilterSubject]++
+	}
+
+	// new consumers
+	err := s.client.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.CREATED.>", func(msg *client.SubjectMessage) {
+		var consumerEvent consumerEvent
+		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
+			log.Fatalf("Parse response failed, reason: %v \n", err)
+		}
+		consumerInfo, _ := s.client.JS.ConsumerInfo(consumerEvent.Stream, consumerEvent.Consumer)
+		s.mapConsumer2Subject[consumerInfo.Name] = consumerInfo.Config.FilterSubject
+		s.numberOfSubscriptionsPerSubject[consumerInfo.Config.FilterSubject]++
+		log.Debugln("Subscriptions", s.mapConsumer2Subject)
+		log.Debugln("Subscriptions", s.numberOfSubscriptionsPerSubject)
+		subscriptionCreatedCallback()
+	})
+	if err != nil {
+		log.Errorf("Subscribe failed, reason: %v \n", err)
+	}
+
+	// remove consumers
+	err = s.client.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.DELETED.>", func(msg *client.SubjectMessage) {
+		var consumerEvent consumerEvent
+		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
+			log.Fatalf("Parse response failed, reason: %v \n", err)
+		}
+		if s.numberOfSubscriptionsPerSubject[s.mapConsumer2Subject[consumerEvent.Consumer]] > 1 {
+			s.numberOfSubscriptionsPerSubject[s.mapConsumer2Subject[consumerEvent.Consumer]]--
+		} else {
+			delete(s.numberOfSubscriptionsPerSubject, s.mapConsumer2Subject[consumerEvent.Consumer])
+		}
+		delete(s.mapConsumer2Subject, consumerEvent.Consumer)
+		log.Debugln("Subscriptions", s.mapConsumer2Subject)
+		log.Debugln("Subscriptions", s.numberOfSubscriptionsPerSubject)
+	})
+	if err != nil {
+		log.Errorf("Subscribe failed, reason: %v \n", err)
+	}
+}

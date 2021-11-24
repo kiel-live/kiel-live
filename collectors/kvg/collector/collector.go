@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	"github.com/kiel-live/kiel-live/client"
+	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
 )
 
 type Collector interface {
 	Run()
 }
 
-func NewCollector(client *client.Client, collectorType string, subscriptions *[]string) (Collector, error) {
+func NewCollector(client *client.Client, collectorType string, subscriptions *subscriptions.Subscriptions) (Collector, error) {
 	// 	if c.channelType == "stops" {
 	// 		return api.GetStops()
 	// 	}
