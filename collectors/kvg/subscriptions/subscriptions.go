@@ -37,6 +37,7 @@ func New(client *client.Client) *Subscriptions {
 func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func()) {
 	s.Lock()
 	defer s.Unlock()
+
 	s.mapConsumer2Subject = make(map[string]string)
 	s.numberOfSubscriptionsPerSubject = make(map[string]int)
 
@@ -53,12 +54,13 @@ func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func()) {
 			log.Fatalf("Parse response failed, reason: %v \n", err)
 		}
 		consumerInfo, _ := s.client.JS.ConsumerInfo(consumerEvent.Stream, consumerEvent.Consumer)
+
 		s.Lock()
 		defer s.Unlock()
+
 		s.mapConsumer2Subject[consumerInfo.Name] = consumerInfo.Config.FilterSubject
 		s.numberOfSubscriptionsPerSubject[consumerInfo.Config.FilterSubject]++
-		log.Debugln("Subscriptions", s.mapConsumer2Subject)
-		log.Debugln("Subscriptions", s.numberOfSubscriptionsPerSubject)
+
 		subscriptionCreatedCallback()
 	})
 	if err != nil {
@@ -71,16 +73,16 @@ func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func()) {
 		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
 			log.Fatalf("Parse response failed, reason: %v \n", err)
 		}
+
 		s.Lock()
 		defer s.Unlock()
+
 		if s.numberOfSubscriptionsPerSubject[s.mapConsumer2Subject[consumerEvent.Consumer]] > 1 {
 			s.numberOfSubscriptionsPerSubject[s.mapConsumer2Subject[consumerEvent.Consumer]]--
 		} else {
 			delete(s.numberOfSubscriptionsPerSubject, s.mapConsumer2Subject[consumerEvent.Consumer])
 		}
 		delete(s.mapConsumer2Subject, consumerEvent.Consumer)
-		log.Debugln("Subscriptions", s.mapConsumer2Subject)
-		log.Debugln("Subscriptions", s.numberOfSubscriptionsPerSubject)
 	})
 	if err != nil {
 		log.Errorf("Subscribe failed, reason: %v \n", err)
