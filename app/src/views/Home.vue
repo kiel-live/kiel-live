@@ -13,7 +13,7 @@ import { computed, defineComponent, onMounted, ref } from 'vue';
 import { GeoJSONSourceRaw } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import { vehicles, stops, loadApi } from '~/api';
+import { vehicles, stops, loadApi, subscribe } from '~/api';
 import Map from '~/components/Map.vue';
 import DetailsPopup from '~/components/DetailsPopup.vue';
 import Appbar from '~/components/Appbar.vue';
@@ -64,7 +64,7 @@ export default defineComponent({
 
         geometry: {
           type: 'Point',
-          coordinates: [v.location.longitude, v.location.latitude],
+          coordinates: [v.location.longitude / 3600000, v.location.latitude / 3600000],
         },
       })),
     );
@@ -75,7 +75,7 @@ export default defineComponent({
         properties: { type: 'stop', name: s.name, id: s.id },
         geometry: {
           type: 'Point',
-          coordinates: [s.location.longitude, s.location.latitude],
+          coordinates: [s.location.longitude / 3600000, s.location.latitude / 3600000],
         },
       })),
     );
@@ -87,6 +87,8 @@ export default defineComponent({
 
     onMounted(async () => {
       await loadApi();
+      await subscribe('data.map.vehicle.>', vehicles);
+      await subscribe('data.map.stop.>', stops);
     });
 
     return { geojson, selectedMarker };

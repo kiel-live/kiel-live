@@ -1,6 +1,6 @@
-import { connect, consumerOpts, createInbox, Events, StringCodec } from 'nats.ws';
-import { ref } from 'vue';
-import { Vehicle, Stop } from '~/api/types';
+import { connect, consumerOpts, createInbox, Events, JetStreamClient, NatsConnection, StringCodec } from 'nats.ws';
+import { Ref, ref } from 'vue';
+import { Vehicle, Stop, Models } from '~/api/types';
 
 const sc = StringCodec();
 
@@ -8,27 +8,50 @@ export const vehicles = ref<Record<string, Vehicle>>({});
 export const stops = ref<Record<string, Stop>>({});
 export const isConnected = ref(false);
 
-export const loadApi = async () => {
-  const nc = await connect({
-    servers: ['ws://localhost:4223', 'wss://api.kiel-live.ju60.de'],
-  });
-  isConnected.value = true;
+const subscriptions = ref<string[]>([]);
+let nc: NatsConnection;
+let js: JetStreamClient;
 
-  const js = nc.jetstream();
+export const subscribe = async (subject: string, state: Ref<Record<string, Models>>) => {
+  if (subscriptions.value.includes(subject)) {
+    return;
+  }
+
+  subscriptions.value.push(subject);
 
   const opts = consumerOpts();
   opts.deliverTo(createInbox());
   opts.deliverAll();
-  opts.ackNone()
+  opts.ackNone();
   opts.replayInstantly();
-  const sub = await js.subscribe('data.map.vehicle.>', opts);
+  const sub = await js.subscribe(subject, opts);
 
-  const optsStops = consumerOpts();
-  optsStops.deliverTo(createInbox());
-  optsStops.deliverAll();
-  optsStops.ackNone()
-  optsStops.replayInstantly();
-  const subStops = await js.subscribe('data.map.stop.>', optsStops);
+  (async () => {
+    for await (const m of sub) {
+      const raw = sc.decode(m.data);
+      if (raw === '---') {
+        const id = m.subject;
+        console.log('### remove', id);
+        // delete vehicles.value[''];
+        continue;
+      }
+
+      const newModel = JSON.parse(raw) as Vehicle;
+      state.value = Object.freeze({
+        ...state.value,
+        [`${newModel.provider}/${newModel.id}`]: Object.freeze(newModel),
+      });
+    }
+  })();
+};
+
+export const loadApi = async () => {
+  nc = await connect({
+    servers: ['ws://localhost:4223'],
+  });
+  isConnected.value = true;
+
+  js = nc.jetstream();
 
   (async () => {
     console.info(`connected ${nc.getServer()}`);
@@ -40,48 +63,6 @@ export const loadApi = async () => {
         isConnected.value = true;
       }
       console.info(`${s.type}: ${s.data}`);
-    }
-  })();
-
-  (async () => {
-    for await (const m of sub) {
-      // console.log(m.subject);
-      const raw = sc.decode(m.data);
-      if (raw === '---') {
-        const id = m.subject;
-        console.log('### remove', id);
-        // delete vehicles.value[''];
-        continue;
-      }
-
-      const vehicle = JSON.parse(raw) as Vehicle;
-      vehicle.location.latitude = vehicle.location.latitude / 3600000;
-      vehicle.location.longitude = vehicle.location.longitude / 3600000;
-      vehicles.value = Object.freeze({
-        ...vehicles.value,
-        [`${vehicle.provider}/${vehicle.id}`]: Object.freeze(vehicle),
-      });
-    }
-  })();
-
-  (async () => {
-    for await (const m of subStops) {
-      // console.log(m.subject);
-      const raw = sc.decode(m.data);
-      if (raw === '---') {
-        const id = m.subject;
-        console.log('### remove', id);
-        // delete vehicles.value[''];
-        continue;
-      }
-
-      const stop = JSON.parse(raw) as Stop;
-      stop.location.latitude = stop.location.latitude / 3600000;
-      stop.location.longitude = stop.location.longitude / 3600000;
-      stops.value = Object.freeze({
-        ...stops.value,
-        [`${stop.provider}/${stop.id}`]: Object.freeze(stop),
-      });
     }
   })();
 };
