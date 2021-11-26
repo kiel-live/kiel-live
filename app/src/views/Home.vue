@@ -86,7 +86,6 @@ export default defineComponent({
     }));
 
     onMounted(async () => {
-      await loadApi();
       await subscribe('data.map.vehicle.>', vehicles);
       await subscribe('data.map.stop.>', stops);
     });

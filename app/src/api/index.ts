@@ -39,7 +39,7 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
       const newModel = JSON.parse(raw) as Vehicle;
       state.value = Object.freeze({
         ...state.value,
-        [`${newModel.provider}/${newModel.id}`]: Object.freeze(newModel),
+        [newModel.id]: Object.freeze(newModel),
       });
     }
   })();
