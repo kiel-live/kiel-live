@@ -56,10 +56,9 @@ func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func()) {
 		consumerInfo, _ := s.client.JS.ConsumerInfo(consumerEvent.Stream, consumerEvent.Consumer)
 
 		s.Lock()
-		defer s.Unlock()
-
 		s.mapConsumer2Subject[consumerInfo.Name] = consumerInfo.Config.FilterSubject
 		s.numberOfSubscriptionsPerSubject[consumerInfo.Config.FilterSubject]++
+		s.Unlock()
 
 		subscriptionCreatedCallback()
 	})
