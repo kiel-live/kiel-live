@@ -18,13 +18,26 @@ type StopCollector struct {
 	subscriptions *subscriptions.Subscriptions
 }
 
+func isSameArrivals(a, b []protocol.StopArrival) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
 func isSameStop(a *protocol.Stop, b *protocol.Stop) bool {
 	return a != nil && b != nil &&
 		a.Provider == b.Provider &&
 		a.Name == b.Name &&
 		a.ID == b.ID &&
 		isSameLocation(a.Location, b.Location) &&
-		a.Type == b.Type
+		a.Type == b.Type &&
+		isSameArrivals(a.Arrivals, b.Arrivals)
 }
 
 // returns list of changed or newly added stops
