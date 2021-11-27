@@ -15,8 +15,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, onMounted, computed, watch, toRef } from 'vue';
-import { subscribe } from '~/api';
+import { defineComponent, PropType, onMounted, computed, watch, toRef, onUnmounted } from 'vue';
+import { subscribe, unsubscribe } from '~/api';
 import { Marker } from '~/types';
 import { stops } from '~/api';
 import { StopArrival } from '~/api/types';
@@ -45,7 +45,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const marker = toRef(props, 'marker');
     const stop = computed(() => stops.value[props.marker.id]);
-
+    let subject: string | null = null;
     const eta = (arrival: StopArrival) => {
       const minutes = Math.round(arrival.eta / 60);
 
@@ -62,10 +62,20 @@ export default defineComponent({
     watch(
       marker,
       async () => {
-        await subscribe(`data.map.stop.${props.marker.id}`, stops);
+        if (subject !== null) {
+          unsubscribe(subject);
+        }
+        subject = `data.map.stop.${props.marker.id}`
+        await subscribe(subject, stops);
       },
       { immediate: true },
     );
+
+    onUnmounted(() => {
+      if (subject !== null) {
+        unsubscribe(subject);
+      }
+    });
 
     return { stop, stops, eta };
   },

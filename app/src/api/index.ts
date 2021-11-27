@@ -1,4 +1,4 @@
-import { connect, consumerOpts, createInbox, Events, JetStreamClient, NatsConnection, StringCodec } from 'nats.ws';
+import { connect, consumerOpts, createInbox, Events, JetStreamClient, JetStreamSubscription, NatsConnection, StringCodec } from 'nats.ws';
 import { Ref, ref } from 'vue';
 import { Vehicle, Stop, Models } from '~/api/types';
 
@@ -8,16 +8,14 @@ export const vehicles = ref<Record<string, Vehicle>>({});
 export const stops = ref<Record<string, Stop>>({});
 export const isConnected = ref(false);
 
-const subscriptions = ref<string[]>([]);
+const subscriptions = ref<Record<string, JetStreamSubscription>>({});
 let nc: NatsConnection;
 let js: JetStreamClient;
 
 export const subscribe = async (subject: string, state: Ref<Record<string, Models>>) => {
-  if (subscriptions.value.includes(subject)) {
+  if (subscriptions.value[subject]) {
     return;
   }
-
-  subscriptions.value.push(subject);
 
   const opts = consumerOpts();
   opts.deliverTo(createInbox());
@@ -25,6 +23,7 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
   opts.ackNone();
   opts.replayInstantly();
   const sub = await js.subscribe(subject, opts);
+  subscriptions.value[subject] = sub;
 
   (async () => {
     for await (const m of sub) {
@@ -43,6 +42,14 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
       });
     }
   })();
+};
+
+export const unsubscribe = async (subject: string) => {
+  if (!subscriptions.value[subject]) {
+    return;
+  }
+  subscriptions.value[subject].unsubscribe();
+  delete subscriptions.value[subject];
 };
 
 export const loadApi = async () => {
