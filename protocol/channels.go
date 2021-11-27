@@ -37,3 +37,8 @@ const (
 	// Details of a specific route (data.route.<id>)
 	SubjectDetailsRoute = "data.route.%s"
 )
+
+const (
+	// used to republish data that is not updated before being removed from the cache
+	MaxCacheAge = 60 * 60 * 24 // 24 hours
+)

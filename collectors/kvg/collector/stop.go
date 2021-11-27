@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
@@ -13,9 +14,10 @@ import (
 )
 
 type StopCollector struct {
-	client        *client.Client
-	stops         map[string]*protocol.Stop
-	subscriptions *subscriptions.Subscriptions
+	client         *client.Client
+	stops          map[string]*protocol.Stop
+	subscriptions  *subscriptions.Subscriptions
+	lastFullUpdate int64
 }
 
 func isSameArrivals(a, b []protocol.StopArrival) bool {
@@ -111,9 +113,18 @@ func (c *StopCollector) Run() {
 		stops["kvg-"+stopID].Arrivals = departures
 	}
 
-	// publish all changed stops
-	changed := c.getChangedStops(stops)
-	for _, stop := range changed {
+	var stopsToPublish []*protocol.Stop
+	// publish all stops when last full update is older than the max cache age
+	if c.lastFullUpdate == 0 || c.lastFullUpdate < time.Now().Unix()-protocol.MaxCacheAge {
+		for _, stop := range stops {
+			stopsToPublish = append(stopsToPublish, stop)
+		}
+		c.lastFullUpdate = time.Now().Unix()
+	} else {
+		// publish all changed stops
+		stopsToPublish = c.getChangedStops(stops)
+	}
+	for _, stop := range stopsToPublish {
 		c.publish(stop)
 	}
 
@@ -123,7 +134,7 @@ func (c *StopCollector) Run() {
 		c.publishRemoved(stop)
 	}
 
-	log.Debugf("changed %d stops and removed %d", len(changed), len(removed))
+	log.Debugf("changed %d stops and removed %d", len(stopsToPublish), len(removed))
 
 	// update list of stops
 	c.stops = stops
