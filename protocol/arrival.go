@@ -1,23 +1,28 @@
 package protocol
 
-import "time"
+import (
+	"time"
+)
+
+type StopArrivalState string
 
 // State of an arrival
 const (
-	ArrivalStatePredicted = "predicted"
-	ArrivalStateStopping  = "stopping"
-	ArrivalStateDeparted  = "departed"
+	Undefined StopArrivalState = ""
+	Stopping                   = "stopping"
+	Predicted                  = "predicted"
+	Planned                    = "planned"
 )
 
 type StopArrival struct {
-	Name      string    `json:"name"`
-	VehicleID string    `json:"vehicleId"`
-	TripID    string    `json:"tripId"`
-	RouteID   string    `json:"routeId"`
-	Direction string    `json:"direction"`
-	State     string    `json:"state"` // use ArrivalState...
-	Planned   time.Time `json:"planned"`
-	ETA       int       `json:"eta"` // in seconds
+	Name      string           `json:"name"`
+	VehicleID string           `json:"vehicleId"`
+	TripID    string           `json:"tripId"`
+	RouteID   string           `json:"routeId"`
+	Direction string           `json:"direction"`
+	State     StopArrivalState `json:"state"`
+	Planned   time.Time        `json:"planned"`
+	ETA       int              `json:"eta"` // in seconds
 }
 
 type TripArrival struct {

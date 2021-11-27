@@ -32,15 +32,36 @@ type stops struct {
 	Stops []stop `json:"stops"`
 }
 
+type DepartureStatus string
+
+const (
+	planned   = "PLANNED"
+	predicted = "PREDICTED"
+	stopping  = "STOPPING"
+)
+
+func (d *DepartureStatus) parse() protocol.StopArrivalState {
+	switch *d {
+	case planned:
+		return protocol.Planned
+	case predicted:
+		return protocol.Predicted
+	case stopping:
+		return protocol.Stopping
+	default:
+		return protocol.Undefined
+	}
+}
+
 type departure struct {
-	TripID             string `json:"tripId"`
-	Status             string `json:"status"`
-	Stop               string `json:"plannedTime"`
-	ActualTime         string `json:"actualTime"`
-	ActualRelativeTime int    `json:"actualRelativeTime"`
-	VehicleID          string `json:"vehicleId"`
-	RouteID            string `json:"routeId"`
-	Direction          string `json:"direction"`
+	TripID             string          `json:"tripId"`
+	Status             DepartureStatus `json:"status"`
+	Stop               string          `json:"plannedTime"`
+	ActualTime         string          `json:"actualTime"`
+	ActualRelativeTime int             `json:"actualRelativeTime"`
+	VehicleID          string          `json:"vehicleId"`
+	RouteID            string          `json:"routeId"`
+	Direction          string          `json:"direction"`
 }
 
 func (d *departure) parse() protocol.StopArrival {
@@ -50,7 +71,7 @@ func (d *departure) parse() protocol.StopArrival {
 		TripID:    d.TripID,
 		RouteID:   d.RouteID,
 		Direction: d.Direction,
-		State:     d.Status,
+		State:     d.Status.parse(),
 		ETA:       d.ActualRelativeTime,
 	}
 }
