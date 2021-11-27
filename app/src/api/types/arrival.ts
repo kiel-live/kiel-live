@@ -1,4 +1,4 @@
-export type ArrivalState = 'predicated' | 'stopping' | 'departed';
+export type ArrivalState = 'predicted' | 'stopping' | 'departed';
 
 export type StopArrival = {
   name: string;
