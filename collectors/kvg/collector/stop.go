@@ -82,7 +82,7 @@ func (c *StopCollector) publish(stop *protocol.Stop) error {
 func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
 	subject := fmt.Sprintf(protocol.SubjectMapStop, stop.ID)
 
-	err := c.client.Publish(subject, string("---"))
+	err := c.client.Publish(subject, string(protocol.DeletePayload))
 	if err != nil {
 		return err
 	}

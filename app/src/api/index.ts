@@ -4,6 +4,8 @@ import { Vehicle, Stop, Models } from '~/api/types';
 
 const sc = StringCodec();
 
+export const DeletePayload = '---'
+
 export const vehicles = ref<Record<string, Vehicle>>({});
 export const stops = ref<Record<string, Stop>>({});
 export const isConnected = ref(false);
@@ -28,7 +30,7 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
   (async () => {
     for await (const m of sub) {
       const raw = sc.decode(m.data);
-      if (raw === '---') {
+      if (raw === DeletePayload) {
         const id = m.subject;
         console.log('### remove', id);
         // delete vehicles.value[''];

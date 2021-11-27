@@ -41,4 +41,6 @@ const (
 const (
 	// used to republish data that is not updated before being removed from the cache
 	MaxCacheAge = 60 * 60 * 24 // 24 hours
+
+	DeletePayload = "---"
 )
