@@ -35,9 +35,9 @@ type stops struct {
 type DepartureStatus string
 
 const (
-	planned   = "PLANNED"
-	predicted = "PREDICTED"
-	stopping  = "STOPPING"
+	planned   DepartureStatus = "PLANNED"
+	predicted                 = "PREDICTED"
+	stopping                  = "STOPPING"
 )
 
 func (d *DepartureStatus) parse() protocol.StopArrivalState {
