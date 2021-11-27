@@ -59,6 +59,17 @@ export default defineComponent({
         });
 
         map.addLayer({
+          id: 'stops',
+          type: 'circle',
+          source: 'geojson',
+          filter: ['==', 'type', 'stop'],
+          paint: {
+            'circle-color': '#4f96fc',
+            'circle-radius': 5,
+          },
+        });
+
+        map.addLayer({
           id: 'vehicles',
           type: 'symbol',
           source: 'geojson',
@@ -77,17 +88,6 @@ export default defineComponent({
           //   'circle-color': '#007cbf',
           //   'circle-radius': 7,
           // },
-        });
-
-        map.addLayer({
-          id: 'stops',
-          type: 'circle',
-          source: 'geojson',
-          filter: ['==', 'type', 'stop'],
-          paint: {
-            'circle-color': '#4f96fc',
-            'circle-radius': 5,
-          },
         });
       });
 
