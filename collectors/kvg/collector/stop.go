@@ -89,7 +89,11 @@ func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
 }
 
 func (c *StopCollector) Run() {
-	stops := api.GetStops()
+	stops, err := api.GetStops()
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
 	for _, subject := range c.subscriptions.GetSubscriptions() {
 		if !strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")) || subject == fmt.Sprintf(protocol.SubjectMapStop, ">") {
@@ -98,7 +102,11 @@ func (c *StopCollector) Run() {
 		// trim prefix of subject
 		stopID := strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")+"kvg-")
 		log.Debug("StopCollector: Run: ", stopID)
-		departures := api.GetStopDepartures(stopID)
+		departures, err := api.GetStopDepartures(stopID)
+		if err != nil {
+			log.Error(err)
+			continue
+		}
 		log.Debug("StopCollector: publish stop", departures)
 		stops["kvg-"+stopID].Arrivals = departures
 	}
