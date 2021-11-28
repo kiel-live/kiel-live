@@ -5,6 +5,7 @@ export type StopArrival = {
   vehicleID: string;
   tripId: string;
   routeId: string;
+  routeName: string;
   direction: string;
   state: ArrivalState;
   planned: string;

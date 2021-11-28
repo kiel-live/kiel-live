@@ -3,6 +3,7 @@
     <span class="mb-2 border-b-1 text-lg">{{ stop.name }}</span>
     <div class="flex p-4 w-full border-b-1 cursor-pointer" v-for="arrival in stop.arrivals">
       <IconBus class="mr-2" />
+      <span class="mr-2">{{ arrival.routeName }}</span>
       <span class="flex-grow">{{ arrival.direction }}</span>
       <span>{{ eta(arrival) }}</span>
       <div class="ml-2">

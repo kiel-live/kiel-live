@@ -19,6 +19,7 @@ type StopArrival struct {
 	VehicleID string           `json:"vehicleId"`
 	TripID    string           `json:"tripId"`
 	RouteID   string           `json:"routeId"`
+	RouteName string           `json:"routeName"`
 	Direction string           `json:"direction"`
 	State     StopArrivalState `json:"state"`
 	Planned   time.Time        `json:"planned"`

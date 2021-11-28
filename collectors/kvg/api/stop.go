@@ -61,6 +61,7 @@ type departure struct {
 	ActualRelativeTime int             `json:"actualRelativeTime"`
 	VehicleID          string          `json:"vehicleId"`
 	RouteID            string          `json:"routeId"`
+	RouteName          string          `json:"patternText"`
 	Direction          string          `json:"direction"`
 }
 
@@ -70,6 +71,7 @@ func (d *departure) parse() protocol.StopArrival {
 		VehicleID: d.VehicleID,
 		TripID:    d.TripID,
 		RouteID:   d.RouteID,
+		RouteName: d.RouteName,
 		Direction: d.Direction,
 		State:     d.Status.parse(),
 		ETA:       d.ActualRelativeTime,
