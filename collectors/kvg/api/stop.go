@@ -17,7 +17,7 @@ type stop struct {
 
 func (s *stop) parse() protocol.Stop {
 	return protocol.Stop{
-		ID:       "kvg-" + s.ShortName,
+		ID:       IDPrefix + s.ShortName,
 		Provider: "kvg", // TODO
 		Name:     s.Name,
 		Type:     protocol.VehicleTypeBus,
@@ -40,7 +40,7 @@ const (
 	stopping                  = "STOPPING"
 )
 
-func (d *DepartureStatus) parse() protocol.StopArrivalState {
+func (d *DepartureStatus) parse() protocol.ArrivalState {
 	switch *d {
 	case planned:
 		return protocol.Planned
@@ -75,6 +75,7 @@ func (d *departure) parse() protocol.StopArrival {
 		Direction: d.Direction,
 		State:     d.Status.parse(),
 		ETA:       d.ActualRelativeTime,
+		Planned:   d.ActualTime,
 	}
 }
 

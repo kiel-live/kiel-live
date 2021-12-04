@@ -32,7 +32,7 @@ const (
 	SubjectDetailsVehicle = "data.vehicle.%s"
 
 	// Details of a specific trip (data.trip.<id>)
-	SubjectDetailsTrip = "data.trip.%s"
+	SubjectDetailsTrip = "data.map.trip.%s"
 
 	// Details of a specific route (data.route.<id>)
 	SubjectDetailsRoute = "data.route.%s"

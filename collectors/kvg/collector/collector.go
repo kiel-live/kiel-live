@@ -46,6 +46,11 @@ func NewCollector(client *client.Client, collectorType string, subscriptions *su
 			client:        client,
 			subscriptions: subscriptions,
 		}, nil
+	case "trips":
+		return &TripCollector{
+			client:        client,
+			subscriptions: subscriptions,
+		}, nil
 	}
 
 	return nil, fmt.Errorf("Collector type not supported")

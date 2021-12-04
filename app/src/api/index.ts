@@ -1,6 +1,6 @@
 import { connect, consumerOpts, createInbox, Events, JetStreamClient, JetStreamSubscription, NatsConnection, StringCodec } from 'nats.ws';
 import { Ref, ref } from 'vue';
-import { Vehicle, Stop, Models } from '~/api/types';
+import { Vehicle, Stop, Models, Trip } from '~/api/types';
 
 const sc = StringCodec();
 
@@ -8,6 +8,7 @@ export const DeletePayload = '---'
 
 export const vehicles = ref<Record<string, Vehicle>>({});
 export const stops = ref<Record<string, Stop>>({});
+export const trips = ref<Record<string, Trip>>({});
 export const isConnected = ref(false);
 
 const subscriptions = ref<Record<string, JetStreamSubscription>>({});
@@ -37,7 +38,7 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
         continue;
       }
 
-      const newModel = JSON.parse(raw) as Vehicle;
+      const newModel = JSON.parse(raw);
       state.value = Object.freeze({
         ...state.value,
         [newModel.id]: Object.freeze(newModel),

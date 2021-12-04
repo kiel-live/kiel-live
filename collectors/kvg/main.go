@@ -9,7 +9,6 @@ import (
 	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/collector"
 	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
-	"github.com/kiel-live/kiel-live/protocol"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -60,19 +59,16 @@ func main() {
 		log.Errorln(err)
 		return
 	}
+	collectors["trips"], err = collector.NewCollector(c, "trips", subscriptions)
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
 
 	subscriptions.Subscribe(func() {
 		collectors["map-stops"].Run()
+		collectors["trips"].Run()
 	})
-
-	err = c.Subscribe(protocol.SubjectSubscriptions, func(msg *client.SubjectMessage) {
-		log.Debugln("Subscriptions", msg.Data)
-		// TODO start & stop on-demand collectors
-	}, c.WithCache())
-	if err != nil {
-		log.Errorln("Ups", err)
-		return
-	}
 
 	s := gocron.NewScheduler(time.UTC)
 	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
