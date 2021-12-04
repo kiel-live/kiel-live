@@ -1,9 +1,11 @@
 <template>
   <div v-if="vehicle" class="flex flex-col">
     <span class="mb-2 border-b-1 text-lg">{{ vehicle.name }}</span>
-    <template v-if="trip" v-for="arrival in trip.arrivals">
-    <span>{{ arrival.name }}</span>
-    </template>
+    <div v-if="trip" v-for="arrival in trip.arrivals" class="flex w-full cursor-pointer">
+      <span class="mr-2">{{ arrival.planned }}</span>
+      <TripMarker :marker="arrival.state === 'predicted' ? 'dot' : 'empty'" />
+      <span>{{ arrival.name }}</span>
+    </div>
   </div>
 </template>
 
@@ -11,9 +13,12 @@
 import { defineComponent, PropType, watch, toRef, onUnmounted, computed } from 'vue';
 import { subscribe, trips, unsubscribe, vehicles } from '~/api';
 import { Marker } from '~/types';
+import TripMarker from '../TripMarker.vue';
 
 export default defineComponent({
   name: 'VehiclePopup',
+
+  components: { TripMarker },
 
   props: {
     marker: {
@@ -43,7 +48,7 @@ export default defineComponent({
         if (subject !== null) {
           unsubscribe(subject);
         }
-        if(!vehicle.value) {
+        if (!vehicle.value) {
           return;
         }
         subject = `data.map.trip.${vehicle.value.tripId}`;
