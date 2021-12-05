@@ -24,10 +24,10 @@
   >
     <img src="../assets/logo.png" class="w-6 h-6 mr-auto" />
     <input
+      v-model="searchInput"
       type="text"
       class="bg-transparent focus:outline-transparent"
       placeholder="Suchen ..."
-      v-model="searchInput"
       @click="$router.push({ name: 'search' })"
     />
     <i-ph-star-fill />
@@ -40,15 +40,15 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from 'vue';
-import { isConnected } from '~/api';
 import Fuse from 'fuse.js';
-import { stops } from '~/api';
+import { computed, defineComponent, ref } from 'vue';
+
+import { isConnected, stops } from '~/api';
 
 export default defineComponent({
   name: 'Appbar',
 
-  setup(props) {
+  setup() {
     const searchInput = ref('');
 
     const searchData = computed(() => [...Object.values(stops.value)]);
@@ -69,7 +69,7 @@ export default defineComponent({
       return searchIndex.value.search(searchInput.value);
     });
 
-    return { isConnected, searchData, searchResults, searchInput };
+    return { isConnected, searchResults, searchInput };
   },
 });
 </script>
