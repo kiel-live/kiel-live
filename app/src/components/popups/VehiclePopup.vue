@@ -1,24 +1,27 @@
 <template>
   <div v-if="vehicle" class="flex flex-col">
     <span class="mb-2 border-b-1 text-lg">{{ vehicle.name }}</span>
-    <router-link
-      v-if="trip"
-      v-for="arrival in trip.arrivals"
-      :to="{ name: 'map-marker', params: { markerType: 'stop', markerId: arrival.id } }"
-      class="flex w-full"
-    >
-      <span class="mr-2">{{ arrival.planned }}</span>
-      <TripMarker :marker="arrival.state === 'predicted' ? 'dot' : 'empty'" />
-      <span>{{ arrival.name }}</span>
-    </router-link>
+    <template v-if="trip">
+      <router-link
+        v-for="arrival in trip.arrivals"
+        :key="arrival.id"
+        :to="{ name: 'map-marker', params: { markerType: 'stop', markerId: arrival.id } }"
+        class="flex w-full"
+      >
+        <span class="mr-2">{{ arrival.planned }}</span>
+        <TripMarker :marker="arrival.state === 'predicted' ? 'dot' : 'empty'" />
+        <span>{{ arrival.name }}</span>
+      </router-link>
+    </template>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, watch, toRef, onUnmounted, computed } from 'vue';
+import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from 'vue';
+
 import { subscribe, trips, unsubscribe, vehicles } from '~/api';
+import TripMarker from '~/components/TripMarker.vue';
 import { Marker } from '~/types';
-import TripMarker from '../TripMarker.vue';
 
 export default defineComponent({
   name: 'VehiclePopup',
@@ -32,13 +35,11 @@ export default defineComponent({
     },
   },
 
-  setup(props, { emit }) {
+  setup(props) {
     const marker = toRef(props, 'marker');
     let subject: string | null = null;
 
-    const vehicle = computed(() => {
-      return vehicles.value[marker.value.id];
-    });
+    const vehicle = computed(() => vehicles.value[marker.value.id]);
 
     const trip = computed(() => {
       if (!trips.value) {

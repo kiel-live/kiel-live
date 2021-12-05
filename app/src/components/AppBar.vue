@@ -9,12 +9,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+
 import { isConnected } from '~/api';
 
 export default defineComponent({
-  name: 'Appbar',
+  name: 'AppBar',
 
-  setup(props) {
+  setup() {
     return { isConnected };
   },
 });

@@ -1,6 +1,7 @@
+/* eslint-disable import/no-extraneous-dependencies */
+import colors from 'windicss/colors';
 import { defineConfig } from 'windicss/helpers';
 import typography from 'windicss/plugin/typography';
-import colors from 'windicss/colors';
 
 export default defineConfig({
   darkMode: 'class',

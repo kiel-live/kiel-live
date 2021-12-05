@@ -3,14 +3,15 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, PropType, Ref, ref, toRef, watch } from 'vue';
 import MapLibre, { CircleLayer, GeoJSONSource, GeoJSONSourceRaw, SymbolLayer } from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
-import { Marker } from '~/types';
+import { computed, defineComponent, onMounted, PropType, Ref, toRef, watch } from 'vue';
+
 import BusIcon from '~/components/busIcon';
 import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
+import { Marker } from '~/types';
 
 export default defineComponent({
+  // eslint-disable-next-line vue/multi-word-component-names
   name: 'Map',
 
   props: {
@@ -18,13 +19,15 @@ export default defineComponent({
       type: Object as PropType<GeoJSONSourceRaw['data']>,
       required: true,
     },
+
     selectedMarker: {
       type: Object as PropType<Marker>,
-      required: false,
+      default: () => ({}),
     },
   },
 
   emits: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     markerClick: (_marker?: Marker) => true,
   },
 
@@ -40,8 +43,8 @@ export default defineComponent({
       source: 'geojson',
       filter: ['==', 'type', 'stop'],
       paint: {
-        'circle-color': ['match', ['get', 'id'], selectedMarker.value?.id || '', '#1673fc', '#4f96fc'],
-        'circle-radius': ['match', ['get', 'id'], selectedMarker.value?.id || '', 8, 5],
+        'circle-color': ['match', ['get', 'id'], selectedMarker.value.id || '', '#1673fc', '#4f96fc'],
+        'circle-radius': ['match', ['get', 'id'], selectedMarker.value.id || '', 8, 5],
       },
     }));
 
@@ -57,7 +60,7 @@ export default defineComponent({
         'icon-image': [
           'match',
           ['get', 'id'],
-          selectedMarker.value?.id || '',
+          selectedMarker.value.id || '',
           ['get', 'iconNameFocused'],
           ['get', 'iconName'],
         ],
@@ -112,12 +115,12 @@ export default defineComponent({
       });
 
       // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
-      map.on('mouseenter', 'vehicles', function () {
+      map.on('mouseenter', 'vehicles', () => {
         map.getCanvas().style.cursor = 'pointer';
       });
 
       // Change it back to a pointer when it leaves.
-      map.on('mouseleave', 'vehicles', function () {
+      map.on('mouseleave', 'vehicles', () => {
         map.getCanvas().style.cursor = '';
       });
 
@@ -133,17 +136,17 @@ export default defineComponent({
       });
 
       // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
-      map.on('mouseenter', 'stops', function () {
+      map.on('mouseenter', 'stops', () => {
         map.getCanvas().style.cursor = 'pointer';
       });
 
       // Change it back to a pointer when it leaves.
-      map.on('mouseleave', 'stops', function () {
+      map.on('mouseleave', 'stops', () => {
         map.getCanvas().style.cursor = '';
       });
 
       // Deselect marker when the map is clicked.
-      map.on('click', function (e) {
+      map.on('click', (e) => {
         const features = map.queryRenderedFeatures(e.point, {
           layers: ['stops', 'vehicles'],
         });

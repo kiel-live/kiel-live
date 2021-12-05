@@ -1,4 +1,4 @@
-import { TripArrival } from '.';
+import { TripArrival } from './arrival';
 
 export type Trip = {
   id: string;

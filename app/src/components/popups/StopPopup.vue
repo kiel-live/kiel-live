@@ -2,8 +2,9 @@
   <div v-if="stop" class="flex flex-col">
     <span class="mb-2 border-b-1 text-lg">{{ stop.name }}</span>
     <router-link
-      class="flex p-4 w-full border-b-1 cursor-pointer"
       v-for="arrival in stop.arrivals"
+      :key="arrival.tripId"
+      class="flex p-4 w-full border-b-1 cursor-pointer"
       :to="{ name: 'map-marker', params: { markerType: 'vehicle', markerId: arrival.vehicleId } }"
     >
       <IconBus class="mr-2" />
@@ -20,15 +21,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, onMounted, computed, watch, toRef, onUnmounted } from 'vue';
-import { subscribe, unsubscribe } from '~/api';
-import { Marker } from '~/types';
-import { stops } from '~/api';
+import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from 'vue';
+
+import { stops, subscribe, unsubscribe } from '~/api';
 import { StopArrival } from '~/api/types';
+import { Marker } from '~/types';
+import IconBus from '~icons/fa/bus';
 import IconClock from '~icons/fa-solid/clock';
 import IconHandPaper from '~icons/fa-solid/hand-paper';
 import IconRunning from '~icons/fa-solid/running';
-import IconBus from '~icons/fa/bus';
 
 export default defineComponent({
   name: 'StopPopup',
@@ -47,7 +48,7 @@ export default defineComponent({
     },
   },
 
-  setup(props, { emit }) {
+  setup(props) {
     const marker = toRef(props, 'marker');
     const stop = computed(() => stops.value[props.marker.id]);
     let subject: string | null = null;
@@ -82,7 +83,7 @@ export default defineComponent({
       }
     });
 
-    return { stop, stops, eta };
+    return { stop, eta };
   },
 });
 </script>

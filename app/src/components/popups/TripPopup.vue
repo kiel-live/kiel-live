@@ -7,6 +7,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
+
 import { Marker } from '~/types';
 
 export default defineComponent({
@@ -18,7 +19,5 @@ export default defineComponent({
       required: true,
     },
   },
-
-  setup(props, { emit }) {},
 });
 </script>

@@ -9,7 +9,8 @@ import {
   StringCodec,
 } from 'nats.ws';
 import { Ref, ref } from 'vue';
-import { Vehicle, Stop, Models, Trip } from '~/api/types';
+
+import { Models, Stop, Trip, Vehicle } from '~/api/types';
 
 const sc = StringCodec();
 
@@ -41,8 +42,7 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
     for await (const m of sub) {
       const raw = sc.decode(m.data);
       if (raw === DeletePayload) {
-        const id = m.subject;
-        console.log('### remove', id);
+        // TODO
         // delete vehicles.value[''];
         continue;
       }
@@ -73,7 +73,6 @@ export const loadApi = async () => {
   js = nc.jetstream();
 
   (async () => {
-    console.info(`connected ${nc.getServer()}`);
     for await (const s of nc.status()) {
       if (s.type === Events.Disconnect) {
         isConnected.value = false;
@@ -81,7 +80,6 @@ export const loadApi = async () => {
       if (s.type === Events.Reconnect) {
         isConnected.value = true;
       }
-      console.info(`${s.type}: ${s.data}`);
     }
   })();
 };

@@ -5,13 +5,21 @@ const colorSecondary = '#aaa';
 
 export default class PulsingDot {
   width: number;
+
   height: number;
+
   data: Uint8ClampedArray;
+
   map: maplibregl.Map;
+
   focused: boolean;
+
   route: string;
+
   heading: number;
-  rendered: boolean = false;
+
+  rendered = false;
+
   context: CanvasRenderingContext2D | undefined;
 
   constructor(map: maplibregl.Map, focused: boolean, route: string, heading: number) {

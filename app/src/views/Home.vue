@@ -1,6 +1,6 @@
 <template>
   <div class="relative h-full w-full items-center justify-center overflow-hidden">
-    <Map :geojson="geojson" :selectedMarker="selectedMarker" @marker-click="selectedMarker = $event" />
+    <Map :geojson="geojson" :selected-marker="selectedMarker" @marker-click="selectedMarker = $event" />
     <DetailsPopup :is-open="!!selectedMarker" @close="selectedMarker = undefined">
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
     </DetailsPopup>
@@ -9,19 +9,19 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from 'vue';
 import { GeoJSONSourceRaw } from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
-
-import { vehicles, stops, loadApi, subscribe } from '~/api';
-import Map from '~/components/Map.vue';
-import DetailsPopup from '~/components/DetailsPopup.vue';
-import Appbar from '~/components/Appbar.vue';
+import { computed, defineComponent, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Marker } from '~/types';
+
+import { stops, subscribe, vehicles } from '~/api';
+import Appbar from '~/components/AppBar.vue';
+import DetailsPopup from '~/components/DetailsPopup.vue';
+import Map from '~/components/Map.vue';
 import MarkerPopup from '~/components/popups/MarkerPopup.vue';
+import { Marker } from '~/types';
 
 export default defineComponent({
+  // eslint-disable-next-line vue/multi-word-component-names
   name: 'Home',
 
   components: { Map, DetailsPopup, Appbar, MarkerPopup },
