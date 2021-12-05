@@ -6,7 +6,7 @@ import Icons from 'unplugin-icons/vite';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), WindiCSS(), Icons()],
+  plugins: [vue(), WindiCSS(), Icons({ compiler: 'vue3' })],
   resolve: {
     alias: {
       '~/': `${path.resolve(__dirname, 'src')}/`,
