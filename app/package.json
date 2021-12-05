@@ -3,7 +3,8 @@
   "author": "kiel-live.github.io Team",
   "version": "0.0.0",
   "engines": {
-    "node": "14"
+    "node": "14 || 16",
+    "pnpm": "6"
   },
   "scripts": {
     "start": "vite",
