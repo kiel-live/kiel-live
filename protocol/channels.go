@@ -32,8 +32,15 @@ const (
 	SubjectDetailsVehicle = "data.vehicle.%s"
 
 	// Details of a specific trip (data.trip.<id>)
-	SubjectDetailsTrip = "data.trip.%s"
+	SubjectDetailsTrip = "data.map.trip.%s"
 
 	// Details of a specific route (data.route.<id>)
 	SubjectDetailsRoute = "data.route.%s"
+)
+
+const (
+	// used to republish data that is not updated before being removed from the cache
+	MaxCacheAge = 60 * 10 // 10 minutes
+
+	DeletePayload = "---"
 )

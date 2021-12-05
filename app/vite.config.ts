@@ -11,7 +11,7 @@ export default defineConfig({
   plugins: [
     vue(),
     WindiCSS(),
-    Icons(),
+    Icons({ compiler: 'vue3' }),
     Components({
       resolvers: IconsResolver(),
     }),

@@ -4,9 +4,9 @@ services:
   server:
     image: nats:2.6.4-scratch
     ports:
-      - 4222:4222
-      - 4223:4223
-      - 8222:8222
+      - 127.0.0.1:4222:4222
+      - 127.0.0.1:4223:4223
+      - 127.0.0.1:8222:8222
     environment:
       - NATS_TOKEN_ADMIN=${ADMIN_TOKEN}
       - NATS_TOKEN_MANAGER=${MANAGER_TOKEN}

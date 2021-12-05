@@ -1,43 +1,143 @@
 name: JS linting
-
 on:
-  push:
-    tags:
-      - v*
+  pull_request:
     branches:
       - main
     paths:
-      - 'lerna.json'
-      - 'yarn.lock'
-      - 'packages/app/package.json'
-      - 'packages/app/**.vue'
-      - 'packages/app/**.js'
-  pull_request:
-    paths:
-      - 'lerna.json'
-      - 'yarn.lock'
-      - 'packages/app/package.json'
-      - 'packages/app/**.vue'
-      - 'packages/app/**.js'
-
-env:
-  YARN_CACHE_FOLDER: ~/.yarn
+      - app/**
+  push:
+    branches:
+      - main
 
 jobs:
-  lint:
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - uses: actions/cache@v2
         with:
-          path: ${{ env.YARN_CACHE_FOLDER }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Set up Node
-        uses: actions/setup-node@v1
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2.0.1
         with:
-          node-version: '12.x'
-      - run: yarn --frozen-lockfile
-      - run: yarn lint
+          version: 6
+          run_install: |
+            - cwd: app
+              args: [--frozen-lockfile]
+
+      - name: Build
+        run: pnpm run build
+        working-directory: app
+        
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6
+          run_install: |
+            - cwd: app
+              args: [--frozen-lockfile]
+
+      - name: Typecheck
+        run: pnpm run typecheck
+        working-directory: app
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6
+          run_install: |
+            - cwd: app
+              args: [--frozen-lockfile]
+
+      - name: Lint
+        run: pnpm run lint
+        working-directory: app
+
+  check-format:
+    name: Check format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6
+          run_install: |
+            - cwd: app
+              args: [--frozen-lockfile]
+
+      - name: Check format
+        run: pnpm run formatcheck
+        working-directory: app

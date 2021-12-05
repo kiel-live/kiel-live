@@ -26,10 +26,11 @@ type vehicles struct {
 
 func (v *vehicle) parse() protocol.Vehicle {
 	return protocol.Vehicle{
-		ID:       "kvg" + v.ID,
+		ID:       IDPrefix + v.ID,
 		Provider: "kvg",
 		Name:     v.Name,
 		Type:     protocol.VehicleTypeBus,
+		TripID:   IDPrefix + v.TripID,
 		State:    "onfire", // TODO
 		Location: protocol.Location{
 			Heading:   v.Heading,

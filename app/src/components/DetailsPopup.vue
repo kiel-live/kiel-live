@@ -27,7 +27,7 @@
     @touchmove="move"
     @touchend="drop"
   >
-    <div class="bg-gray-500 w-12 h-1.5 mb-4 rounded-full mx-auto md:hidden" v-show="size !== 'full'" />
+    <div v-show="size !== 'full'" class="bg-gray-500 w-12 h-1.5 mb-4 rounded-full mx-auto md:hidden" />
     <slot />
   </div>
 </template>
@@ -36,17 +36,17 @@
 import { computed, defineComponent, ref, toRef } from 'vue';
 
 export default defineComponent({
-  name: 'DetailPopup',
-
-  emits: {
-    close: () => true,
-  },
+  name: 'DetailsPopup',
 
   props: {
     isOpen: {
       type: Boolean,
       required: true,
     },
+  },
+
+  emits: {
+    close: () => true,
   },
 
   setup(props, { emit }) {
@@ -98,7 +98,7 @@ export default defineComponent({
       height.value = window.innerHeight - e.touches[0].clientY;
     }
 
-    function drop(e: TouchEvent) {
+    function drop() {
       if (size.value === 'maximizing') {
         height.value = window.innerHeight;
       } else if (size.value === 'closing') {

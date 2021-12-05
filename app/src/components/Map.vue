@@ -3,15 +3,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref, toRef, watch } from 'vue';
-import MapLibre, { GeoJSONSource, GeoJSONSourceRaw } from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
-import { Marker } from '~/types';
+import MapLibre, { CircleLayer, GeoJSONSource, GeoJSONSourceRaw, SymbolLayer } from 'maplibre-gl';
+import { computed, defineComponent, onMounted, PropType, Ref, toRef, watch } from 'vue';
+
 import BusIcon from '~/components/busIcon';
 import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
-import { log } from 'console';
+import { Marker } from '~/types';
 
 export default defineComponent({
+  // eslint-disable-next-line vue/multi-word-component-names
   name: 'Map',
 
   props: {
@@ -19,9 +19,15 @@ export default defineComponent({
       type: Object as PropType<GeoJSONSourceRaw['data']>,
       required: true,
     },
+
+    selectedMarker: {
+      type: Object as PropType<Marker>,
+      default: () => ({}),
+    },
   },
 
   emits: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     markerClick: (_marker?: Marker) => true,
   },
 
@@ -29,6 +35,40 @@ export default defineComponent({
     let map: MapLibre.Map;
 
     const geojson = toRef(props, 'geojson');
+    const selectedMarker = toRef(props, 'selectedMarker');
+
+    const stopsLayer: Ref<CircleLayer> = computed(() => ({
+      id: 'stops',
+      type: 'circle',
+      source: 'geojson',
+      filter: ['==', 'type', 'stop'],
+      paint: {
+        'circle-color': ['match', ['get', 'id'], selectedMarker.value.id || '', '#1673fc', '#4f96fc'],
+        'circle-radius': ['match', ['get', 'id'], selectedMarker.value.id || '', 8, 5],
+      },
+    }));
+
+    const vehiclesLayer: Ref<SymbolLayer> = computed(() => ({
+      id: 'vehicles',
+      type: 'symbol',
+      source: 'geojson',
+      paint: {
+        'icon-opacity': ['match', ['get', 'number'], '', 1, 1],
+      },
+      filter: ['==', 'type', 'vehicle'],
+      layout: {
+        'icon-image': [
+          'match',
+          ['get', 'id'],
+          selectedMarker.value.id || '',
+          ['get', 'iconNameFocused'],
+          ['get', 'iconName'],
+        ],
+        'icon-rotation-alignment': 'map',
+        'icon-allow-overlap': true,
+        'symbol-sort-key': ['match', ['get', 'number'], '', 2, 1],
+      },
+    }));
 
     onMounted(async () => {
       map = new MapLibre.Map({
@@ -58,37 +98,9 @@ export default defineComponent({
           data: Object.freeze(geojson.value),
         });
 
-        map.addLayer({
-          id: 'vehicles',
-          type: 'symbol',
-          source: 'geojson',
-          paint: {
-            'icon-opacity': ['match', ['get', 'number'], '', 1, 1],
-          },
-          filter: ['==', 'type', 'vehicle'],
-          layout: {
-            'icon-image': ['match', ['get', 'id'], '', ['get', 'iconNameFocused'], ['get', 'iconName']],
-            'icon-rotation-alignment': 'map',
-            'icon-allow-overlap': true,
-            'symbol-sort-key': ['match', ['get', 'number'], '', 2, 1],
-          },
-          // filter: ['!', ['has', 'point_count']],
-          // paint: {
-          //   'circle-color': '#007cbf',
-          //   'circle-radius': 7,
-          // },
-        });
+        map.addLayer(stopsLayer.value);
 
-        map.addLayer({
-          id: 'stops',
-          type: 'circle',
-          source: 'geojson',
-          filter: ['==', 'type', 'stop'],
-          paint: {
-            'circle-color': '#4f96fc',
-            'circle-radius': 5,
-          },
-        });
+        map.addLayer(vehiclesLayer.value);
       });
 
       map.on('click', 'vehicles', (e) => {
@@ -103,12 +115,12 @@ export default defineComponent({
       });
 
       // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
-      map.on('mouseenter', 'vehicles', function () {
+      map.on('mouseenter', 'vehicles', () => {
         map.getCanvas().style.cursor = 'pointer';
       });
 
       // Change it back to a pointer when it leaves.
-      map.on('mouseleave', 'vehicles', function () {
+      map.on('mouseleave', 'vehicles', () => {
         map.getCanvas().style.cursor = '';
       });
 
@@ -124,17 +136,17 @@ export default defineComponent({
       });
 
       // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
-      map.on('mouseenter', 'stops', function () {
+      map.on('mouseenter', 'stops', () => {
         map.getCanvas().style.cursor = 'pointer';
       });
 
       // Change it back to a pointer when it leaves.
-      map.on('mouseleave', 'stops', function () {
+      map.on('mouseleave', 'stops', () => {
         map.getCanvas().style.cursor = '';
       });
 
       // Deselect marker when the map is clicked.
-      map.on('click', function (e) {
+      map.on('click', (e) => {
         const features = map.queryRenderedFeatures(e.point, {
           layers: ['stops', 'vehicles'],
         });
@@ -160,6 +172,24 @@ export default defineComponent({
 
       const source = map.getSource('geojson') as GeoJSONSource | undefined;
       source?.setData(Object.freeze(geojson.value));
+    });
+
+    watch(stopsLayer, () => {
+      if (!map) {
+        return;
+      }
+
+      map.removeLayer('stops');
+      map.addLayer(stopsLayer.value);
+    });
+
+    watch(vehiclesLayer, () => {
+      if (!map) {
+        return;
+      }
+
+      map.removeLayer('vehicles');
+      map.addLayer(vehiclesLayer.value);
     });
   },
 });

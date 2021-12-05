@@ -90,7 +90,7 @@ func main() {
 		Retention:         nats.LimitsPolicy,
 		MaxMsgsPerSubject: 1,
 		Discard:           nats.DiscardOld,
-		MaxAge:            time.Duration(5 * time.Minute),
+		MaxAge:            time.Duration(protocol.MaxCacheAge * time.Second),
 	})
 
 	log.Infoln("⚡ Manager started")

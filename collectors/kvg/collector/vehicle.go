@@ -71,7 +71,7 @@ func (c *VehicleCollector) publish(vehicle *protocol.Vehicle) error {
 func (c *VehicleCollector) publishRemoved(vehicle *protocol.Vehicle) error {
 	subject := fmt.Sprintf(protocol.SubjectMapVehicle, vehicle.ID)
 
-	err := c.client.Publish(subject, string("---"))
+	err := c.client.Publish(subject, string(protocol.DeletePayload))
 	if err != nil {
 		return err
 	}

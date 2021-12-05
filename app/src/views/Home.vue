@@ -1,6 +1,6 @@
 <template>
   <div class="relative h-full w-full items-center justify-center overflow-hidden">
-    <Map :geojson="geojson" @marker-click="selectedMarker = $event" />
+    <Map :geojson="geojson" :selected-marker="selectedMarker" @marker-click="selectedMarker = $event" />
     <DetailsPopup :is-open="!!selectedMarker" @close="selectedMarker = undefined">
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
     </DetailsPopup>
@@ -9,19 +9,19 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from 'vue';
 import { GeoJSONSourceRaw } from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
-
-import { vehicles, stops, loadApi } from '~/api';
-import Map from '~/components/Map.vue';
-import DetailsPopup from '~/components/DetailsPopup.vue';
-import Appbar from '~/components/Appbar.vue';
+import { computed, defineComponent, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Marker } from '~/types';
+
+import { stops, subscribe, vehicles } from '~/api';
+import Appbar from '~/components/AppBar.vue';
+import DetailsPopup from '~/components/DetailsPopup.vue';
+import Map from '~/components/Map.vue';
 import MarkerPopup from '~/components/popups/MarkerPopup.vue';
+import { Marker } from '~/types';
 
 export default defineComponent({
+  // eslint-disable-next-line vue/multi-word-component-names
   name: 'Home',
 
   components: { Map, DetailsPopup, Appbar, MarkerPopup },
@@ -64,7 +64,7 @@ export default defineComponent({
 
         geometry: {
           type: 'Point',
-          coordinates: [v.location.longitude, v.location.latitude],
+          coordinates: [v.location.longitude / 3600000, v.location.latitude / 3600000],
         },
       })),
     );
@@ -75,7 +75,7 @@ export default defineComponent({
         properties: { type: 'stop', name: s.name, id: s.id },
         geometry: {
           type: 'Point',
-          coordinates: [s.location.longitude, s.location.latitude],
+          coordinates: [s.location.longitude / 3600000, s.location.latitude / 3600000],
         },
       })),
     );
@@ -86,7 +86,8 @@ export default defineComponent({
     }));
 
     onMounted(async () => {
-      await loadApi();
+      await subscribe('data.map.vehicle.>', vehicles);
+      await subscribe('data.map.stop.>', stops);
     });
 
     return { geojson, selectedMarker };

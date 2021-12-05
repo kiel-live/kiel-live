@@ -1,10 +1,11 @@
-export type ArrivalState = 'predicated' | 'stopping' | 'departed';
+export type ArrivalState = 'predicted' | 'stopping' | 'planned';
 
 export type StopArrival = {
   name: string;
-  vehicleID: string;
+  vehicleId: string;
   tripId: string;
   routeId: string;
+  routeName: string;
   direction: string;
   state: ArrivalState;
   planned: string;

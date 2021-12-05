@@ -4,17 +4,32 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
+	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
 	"github.com/kiel-live/kiel-live/protocol"
 	log "github.com/sirupsen/logrus"
 )
 
 type StopCollector struct {
-	client        *client.Client
-	stops         map[string]*protocol.Stop
-	subscriptions *[]string
+	client         *client.Client
+	stops          map[string]*protocol.Stop
+	subscriptions  *subscriptions.Subscriptions
+	lastFullUpdate int64
+}
+
+func isSameArrivals(a, b []protocol.StopArrival) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func isSameStop(a *protocol.Stop, b *protocol.Stop) bool {
@@ -23,7 +38,8 @@ func isSameStop(a *protocol.Stop, b *protocol.Stop) bool {
 		a.Name == b.Name &&
 		a.ID == b.ID &&
 		isSameLocation(a.Location, b.Location) &&
-		a.Type == b.Type
+		a.Type == b.Type &&
+		isSameArrivals(a.Arrivals, b.Arrivals)
 }
 
 // returns list of changed or newly added stops
@@ -66,7 +82,7 @@ func (c *StopCollector) publish(stop *protocol.Stop) error {
 func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
 	subject := fmt.Sprintf(protocol.SubjectMapStop, stop.ID)
 
-	err := c.client.Publish(subject, string("---"))
+	err := c.client.Publish(subject, string(protocol.DeletePayload))
 	if err != nil {
 		return err
 	}
@@ -75,23 +91,40 @@ func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
 }
 
 func (c *StopCollector) Run() {
-	stops := api.GetStops()
+	stops, err := api.GetStops()
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
-	for _, subject := range *c.subscriptions {
+	for _, subject := range c.subscriptions.GetSubscriptions() {
 		if !strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")) || subject == fmt.Sprintf(protocol.SubjectMapStop, ">") {
 			continue
 		}
 		// trim prefix of subject
-		stopID := strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")+"kvg-")
+		stopID := strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")+api.IDPrefix)
 		log.Debug("StopCollector: Run: ", stopID)
-		departures := api.GetStopDepartures(stopID)
+		departures, err := api.GetStopDepartures(stopID)
+		if err != nil {
+			log.Error(err)
+			continue
+		}
 		log.Debug("StopCollector: publish stop", departures)
-		stops["kvg-"+stopID].Arrivals = departures
+		stops[api.IDPrefix+stopID].Arrivals = departures
 	}
 
-	// publish all changed stops
-	changed := c.getChangedStops(stops)
-	for _, stop := range changed {
+	var stopsToPublish []*protocol.Stop
+	// publish all stops when last full update is older than the max cache age
+	if c.lastFullUpdate == 0 || c.lastFullUpdate < time.Now().Unix()-protocol.MaxCacheAge {
+		for _, stop := range stops {
+			stopsToPublish = append(stopsToPublish, stop)
+		}
+		c.lastFullUpdate = time.Now().Unix()
+	} else {
+		// publish all changed stops
+		stopsToPublish = c.getChangedStops(stops)
+	}
+	for _, stop := range stopsToPublish {
 		c.publish(stop)
 	}
 
@@ -101,7 +134,7 @@ func (c *StopCollector) Run() {
 		c.publishRemoved(stop)
 	}
 
-	log.Debugf("changed %d stops and removed %d", len(changed), len(removed))
+	log.Debugf("changed %d stops and removed %d", len(stopsToPublish), len(removed))
 
 	// update list of stops
 	c.stops = stops

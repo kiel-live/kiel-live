@@ -8,10 +8,13 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
     "lib": ["esnext", "dom"],
     "paths": {
       "~/*": ["./src/*"]
-    }
+    },
+    "types": ["unplugin-icons/types/vue"]
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
 }

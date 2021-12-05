@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/url"
 
 	"github.com/kiel-live/kiel-live/protocol"
@@ -18,7 +17,7 @@ type stop struct {
 
 func (s *stop) parse() protocol.Stop {
 	return protocol.Stop{
-		ID:       "kvg-" + s.ShortName,
+		ID:       IDPrefix + s.ShortName,
 		Provider: "kvg", // TODO
 		Name:     s.Name,
 		Type:     protocol.VehicleTypeBus,
@@ -33,26 +32,50 @@ type stops struct {
 	Stops []stop `json:"stops"`
 }
 
+type DepartureStatus string
+
+const (
+	planned   DepartureStatus = "PLANNED"
+	predicted                 = "PREDICTED"
+	stopping                  = "STOPPING"
+)
+
+func (d *DepartureStatus) parse() protocol.ArrivalState {
+	switch *d {
+	case planned:
+		return protocol.Planned
+	case predicted:
+		return protocol.Predicted
+	case stopping:
+		return protocol.Stopping
+	default:
+		return protocol.Undefined
+	}
+}
+
 type departure struct {
-	TripID             string `json:"tripId"`
-	Status             string `json:"status"`
-	Stop               string `json:"plannedTime"`
-	ActualTime         string `json:"actualTime"`
-	ActualRelativeTime int    `json:"actualRelativeTime"`
-	VehicleID          string `json:"vehicleId"`
-	RouteID            string `json:"routeId"`
-	Direction          string `json:"direction"`
+	TripID             string          `json:"tripId"`
+	Status             DepartureStatus `json:"status"`
+	Stop               string          `json:"plannedTime"`
+	ActualTime         string          `json:"actualTime"`
+	ActualRelativeTime int             `json:"actualRelativeTime"`
+	VehicleID          string          `json:"vehicleId"`
+	RouteID            string          `json:"routeId"`
+	RouteName          string          `json:"patternText"`
+	Direction          string          `json:"direction"`
 }
 
 func (d *departure) parse() protocol.StopArrival {
 	return protocol.StopArrival{
 		Name:      d.Direction,
-		VehicleID: d.VehicleID,
-		TripID:    d.TripID,
+		VehicleID: IDPrefix + d.VehicleID,
+		TripID:    IDPrefix + d.TripID,
 		RouteID:   d.RouteID,
+		RouteName: d.RouteName,
 		Direction: d.Direction,
-		State:     d.Status,
+		State:     d.Status.parse(),
 		ETA:       d.ActualRelativeTime,
+		Planned:   d.ActualTime,
 	}
 }
 
@@ -60,7 +83,7 @@ type StopDepartures struct {
 	Departures []departure `json:"actual"`
 }
 
-func GetStops() (res map[string]*protocol.Stop) {
+func GetStops() (res map[string]*protocol.Stop, err error) {
 	res = make(map[string]*protocol.Stop)
 	data := url.Values{}
 	data.Set("top", "324000000")
@@ -71,7 +94,7 @@ func GetStops() (res map[string]*protocol.Stop) {
 	body, _ := post(stopsURL, data)
 	var stops stops
 	if err := json.Unmarshal(body, &stops); err != nil {
-		log.Fatalf("Parse response failed, reason: %v \n", err)
+		return nil, err
 	}
 
 	for _, stop := range stops.Stops {
@@ -79,22 +102,22 @@ func GetStops() (res map[string]*protocol.Stop) {
 		res[v.ID] = &v
 	}
 
-	return res
+	return res, nil
 }
 
-func GetStopDepartures(stopShortName string) []protocol.StopArrival {
+func GetStopDepartures(stopShortName string) ([]protocol.StopArrival, error) {
 	data := url.Values{}
 	data.Set("stop", stopShortName)
 
 	resp, _ := post(stopURL, data)
 	var stop StopDepartures
 	if err := json.Unmarshal(resp, &stop); err != nil {
-		log.Fatalf("Parse response failed, reason: %v \n response: %v", err, string(resp))
+		return nil, err
 	}
 
 	departures := []protocol.StopArrival{}
 	for _, departure := range stop.Departures {
 		departures = append(departures, departure.parse())
 	}
-	return departures
+	return departures, nil
 }

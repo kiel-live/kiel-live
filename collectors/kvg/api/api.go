@@ -15,6 +15,8 @@ const (
 	stopsURL    = baseURL + "/internetservice/geoserviceDispatcher/services/stopinfo/stops"
 )
 
+const IDPrefix = "kvg-"
+
 func post(url string, data url.Values) ([]byte, error) {
 	resp, err := http.Post(url, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
 	if err != nil {

@@ -9,12 +9,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, ref, toRef } from 'vue';
-import { Marker } from '~/types';
-import VehiclePopup from '~/components/popups/VehiclePopup.vue';
+import { defineComponent, PropType } from 'vue';
+
+import RoutePopup from '~/components/popups/RoutePopup.vue';
 import StopPopup from '~/components/popups/StopPopup.vue';
 import TripPopup from '~/components/popups/TripPopup.vue';
-import RoutePopup from '~/components/popups/RoutePopup.vue';
+import VehiclePopup from '~/components/popups/VehiclePopup.vue';
+import { Marker } from '~/types';
 
 export default defineComponent({
   name: 'MarkerPopup',
@@ -27,7 +28,5 @@ export default defineComponent({
       required: true,
     },
   },
-
-  setup(props, { emit }) {},
 });
 </script>
