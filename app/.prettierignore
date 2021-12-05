@@ -1,6 +1,6 @@
 pnpm-lock.yaml
 pnpm-workspace.yaml
-dist
+dist/
 coverage/
 storybook-static/
 .pnpm-store/

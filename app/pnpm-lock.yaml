@@ -8,7 +8,7 @@ specifiers:
   maplibre-gl: v1.15.2
   nats.ws: 1.5.0
   pinia: ^2.0.0-rc.0
-  prettier: ^2.3.2
+  prettier: 2.5.1
   surge: ^0.23.0
   typescript: ^4.3.5
   unplugin-icons: ^0.7.0
@@ -31,7 +31,7 @@ devDependencies:
   '@types/node': 16.11.11
   '@vitejs/plugin-vue': 1.6.2_@vue+compiler-sfc@3.2.11
   '@vue/compiler-sfc': 3.2.11
-  prettier: 2.4.0
+  prettier: 2.5.1
   surge: 0.23.0
   typescript: 4.4.2
   unplugin-icons: 0.7.6_5d72f6392975d02ee45d0acbc066efa3
@@ -1666,8 +1666,8 @@ packages:
     resolution: {integrity: sha512-15vItUAbViaYrmaB/Pbw7z6qX2xENbFSTA7Ii4tgbPtasxm5v6ryKhKtL91tpWovDJzTiZqdwzhcFBCwiMVdVw==}
     dev: false
 
-  /prettier/2.4.0:
-    resolution: {integrity: sha512-DsEPLY1dE5HF3BxCRBmD4uYZ+5DCbvatnolqTqcxEgKVZnL2kUfyu7b8pPQ5+hTBkdhU9SLUmK0/pHb07RE4WQ==}
+  /prettier/2.5.1:
+    resolution: {integrity: sha512-vBZcPRUR5MZJwoyi3ZoyQlc1rXeEck8KgeC9AwwOn+exuxLxq5toTRDTSaVrXHxelDMHy9zlicw8u66yxoSUFg==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true
