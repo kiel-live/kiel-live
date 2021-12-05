@@ -3,13 +3,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref, toRef, watch } from 'vue';
-import MapLibre, { GeoJSONSource, GeoJSONSourceRaw } from 'maplibre-gl';
+import { computed, defineComponent, onMounted, PropType, Ref, ref, toRef, watch } from 'vue';
+import MapLibre, { CircleLayer, GeoJSONSource, GeoJSONSourceRaw } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Marker } from '~/types';
 import BusIcon from '~/components/busIcon';
 import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
-import { log } from 'console';
 
 export default defineComponent({
   name: 'Map',
@@ -18,6 +17,10 @@ export default defineComponent({
     geojson: {
       type: Object as PropType<GeoJSONSourceRaw['data']>,
       required: true,
+    },
+    selectedMarker: {
+      type: Object as PropType<Marker>,
+      required: false,
     },
   },
 
@@ -29,6 +32,18 @@ export default defineComponent({
     let map: MapLibre.Map;
 
     const geojson = toRef(props, 'geojson');
+    const selectedMarker = toRef(props, 'selectedMarker');
+
+    const stopsLayer: Ref<CircleLayer> = computed(() => ({
+      id: 'stops',
+      type: 'circle',
+      source: 'geojson',
+      filter: ['==', 'type', 'stop'],
+      paint: {
+        'circle-color': ['match', ['get', 'id'], selectedMarker.value?.id || '', '#1673fc', '#4f96fc'],
+        'circle-radius': ['match', ['get', 'id'], selectedMarker.value?.id || '', 8, 5],
+      },
+    }));
 
     onMounted(async () => {
       map = new MapLibre.Map({
@@ -58,16 +73,7 @@ export default defineComponent({
           data: Object.freeze(geojson.value),
         });
 
-        map.addLayer({
-          id: 'stops',
-          type: 'circle',
-          source: 'geojson',
-          filter: ['==', 'type', 'stop'],
-          paint: {
-            'circle-color': '#4f96fc',
-            'circle-radius': 5,
-          },
-        });
+        map.addLayer(stopsLayer.value);
 
         map.addLayer({
           id: 'vehicles',
@@ -160,6 +166,15 @@ export default defineComponent({
 
       const source = map.getSource('geojson') as GeoJSONSource | undefined;
       source?.setData(Object.freeze(geojson.value));
+    });
+
+    watch(stopsLayer, () => {
+      if (!map) {
+        return;
+      }
+
+      map.removeLayer('stops');
+      map.addLayer(stopsLayer.value);
     });
   },
 });

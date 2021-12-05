@@ -1,6 +1,6 @@
 <template>
   <div class="relative h-full w-full items-center justify-center overflow-hidden">
-    <Map :geojson="geojson" @marker-click="selectedMarker = $event" />
+    <Map :geojson="geojson" :selectedMarker="selectedMarker" @marker-click="selectedMarker = $event" />
     <DetailsPopup :is-open="!!selectedMarker" @close="selectedMarker = undefined">
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
     </DetailsPopup>
