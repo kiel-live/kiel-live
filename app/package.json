@@ -15,9 +15,11 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "fuse.js": "^6.4.6",
     "maplibre-gl": "v1.15.2",
     "nats.ws": "1.5.0",
     "pinia": "^2.0.0-rc.0",
+    "unplugin-vue-components": "^0.17.2",
     "vue": "^v3.2.0-beta.7",
     "vue-router": "4.0.10"
   },
