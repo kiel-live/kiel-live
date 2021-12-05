@@ -6,11 +6,13 @@
       left-0
       right-0
       flex flex-col
-      bg-white
       w-full
-      shadow-md
+      z-10
+      bg-white
+      shadow-all
       md:rounded-none md:w-80 md:top-0 md:h-auto
       transition
+      dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800
     "
     :class="{
       'overflow-hidden max-h-0': size === 'closed',
