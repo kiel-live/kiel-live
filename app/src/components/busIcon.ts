@@ -6,7 +6,7 @@ const colorSecondary = '#aaa';
 export default class PulsingDot {
   width: number;
   height: number;
-  data: Uint8Array;
+  data: Uint8ClampedArray;
   map: maplibregl.Map;
   focused: boolean;
   route: string;
@@ -26,7 +26,7 @@ export default class PulsingDot {
       this.width = 80;
       this.height = 80;
     }
-    this.data = new Uint8Array(this.width * this.height * 4);
+    this.data = new Uint8ClampedArray(this.width * this.height * 4);
   }
 
   // get rendering context for the map canvas when layer is added to the map
