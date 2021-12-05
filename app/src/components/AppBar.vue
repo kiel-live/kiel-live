@@ -7,7 +7,7 @@
     <input
       v-model="searchInput"
       type="text"
-      class="bg-transparent focus:outline-transparent"
+      class="bg-transparent focus:outline-transparent mx-2 w-full"
       placeholder="Suchen ..."
       @click="$router.push({ name: 'search' })"
     />
