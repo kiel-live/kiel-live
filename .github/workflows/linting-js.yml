@@ -39,7 +39,7 @@ jobs:
             - cwd: app
               args: [--frozen-lockfile]
 
-      - name: Typecheck
+      - name: Build
         run: pnpm run build
         working-directory: app
         
