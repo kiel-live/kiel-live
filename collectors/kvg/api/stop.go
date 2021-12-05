@@ -68,8 +68,8 @@ type departure struct {
 func (d *departure) parse() protocol.StopArrival {
 	return protocol.StopArrival{
 		Name:      d.Direction,
-		VehicleID: d.VehicleID,
-		TripID:    d.TripID,
+		VehicleID: IDPrefix + d.VehicleID,
+		TripID:    IDPrefix + d.TripID,
 		RouteID:   d.RouteID,
 		RouteName: d.RouteName,
 		Direction: d.Direction,

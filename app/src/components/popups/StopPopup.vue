@@ -1,7 +1,11 @@
 <template>
   <div v-if="stop" class="flex flex-col">
     <span class="mb-2 border-b-1 text-lg">{{ stop.name }}</span>
-    <div class="flex p-4 w-full border-b-1 cursor-pointer" v-for="arrival in stop.arrivals">
+    <router-link
+      class="flex p-4 w-full border-b-1 cursor-pointer"
+      v-for="arrival in stop.arrivals"
+      :to="{ name: 'map-marker', params: { markerType: 'vehicle', markerId: arrival.vehicleId } }"
+    >
       <IconBus class="mr-2" />
       <span class="mr-2">{{ arrival.routeName }}</span>
       <span class="flex-grow">{{ arrival.direction }}</span>
@@ -11,7 +15,7 @@
         <IconHandPaper v-if="arrival.state === 'stopping'" />
         <IconRunning v-if="arrival.state === 'predicted'" />
       </div>
-    </div>
+    </router-link>
   </div>
 </template>
 
@@ -66,7 +70,7 @@ export default defineComponent({
         if (subject !== null) {
           unsubscribe(subject);
         }
-        subject = `data.map.stop.${props.marker.id}`
+        subject = `data.map.stop.${props.marker.id}`;
         await subscribe(subject, stops);
       },
       { immediate: true },

@@ -1,11 +1,16 @@
 <template>
   <div v-if="vehicle" class="flex flex-col">
     <span class="mb-2 border-b-1 text-lg">{{ vehicle.name }}</span>
-    <div v-if="trip" v-for="arrival in trip.arrivals" class="flex w-full cursor-pointer">
+    <router-link
+      v-if="trip"
+      v-for="arrival in trip.arrivals"
+      :to="{ name: 'map-marker', params: { markerType: 'stop', markerId: arrival.id } }"
+      class="flex w-full"
+    >
       <span class="mr-2">{{ arrival.planned }}</span>
       <TripMarker :marker="arrival.state === 'predicted' ? 'dot' : 'empty'" />
       <span>{{ arrival.name }}</span>
-    </div>
+    </router-link>
   </div>
 </template>
 
