@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, PropType, Ref, ref, toRef, watch } from 'vue';
-import MapLibre, { CircleLayer, GeoJSONSource, GeoJSONSourceRaw } from 'maplibre-gl';
+import MapLibre, { CircleLayer, GeoJSONSource, GeoJSONSourceRaw, SymbolLayer } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Marker } from '~/types';
 import BusIcon from '~/components/busIcon';
@@ -45,6 +45,28 @@ export default defineComponent({
       },
     }));
 
+    const vehiclesLayer: Ref<SymbolLayer> = computed(() => ({
+      id: 'vehicles',
+      type: 'symbol',
+      source: 'geojson',
+      paint: {
+        'icon-opacity': ['match', ['get', 'number'], '', 1, 1],
+      },
+      filter: ['==', 'type', 'vehicle'],
+      layout: {
+        'icon-image': [
+          'match',
+          ['get', 'id'],
+          selectedMarker.value?.id || '',
+          ['get', 'iconNameFocused'],
+          ['get', 'iconName'],
+        ],
+        'icon-rotation-alignment': 'map',
+        'icon-allow-overlap': true,
+        'symbol-sort-key': ['match', ['get', 'number'], '', 2, 1],
+      },
+    }));
+
     onMounted(async () => {
       map = new MapLibre.Map({
         container: 'map',
@@ -75,26 +97,7 @@ export default defineComponent({
 
         map.addLayer(stopsLayer.value);
 
-        map.addLayer({
-          id: 'vehicles',
-          type: 'symbol',
-          source: 'geojson',
-          paint: {
-            'icon-opacity': ['match', ['get', 'number'], '', 1, 1],
-          },
-          filter: ['==', 'type', 'vehicle'],
-          layout: {
-            'icon-image': ['match', ['get', 'id'], '', ['get', 'iconNameFocused'], ['get', 'iconName']],
-            'icon-rotation-alignment': 'map',
-            'icon-allow-overlap': true,
-            'symbol-sort-key': ['match', ['get', 'number'], '', 2, 1],
-          },
-          // filter: ['!', ['has', 'point_count']],
-          // paint: {
-          //   'circle-color': '#007cbf',
-          //   'circle-radius': 7,
-          // },
-        });
+        map.addLayer(vehiclesLayer.value);
       });
 
       map.on('click', 'vehicles', (e) => {
@@ -175,6 +178,15 @@ export default defineComponent({
 
       map.removeLayer('stops');
       map.addLayer(stopsLayer.value);
+    });
+
+    watch(vehiclesLayer, () => {
+      if (!map) {
+        return;
+      }
+
+      map.removeLayer('vehicles');
+      map.addLayer(vehiclesLayer.value);
     });
   },
 });
