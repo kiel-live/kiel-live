@@ -9,6 +9,7 @@
       type="text"
       class="bg-transparent focus:outline-transparent mx-2 w-full"
       placeholder="Suchen ..."
+      :autofocus="$route.name === 'search'"
       @click="$router.push({ name: 'search' })"
     />
     <i-ph-star-fill />
