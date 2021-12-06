@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 function setDarkMode(enabled: boolean) {
   if (enabled) {
