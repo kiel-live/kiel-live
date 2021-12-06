@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import MapLibre, { CircleLayer, GeoJSONSource, GeoJSONSourceRaw, SymbolLayer } from 'maplibre-gl';
+import { CircleLayer, GeoJSONSource, GeoJSONSourceRaw, Map, SymbolLayer } from 'maplibre-gl';
 import { computed, defineComponent, onMounted, PropType, Ref, toRef, watch } from 'vue';
 
 import BusIcon from '~/components/busIcon';
@@ -32,7 +32,7 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
-    let map: MapLibre.Map;
+    let map: Map;
 
     const geojson = toRef(props, 'geojson');
     const selectedMarker = toRef(props, 'selectedMarker');
@@ -71,7 +71,7 @@ export default defineComponent({
     }));
 
     onMounted(async () => {
-      map = new MapLibre.Map({
+      map = new Map({
         container: 'map',
         // style: 'https://demotiles.maplibre.org/style.json',
         style: 'https://tiles.slucky.de/styles/gray-matter/style.json',
