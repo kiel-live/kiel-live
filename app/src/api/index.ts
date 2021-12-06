@@ -22,12 +22,17 @@ export const trips = ref<Record<string, Trip>>({});
 export const isConnected = ref(false);
 
 const subscriptions = ref<Record<string, JetStreamSubscription>>({});
-let nc: NatsConnection;
-let js: JetStreamClient;
+let nc: NatsConnection | undefined;
+let js: JetStreamClient | undefined;
 
 export const subscribe = async (subject: string, state: Ref<Record<string, Models>>) => {
   if (subscriptions.value[subject]) {
     return;
+  }
+
+  if (!js) {
+    // TODO: start retrying
+    throw new Error('Connect before subscribing');
   }
 
   const opts = consumerOpts();
