@@ -7,14 +7,14 @@
       class="flex p-4 w-full border-b-1 cursor-pointer"
       :to="{ name: 'map-marker', params: { markerType: 'vehicle', markerId: arrival.vehicleId } }"
     >
-      <IconBus class="mr-2" />
+      <i-fa-bus class="mr-2" />
       <span class="mr-2">{{ arrival.routeName }}</span>
       <span class="flex-grow">{{ arrival.direction }}</span>
       <span>{{ eta(arrival) }}</span>
       <div class="ml-2">
-        <IconClock v-if="arrival.state === 'planned'" />
-        <IconHandPaper v-if="arrival.state === 'stopping'" />
-        <IconRunning v-if="arrival.state === 'predicted'" />
+        <i-fa-solid-clock v-if="arrival.state === 'planned'" />
+        <i-fa-solid-hand-paper v-if="arrival.state === 'stopping'" />
+        <i-fa-solid-running v-if="arrival.state === 'predicted'" />
       </div>
     </router-link>
   </div>
@@ -26,20 +26,9 @@ import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from '
 import { stops, subscribe, unsubscribe } from '~/api';
 import { StopArrival } from '~/api/types';
 import { Marker } from '~/types';
-import IconBus from '~icons/fa/bus';
-import IconClock from '~icons/fa-solid/clock';
-import IconHandPaper from '~icons/fa-solid/hand-paper';
-import IconRunning from '~icons/fa-solid/running';
 
 export default defineComponent({
   name: 'StopPopup',
-
-  components: {
-    IconClock,
-    IconHandPaper,
-    IconRunning,
-    IconBus,
-  },
 
   props: {
     marker: {
