@@ -1,11 +1,9 @@
 <template>
-  <div class="">
-    <VehiclePopup v-if="marker.type === 'vehicle'" :marker="marker" />
-    <StopPopup v-else-if="marker.type === 'stop'" :marker="marker" />
-    <TripPopup v-else-if="marker.type === 'trip'" :marker="marker" />
-    <RoutePopup v-else-if="marker.type === 'route'" :marker="marker" />
-    <pre v-else>{{ marker }}</pre>
-  </div>
+  <VehiclePopup v-if="marker.type === 'vehicle'" :marker="marker" />
+  <StopPopup v-else-if="marker.type === 'stop'" :marker="marker" />
+  <TripPopup v-else-if="marker.type === 'trip'" :marker="marker" />
+  <RoutePopup v-else-if="marker.type === 'route'" :marker="marker" />
+  <pre v-else>{{ marker }}</pre>
 </template>
 
 <script lang="ts">

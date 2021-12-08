@@ -1,7 +1,7 @@
 <template>
-  <div v-if="vehicle" class="flex flex-col">
-    <span class="pb-2 mb-2 border-b-1 dark:border-gray-500 text-lg">{{ vehicle.name }}</span>
-    <template v-if="trip">
+  <div v-if="vehicle" class="flex flex-col min-h-0">
+    <div class="pb-2 mb-2 border-b-1 dark:border-gray-500 text-lg">{{ vehicle.name }}</div>
+    <div v-if="trip" class="overflow-y-auto">
       <router-link
         v-for="arrival in trip.arrivals"
         :key="arrival.id"
@@ -12,7 +12,7 @@
         <TripMarker :marker="arrival.state === 'predicted' ? 'dot' : 'empty'" />
         <span>{{ arrival.name }}</span>
       </router-link>
-    </template>
+    </div>
   </div>
 </template>
 
