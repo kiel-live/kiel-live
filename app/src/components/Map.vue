@@ -3,6 +3,7 @@
 </template>
 
 <script lang="ts">
+import { Point } from 'geojson';
 import { CircleLayer, GeoJSONSource, GeoJSONSourceRaw, Map, SymbolLayer } from 'maplibre-gl';
 import { computed, defineComponent, onMounted, PropType, Ref, toRef, watch } from 'vue';
 
@@ -16,7 +17,7 @@ export default defineComponent({
 
   props: {
     geojson: {
-      type: Object as PropType<GeoJSONSourceRaw['data']>,
+      type: Object as PropType<Exclude<GeoJSONSourceRaw['data'], undefined>>,
       required: true,
     },
 
@@ -87,9 +88,11 @@ export default defineComponent({
       // var nav = new MapLibre.NavigationControl();
       // map.addControl(nav, 'bottom-right');
 
-      map.on('styleimagemissing', (e) => {
+      map.on('styleimagemissing', (e: { id: string; type: 'styleimagemissing' }) => {
         const [, focus, route, heading] = e.id.split('-');
-        map.addImage(e.id, new BusIcon(map, focus === 'focused', route, heading), { pixelRatio: 2 });
+        map.addImage(e.id, new BusIcon(map, focus === 'focused', route, Number.parseInt(heading, 10)), {
+          pixelRatio: 2,
+        });
       });
 
       map.on('load', () => {
@@ -107,9 +110,12 @@ export default defineComponent({
         if (!e.features || e.features.length === 0) {
           return;
         }
-        const feature = e.features[0];
+        const feature = e.features[0] as unknown as {
+          geometry: Point;
+          properties: { type: 'stop' | 'vehicle'; id: string };
+        };
         map.flyTo({
-          center: feature.geometry.coordinates,
+          center: feature.geometry.coordinates as [number, number],
         });
         emit('markerClick', { type: feature.properties.type, id: feature.properties.id });
       });
@@ -128,9 +134,12 @@ export default defineComponent({
         if (!e.features || e.features.length === 0) {
           return;
         }
-        const feature = e.features[0];
+        const feature = e.features[0] as unknown as {
+          geometry: Point;
+          properties: { type: 'stop' | 'vehicle'; id: string };
+        };
         map.flyTo({
-          center: feature.geometry.coordinates,
+          center: feature.geometry.coordinates as [number, number],
         });
         emit('markerClick', { type: feature.properties.type, id: feature.properties.id });
       });

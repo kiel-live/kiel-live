@@ -6,6 +6,7 @@ module.exports = {
   env: {
     browser: true,
   },
+  reportUnusedDisableDirectives: true,
 
   parser: 'vue-eslint-parser',
   parserOptions: {
@@ -20,6 +21,8 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'airbnb-base',
     'airbnb-typescript/base',
     'plugin:import/errors',
     'plugin:import/warnings',
@@ -129,5 +132,8 @@ module.exports = {
     // risky because of https://github.com/prettier/eslint-plugin-prettier#arrow-body-style-and-prefer-arrow-callback-issue
     'arrow-body-style': 'error',
     'prefer-arrow-callback': 'error',
+
+    // disable some airbnb rules
+    'no-void': ['error', { allowAsStatement: true }],
   },
 };

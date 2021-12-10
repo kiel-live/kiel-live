@@ -40,12 +40,12 @@ export default defineComponent({
           id: route.params.markerId,
         } as Marker;
       },
-      set(marker) {
+      async set(marker) {
         if (!marker) {
-          router.replace({ name: 'home' });
+          await router.replace({ name: 'home' });
           return;
         }
-        router.replace({ name: 'map-marker', params: { markerType: marker.type, markerId: marker.id } });
+        await router.replace({ name: 'map-marker', params: { markerType: marker.type, markerId: marker.id } });
       },
     });
 

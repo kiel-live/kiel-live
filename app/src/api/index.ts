@@ -43,20 +43,21 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
   const sub = await js.subscribe(subject, opts);
   subscriptions.value[subject] = sub;
 
-  (async () => {
+  void (async () => {
+    // eslint-disable-next-line no-restricted-syntax
     for await (const m of sub) {
       const raw = sc.decode(m.data);
       if (raw === DeletePayload) {
         // TODO
         // delete vehicles.value[''];
-        continue;
+      } else {
+        const newModel = JSON.parse(raw) as Models;
+        // eslint-disable-next-line no-param-reassign
+        state.value = Object.freeze({
+          ...state.value,
+          [newModel.id]: Object.freeze(newModel),
+        });
       }
-
-      const newModel = JSON.parse(raw);
-      state.value = Object.freeze({
-        ...state.value,
-        [newModel.id]: Object.freeze(newModel),
-      });
     }
   })();
 };
@@ -77,7 +78,8 @@ export const loadApi = async () => {
 
   js = nc.jetstream();
 
-  (async () => {
+  void (async () => {
+    // eslint-disable-next-line no-restricted-syntax
     for await (const s of nc.status()) {
       if (s.type === Events.Disconnect) {
         isConnected.value = false;

@@ -20,7 +20,9 @@ export default defineConfig({
       boxShadow: {
         all: '0px 0px 8px 4px rgba(17, 24, 39, 0.25)',
       },
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       stroke: (theme) => theme('colors'),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       fill: (theme) => theme('colors'),
     },
   },

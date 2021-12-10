@@ -60,7 +60,7 @@ export default defineComponent({
       marker,
       async () => {
         if (subject !== null) {
-          unsubscribe(subject);
+          await unsubscribe(subject);
         }
         subject = `data.map.stop.${props.marker.id}`;
         await subscribe(subject, stops);
@@ -68,9 +68,9 @@ export default defineComponent({
       { immediate: true },
     );
 
-    onUnmounted(() => {
+    onUnmounted(async () => {
       if (subject !== null) {
-        unsubscribe(subject);
+        await unsubscribe(subject);
       }
     });
 

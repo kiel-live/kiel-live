@@ -52,7 +52,7 @@ export default defineComponent({
       vehicle,
       async () => {
         if (subject !== null) {
-          unsubscribe(subject);
+          await unsubscribe(subject);
         }
         if (!vehicle.value) {
           return;
@@ -63,9 +63,9 @@ export default defineComponent({
       { immediate: true },
     );
 
-    onUnmounted(() => {
+    onUnmounted(async () => {
       if (subject !== null) {
-        unsubscribe(subject);
+        await unsubscribe(subject);
       }
     });
     return { trip, vehicle };

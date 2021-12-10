@@ -2,12 +2,14 @@ lockfileVersion: 5.3
 
 specifiers:
   '@iconify/json': 1.1.438
+  '@types/geojson': ^7946.0.8
   '@types/node': 16.11.11
   '@typescript-eslint/eslint-plugin': 5.5.0
   '@typescript-eslint/parser': 5.5.0
   '@vitejs/plugin-vue': 1.10.1
   '@vue/compiler-sfc': 3.2.23
   eslint: 8.4.0
+  eslint-config-airbnb-base: ^15.0.0
   eslint-config-airbnb-typescript: 16.1.0
   eslint-config-prettier: 8.3.0
   eslint-plugin-import: 2.25.3
@@ -43,12 +45,14 @@ dependencies:
 
 devDependencies:
   '@iconify/json': 1.1.438
+  '@types/geojson': 7946.0.8
   '@types/node': 16.11.11
   '@typescript-eslint/eslint-plugin': 5.5.0_85a2676f00816390d089c5fff3a9a05a
   '@typescript-eslint/parser': 5.5.0_eslint@8.4.0+typescript@4.4.4
   '@vitejs/plugin-vue': 1.10.1_vite@2.6.14
   '@vue/compiler-sfc': 3.2.23
   eslint: 8.4.0
+  eslint-config-airbnb-base: 15.0.0_f2cd1be1820953660d63ab80b16cd4fe
   eslint-config-airbnb-typescript: 16.1.0_7926a544080e3b6340f3f3d7ea1ce47d
   eslint-config-prettier: 8.3.0_eslint@8.4.0
   eslint-plugin-import: 2.25.3_eslint@8.4.0
@@ -231,6 +235,10 @@ packages:
       estree-walker: 2.0.2
       picomatch: 2.3.0
     dev: false
+
+  /@types/geojson/7946.0.8:
+    resolution: {integrity: sha512-1rkryxURpr6aWP7R786/UQOkJ3PcpQiWkAXBmdWc7ryFWqN6a4xfK7BtjXvFBKO9LjQ+MWQSWxYeZX1OApnArA==}
+    dev: true
 
   /@types/json-schema/7.0.9:
     resolution: {integrity: sha512-qcUXuemtEu+E5wZSJHNxUXeCZhAfXKQ41D+duX+VYPde7xyEVZci+/oXKJL13tnRs9lR2pr4fod59GT6/X1/yQ==}
@@ -1650,6 +1658,7 @@ packages:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
+    requiresBuild: true
     optional: true
 
   /fstream/1.0.12:
@@ -2323,6 +2332,7 @@ packages:
   /nkeys.js/1.0.0-9:
     resolution: {integrity: sha512-m9O0NQT+3rUe1om6MWpxV77EuHql/LdorDH+FYQkoeARcM2V0sQ89kM36fArWaHWq/25EmNmQUW0MhLTcbqW1A==}
     engines: {node: '>=10.0.0'}
+    requiresBuild: true
     dependencies:
       '@types/node': 14.17.15
       tweetnacl: 1.0.3
