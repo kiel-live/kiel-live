@@ -4,7 +4,7 @@
     <DetailsPopup :is-open="!!selectedMarker" @close="selectedMarker = undefined">
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
     </DetailsPopup>
-    <Appbar />
+    <AppBar />
   </div>
 </template>
 
@@ -14,7 +14,7 @@ import { computed, defineComponent, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { stops, subscribe, vehicles } from '~/api';
-import Appbar from '~/components/AppBar.vue';
+import AppBar from '~/components/AppBar.vue';
 import DetailsPopup from '~/components/DetailsPopup.vue';
 import Map from '~/components/Map.vue';
 import MarkerPopup from '~/components/popups/MarkerPopup.vue';
@@ -24,7 +24,7 @@ export default defineComponent({
   // eslint-disable-next-line vue/multi-word-component-names
   name: 'Home',
 
-  components: { Map, DetailsPopup, Appbar, MarkerPopup },
+  components: { Map, DetailsPopup, AppBar, MarkerPopup },
 
   setup() {
     const route = useRoute();
