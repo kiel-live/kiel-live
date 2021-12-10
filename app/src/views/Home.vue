@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { GeoJSONSourceRaw } from 'maplibre-gl';
+import { Feature, FeatureCollection } from 'geojson';
 import { computed, defineComponent, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -49,7 +49,7 @@ export default defineComponent({
       },
     });
 
-    const vehiclesGeoJson = computed(() =>
+    const vehiclesGeoJson = computed<Feature[]>(() =>
       Object.values(vehicles.value).map((v) => ({
         type: 'Feature',
         properties: {
@@ -69,7 +69,7 @@ export default defineComponent({
       })),
     );
 
-    const stopsGeoJson = computed(() =>
+    const stopsGeoJson = computed<Feature[]>(() =>
       Object.values(stops.value).map((s) => ({
         type: 'Feature',
         properties: { type: 'stop', name: s.name, id: s.id },
@@ -80,7 +80,7 @@ export default defineComponent({
       })),
     );
 
-    const geojson = computed<GeoJSONSourceRaw['data']>(() => ({
+    const geojson = computed<FeatureCollection>(() => ({
       type: 'FeatureCollection',
       features: [...vehiclesGeoJson.value, ...stopsGeoJson.value],
     }));
