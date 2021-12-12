@@ -73,6 +73,7 @@ export const unsubscribe = async (subject: string) => {
 export const loadApi = async () => {
   nc = await connect({
     servers: ['ws://localhost:4223'],
+    waitOnFirstConnect: true,
   });
   isConnected.value = true;
 
