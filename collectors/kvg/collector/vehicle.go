@@ -80,7 +80,11 @@ func (c *VehicleCollector) publishRemoved(vehicle *protocol.Vehicle) error {
 }
 
 func (c *VehicleCollector) Run() {
-	vehicles := api.GetVehicles()
+	vehicles, err := api.GetVehicles()
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
 	// publish all changed vehicles
 	changed := c.getChangedVehicles(vehicles)

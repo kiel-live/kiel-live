@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/kiel-live/kiel-live/protocol"
@@ -40,7 +39,7 @@ func (v *vehicle) parse() protocol.Vehicle {
 	}
 }
 
-func GetVehicles() (res map[string]*protocol.Vehicle) {
+func GetVehicles() (res map[string]*protocol.Vehicle, err error) {
 	res = make(map[string]*protocol.Vehicle)
 	url := fmt.Sprintf("%s?cacheBuster=%d&positionType=RAW", vehiclesURL, time.Now().Unix())
 	body, _ := post(url, nil)
@@ -50,7 +49,7 @@ func GetVehicles() (res map[string]*protocol.Vehicle) {
 	//   positionType: 'RAW',
 	var vehicles vehicles
 	if err := json.Unmarshal(body, &vehicles); err != nil {
-		log.Fatalf("Parse response failed, reason: %v \n", err)
+		return nil, err
 	}
 
 	// filter in-active vehicles
@@ -63,7 +62,7 @@ func GetVehicles() (res map[string]*protocol.Vehicle) {
 		res[v.ID] = &v
 	}
 
-	return res
+	return res, nil
 }
 
 func GetVehicle(vehicleID string) protocol.Vehicle {
