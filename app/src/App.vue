@@ -1,16 +1,19 @@
 <template>
   <div class="app flex flex-col m-auto w-full h-full bg-gray-100">
     <router-view />
+    <ReloadPrompt />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 
+import ReloadPrompt from '~/components/ReloadPrompt.vue';
+
 export default defineComponent({
   name: 'App',
 
-  components: {},
+  components: { ReloadPrompt },
 });
 </script>
 

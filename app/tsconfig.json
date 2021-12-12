@@ -14,7 +14,7 @@
     "paths": {
       "~/*": ["./src/*"]
     },
-    "types": ["vite/client", "unplugin-icons/types/vue"],
+    "types": ["vite/client", "unplugin-icons/types/vue", "vite-plugin-pwa/client"],
     "isolatedModules": true
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
