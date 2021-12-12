@@ -84,8 +84,13 @@ const processSubscriptionsQueue = async () => {
 };
 
 export const loadApi = async () => {
+  const server = import.meta.env.VITE_NATS_URL;
+  if (!server || typeof server !== 'string') {
+    throw new Error('NATS_URL is invalid!');
+  }
+
   nc = await connect({
-    servers: ['ws://localhost:4223'],
+    servers: server,
     waitOnFirstConnect: true,
   });
   isConnected.value = true;
