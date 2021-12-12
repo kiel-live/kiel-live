@@ -14,6 +14,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const IDPrefix = "ais-"
+
 func main() {
 	log.Infof("Kiel-Live AIS collector version %s", "1.0.0") // TODO use proper version
 
@@ -88,7 +90,7 @@ func main() {
 				positionReportPacket := decoded.Packet.(ais.PositionReport)
 
 				vehicle := protocol.Vehicle{
-					ID:       "ais" + fmt.Sprint(positionReportPacket.UserID),
+					ID:       IDPrefix + fmt.Sprint(positionReportPacket.UserID),
 					Provider: "ais",
 					Type:     protocol.VehicleTypeFerry,
 					State:    "onfire", // TODO
