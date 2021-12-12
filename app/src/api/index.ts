@@ -22,6 +22,8 @@ export const trips = ref<Record<string, Trip>>({});
 export const isConnected = ref(false);
 
 const subscriptions = ref<Record<string, JetStreamSubscription>>({});
+const subscriptionsQueue: Record<string, Ref<Record<string, Models>>> = {};
+
 let nc: NatsConnection | undefined;
 let js: JetStreamClient | undefined;
 
@@ -30,9 +32,9 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
     return;
   }
 
-  if (!js) {
-    // TODO: start retrying
-    throw new Error('Connect before subscribing');
+  if (!isConnected.value || !js) {
+    subscriptionsQueue[subject] = state;
+    return;
   }
 
   const opts = consumerOpts();
@@ -63,11 +65,22 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
 };
 
 export const unsubscribe = async (subject: string) => {
-  if (!subscriptions.value[subject]) {
-    return;
+  if (subscriptions.value[subject]) {
+    subscriptions.value[subject].unsubscribe();
+    delete subscriptions.value[subject];
   }
-  subscriptions.value[subject].unsubscribe();
-  delete subscriptions.value[subject];
+  if (subscriptionsQueue[subject]) {
+    delete subscriptionsQueue[subject];
+  }
+};
+
+const processSubscriptionsQueue = async () => {
+  await Promise.all(
+    Object.keys(subscriptionsQueue).map(async (subject) => {
+      await subscribe(subject, subscriptionsQueue[subject]);
+      delete subscriptionsQueue[subject];
+    }),
+  );
 };
 
 export const loadApi = async () => {
@@ -76,8 +89,9 @@ export const loadApi = async () => {
     waitOnFirstConnect: true,
   });
   isConnected.value = true;
-
   js = nc.jetstream();
+
+  await processSubscriptionsQueue();
 
   void (async () => {
     // eslint-disable-next-line no-restricted-syntax
@@ -87,6 +101,8 @@ export const loadApi = async () => {
       }
       if (s.type === Events.Reconnect) {
         isConnected.value = true;
+
+        await processSubscriptionsQueue();
       }
     }
   })();
