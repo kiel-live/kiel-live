@@ -15,7 +15,7 @@ export default defineConfig({
     WindiCSS(),
     Icons({ compiler: 'vue3' }),
     Components({
-      resolvers: IconsResolver(),
+      resolvers: [IconsResolver()],
     }),
     VitePWA({
       includeAssets: ['favicon.ico'],
