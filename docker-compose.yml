@@ -13,7 +13,19 @@ services:
       - NATS_TOKEN_COLLECTOR=${COLLECTOR_TOKEN}
     volumes:
       - ./nats-server.conf:/nats-server.conf
-    command: -js -c /nats-server.conf
+    command: -c /nats-server.conf
+  setup:
+    image: natsio/nats-box:0.7.0
+    environment:
+      - NATS_URL=server:4222
+      - NATS_USER=admin
+      - NATS_PASSWORD=${ADMIN_TOKEN}
+    volumes:
+      - ./setup.sh:/setup.sh
+      - ./stream.json:/stream.json
+    command: /setup.sh
+    depends_on:
+      - server
   # transport:
   #   build:
   #     dockerfile: docker/Dockerfile
