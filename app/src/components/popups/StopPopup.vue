@@ -5,7 +5,7 @@
       <router-link
         v-for="arrival in stop.arrivals"
         :key="arrival.tripId"
-        class="flex p-4 w-full not-last:border-b-1 cursor-pointer"
+        class="flex p-4 w-full not-last:border-b-1"
         :to="{ name: 'map-marker', params: { markerType: 'vehicle', markerId: arrival.vehicleId } }"
       >
         <i-fa-bus class="mr-2" />
