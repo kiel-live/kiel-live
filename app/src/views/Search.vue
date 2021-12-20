@@ -3,6 +3,9 @@
     <AppBar v-model:search-input="searchInput" />
 
     <div class="flex flex-col mt-16 mx-2 w-full overflow-y-auto">
+      <div v-if="searchResults.length === 0" class="m-auto max-w-52 text-center text-xl">
+        <p>Suche nach einer Haltestelle oder einem Fahrzeug</p>
+      </div>
       <router-link
         v-for="searchResult in searchResults"
         :key="searchResult.refIndex"
@@ -10,7 +13,7 @@
         class="flex p-2 not-last:border-b-1 border-gray-600 dark:border-dark-800"
       >
         <i-mdi-sign-real-estate v-if="searchResult.item.type === 'bus-stop'" class="mr-2" />
-        <i-fa-bus v-else-if="searchResult.item.type === 'bus'" class="mr-2" />
+        <!-- <i-fa-bus v-else-if="searchResult.item.type === 'bus'" class="mr-2" /> -->
         <div class="">
           {{ searchResult.item.name }}
         </div>
@@ -35,7 +38,7 @@ export default defineComponent({
   setup() {
     const searchInput = ref('');
 
-    const searchData = computed(() => [...Object.values(stops.value), ...Object.values(vehicles.value)]);
+    const searchData = computed(() => [...Object.values(stops.value)]);
     const searchIndex = computed(
       () =>
         new Fuse(searchData.value, {
@@ -46,20 +49,17 @@ export default defineComponent({
     );
 
     const searchResults = computed(() => {
-      if (searchInput.value === '') {
+      if (searchInput.value === '' || searchInput.value.length < 3) {
         return [];
       }
 
-      return searchIndex.value.search(searchInput.value);
+      // limit to max 20 results
+      return searchIndex.value.search(searchInput.value).slice(0, 20);
     });
 
     onMounted(async () => {
       await subscribe('data.map.vehicle.>', vehicles);
       await subscribe('data.map.stop.>', stops);
-
-      setTimeout(() => {
-        searchInput.value = 'Bahn';
-      }, 100);
     });
 
     return { searchInput, searchResults };
