@@ -3,10 +3,11 @@
 </template>
 
 <script lang="ts">
-import { Point } from 'geojson';
-import { CircleLayer, GeoJSONSource, GeoJSONSourceRaw, Map, SymbolLayer } from 'maplibre-gl';
+import { Feature, FeatureCollection, Point } from 'geojson';
+import { CircleLayer, GeoJSONSource, Map, SymbolLayer } from 'maplibre-gl';
 import { computed, defineComponent, onMounted, PropType, Ref, toRef, watch } from 'vue';
 
+import { stops, subscribe, vehicles } from '~/api';
 import BusIcon from '~/components/busIcon';
 import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
 import { Marker } from '~/types';
@@ -16,11 +17,6 @@ export default defineComponent({
   name: 'Map',
 
   props: {
-    geojson: {
-      type: Object as PropType<Exclude<GeoJSONSourceRaw['data'], undefined>>,
-      required: true,
-    },
-
     selectedMarker: {
       type: Object as PropType<Marker>,
       default: () => ({}),
@@ -35,7 +31,42 @@ export default defineComponent({
   setup(props, { emit }) {
     let map: Map;
 
-    const geojson = toRef(props, 'geojson');
+    const vehiclesGeoJson = computed<Feature[]>(() =>
+      Object.values(vehicles.value).map((v) => ({
+        type: 'Feature',
+        properties: {
+          type: 'vehicle',
+          name: v.name,
+          id: v.id,
+          number: v.name.split(' ')[0],
+          to: v.name.split(' ').slice(1).join(' '),
+          iconName: `busIcon-unfocused-${v.name.split(' ')[0]}-${v.location.heading}`,
+          iconNameFocused: `busIcon-focused-${v.name.split(' ')[0]}-${v.location.heading}`,
+        },
+
+        geometry: {
+          type: 'Point',
+          coordinates: [v.location.longitude / 3600000, v.location.latitude / 3600000],
+        },
+      })),
+    );
+
+    const stopsGeoJson = computed<Feature[]>(() =>
+      Object.values(stops.value).map((s) => ({
+        type: 'Feature',
+        properties: { type: 'stop', name: s.name, id: s.id },
+        geometry: {
+          type: 'Point',
+          coordinates: [s.location.longitude / 3600000, s.location.latitude / 3600000],
+        },
+      })),
+    );
+
+    const geojson = computed<FeatureCollection>(() => ({
+      type: 'FeatureCollection',
+      features: [...vehiclesGeoJson.value, ...stopsGeoJson.value],
+    }));
+
     const selectedMarker = toRef(props, 'selectedMarker');
 
     const stopsLayer: Ref<CircleLayer> = computed(() => ({
@@ -72,6 +103,9 @@ export default defineComponent({
     }));
 
     onMounted(async () => {
+      await subscribe('data.map.vehicle.>', vehicles);
+      await subscribe('data.map.stop.>', stops);
+
       map = new Map({
         container: 'map',
         // style: 'https://demotiles.maplibre.org/style.json',
@@ -116,6 +150,11 @@ export default defineComponent({
         };
         map.flyTo({
           center: feature.geometry.coordinates as [number, number],
+          bearing: 10,
+          // TODO: fix upstream type
+          padding: {
+            bottom: 500,
+          },
         });
         emit('markerClick', { type: feature.properties.type, id: feature.properties.id });
       });
@@ -168,6 +207,7 @@ export default defineComponent({
 
     watch(usePrefersColorSchemeDark(), (prefersColorSchemeDark) => {
       if (prefersColorSchemeDark) {
+        // TODO configurable tiles server
         map.setStyle('https://tiles.slucky.de/styles/gray-matter/style.json');
       } else {
         map.setStyle('https://tiles.slucky.de/styles/bright-matter/style.json');
