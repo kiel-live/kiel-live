@@ -3,7 +3,7 @@
     class="absolute bottom-0 left-0 right-0 flex flex-col w-full z-10 bg-white shadow-all md:rounded-none md:w-80 md:top-0 md:h-auto transition dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
     :class="{
       'overflow-hidden max-h-0': size === 'closed',
-      'h-48': size === 'default',
+      'h-3/4': size === 'default',
       'p-4 pt-2': size !== 'closed' && size !== 'full',
       'rounded-t-2xl': size !== 'full',
       'rounded-none p-4 pt-16': size === 'full',

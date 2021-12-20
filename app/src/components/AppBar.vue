@@ -5,53 +5,40 @@
   >
     <img src="../assets/logo.png" class="w-6 h-6 mr-auto" />
     <input
-      v-model="searchInput"
       type="text"
       class="bg-transparent focus:outline-transparent mx-2 w-full"
       placeholder="Suchen ..."
       :autofocus="$route.name === 'search'"
+      :value="searchInput"
+      @input="$emit('update:search-input', ($event.target as HTMLInputElement).value)"
       @click="$router.push({ name: 'search' })"
     />
     <i-ph-star-fill />
   </div>
-  <div v-if="searchResults.length > 0" class="bg-white w-full">
-    <div v-for="result in searchResults" :key="result.refIndex">
-      {{ result }}
-    </div>
-  </div>
 </template>
 
 <script lang="ts">
-import Fuse from 'fuse.js';
-import { computed, defineComponent, ref } from 'vue';
+import { defineComponent, PropType } from 'vue';
 
-import { isConnected, stops } from '~/api';
+import { isConnected } from '~/api';
 
 export default defineComponent({
   name: 'AppBar',
 
+  props: {
+    searchInput: {
+      type: String as PropType<string>,
+      default: '',
+    },
+  },
+
+  emits: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    'update:search-input': (_searchInput: string) => true,
+  },
+
   setup() {
-    const searchInput = ref('');
-
-    const searchData = computed(() => [...Object.values(stops.value)]);
-    const searchIndex = computed(
-      () =>
-        new Fuse(searchData.value, {
-          includeScore: true,
-          keys: ['name'],
-          threshold: 0.4,
-        }),
-    );
-
-    const searchResults = computed(() => {
-      if (searchInput.value === '') {
-        return [];
-      }
-
-      return searchIndex.value.search(searchInput.value);
-    });
-
-    return { isConnected, searchResults, searchInput };
+    return { isConnected };
   },
 });
 </script>
