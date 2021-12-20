@@ -152,6 +152,7 @@ export default defineComponent({
       // var nav = new MapLibre.NavigationControl();
       // map.addControl(nav, 'bottom-right');
 
+      // TODO: remove event type definition once https://github.com/maplibre/maplibre-gl-js/pull/703 is released
       map.on('styleimagemissing', (e: { id: string; type: 'styleimagemissing' }) => {
         const [, focus, route, heading] = e.id.split('-');
         map.addImage(e.id, new BusIcon(map, focus === 'focused', route, Number.parseInt(heading, 10)), {
@@ -244,9 +245,12 @@ export default defineComponent({
         return;
       }
 
-      // TODO: fix type
       const source = map.getSource('geojson');
-      source?.setData(Object.freeze(geojson.value));
+      if (source) {
+        // @ts-expect-error TODO: upstream types seem to be missing this
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        source.setData(Object.freeze(geojson.value));
+      }
     });
 
     watch(stopsLayer, () => {
