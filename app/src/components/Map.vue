@@ -102,6 +102,20 @@ export default defineComponent({
       },
     }));
 
+    function flyTo(center: [number, number]) {
+      if (!map) {
+        return;
+      }
+
+      map.flyTo({
+        center,
+        // TODO: fix upstream type
+        padding: {
+          bottom: 500, // TODO use 3/4 of screen height
+        },
+      });
+    }
+
     onMounted(async () => {
       await subscribe('data.map.vehicle.>', vehicles);
       await subscribe('data.map.stop.>', stops);
@@ -146,16 +160,9 @@ export default defineComponent({
         }
         const feature = e.features[0] as unknown as {
           geometry: Point;
-          properties: { type: 'stop' | 'vehicle'; id: string };
+          properties: Marker;
         };
-        map.flyTo({
-          center: feature.geometry.coordinates as [number, number],
-          bearing: 10,
-          // TODO: fix upstream type
-          padding: {
-            bottom: 500,
-          },
-        });
+        flyTo(feature.geometry.coordinates as [number, number]);
         emit('markerClick', { type: feature.properties.type, id: feature.properties.id });
       });
 
@@ -175,7 +182,7 @@ export default defineComponent({
         }
         const feature = e.features[0] as unknown as {
           geometry: Point;
-          properties: { type: 'stop' | 'vehicle'; id: string };
+          properties: Marker;
         };
         map.flyTo({
           center: feature.geometry.coordinates as [number, number],
@@ -239,6 +246,21 @@ export default defineComponent({
 
       map.removeLayer('vehicles');
       map.addLayer(vehiclesLayer.value);
+    });
+
+    const selectedMarkerItem = computed(() => {
+      const marker = selectedMarker.value;
+      if (!marker) {
+        return undefined;
+      }
+      return geojson.value.features.find((f) => (f.properties as Marker).id === marker.id);
+    });
+    watch(selectedMarkerItem, (_selectedMarkerItem) => {
+      if (!map || !_selectedMarkerItem) {
+        return;
+      }
+
+      flyTo((_selectedMarkerItem.geometry as Point)?.coordinates as [number, number]);
     });
   },
 });
