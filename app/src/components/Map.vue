@@ -7,6 +7,7 @@ import { Point } from 'geojson';
 import { CircleLayer, GeoJSONSource, GeoJSONSourceRaw, Map, SymbolLayer } from 'maplibre-gl';
 import { computed, defineComponent, onMounted, PropType, Ref, toRef, watch } from 'vue';
 
+import { vehicles } from '~/api';
 import BusIcon from '~/components/busIcon';
 import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
 import { Marker } from '~/types';
@@ -34,6 +35,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     let map: Map;
+    let initial = true;
 
     const geojson = toRef(props, 'geojson');
     const selectedMarker = toRef(props, 'selectedMarker');
@@ -46,6 +48,7 @@ export default defineComponent({
       paint: {
         'circle-color': ['match', ['get', 'id'], selectedMarker.value.id || '', '#1673fc', '#4f96fc'],
         'circle-radius': ['match', ['get', 'id'], selectedMarker.value.id || '', 8, 5],
+        'circle-opacity': selectedMarker.value.type === 'vehicle' ? 0.5 : 1,
       },
     }));
 
@@ -54,7 +57,15 @@ export default defineComponent({
       type: 'symbol',
       source: 'geojson',
       paint: {
-        'icon-opacity': ['match', ['get', 'number'], '', 1, 1],
+        'icon-opacity': [
+          'match',
+          ['get', 'number'],
+          selectedMarker.value.id && vehicles.value[selectedMarker.value.id]
+            ? vehicles.value[selectedMarker.value.id].name.split(' ')[0]
+            : '',
+          1,
+          selectedMarker.value.type === 'vehicle' ? 0.3 : 1,
+        ],
       },
       filter: ['==', 'type', 'vehicle'],
       layout: {
@@ -67,7 +78,15 @@ export default defineComponent({
         ],
         'icon-rotation-alignment': 'map',
         'icon-allow-overlap': true,
-        'symbol-sort-key': ['match', ['get', 'number'], '', 2, 1],
+        'symbol-sort-key': [
+          'match',
+          ['get', 'number'],
+          selectedMarker.value.id && vehicles.value[selectedMarker.value.id]
+            ? vehicles.value[selectedMarker.value.id].name.split(' ')[0]
+            : '',
+          2,
+          1,
+        ],
       },
     }));
 
@@ -104,6 +123,8 @@ export default defineComponent({
         map.addLayer(stopsLayer.value);
 
         map.addLayer(vehiclesLayer.value);
+
+        initial = false;
       });
 
       map.on('click', 'vehicles', (e) => {
@@ -184,21 +205,55 @@ export default defineComponent({
     });
 
     watch(stopsLayer, () => {
-      if (!map) {
+      if (!map || initial) {
         return;
       }
 
-      map.removeLayer('stops');
-      map.addLayer(stopsLayer.value);
+      if (stopsLayer.value.layout) {
+        Object.keys(stopsLayer.value.layout).forEach((key) => {
+          if (stopsLayer.value.layout) {
+            map.setLayoutProperty('stops', key, stopsLayer.value.layout[key as keyof typeof stopsLayer.value.layout]);
+          }
+        });
+      }
+
+      if (stopsLayer.value.paint) {
+        Object.keys(stopsLayer.value.paint).forEach((key) => {
+          if (stopsLayer.value.paint) {
+            map.setPaintProperty('stops', key, stopsLayer.value.paint[key as keyof typeof stopsLayer.value.paint]);
+          }
+        });
+      }
     });
 
     watch(vehiclesLayer, () => {
-      if (!map) {
+      if (!map || initial) {
         return;
       }
 
-      map.removeLayer('vehicles');
-      map.addLayer(vehiclesLayer.value);
+      if (vehiclesLayer.value.layout) {
+        Object.keys(vehiclesLayer.value.layout).forEach((key) => {
+          if (vehiclesLayer.value.layout) {
+            map.setLayoutProperty(
+              'vehicles',
+              key,
+              vehiclesLayer.value.layout[key as keyof typeof vehiclesLayer.value.layout],
+            );
+          }
+        });
+      }
+
+      if (vehiclesLayer.value.paint) {
+        Object.keys(vehiclesLayer.value.paint).forEach((key) => {
+          if (vehiclesLayer.value.paint) {
+            map.setPaintProperty(
+              'vehicles',
+              key,
+              vehiclesLayer.value.paint[key as keyof typeof vehiclesLayer.value.paint],
+            );
+          }
+        });
+      }
     });
   },
 });
