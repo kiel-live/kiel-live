@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import { Feature, FeatureCollection, Point } from 'geojson';
-import { CircleLayer, GeoJSONSource, Map, SymbolLayer } from 'maplibre-gl';
+import { CircleLayerSpecification, Map, SymbolLayerSpecification } from 'maplibre-gl';
 import { computed, defineComponent, onMounted, PropType, Ref, toRef, watch } from 'vue';
 
 import { stops, subscribe, vehicles } from '~/api';
@@ -70,7 +70,7 @@ export default defineComponent({
 
     const selectedMarker = toRef(props, 'selectedMarker');
 
-    const stopsLayer: Ref<CircleLayer> = computed(() => ({
+    const stopsLayer: Ref<CircleLayerSpecification> = computed(() => ({
       id: 'stops',
       type: 'circle',
       source: 'geojson',
@@ -82,7 +82,7 @@ export default defineComponent({
       },
     }));
 
-    const vehiclesLayer: Ref<SymbolLayer> = computed(() => ({
+    const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
       id: 'vehicles',
       type: 'symbol',
       source: 'geojson',
@@ -127,7 +127,6 @@ export default defineComponent({
 
       map.flyTo({
         center,
-        // TODO: fix upstream type
         padding: {
           bottom: 500, // TODO use 3/4 of screen height
         },
@@ -142,7 +141,6 @@ export default defineComponent({
         container: 'map',
         // style: 'https://demotiles.maplibre.org/style.json',
         style: 'https://tiles.slucky.de/styles/gray-matter/style.json',
-        accessToken: '',
         minZoom: 11,
         maxZoom: 18,
         center: [10.1283, 54.3166],
@@ -246,7 +244,8 @@ export default defineComponent({
         return;
       }
 
-      const source = map.getSource('geojson') as GeoJSONSource | undefined;
+      // TODO: fix type
+      const source = map.getSource('geojson');
       source?.setData(Object.freeze(geojson.value));
     });
 
