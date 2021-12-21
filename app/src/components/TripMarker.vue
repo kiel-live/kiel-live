@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex justify-center items-center mx-4 h-12 w-8 after:(absolute left-1/2 top-0 h-full bg-gray-800 w-0.5 content-s)"
+    class="relative flex justify-center items-center mx-4 h-12 w-8 after:(absolute left-1/2 top-0 h-full bg-gray-800 w-0.5 content-[attr(empty-content-workaround)])"
   >
     <div
       v-if="marker !== 'empty'"
