@@ -8,6 +8,7 @@ const (
 	Stopping               = "stopping"
 	Predicted              = "predicted"
 	Planned                = "planned"
+	Departed               = "departed"
 )
 
 type StopArrival struct {

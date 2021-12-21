@@ -38,6 +38,7 @@ const (
 	planned   DepartureStatus = "PLANNED"
 	predicted                 = "PREDICTED"
 	stopping                  = "STOPPING"
+	departed                  = "DEPARTED"
 )
 
 func (d *DepartureStatus) parse() protocol.ArrivalState {
@@ -48,6 +49,8 @@ func (d *DepartureStatus) parse() protocol.ArrivalState {
 		return protocol.Predicted
 	case stopping:
 		return protocol.Stopping
+	case departed:
+		return protocol.Departed
 	default:
 		return protocol.Undefined
 	}
