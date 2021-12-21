@@ -9,7 +9,7 @@
         v-for="arrival in stop.arrivals"
         :key="arrival.tripId"
         class="flex py-2 w-full not-last:border-b-1 dark:border-dark-600"
-        :to="{ name: 'map-marker', params: { markerType: 'vehicle', markerId: arrival.vehicleId } }"
+        :to="{ name: 'map-marker', params: { markerType: 'bus', markerId: arrival.vehicleId } }"
       >
         <i-fa-bus class="mr-2" />
         <span class="mr-2">{{ arrival.routeName }}</span>
@@ -29,8 +29,7 @@
 import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from 'vue';
 
 import { stops, subscribe, unsubscribe } from '~/api';
-import { StopArrival } from '~/api/types';
-import { Marker } from '~/types';
+import { Marker, StopArrival } from '~/api/types';
 
 export default defineComponent({
   name: 'StopPopup',

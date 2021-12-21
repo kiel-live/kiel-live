@@ -8,9 +8,9 @@ import { CircleLayerSpecification, Map, SymbolLayerSpecification } from 'maplibr
 import { computed, defineComponent, onMounted, PropType, Ref, toRef, watch } from 'vue';
 
 import { stops, subscribe, vehicles } from '~/api';
+import { Marker } from '~/api/types';
 import BusIcon from '~/components/busIcon';
 import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
-import { Marker } from '~/types';
 
 export default defineComponent({
   // eslint-disable-next-line vue/multi-word-component-names
@@ -36,13 +36,13 @@ export default defineComponent({
       Object.values(vehicles.value).map((v) => ({
         type: 'Feature',
         properties: {
-          type: 'vehicle',
+          type: v.type,
           name: v.name,
           id: v.id,
           number: v.name.split(' ')[0],
           to: v.name.split(' ').slice(1).join(' '),
-          iconName: `busIcon-unfocused-${v.name.split(' ')[0]}-${v.location.heading}`,
-          iconNameFocused: `busIcon-focused-${v.name.split(' ')[0]}-${v.location.heading}`,
+          iconName: `${v.type}-unfocused-${v.name.split(' ')[0]}-${v.location.heading}`,
+          iconNameFocused: `${v.type}-focused-${v.name.split(' ')[0]}-${v.location.heading}`,
         },
 
         geometry: {
@@ -55,7 +55,7 @@ export default defineComponent({
     const stopsGeoJson = computed<Feature[]>(() =>
       Object.values(stops.value).map((s) => ({
         type: 'Feature',
-        properties: { type: 'stop', name: s.name, id: s.id },
+        properties: { type: s.type, name: s.name, id: s.id },
         geometry: {
           type: 'Point',
           coordinates: [s.location.longitude / 3600000, s.location.latitude / 3600000],
@@ -74,11 +74,11 @@ export default defineComponent({
       id: 'stops',
       type: 'circle',
       source: 'geojson',
-      filter: ['==', 'type', 'stop'],
+      filter: ['==', 'type', 'bus-stop'],
       paint: {
         'circle-color': ['match', ['get', 'id'], selectedMarker.value.id || '', '#1673fc', '#4f96fc'],
         'circle-radius': ['match', ['get', 'id'], selectedMarker.value.id || '', 8, 5],
-        'circle-opacity': selectedMarker.value.type === 'vehicle' ? 0.5 : 1,
+        'circle-opacity': selectedMarker.value.type === 'bus' ? 0.5 : 1,
       },
     }));
 
@@ -94,10 +94,10 @@ export default defineComponent({
             ? vehicles.value[selectedMarker.value.id].name.split(' ')[0]
             : '',
           1,
-          selectedMarker.value.type === 'vehicle' ? 0.3 : 1,
+          selectedMarker.value.type === 'bus' ? 0.3 : 1,
         ],
       },
-      filter: ['==', 'type', 'vehicle'],
+      filter: ['==', 'type', 'bus'],
       layout: {
         'icon-image': [
           'match',
@@ -154,10 +154,12 @@ export default defineComponent({
 
       // TODO: remove event type definition once https://github.com/maplibre/maplibre-gl-js/pull/703 is released
       map.on('styleimagemissing', (e: { id: string; type: 'styleimagemissing' }) => {
-        const [, focus, route, heading] = e.id.split('-');
-        map.addImage(e.id, new BusIcon(map, focus === 'focused', route, Number.parseInt(heading, 10)), {
-          pixelRatio: 2,
-        });
+        const [type, focus, route, heading] = e.id.split('-');
+        if (type === 'bus') {
+          map.addImage(e.id, new BusIcon(map, focus === 'focused', route, Number.parseInt(heading, 10)), {
+            pixelRatio: 2,
+          });
+        }
       });
 
       map.on('load', () => {

@@ -12,11 +12,11 @@
 import { computed, defineComponent } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+import { Marker } from '~/api/types';
 import AppBar from '~/components/AppBar.vue';
 import DetailsPopup from '~/components/DetailsPopup.vue';
 import Map from '~/components/Map.vue';
 import MarkerPopup from '~/components/popups/MarkerPopup.vue';
-import { Marker } from '~/types';
 
 export default defineComponent({
   // eslint-disable-next-line vue/multi-word-component-names

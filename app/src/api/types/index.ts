@@ -4,6 +4,7 @@ import { Vehicle } from './vehicle';
 
 export * from './arrival';
 export * from './location';
+export * from './marker';
 export * from './stop';
 export * from './trip';
 export * from './vehicle';

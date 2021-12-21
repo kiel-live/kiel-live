@@ -8,7 +8,7 @@
       <router-link
         v-for="arrival in trip.arrivals"
         :key="arrival.id"
-        :to="{ name: 'map-marker', params: { markerType: 'stop', markerId: arrival.id } }"
+        :to="{ name: 'map-marker', params: { markerType: 'bus-stop', markerId: arrival.id } }"
         class="flex w-full"
       >
         <span class="mr-2">{{ arrival.planned }}</span>
@@ -23,8 +23,8 @@
 import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from 'vue';
 
 import { subscribe, trips, unsubscribe, vehicles } from '~/api';
+import { Marker } from '~/api/types';
 import TripMarker from '~/components/TripMarker.vue';
-import { Marker } from '~/types';
 
 export default defineComponent({
   name: 'VehiclePopup',
