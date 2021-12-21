@@ -59,7 +59,7 @@ export default defineComponent({
     const vehicle = computed(() => vehicles.value[marker.value.id]);
 
     const trip = computed(() => {
-      if (!trips.value) {
+      if (!trips.value || !vehicle.value) {
         return null;
       }
       return trips.value[vehicle.value.tripId];
