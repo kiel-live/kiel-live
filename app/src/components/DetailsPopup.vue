@@ -73,9 +73,8 @@ export default defineComponent({
       return 'default';
     });
 
-    function drag(e: TouchEvent) {
+    function drag() {
       dragging.value = true;
-      height.value = window.innerHeight - e.touches[0].clientY;
     }
 
     function move(e: TouchEvent) {
