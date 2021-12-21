@@ -33,6 +33,7 @@
         <span class="w-full">{{ arrival.name }}</span>
       </router-link>
     </div>
+    <i-fa-solid-circle-notch v-else class="mx-auto mt-4 text-3xl animate-spin" />
   </div>
 </template>
 

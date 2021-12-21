@@ -8,7 +8,7 @@
         <i-ph-star-bold v-else @click="addFavorite(stop)" />
       </div>
     </div>
-    <div class="overflow-y-auto">
+    <div v-if="stop.arrivals?.length > 0" class="overflow-y-auto">
       <router-link
         v-for="arrival in stop.arrivals"
         :key="arrival.tripId"
@@ -26,6 +26,7 @@
         </div>
       </router-link>
     </div>
+    <i-fa-solid-circle-notch v-else class="mx-auto mt-4 text-3xl animate-spin" />
   </div>
 </template>
 
