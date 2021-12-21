@@ -228,7 +228,7 @@ export default defineComponent({
         }
       });
 
-      map.on('mousemove', () => {
+      map.on('drag', () => {
         if (selectedMarker.value !== null) {
           emit('markerClick');
         }
