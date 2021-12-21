@@ -1,10 +1,10 @@
 <template>
   <div v-if="stop" class="flex flex-col min-h-0">
-    <div class="flex flex-row pb-2 mb-2 border-b-1 dark:border-dark-800 space-x-2 items-center flex-grow">
+    <div class="flex flex-row pb-2 mb-2 border-b-1 dark:border-dark-800 items-center flex-grow">
       <i-mdi-sign-real-estate v-if="stop.type === 'bus-stop'" />
-      <span class="text-lg">{{ stop.name }}</span>
+      <span class="text-lg ml-2">{{ stop.name }}</span>
       <div class="flex ml-auto items-center cursor-pointer select-none">
-        <i-ph-star-fill v-if="isFavorite(stop.id)" @click="removeFavorite(stop)" />
+        <i-ph-star-fill v-if="isFavorite(stop.id)" class="text-yellow-300" @click="removeFavorite(stop)" />
         <i-ph-star-bold v-else @click="addFavorite(stop)" />
       </div>
     </div>
