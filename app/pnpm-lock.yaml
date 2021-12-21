@@ -13,7 +13,7 @@ specifiers:
   eslint-config-prettier: 8.3.0
   eslint-plugin-import: 2.25.3
   eslint-plugin-prettier: 4.0.0
-  eslint-plugin-promise: 5.2.0
+  eslint-plugin-promise: 6.0.0
   eslint-plugin-simple-import-sort: 7.0.0
   eslint-plugin-vue: 8.1.1
   eslint-plugin-vue-scoped-css: 2.0.0
@@ -30,6 +30,7 @@ specifiers:
   vite-plugin-pwa: 0.11.11
   vite-plugin-windicss: 1.5.4
   vue: 3.2.26
+  vue-eslint-parser: 8.0.1
   vue-router: 4.0.12
   vue-tsc: 0.29.8
   windicss: 3.4.0
@@ -55,10 +56,10 @@ devDependencies:
   eslint-config-prettier: 8.3.0_eslint@8.4.0
   eslint-plugin-import: 2.25.3_eslint@8.4.0
   eslint-plugin-prettier: 4.0.0_14354588a145aaef8cc0e524e93c2ca4
-  eslint-plugin-promise: 5.2.0_eslint@8.4.0
+  eslint-plugin-promise: 6.0.0_eslint@8.4.0
   eslint-plugin-simple-import-sort: 7.0.0_eslint@8.4.0
   eslint-plugin-vue: 8.1.1_eslint@8.4.0
-  eslint-plugin-vue-scoped-css: 2.0.0_eslint@8.4.0
+  eslint-plugin-vue-scoped-css: 2.0.0_b78eea31732de2dcfba496f858f2e97f
   prettier: 2.5.1
   surge: 0.23.0
   typescript: 4.4.4
@@ -67,6 +68,7 @@ devDependencies:
   vite: 2.7.1
   vite-plugin-pwa: 0.11.11_vite@2.7.1
   vite-plugin-windicss: 1.5.4_vite@2.7.1
+  vue-eslint-parser: 8.0.1_eslint@8.4.0
   vue-tsc: 0.29.8_typescript@4.4.4
   windicss: 3.4.0
 
@@ -2755,11 +2757,11 @@ packages:
       prettier-linter-helpers: 1.0.0
     dev: true
 
-  /eslint-plugin-promise/5.2.0_eslint@8.4.0:
-    resolution: {integrity: sha512-SftLb1pUG01QYq2A/hGAWfDRXqYD82zE7j7TopDOyNdU+7SvvoXREls/+PRTY17vUXzXnZA/zfnyKgRH6x4JJw==}
-    engines: {node: ^10.12.0 || >=12.0.0}
+  /eslint-plugin-promise/6.0.0_eslint@8.4.0:
+    resolution: {integrity: sha512-7GPezalm5Bfi/E22PnQxDWH2iW9GTvAlUNTztemeHb6c1BniSyoeTrM87JkC0wYdi6aQrZX9p2qEiAno8aTcbw==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
-      eslint: ^7.0.0
+      eslint: ^7.0.0 || ^8.0.0
     dependencies:
       eslint: 8.4.0
     dev: true
@@ -2772,7 +2774,7 @@ packages:
       eslint: 8.4.0
     dev: true
 
-  /eslint-plugin-vue-scoped-css/2.0.0_eslint@8.4.0:
+  /eslint-plugin-vue-scoped-css/2.0.0_b78eea31732de2dcfba496f858f2e97f:
     resolution: {integrity: sha512-ptFQzjPYQS6XEiy1jAHCNy/ojqSANGfu3EodU/qUlOHcva10CspGUPMRYXccB1xAYPi8IHjvIkT3HWnGR1ZBJA==}
     engines: {node: ^12.22 || ^14.17 || >=16}
     peerDependencies:
@@ -2787,6 +2789,7 @@ packages:
       postcss-scss: 4.0.2_postcss@8.3.6
       postcss-selector-parser: 6.0.6
       postcss-styl: 0.9.0
+      vue-eslint-parser: 8.0.1_eslint@8.4.0
     transitivePeerDependencies:
       - supports-color
     dev: true
