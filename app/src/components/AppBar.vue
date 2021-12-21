@@ -5,40 +5,53 @@
   >
     <img src="../assets/logo.png" class="w-6 h-6 mr-auto" />
     <input
+      v-model="searchInput"
       type="text"
       class="bg-transparent focus:outline-transparent mx-2 w-full"
       placeholder="Suchen ..."
-      :autofocus="$route.name === 'search'"
-      :value="searchInput"
-      @input="$emit('update:search-input', ($event.target as HTMLInputElement).value)"
-      @click="$router.push({ name: 'search' })"
+      autofocus
     />
-    <i-ph-star-fill />
+    <div class="flex items-center cursor-pointer">
+      <i-mdi-close v-if="$route.name === 'search' || $route.name === 'favorites'" @click="$router.back()" />
+      <i-ph-star-fill v-else @click="$router.push({ name: 'favorites' })" />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 import { isConnected } from '~/api';
 
 export default defineComponent({
   name: 'AppBar',
 
-  props: {
-    searchInput: {
-      type: String as PropType<string>,
-      default: '',
-    },
-  },
-
   emits: {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    'update:search-input': (_searchInput: string) => true,
+    'search-input': (_searchInput: string) => true,
   },
 
-  setup() {
-    return { isConnected };
+  setup(_, { emit }) {
+    const route = useRoute();
+    const router = useRouter();
+    const searchRaw = ref('');
+    const searchInput = computed({
+      get() {
+        return searchRaw.value;
+      },
+      set(_searchInput: string) {
+        searchRaw.value = _searchInput;
+
+        emit('search-input', _searchInput);
+
+        if (_searchInput.length > 0 && route.name !== 'search') {
+          void router.push({ name: 'search' });
+        }
+      },
+    });
+
+    return { isConnected, searchInput };
   },
 });
 </script>

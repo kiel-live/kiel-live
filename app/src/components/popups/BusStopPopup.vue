@@ -1,8 +1,12 @@
 <template>
   <div v-if="stop" class="flex flex-col min-h-0">
-    <div class="flex pb-2 mb-2 border-b-1 dark:border-dark-800 space-x-2 items-center">
+    <div class="flex flex-row pb-2 mb-2 border-b-1 dark:border-dark-800 space-x-2 items-center flex-grow">
       <i-mdi-sign-real-estate v-if="stop.type === 'bus-stop'" />
       <span class="text-lg">{{ stop.name }}</span>
+      <div class="flex ml-auto items-center cursor-pointer select-none">
+        <i-ph-star-fill v-if="isFavorite(stop.id)" @click="removeFavorite(stop)" />
+        <i-ph-star-bold v-else @click="addFavorite(stop)" />
+      </div>
     </div>
     <div class="overflow-y-auto">
       <router-link
@@ -30,6 +34,7 @@ import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from '
 
 import { stops, subscribe, unsubscribe } from '~/api';
 import { Marker, StopArrival } from '~/api/types';
+import { useFavorites } from '~/compositions/useFavorites';
 
 export default defineComponent({
   name: 'BusStopPopup',
@@ -42,6 +47,8 @@ export default defineComponent({
   },
 
   setup(props) {
+    const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+
     const marker = toRef(props, 'marker');
     const stop = computed(() => stops.value[props.marker.id]);
     let subject: string | null = null;
@@ -76,7 +83,7 @@ export default defineComponent({
       }
     });
 
-    return { stop, eta };
+    return { stop, eta, addFavorite, removeFavorite, isFavorite };
   },
 });
 </script>

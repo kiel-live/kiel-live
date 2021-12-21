@@ -20,6 +20,12 @@ const routes: RouteRecordRaw[] = [
     props: true,
   },
   {
+    path: '/favorites',
+    name: 'favorites',
+    component: (): Component => import('~/views/Favorites.vue'),
+    props: true,
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: (): Component => import('~/views/NotFound.vue'),

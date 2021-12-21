@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-full w-full min-h-0">
-    <AppBar v-model:search-input="searchInput" />
+    <AppBar @search-input="searchInput = $event" />
 
     <div class="flex flex-col mt-16 mx-2 w-full overflow-y-auto">
       <div v-if="searchResults.length === 0" class="m-auto max-w-52 text-center text-xl">
