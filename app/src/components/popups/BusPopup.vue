@@ -27,7 +27,7 @@ import { Marker } from '~/api/types';
 import TripMarker from '~/components/TripMarker.vue';
 
 export default defineComponent({
-  name: 'VehiclePopup',
+  name: 'BusPopup',
 
   components: { TripMarker },
 

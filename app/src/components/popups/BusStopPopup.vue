@@ -32,7 +32,7 @@ import { stops, subscribe, unsubscribe } from '~/api';
 import { Marker, StopArrival } from '~/api/types';
 
 export default defineComponent({
-  name: 'StopPopup',
+  name: 'BusStopPopup',
 
   props: {
     marker: {
