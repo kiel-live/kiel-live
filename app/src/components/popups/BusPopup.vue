@@ -16,7 +16,7 @@
           class="marker relative flex justify-center items-center mx-4 h-12 w-8 after:(absolute top-0 h-full bg-gray-800 dark:bg-gray-300)"
         >
           <div
-            v-if="arrival.state !== 'departed' && trip.arrivals[i - 1].state === 'departed'"
+            v-if="arrival.state !== 'departed' && trip.arrivals[i - 1]?.state === 'departed'"
             class="vehicle before:(h-4 w-4 bg-red-700 rounded-full)"
             :class="{ driving: arrival.state === 'predicted' }"
           >
@@ -24,7 +24,7 @@
           </div>
           <div
             v-if="
-              (arrival.state !== 'departed' && trip.arrivals[i - 1].state !== 'departed') ||
+              (arrival.state !== 'departed' && trip.arrivals[i - 1]?.state !== 'departed') ||
               arrival.state === 'predicted'
             "
             class="rounded-full h-4 w-4 flex items-center justify-center bg-gray-800 dark:bg-gray-300"
