@@ -47,15 +47,15 @@ export default defineComponent({
 
       if (dragging.value) {
         if (height.value === undefined) {
-          throw new Error('hmm');
+          return 'closed';
         }
 
         const percentage = height.value / window.innerHeight;
-        if (percentage > 0.4) {
+        if (percentage > 0.85) {
           return 'maximizing';
         }
 
-        if (percentage < 0.2) {
+        if (percentage < 0.65) {
           return 'closing';
         }
 
