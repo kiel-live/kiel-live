@@ -14,7 +14,7 @@
     @touchmove="move"
     @touchend="drop"
   >
-    <div v-show="size !== 'full'" class="bg-gray-500 w-12 h-1.5 mb-4 rounded-full mx-auto md:hidden" />
+    <div v-show="size !== 'full'" class="flex-shrink-0 bg-gray-500 w-12 h-1.5 mb-4 rounded-full mx-auto md:hidden" />
     <slot />
   </div>
 </template>
