@@ -90,9 +90,7 @@ export default defineComponent({
         'icon-opacity': [
           'match',
           ['get', 'number'],
-          selectedMarker.value.id && vehicles.value[selectedMarker.value.id]
-            ? vehicles.value[selectedMarker.value.id].name.split(' ')[0]
-            : '',
+          vehicles.value[selectedMarker.value.id]?.name.split(' ')[0] ?? '',
           1,
           selectedMarker.value.type === 'bus' ? 0.3 : 1,
         ],
@@ -111,9 +109,7 @@ export default defineComponent({
         'symbol-sort-key': [
           'match',
           ['get', 'number'],
-          selectedMarker.value.id && vehicles.value[selectedMarker.value.id]
-            ? vehicles.value[selectedMarker.value.id].name.split(' ')[0]
-            : '',
+          vehicles.value[selectedMarker.value.id]?.name.split(' ')[0] ?? '',
           2,
           1,
         ],
