@@ -33,6 +33,7 @@ specifiers:
   vue-router: 4.0.12
   vue-tsc: 0.29.8
   windicss: 3.4.0
+  workbox-window: 6.4.2
 
 dependencies:
   fuse.js: 6.4.6
@@ -69,6 +70,7 @@ devDependencies:
   vue-eslint-parser: 8.0.1_eslint@8.4.0
   vue-tsc: 0.29.8_typescript@4.4.4
   windicss: 3.4.0
+  workbox-window: 6.4.2
 
 packages:
 

@@ -49,6 +49,7 @@
     "vite-plugin-windicss": "1.5.4",
     "vue-eslint-parser": "8.0.1",
     "vue-tsc": "0.29.8",
-    "windicss": "3.4.0"
+    "windicss": "3.4.0",
+    "workbox-window": "6.4.2"
   }
 }
