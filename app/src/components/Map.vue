@@ -173,18 +173,6 @@ export default defineComponent({
         initial = false;
       });
 
-      map.on('click', 'vehicles', (e) => {
-        if (!e.features || e.features.length === 0) {
-          return;
-        }
-        const feature = e.features[0] as unknown as {
-          geometry: Point;
-          properties: Marker;
-        };
-        flyTo(feature.geometry.coordinates as [number, number]);
-        emit('markerClick', { type: feature.properties.type, id: feature.properties.id });
-      });
-
       // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
       map.on('mouseenter', 'vehicles', () => {
         map.getCanvas().style.cursor = 'pointer';
@@ -193,20 +181,6 @@ export default defineComponent({
       // Change it back to a pointer when it leaves.
       map.on('mouseleave', 'vehicles', () => {
         map.getCanvas().style.cursor = '';
-      });
-
-      map.on('click', 'stops', (e) => {
-        if (!e.features || e.features.length === 0) {
-          return;
-        }
-        const feature = e.features[0] as unknown as {
-          geometry: Point;
-          properties: Marker;
-        };
-        map.flyTo({
-          center: feature.geometry.coordinates as [number, number],
-        });
-        emit('markerClick', { type: feature.properties.type, id: feature.properties.id });
       });
 
       // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
@@ -219,15 +193,29 @@ export default defineComponent({
         map.getCanvas().style.cursor = '';
       });
 
-      // Deselect marker when the map is clicked.
       map.on('click', (e) => {
         const features = map.queryRenderedFeatures(e.point, {
           layers: ['stops', 'vehicles'],
         });
 
+        // Deselect marker when the map is clicked
         if (features.length === 0) {
           emit('markerClick');
+          return;
         }
+
+        const feature = features[0] as unknown as {
+          geometry: Point;
+          properties: Marker;
+        };
+
+        // Prevent reloading the same marker
+        if (feature.properties.id === selectedMarker.value.id) {
+          return;
+        }
+
+        flyTo(feature.geometry.coordinates as [number, number]);
+        emit('markerClick', { type: feature.properties.type, id: feature.properties.id });
       });
 
       map.on('drag', () => {
