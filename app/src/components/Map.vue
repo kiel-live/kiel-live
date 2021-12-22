@@ -3,6 +3,9 @@
 </template>
 
 <script lang="ts">
+// eslint-disable-next-line no-restricted-imports
+import 'maplibre-gl/dist/maplibre-gl.css';
+
 import { Feature, FeatureCollection, Point } from 'geojson';
 import { CircleLayerSpecification, Map, SymbolLayerSpecification } from 'maplibre-gl';
 import { computed, defineComponent, onMounted, PropType, Ref, toRef, watch } from 'vue';
