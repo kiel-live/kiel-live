@@ -16,13 +16,13 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/search',
     name: 'search',
-    component: (): Component => import('~/views/Search.vue'),
+    component: (): Component => import('~/views/Home.vue'),
     props: true,
   },
   {
     path: '/favorites',
     name: 'favorites',
-    component: (): Component => import('~/views/Favorites.vue'),
+    component: (): Component => import('~/views/Home.vue'),
     props: true,
   },
   {

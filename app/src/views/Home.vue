@@ -4,17 +4,29 @@
     <DetailsPopup :is-open="!!selectedMarker" @close="selectedMarker = undefined">
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
     </DetailsPopup>
-    <AppBar />
+
+    <Overlay :is-open="$route.name === 'search'">
+      <SearchOverlay v-model:search-input="searchInput" />
+    </Overlay>
+
+    <Overlay :is-open="$route.name === 'favorites'">
+      <FavoritesOverlay />
+    </Overlay>
+
+    <AppBar v-model:search-input="searchInput" />
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { Marker } from '~/api/types';
 import AppBar from '~/components/AppBar.vue';
 import DetailsPopup from '~/components/DetailsPopup.vue';
+import FavoritesOverlay from '~/components/layout/FavoritesOverlay.vue';
+import Overlay from '~/components/layout/Overlay.vue';
+import SearchOverlay from '~/components/layout/SearchOverlay.vue';
 import Map from '~/components/Map.vue';
 import MarkerPopup from '~/components/popups/MarkerPopup.vue';
 
@@ -22,7 +34,7 @@ export default defineComponent({
   // eslint-disable-next-line vue/multi-word-component-names
   name: 'Home',
 
-  components: { Map, DetailsPopup, AppBar, MarkerPopup },
+  components: { Map, DetailsPopup, AppBar, MarkerPopup, SearchOverlay, FavoritesOverlay, Overlay },
 
   setup() {
     const route = useRoute();
@@ -47,7 +59,9 @@ export default defineComponent({
       },
     });
 
-    return { selectedMarker };
+    const searchInput = ref('');
+
+    return { selectedMarker, searchInput };
   },
 });
 </script>
