@@ -10,11 +10,14 @@
       'opacity-80': size === 'closing',
     }"
     :style="{ height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0 }"
-    @touchstart="drag"
     @touchmove="move"
     @touchend="drop"
   >
-    <div v-show="size !== 'full'" class="flex-shrink-0 bg-gray-500 w-12 h-1.5 mb-4 rounded-full mx-auto md:hidden" />
+    <div
+      v-show="size !== 'full'"
+      class="flex-shrink-0 bg-gray-500 w-12 h-1.5 mb-4 rounded-full mx-auto md:hidden"
+      @touchstart="drag"
+    />
     <slot />
   </div>
 </template>
@@ -73,8 +76,9 @@ export default defineComponent({
       return 'default';
     });
 
-    function drag() {
+    function drag(e: TouchEvent) {
       dragging.value = true;
+      height.value = window.innerHeight - e.touches[0].clientY;
     }
 
     function move(e: TouchEvent) {
@@ -85,6 +89,10 @@ export default defineComponent({
     }
 
     function drop() {
+      if (!dragging.value) {
+        return;
+      }
+
       if (size.value === 'maximizing') {
         height.value = window.innerHeight;
       } else if (size.value === 'closing') {
@@ -93,6 +101,7 @@ export default defineComponent({
       } else if (size.value === 'defaulting') {
         height.value = undefined;
       }
+
       dragging.value = false;
     }
 
