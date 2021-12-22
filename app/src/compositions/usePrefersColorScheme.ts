@@ -8,12 +8,19 @@ function setDarkMode(enabled: boolean) {
   }
 }
 
+const prefersColorSchemeDark = ref<boolean>();
+
 export const usePrefersColorSchemeDark = () => {
-  if (!window.matchMedia) {
-    return ref(false);
+  if (prefersColorSchemeDark.value !== undefined) {
+    return prefersColorSchemeDark;
   }
 
-  const prefersColorSchemeDark = ref(window.matchMedia('(prefers-color-scheme: dark)').matches);
+  if (!window.matchMedia) {
+    prefersColorSchemeDark.value = false;
+    return prefersColorSchemeDark;
+  }
+
+  prefersColorSchemeDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
   setDarkMode(prefersColorSchemeDark.value);
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
     prefersColorSchemeDark.value = e.matches;
