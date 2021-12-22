@@ -4,7 +4,7 @@
     :class="{
       'overflow-hidden max-h-0': size === 'closed',
       'h-3/4': size === 'default',
-      'p-4 pt-2': size !== 'closed' && size !== 'full',
+      'p-4 pb-0 pt-2': size !== 'closed' && size !== 'full',
       'rounded-t-2xl': size !== 'full',
       'rounded-none p-4 pt-16': size === 'full',
       'opacity-80': size === 'closing',
@@ -14,8 +14,8 @@
     @touchmove="move"
     @touchend="drop"
   >
-    <div class="w-full" @touchstart="drag">
-      <div v-show="size !== 'full'" class="flex-shrink-0 bg-gray-500 w-12 h-1.5 mb-4 rounded-full mx-auto md:hidden" />
+    <div class="w-full -mt-4 pt-4 pb-4" @touchstart="drag">
+      <div v-show="size !== 'full'" class="flex-shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto md:hidden" />
     </div>
     <slot />
   </div>
