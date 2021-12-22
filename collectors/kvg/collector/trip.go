@@ -22,6 +22,9 @@ func isSameTripArrivals(a1, a2 []protocol.TripArrival) bool {
 	if len(a1) != len(a2) {
 		return false
 	}
+	if a1 == nil && a2 != nil || a1 != nil && a2 == nil {
+		return false
+	}
 	for i, v := range a1 {
 		if v != a2[i] {
 			return false
