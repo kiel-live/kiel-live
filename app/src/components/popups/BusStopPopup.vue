@@ -28,6 +28,7 @@
     </div>
     <i-fa-solid-circle-notch v-else class="mx-auto mt-4 text-3xl animate-spin" />
   </div>
+  <NoData v-else>Diese Haltestelle gibt es wohl nicht.</NoData>
 </template>
 
 <script lang="ts">
@@ -35,10 +36,13 @@ import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from '
 
 import { stops, subscribe, unsubscribe } from '~/api';
 import { Marker, StopArrival } from '~/api/types';
+import NoData from '~/components/NoData.vue';
 import { useFavorites } from '~/compositions/useFavorites';
 
 export default defineComponent({
   name: 'BusStopPopup',
+
+  components: { NoData },
 
   props: {
     marker: {

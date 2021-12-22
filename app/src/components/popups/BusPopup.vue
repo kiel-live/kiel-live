@@ -4,37 +4,41 @@
       <i-fa-bus v-if="vehicle.type === 'bus'" />
       <span class="text-lg">{{ vehicle.name }}</span>
     </div>
-    <div v-if="trip" class="overflow-y-auto">
-      <router-link
-        v-for="(arrival, i) in trip.arrivals"
-        :key="arrival.id"
-        :to="{ name: 'map-marker', params: { markerType: 'bus-stop', markerId: arrival.id } }"
-        class="flex w-full items-center"
-      >
-        <span class="w-12 mr-2">{{ arrival.planned }}</span>
-        <div
-          class="marker relative flex justify-center items-center mx-4 h-12 w-8 after:(absolute top-0 h-full bg-gray-800 dark:bg-gray-300)"
+    <template v-if="trip">
+      <div v-if="trip.arrivals?.length > 0" class="overflow-y-auto">
+        <router-link
+          v-for="(arrival, i) in trip.arrivals"
+          :key="arrival.id"
+          :to="{ name: 'map-marker', params: { markerType: 'bus-stop', markerId: arrival.id } }"
+          class="flex w-full items-center"
         >
+          <span class="w-12 mr-2">{{ arrival.planned }}</span>
           <div
-            v-if="arrival.state !== 'departed' && trip.arrivals[i - 1]?.state === 'departed'"
-            class="vehicle before:(h-4 w-4 bg-red-700 rounded-full)"
-            :class="{ driving: arrival.state === 'predicted' }"
+            class="marker relative flex justify-center items-center mx-4 h-12 w-8 after:(absolute top-0 h-full bg-gray-800 dark:bg-gray-300)"
           >
-            <div class="pulsating border-3 border-red-700 border-solid rounded-full" />
+            <div
+              v-if="arrival.state !== 'departed' && trip.arrivals[i - 1]?.state === 'departed'"
+              class="vehicle before:(h-4 w-4 bg-red-700 rounded-full)"
+              :class="{ driving: arrival.state === 'predicted' }"
+            >
+              <div class="pulsating border-3 border-red-700 border-solid rounded-full" />
+            </div>
+            <div
+              v-if="
+                (arrival.state !== 'departed' && trip.arrivals[i - 1]?.state !== 'departed') ||
+                arrival.state === 'predicted'
+              "
+              class="rounded-full h-4 w-4 flex items-center justify-center bg-gray-800 dark:bg-gray-300"
+            />
           </div>
-          <div
-            v-if="
-              (arrival.state !== 'departed' && trip.arrivals[i - 1]?.state !== 'departed') ||
-              arrival.state === 'predicted'
-            "
-            class="rounded-full h-4 w-4 flex items-center justify-center bg-gray-800 dark:bg-gray-300"
-          />
-        </div>
-        <span class="w-full">{{ arrival.name }}</span>
-      </router-link>
-    </div>
+          <span class="w-full">{{ arrival.name }}</span>
+        </router-link>
+      </div>
+      <NoData v-else>Diese Tour ist wohl schon zu Ende.</NoData>
+    </template>
     <i-fa-solid-circle-notch v-else class="mx-auto mt-4 text-3xl animate-spin" />
   </div>
+  <NoData v-else>Diese Tour gibt es wohl nicht (mehr).</NoData>
 </template>
 
 <script lang="ts">
@@ -42,9 +46,12 @@ import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from '
 
 import { subscribe, trips, unsubscribe, vehicles } from '~/api';
 import { Marker } from '~/api/types';
+import NoData from '~/components/NoData.vue';
 
 export default defineComponent({
   name: 'BusPopup',
+
+  components: { NoData },
 
   props: {
     marker: {
