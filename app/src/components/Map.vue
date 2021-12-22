@@ -233,12 +233,6 @@ export default defineComponent({
           emit('markerClick');
         }
       });
-
-      map.on('touchmove', () => {
-        if (selectedMarker.value !== null) {
-          emit('markerClick');
-        }
-      });
     });
 
     watch(usePrefersColorSchemeDark(), (prefersColorSchemeDark) => {
