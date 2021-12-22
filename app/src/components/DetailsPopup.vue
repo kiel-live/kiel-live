@@ -8,16 +8,15 @@
       'rounded-t-2xl': size !== 'full',
       'rounded-none p-4 pt-16': size === 'full',
       'opacity-80': size === 'closing',
+      fade: !dragging,
     }"
     :style="{ height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0 }"
     @touchmove="move"
     @touchend="drop"
   >
-    <div
-      v-show="size !== 'full'"
-      class="flex-shrink-0 bg-gray-500 w-12 h-1.5 mb-4 rounded-full mx-auto md:hidden"
-      @touchstart="drag"
-    />
+    <div class="w-full" @touchstart="drag">
+      <div v-show="size !== 'full'" class="flex-shrink-0 bg-gray-500 w-12 h-1.5 mb-4 rounded-full mx-auto md:hidden" />
+    </div>
     <slot />
   </div>
 </template>
@@ -105,7 +104,13 @@ export default defineComponent({
       dragging.value = false;
     }
 
-    return { drag, move, drop, size, height };
+    return { drag, move, drop, size, height, dragging };
   },
 });
 </script>
+
+<style scoped>
+.fade {
+  transition: height 0.15s ease;
+}
+</style>
