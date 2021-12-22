@@ -32,6 +32,12 @@ export default defineComponent({
     let map: Map;
     let initial = true;
 
+    const prefersColorSchemeDark = usePrefersColorSchemeDark();
+
+    // TODO configurable tiles server
+    const darkMapStyle = 'https://tiles.slucky.de/styles/gray-matter/style.json';
+    const brightMapStyle = 'https://tiles.slucky.de/styles/bright-matter/style.json';
+
     const vehiclesGeoJson = computed<Feature[]>(() =>
       Object.values(vehicles.value).map((v) => ({
         type: 'Feature',
@@ -138,7 +144,7 @@ export default defineComponent({
       map = new Map({
         container: 'map',
         // style: 'https://demotiles.maplibre.org/style.json',
-        style: 'https://tiles.slucky.de/styles/bright-matter/style.json',
+        style: prefersColorSchemeDark.value ? darkMapStyle : brightMapStyle,
         minZoom: 11,
         maxZoom: 18,
         center: [10.1283, 54.3166],
@@ -225,12 +231,12 @@ export default defineComponent({
       });
     });
 
-    watch(usePrefersColorSchemeDark(), (prefersColorSchemeDark) => {
-      if (prefersColorSchemeDark) {
-        // TODO configurable tiles server
-        map.setStyle('https://tiles.slucky.de/styles/gray-matter/style.json');
+    // TODO: fix re-rendering of map content
+    watch(prefersColorSchemeDark, () => {
+      if (prefersColorSchemeDark.value) {
+        map.setStyle(darkMapStyle);
       } else {
-        map.setStyle('https://tiles.slucky.de/styles/bright-matter/style.json');
+        map.setStyle(brightMapStyle);
       }
     });
 
@@ -313,7 +319,6 @@ export default defineComponent({
 
       flyTo((_selectedMarkerItem.geometry as Point)?.coordinates as [number, number]);
     });
-    return { stops };
   },
 });
 </script>
