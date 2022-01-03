@@ -33,7 +33,7 @@ func main() {
 
 	token := os.Getenv("COLLECTOR_TOKEN")
 	if token == "" {
-		log.Fatalln("Please provide a token for the collector with MANAGER_TOKEN")
+		log.Fatalln("Please provide a token for the collector with COLLECTOR_TOKEN")
 	}
 
 	c := client.NewClient(server, client.WithAuth("collector", token))
