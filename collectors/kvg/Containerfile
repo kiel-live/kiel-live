@@ -1,0 +1,10 @@
+FROM golang:1.17.5-alpine AS build
+
+WORKDIR /src/
+COPY . /src/
+RUN cd /src/collectors/kvg && CGO_ENABLED=0 go build -o /bin/collector
+
+FROM scratch
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=build /bin/collector /bin/collector
+ENTRYPOINT ["/bin/collector"]
