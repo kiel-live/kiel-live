@@ -5,10 +5,10 @@ type ArrivalState string
 // State of an arrival
 const (
 	Undefined ArrivalState = ""
-	Stopping               = "stopping"
-	Predicted              = "predicted"
-	Planned                = "planned"
-	Departed               = "departed"
+	Stopping  ArrivalState = "stopping"
+	Predicted ArrivalState = "predicted"
+	Planned   ArrivalState = "planned"
+	Departed  ArrivalState = "departed"
 )
 
 type StopArrival struct {
