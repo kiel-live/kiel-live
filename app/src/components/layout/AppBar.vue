@@ -18,6 +18,7 @@
         class="bg-transparent focus:outline-transparent w-full h-full"
         placeholder="Suchen ..."
         autofocus
+        @keydown.escape="$router.back()"
         @click="$router.push({ name: 'search' })"
       />
     </div>
