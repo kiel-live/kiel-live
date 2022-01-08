@@ -38,9 +38,9 @@ type DepartureStatus string
 
 const (
 	planned   DepartureStatus = "PLANNED"
-	predicted                 = "PREDICTED"
-	stopping                  = "STOPPING"
-	departed                  = "DEPARTED"
+	predicted DepartureStatus = "PREDICTED"
+	stopping  DepartureStatus = "STOPPING"
+	departed  DepartureStatus = "DEPARTED"
 )
 
 func (d *DepartureStatus) parse() protocol.ArrivalState {
