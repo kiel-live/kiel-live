@@ -1,6 +1,6 @@
 <template>
   <transition name="fade">
-    <div v-if="isOpen" class="absolute top-0 left-0 flex h-full w-full min-h-0 dark:bg-dark-400">
+    <div v-if="isOpen" class="absolute top-0 left-0 flex h-full w-full min-h-0 bg-white dark:bg-dark-400">
       <slot />
     </div>
   </transition>
