@@ -9,9 +9,6 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-// Send pings to peer with this period
-const pingPeriod = 30 * time.Second
-
 // WebSocketClient return websocket client connection
 type Client struct {
 	nc            *nats.Conn
@@ -22,10 +19,10 @@ type Client struct {
 	password      string
 }
 
-type ClientOption func(c *Client)
+type Option func(c *Client)
 
 // NewClient create new connection
-func NewClient(host string, opts ...ClientOption) *Client {
+func NewClient(host string, opts ...Option) *Client {
 	client := &Client{
 		subscriptions: make(map[string]*nats.Subscription),
 		host:          host,
@@ -40,7 +37,7 @@ func NewClient(host string, opts ...ClientOption) *Client {
 	return client
 }
 
-func WithAuth(username string, password string) ClientOption {
+func WithAuth(username string, password string) Option {
 	return func(c *Client) {
 		c.username = username
 		c.password = password
@@ -51,12 +48,15 @@ func (c *Client) Connect() (err error) {
 	var nc *nats.Conn
 
 	if len(c.username) < 1 && len(c.password) < 1 {
-		nc, err = nats.Connect(c.host)
+		c.nc, err = nats.Connect(c.host)
 	} else {
-		nc, err = nats.Connect(c.host, nats.UserInfo(c.username, c.password))
+		c.nc, err = nats.Connect(c.host, nats.UserInfo(c.username, c.password))
 	}
 
-	c.nc = nc
+	if err != nil {
+		return err
+	}
+
 	c.JS, err = nc.JetStream()
 
 	return err
@@ -188,13 +188,4 @@ func (c *Client) Publish(subject string, data string) error {
 
 func (c *Client) PublishRaw(subject string, data []byte) error {
 	return c.nc.Publish(subject, data)
-}
-
-// Log print log statement
-func (c *Client) log(f string, err error, msg string) {
-	if err != nil {
-		fmt.Printf("Error in func: %s, err: %v, msg: %s\n", f, err, msg)
-	} else {
-		fmt.Printf("Log in func: %s, %s\n", f, msg)
-	}
 }

@@ -128,13 +128,19 @@ func (c *StopCollector) Run() {
 		stopsToPublish = c.getChangedStops(stops)
 	}
 	for _, stop := range stopsToPublish {
-		c.publish(stop)
+		err := c.publish(stop)
+		if err != nil {
+			log.Error(err)
+		}
 	}
 
 	// publish all removed stops
 	removed := c.getRemovedStops(stops)
 	for _, stop := range removed {
-		c.publishRemoved(stop)
+		err := c.publishRemoved(stop)
+		if err != nil {
+			log.Error(err)
+		}
 	}
 
 	log.Debugf("changed %d stops and removed %d", len(stopsToPublish), len(removed))

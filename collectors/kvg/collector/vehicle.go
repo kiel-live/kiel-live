@@ -89,13 +89,19 @@ func (c *VehicleCollector) Run() {
 	// publish all changed vehicles
 	changed := c.getChangedVehicles(vehicles)
 	for _, vehicle := range changed {
-		c.publish(vehicle)
+		err := c.publish(vehicle)
+		if err != nil {
+			log.Error(err)
+		}
 	}
 
 	// publish all removed vehicles
 	removed := c.getRemovedVehicles(vehicles)
 	for _, vehicle := range removed {
-		c.publishRemoved(vehicle)
+		err := c.publishRemoved(vehicle)
+		if err != nil {
+			log.Error(err)
+		}
 	}
 
 	log.Debugf("changed %d vehicles and removed %d", len(changed), len(removed))

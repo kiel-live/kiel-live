@@ -2,16 +2,29 @@ package client_test
 
 import (
 	"fmt"
+	"testing"
 
 	"github.com/kiel-live/kiel-live/client"
 )
 
-func TestClient() {
-	client := client.NewClient("localhost")
-	client.Connect()
-	defer client.Disconnect()
+func TestClient(t *testing.T) {
+	c := client.NewClient("localhost")
+	err := c.Connect()
+	if err != nil {
+		t.Error(err)
+	}
 
-	client.Subscribe("data.>", func(msg string) {
-		fmt.Println(">>>", string(msg))
+	defer func() {
+		err := c.Disconnect()
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	err = c.Subscribe("data.>", func(msg *client.SubjectMessage) {
+		fmt.Println(">>>", msg.Data)
 	})
+	if err != nil {
+		t.Error(err)
+	}
 }

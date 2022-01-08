@@ -12,30 +12,6 @@ type Collector interface {
 }
 
 func NewCollector(client *client.Client, collectorType string, subscriptions *subscriptions.Subscriptions) (Collector, error) {
-	// 	if c.channelType == "stops" {
-	// 		return api.GetStops()
-	// 	}
-
-	// 	if c.channelType == "stop" {
-	// 		return api.GetStop(c.entityID)
-	// 	}
-
-	// 	if c.channelType == "vehicles" {
-	// 		return api.GetVehicles()
-	// 	}
-
-	// 	if c.channelType == "vehicle" {
-	// 		return api.GetVehicle(c.entityID)
-	// 	}
-
-	// 	if c.channelType == "trip" {
-	// 		return api.GetTrip(c.entityID)
-	// 	}
-
-	// 	if c.channelType == "route" {
-	// 		return api.GetRoute(c.entityID)
-	// 	}
-
 	switch collectorType {
 	case "map-vehicles":
 		return &VehicleCollector{

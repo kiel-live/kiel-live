@@ -105,14 +105,20 @@ func (c *TripCollector) Run() {
 	changed := c.getChangedTrips(trips)
 	for _, trip := range changed {
 		log.Debugf("publish changed trip: %v", trip)
-		c.publish(trip)
+		err := c.publish(trip)
+		if err != nil {
+			log.Error(err)
+		}
 	}
 
 	// publish all removed trips
 	removed := c.getRemovedTrips(trips)
 	for _, trip := range removed {
 		log.Debugf("publish removed trip: %v", trip)
-		c.publishRemoved(trip)
+		err := c.publishRemoved(trip)
+		if err != nil {
+			log.Error(err)
+		}
 	}
 
 	log.Debugf("changed %d trips and removed %d", len(changed), len(removed))
