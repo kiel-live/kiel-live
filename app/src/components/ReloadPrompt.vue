@@ -1,16 +1,28 @@
 <template>
-  <div v-if="offlineReady || needRefresh" class="pwa-toast" role="alert">
-    <div class="message">
-      <span v-if="offlineReady"> App ready to work offline </span>
-      <span v-else> New content available, click on reload button to update. </span>
+  <div
+    v-if="offlineReady || needRefresh"
+    class="fixed left-0 right-0 bottom-0 mx-2 mb-2 flex flex-col rounded-md p-4 items-center justify-center bg-white border-1 border-gray-200 shadow-xl z-20 dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
+    role="alert"
+  >
+    <div class="mb-2 text-xl">
+      <span v-if="offlineReady">Die App wurde fertig installiert.</span>
+      <span v-if="needRefresh">Eine neue Version ist verfügbar.</span>
     </div>
-    <button v-if="needRefresh" type="button" @click="updateServiceWorker(true)">Reload</button>
-    <button type="button" @click="close">Close</button>
+
+    <div class="flex flex-row w-full gap-x-4 justify-center">
+      <template v-if="needRefresh">
+        <Button type="button" @click="updateServiceWorker(true)">Installieren</Button>
+        <Button type="button" @click="close">Abbrechen</Button>
+      </template>
+      <Button v-else type="button" @click="close">Schließen</Button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRegisterSW } from 'virtual:pwa-register/vue';
+
+import Button from '~/components/atomic/Button.vue';
 
 const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW();
 
@@ -19,29 +31,3 @@ const close = async () => {
   needRefresh.value = false;
 };
 </script>
-
-<style scoped>
-.pwa-toast {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  margin: 16px;
-  padding: 12px;
-  border: 1px solid #8885;
-  border-radius: 4px;
-  z-index: 1;
-  text-align: left;
-  box-shadow: 3px 4px 5px 0 #8885;
-  background-color: white;
-}
-.pwa-toast .message {
-  margin-bottom: 8px;
-}
-.pwa-toast button {
-  border: 1px solid #8885;
-  outline: none;
-  margin-right: 5px;
-  border-radius: 2px;
-  padding: 3px 10px;
-}
-</style>
