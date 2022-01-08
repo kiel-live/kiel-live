@@ -1,6 +1,6 @@
 <template>
-  <div v-if="stop" class="flex flex-col min-h-0">
-    <div class="flex flex-row pb-2 mb-2 border-b-1 dark:border-dark-800 items-center flex-grow">
+  <div v-if="stop" class="flex flex-col min-h-0 flex-grow">
+    <div class="flex flex-row pb-2 mb-2 border-b-1 dark:border-dark-800 items-center">
       <i-mdi-sign-real-estate v-if="stop.type === 'bus-stop'" />
       <span class="text-lg ml-2">{{ stop.name }}</span>
       <div class="flex ml-auto items-center cursor-pointer select-none">
