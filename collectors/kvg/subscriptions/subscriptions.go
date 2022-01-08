@@ -53,7 +53,11 @@ func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func()) {
 		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
 			log.Fatalf("Parse response failed, reason: %v \n", err)
 		}
-		consumerInfo, _ := s.client.JS.ConsumerInfo(consumerEvent.Stream, consumerEvent.Consumer)
+		consumerInfo, err := s.client.JS.ConsumerInfo(consumerEvent.Stream, consumerEvent.Consumer)
+		if err != nil {
+			log.Errorf("Can't find consumer-info: %v", err)
+			return
+		}
 
 		s.Lock()
 		s.mapConsumer2Subject[consumerInfo.Name] = consumerInfo.Config.FilterSubject
