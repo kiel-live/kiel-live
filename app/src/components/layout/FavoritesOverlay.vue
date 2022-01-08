@@ -7,7 +7,7 @@
       v-for="favorite in favorites"
       :key="favorite.id"
       :to="{ name: 'map-marker', params: { markerType: favorite.type, markerId: favorite.id } }"
-      class="flex p-2 not-last:border-b-1 border-gray-600 dark:border-dark-800"
+      class="flex p-2 not-last:border-b-1 dark:border-dark-300"
     >
       <i-mdi-sign-real-estate v-if="favorite.type === 'bus-stop'" class="mr-2" />
       <!-- <i-fa-bus v-else-if="searchResult.item.type === 'bus'" class="mr-2" /> -->

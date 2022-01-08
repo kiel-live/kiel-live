@@ -7,7 +7,7 @@
       v-for="searchResult in searchResults"
       :key="searchResult.refIndex"
       :to="{ name: 'map-marker', params: { markerType: searchResult.item.type, markerId: searchResult.item.id } }"
-      class="flex p-2 not-last:border-b-1 border-gray-600 dark:border-dark-800"
+      class="flex p-2 not-last:border-b-1 dark:border-dark-300 max-w-full"
       @click="$emit('update:search-input', '')"
     >
       <i-mdi-sign-real-estate v-if="searchResult.item.type === 'bus-stop'" class="mr-2" />

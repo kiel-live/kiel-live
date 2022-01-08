@@ -1,6 +1,6 @@
 <template>
   <div v-if="vehicle" class="flex flex-col min-h-0 flex-grow">
-    <div class="flex pb-2 mb-2 border-b-1 dark:border-gray-500 space-x-2 items-center">
+    <div class="flex pb-2 mb-2 border-b-1 dark:border-dark-100 space-x-2 items-center">
       <i-fa-bus v-if="vehicle.type === 'bus'" />
       <span class="text-lg">{{ vehicle.name }}</span>
     </div>
