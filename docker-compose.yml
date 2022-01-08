@@ -26,18 +26,3 @@ services:
     command: /setup.sh
     depends_on:
       - server
-  # transport:
-  #   build:
-  #     dockerfile: docker/Dockerfile
-  #     context: .
-  #   env_file:
-  #   - .env.local
-  #   environment:
-  #     - PORT
-  #     - NODE_ENV
-  #     - VUE_APP_MATOMO_URL
-  #     - VUE_APP_MATOMO_SITE
-  #     - VUE_APP_TITLE
-  #   restart: always
-  #   ports:
-  #     - 8080:8080
