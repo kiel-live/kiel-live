@@ -22,12 +22,12 @@ import { computed, defineComponent, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { Marker } from '~/api/types';
-import AppBar from '~/components/AppBar.vue';
 import DetailsPopup from '~/components/DetailsPopup.vue';
+import AppBar from '~/components/layout/AppBar.vue';
 import FavoritesOverlay from '~/components/layout/FavoritesOverlay.vue';
 import Overlay from '~/components/layout/Overlay.vue';
 import SearchOverlay from '~/components/layout/SearchOverlay.vue';
-import Map from '~/components/Map.vue';
+import Map from '~/components/map/Map.vue';
 import MarkerPopup from '~/components/popups/MarkerPopup.vue';
 
 export default defineComponent({

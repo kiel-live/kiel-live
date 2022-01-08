@@ -12,7 +12,7 @@ import { computed, defineComponent, onMounted, PropType, Ref, toRef, watch } fro
 
 import { stops, subscribe, vehicles } from '~/api';
 import { Marker } from '~/api/types';
-import BusIcon from '~/components/busIcon';
+import BusIcon from '~/components/map/busIcon';
 import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
 
 export default defineComponent({
