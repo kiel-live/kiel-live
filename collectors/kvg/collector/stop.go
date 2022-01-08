@@ -107,13 +107,14 @@ func (c *StopCollector) Run() {
 		// trim prefix of subject
 		stopID := strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")+api.IDPrefix)
 		log.Debug("StopCollector: Run: ", stopID)
-		departures, err := api.GetStopDepartures(stopID)
+		details, err := api.GetStopDetails(stopID)
 		if err != nil {
 			log.Error(err)
 			continue
 		}
-		log.Debug("StopCollector: publish stop", departures)
-		stops[api.IDPrefix+stopID].Arrivals = departures
+		log.Debug("StopCollector: publish stop", details)
+		stops[api.IDPrefix+stopID].Arrivals = details.Departures
+		stops[api.IDPrefix+stopID].Alerts = details.Alerts
 	}
 
 	var stopsToPublish []*protocol.Stop

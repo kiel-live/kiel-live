@@ -8,11 +8,12 @@ import (
 )
 
 type stop struct {
-	ID        string `json:"id"`
-	ShortName string `json:"shortName"`
-	Name      string `json:"name"`
-	Latitude  int    `json:"latitude"`
-	Longitude int    `json:"longitude"`
+	ID        string   `json:"id"`
+	ShortName string   `json:"shortName"`
+	Name      string   `json:"name"`
+	Latitude  int      `json:"latitude"`
+	Longitude int      `json:"longitude"`
+	Alerts    []string `json:"alerts"`
 }
 
 func (s *stop) parse() protocol.Stop {
@@ -21,6 +22,7 @@ func (s *stop) parse() protocol.Stop {
 		Provider: "kvg", // TODO
 		Name:     s.Name,
 		Type:     protocol.StopTypeBusStop,
+		Alerts:   s.Alerts,
 		Location: protocol.Location{
 			Longitude: s.Longitude,
 			Latitude:  s.Latitude,
@@ -68,6 +70,16 @@ type departure struct {
 	Direction          string          `json:"direction"`
 }
 
+type routes struct {
+	Alerts     []string `json:"alerts"`
+	Authority  string   `json:"authority"`
+	Directions []string `json:"directions"`
+	ID         string   `json:"id"`
+	Name       string   `json:"name"`
+	RouteType  string   `json:"routeType"`
+	ShortName  string   `json:"shortName"`
+}
+
 func (d *departure) parse() protocol.StopArrival {
 	return protocol.StopArrival{
 		Name:      d.Direction,
@@ -83,7 +95,9 @@ func (d *departure) parse() protocol.StopArrival {
 }
 
 type StopDepartures struct {
-	Departures []departure `json:"actual"`
+	Departures    []departure `json:"actual"`
+	GeneralAlerts []string    `json:"generalAlerts"`
+	Routes        []routes    `json:"routes"`
 }
 
 func GetStops() (res map[string]*protocol.Stop, err error) {
@@ -108,7 +122,12 @@ func GetStops() (res map[string]*protocol.Stop, err error) {
 	return res, nil
 }
 
-func GetStopDepartures(stopShortName string) ([]protocol.StopArrival, error) {
+type StopDetails struct {
+	Departures []protocol.StopArrival
+	Alerts     []string
+}
+
+func GetStopDetails(stopShortName string) (*StopDetails, error) {
 	data := url.Values{}
 	data.Set("stop", stopShortName)
 
@@ -122,5 +141,16 @@ func GetStopDepartures(stopShortName string) ([]protocol.StopArrival, error) {
 	for _, departure := range stop.Departures {
 		departures = append(departures, departure.parse())
 	}
-	return departures, nil
+
+	alerts := stop.GeneralAlerts
+	for _, route := range stop.Routes {
+		alerts = append(alerts, route.Alerts...)
+	}
+
+	details := &StopDetails{
+		Departures: departures,
+		Alerts:     alerts,
+	}
+
+	return details, nil
 }

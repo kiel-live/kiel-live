@@ -8,6 +8,14 @@
         <i-ph-star-bold v-else @click="addFavorite(stop)" />
       </div>
     </div>
+
+    <div v-if="stop.alerts && stop.alerts.length >= 1" class="bg-red-600 bg-opacity-50 p-2 mb-2 rounded-md">
+      <div class="flex items-center border-b-1 mb-4">
+        <i-mdi-alert class="mr-2" /><span class="font-bold">Hinweise</span>
+      </div>
+      <div v-for="(alert, i) in stop.alerts" :key="i" class="flex items-center">{{ alert }}</div>
+    </div>
+
     <template v-if="stop.arrivals">
       <div v-if="stop.arrivals.length > 0" class="overflow-y-auto">
         <router-link
