@@ -45,8 +45,6 @@ func WithAuth(username string, password string) Option {
 }
 
 func (c *Client) Connect() (err error) {
-	var nc *nats.Conn
-
 	if len(c.username) < 1 && len(c.password) < 1 {
 		c.nc, err = nats.Connect(c.host)
 	} else {
@@ -57,8 +55,7 @@ func (c *Client) Connect() (err error) {
 		return err
 	}
 
-	c.JS, err = nc.JetStream()
-
+	c.JS, err = c.nc.JetStream()
 	return err
 }
 
