@@ -69,7 +69,12 @@ func main() {
 		log.Fatalln(err)
 		return
 	}
-	defer c.Disconnect()
+	defer func() {
+		err := c.Disconnect()
+		if err != nil {
+			log.Error(err)
+		}
+	}()
 
 	for {
 		n, _, err := connection.ReadFromUDP(buffer)

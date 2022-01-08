@@ -42,7 +42,12 @@ func main() {
 		log.Fatalln(err)
 		return
 	}
-	defer c.Disconnect()
+	defer func() {
+		err := c.Disconnect()
+		if err != nil {
+			log.Error(err)
+		}
+	}()
 
 	subscriptions := subscriptions.New(c)
 
@@ -72,7 +77,7 @@ func main() {
 
 	s := gocron.NewScheduler(time.UTC)
 	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
-	s.Every(5).Seconds().Do(func() {
+	_, err = s.Every(5).Seconds().Do(func() {
 		if !c.IsConnected() {
 			return
 		}
@@ -83,6 +88,10 @@ func main() {
 			c.Run()
 		}
 	})
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
 
 	log.Infoln("⚡ KVG collector started")
 
