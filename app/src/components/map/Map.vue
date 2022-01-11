@@ -7,7 +7,7 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import { Feature, FeatureCollection, Point } from 'geojson';
-import { CircleLayerSpecification, Map, SymbolLayerSpecification } from 'maplibre-gl';
+import { AttributionControl, CircleLayerSpecification, Map, SymbolLayerSpecification } from 'maplibre-gl';
 import { computed, defineComponent, onMounted, PropType, Ref, toRef, watch } from 'vue';
 
 import { stops, subscribe, vehicles } from '~/api';
@@ -154,7 +154,11 @@ export default defineComponent({
         zoom: 14,
         // [west, south, east, north]
         maxBounds: [9.8, 54.21, 10.44, 54.52],
+        attributionControl: false,
       });
+
+      const attributionControl = new AttributionControl({ compact: false });
+      map.addControl(attributionControl);
 
       // var nav = new MapLibre.NavigationControl();
       // map.addControl(nav, 'bottom-right');
@@ -228,6 +232,10 @@ export default defineComponent({
       });
 
       map.on('drag', () => {
+        if (map.hasControl(attributionControl)) {
+          map.removeControl(attributionControl);
+          map.addControl(new AttributionControl({ compact: true }));
+        }
         if (selectedMarker.value !== null) {
           emit('markerClick');
         }
