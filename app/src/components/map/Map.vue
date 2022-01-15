@@ -163,8 +163,7 @@ export default defineComponent({
       // var nav = new MapLibre.NavigationControl();
       // map.addControl(nav, 'bottom-right');
 
-      // TODO: remove event type definition once https://github.com/maplibre/maplibre-gl-js/pull/703 is released
-      map.on('styleimagemissing', (e: { id: string; type: 'styleimagemissing' }) => {
+      map.on('styleimagemissing', (e) => {
         const [type, focus, route, heading] = e.id.split('-');
         if (type === 'bus') {
           map.addImage(e.id, new BusIcon(map, focus === 'focused', route, Number.parseInt(heading, 10)), {
