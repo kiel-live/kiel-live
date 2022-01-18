@@ -9,9 +9,9 @@
       <SearchOverlay v-model:search-input="searchInput" />
     </Overlay>
 
-    <Overlay :is-open="$route.name === 'favorites'">
-      <FavoritesOverlay />
-    </Overlay>
+    <DetailsPopup :is-open="$route.name === 'favorites'" @close="$router.replace({ name: 'home' })">
+      <FavoritesPopup />
+    </DetailsPopup>
 
     <AppBar v-model:search-input="searchInput" />
   </div>
@@ -24,17 +24,17 @@ import { useRoute, useRouter } from 'vue-router';
 import { Marker } from '~/api/types';
 import DetailsPopup from '~/components/DetailsPopup.vue';
 import AppBar from '~/components/layout/AppBar.vue';
-import FavoritesOverlay from '~/components/layout/FavoritesOverlay.vue';
 import Overlay from '~/components/layout/Overlay.vue';
 import SearchOverlay from '~/components/layout/SearchOverlay.vue';
 import Map from '~/components/map/Map.vue';
+import FavoritesPopup from '~/components/popups/FavoritesPopup.vue';
 import MarkerPopup from '~/components/popups/MarkerPopup.vue';
 
 export default defineComponent({
   // eslint-disable-next-line vue/multi-word-component-names
   name: 'Home',
 
-  components: { Map, DetailsPopup, AppBar, MarkerPopup, SearchOverlay, FavoritesOverlay, Overlay },
+  components: { Map, DetailsPopup, AppBar, MarkerPopup, SearchOverlay, FavoritesPopup, Overlay },
 
   setup() {
     const route = useRoute();
