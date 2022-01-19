@@ -1,6 +1,8 @@
 import { Component } from 'vue';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
+let firstStartOfApp = true;
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -35,6 +37,17 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach((to, from, next): void => {
+  if (firstStartOfApp && to.name === 'home') {
+    firstStartOfApp = false;
+    next({ name: 'favorites' });
+    return;
+  }
+
+  firstStartOfApp = false;
+  next();
 });
 
 export default router;

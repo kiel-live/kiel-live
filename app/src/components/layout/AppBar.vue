@@ -27,7 +27,9 @@
         v-if="$route.name !== 'favorites' && $route.name !== 'search'"
         @click="$router.push({ name: 'favorites' })"
       />
-      <i-uil-times v-else-if="$route.name === 'favorites'" class="w-6 h-6" @click="$router.back()" />
+      <router-link v-else-if="$route.name === 'favorites'" :to="{ name: 'home' }">
+        <i-uil-times class="w-6 h-6" />
+      </router-link>
     </div>
   </div>
 </template>
