@@ -9,7 +9,7 @@
         <img src="../../assets/logo.png" class="w-6 h-6" />
       </router-link>
     </div>
-    <div class="flex-grow">
+    <div class="flex flex-grow">
       <span v-if="$route.name === 'favorites'">Favorites</span>
       <input
         v-else
@@ -27,7 +27,7 @@
         v-if="$route.name !== 'favorites' && $route.name !== 'search'"
         @click="$router.push({ name: 'favorites' })"
       />
-      <router-link v-else-if="$route.name === 'favorites'" :to="{ name: 'home' }">
+      <router-link v-else-if="$route.name === 'favorites'" :to="{ name: 'home' }" class="flex items-center">
         <i-uil-times class="w-6 h-6" />
       </router-link>
     </div>
