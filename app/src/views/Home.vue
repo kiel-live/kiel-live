@@ -1,15 +1,15 @@
 <template>
   <div class="relative h-full w-full items-center justify-center overflow-hidden">
     <Map :selected-marker="selectedMarker" @marker-click="selectedMarker = $event" />
-    <DetailsPopup :is-open="!!selectedMarker" @close="selectedMarker = undefined">
+    <DetailsPopup :is-open="!!selectedMarker" size="3/4" @close="selectedMarker = undefined">
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
     </DetailsPopup>
 
-    <DetailsPopup :is-open="$route.name === 'search'" @close="$router.back()">
+    <DetailsPopup :is-open="$route.name === 'search'" size="1/2" @close="$router.back()">
       <SearchPopup v-model:search-input="searchInput" />
     </DetailsPopup>
 
-    <DetailsPopup :is-open="$route.name === 'favorites'" @close="$router.back()">
+    <DetailsPopup :is-open="$route.name === 'favorites'" size="1/2" @close="$router.back()">
       <FavoritesPopup />
     </DetailsPopup>
 
