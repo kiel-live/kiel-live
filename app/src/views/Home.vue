@@ -5,11 +5,11 @@
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
     </DetailsPopup>
 
-    <DetailsPopup :is-open="$route.name === 'search'" size="1/2" @close="$router.back()">
+    <DetailsPopup :is-open="$route.name === 'search'" size="1/2" @close="$router.replace({ name: 'home' })">
       <SearchPopup v-model:search-input="searchInput" />
     </DetailsPopup>
 
-    <DetailsPopup :is-open="$route.name === 'favorites'" size="1/2" @close="$router.back()">
+    <DetailsPopup :is-open="$route.name === 'favorites'" size="1/2" @close="$router.replace({ name: 'home' })">
       <FavoritesPopup />
     </DetailsPopup>
 
