@@ -7,7 +7,14 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import { Feature, FeatureCollection, Point } from 'geojson';
-import { AttributionControl, CircleLayerSpecification, Map, SymbolLayerSpecification } from 'maplibre-gl';
+import {
+  AttributionControl,
+  CircleLayerSpecification,
+  GeoJSONSource,
+  Map,
+  Source,
+  SymbolLayerSpecification,
+} from 'maplibre-gl';
 import { computed, defineComponent, onMounted, PropType, Ref, toRef, watch } from 'vue';
 
 import { stops, subscribe, vehicles } from '~/api';
@@ -255,11 +262,10 @@ export default defineComponent({
         return;
       }
 
-      const source = map.getSource('geojson');
-      if (source) {
-        // @ts-expect-error TODO: upstream types seem to be missing this
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        source.setData(Object.freeze(geojson.value));
+      const geoJSONSource = map.getSource('geojson');
+      const isGeoJsonSource = (source?: Source): source is GeoJSONSource => source?.type === 'geojson';
+      if (isGeoJsonSource(geoJSONSource)) {
+        geoJSONSource.setData(Object.freeze(geojson.value));
       }
     });
 
