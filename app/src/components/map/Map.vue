@@ -164,7 +164,7 @@ export default defineComponent({
         attributionControl: false,
       });
 
-      const attributionControl = new AttributionControl({ compact: false });
+      const attributionControl = new AttributionControl({ compact: true });
       map.addControl(attributionControl);
 
       // var nav = new MapLibre.NavigationControl();
@@ -238,10 +238,6 @@ export default defineComponent({
       });
 
       map.on('drag', () => {
-        if (map.hasControl(attributionControl)) {
-          map.removeControl(attributionControl);
-          map.addControl(new AttributionControl({ compact: true }));
-        }
         if (selectedMarker.value !== null) {
           emit('markerClick');
         }
