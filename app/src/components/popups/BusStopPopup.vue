@@ -4,7 +4,7 @@
       <i-mdi-sign-real-estate v-if="stop.type === 'bus-stop'" />
       <span class="text-lg ml-2">{{ stop.name }}</span>
       <div class="flex ml-auto items-center cursor-pointer select-none">
-        <i-ph-star-fill v-if="isFavorite(stop.id)" class="text-yellow-300" @click="removeFavorite(stop)" />
+        <i-ph-star-fill v-if="isFavorite(stop)" class="text-yellow-300" @click="removeFavorite(stop)" />
         <i-ph-star-bold v-else @click="addFavorite(stop)" />
       </div>
     </div>
@@ -39,7 +39,12 @@
     </template>
     <i-fa-solid-circle-notch v-else class="mx-auto mt-4 text-3xl animate-spin" />
   </div>
-  <NoData v-else>Diese Haltestelle gibt es wohl nicht.</NoData>
+  <NoData v-else>
+    Diese Haltestelle gibt es wohl nicht.
+    <Button v-if="isFavorite(marker)" to="home" class="mt-2" @click="removeFavorite(marker)"
+      ><i-ph-star-fill class="mr-2 text-yellow-300" /><span>Favorit löschen</span>
+    </Button>
+  </NoData>
 </template>
 
 <script lang="ts">
@@ -47,13 +52,14 @@ import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from '
 
 import { stops, subscribe, unsubscribe } from '~/api';
 import { Marker, StopArrival } from '~/api/types';
+import Button from '~/components/atomic/Button.vue';
 import NoData from '~/components/NoData.vue';
 import { useFavorites } from '~/compositions/useFavorites';
 
 export default defineComponent({
   name: 'BusStopPopup',
 
-  components: { NoData },
+  components: { Button, NoData },
 
   props: {
     marker: {
