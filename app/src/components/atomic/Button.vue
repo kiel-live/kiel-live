@@ -7,6 +7,11 @@
         <span>{{ text }}</span>
       </slot>
     </router-link>
+    <a v-else-if="href" :href="href" target="_blank" rel="noopener noreferrer" class="flex items-center">
+      <slot>
+        <span>{{ text }}</span>
+      </slot>
+    </a>
     <button v-else type="button">
       <slot>
         <span>{{ text }}</span>
@@ -24,6 +29,11 @@ export default defineComponent({
 
   props: {
     to: {
+      type: String,
+      default: null,
+    },
+
+    href: {
       type: String,
       default: null,
     },

@@ -31,6 +31,9 @@
         <i-uil-times class="w-6 h-6" />
       </router-link>
     </div>
+    <router-link :to="{ name: 'about' }" class="flex items-center p-2" aria-label="Über Kiel-Live">
+      <i-ph-info class="w-6 h-6" />
+    </router-link>
   </div>
 </template>
 

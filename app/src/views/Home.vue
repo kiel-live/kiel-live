@@ -13,6 +13,10 @@
       <FavoritesPopup />
     </DetailsPopup>
 
+    <DetailsPopup :is-open="$route.name === 'about'" size="1/2" @close="$router.replace({ name: 'home' })">
+      <AboutPopup />
+    </DetailsPopup>
+
     <AppBar v-model:search-input="searchInput" />
   </div>
 </template>
@@ -25,6 +29,7 @@ import { Marker } from '~/api/types';
 import DetailsPopup from '~/components/DetailsPopup.vue';
 import AppBar from '~/components/layout/AppBar.vue';
 import Map from '~/components/map/Map.vue';
+import AboutPopup from '~/components/popups/AboutPopup.vue';
 import FavoritesPopup from '~/components/popups/FavoritesPopup.vue';
 import MarkerPopup from '~/components/popups/MarkerPopup.vue';
 import SearchPopup from '~/components/popups/SearchPopup.vue';
@@ -33,7 +38,7 @@ export default defineComponent({
   // eslint-disable-next-line vue/multi-word-component-names
   name: 'Home',
 
-  components: { Map, DetailsPopup, AppBar, MarkerPopup, SearchPopup, FavoritesPopup },
+  components: { Map, DetailsPopup, AppBar, MarkerPopup, SearchPopup, FavoritesPopup, AboutPopup },
 
   setup() {
     const route = useRoute();
