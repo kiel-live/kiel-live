@@ -3,16 +3,15 @@
     class="absolute top-0 left-0 right-0 mx-2 mt-2 h-12 flex rounded-md py-4 items-center justify-center bg-white border-1 border-gray-200 shadow-xl z-20 md:transform md:-translate-x-1/2 md:right-auto md:left-1/2 md:w-96 dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
     :class="{ 'bg-red-300': !isConnected }"
   >
-    <div class="flex items-center cursor-pointer select-none p-2">
-      <i-ic-baseline-arrow-back v-if="$route.name === 'search'" class="w-6 h-6" @click="$router.back()" />
-      <router-link v-else :to="{ name: 'home' }">
-        <img src="../../assets/logo.png" class="w-6 h-6" />
-      </router-link>
-    </div>
+    <router-link :to="{ name: 'home' }" class="p-2">
+      <img
+        alt="Kiel-Live Logo, die Vorderseite eines Busses auf dem Manni steht"
+        src="../../assets/logo.png"
+        class="w-6 h-6"
+      />
+    </router-link>
     <div class="flex flex-grow">
-      <span v-if="$route.name === 'favorites'">Favorites</span>
       <input
-        v-else
         v-model="internalSearchInput"
         type="text"
         class="bg-transparent focus:outline-transparent w-full h-full"
@@ -22,15 +21,9 @@
         @click="$router.push({ name: 'search' })"
       />
     </div>
-    <div class="flex items-center cursor-pointer select-none w-10 p-2 items-center justify-center">
-      <i-ph-star-fill
-        v-if="$route.name !== 'favorites' && $route.name !== 'search'"
-        @click="$router.push({ name: 'favorites' })"
-      />
-      <router-link v-else-if="$route.name === 'favorites'" :to="{ name: 'home' }" class="flex items-center">
-        <i-uil-times class="w-6 h-6" />
-      </router-link>
-    </div>
+    <router-link :to="{ name: 'favorites' }" class="flex items-center p-2" aria-label="Favoriten">
+      <i-ph-star-fill />
+    </router-link>
     <router-link :to="{ name: 'about' }" class="flex items-center p-2" aria-label="Über Kiel-Live">
       <i-ph-info class="w-6 h-6" />
     </router-link>
