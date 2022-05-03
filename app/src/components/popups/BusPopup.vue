@@ -100,8 +100,8 @@ export default defineComponent({
 
 <style scoped>
 .marker::after {
-  left: calc(50% - 0.05rem);
-  width: 0.1rem;
+  left: calc(50% - 1px);
+  width: 2px;
   content: '';
 }
 
