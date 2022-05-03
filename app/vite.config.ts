@@ -11,6 +11,9 @@ import WindiCSS from 'vite-plugin-windicss';
 // https://vitejs.dev/config/
 export default defineConfig({
   envDir: '../',
+  build: {
+    sourcemap: true,
+  },
   plugins: [
     vue(),
     WindiCSS(),
