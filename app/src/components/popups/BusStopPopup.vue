@@ -41,8 +41,17 @@
   </div>
   <NoData v-else>
     Diese Haltestelle gibt es wohl nicht.
-    <Button v-if="isFavorite(marker)" to="home" class="mt-2" @click="removeFavorite(marker)"
-      ><i-ph-star-fill class="mr-2 text-yellow-300" /><span>Favorit löschen</span>
+    <Button
+      v-if="isFavorite(marker)"
+      class="mt-2"
+      @click="
+        () => {
+          removeFavorite(marker);
+          $router.replace({ name: 'home' });
+        }
+      "
+    >
+      <i-ph-star-fill class="mr-2 text-yellow-300" /><span>Favorit löschen</span>
     </Button>
   </NoData>
 </template>
