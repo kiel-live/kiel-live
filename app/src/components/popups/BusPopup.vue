@@ -12,9 +12,9 @@
           :to="{ name: 'map-marker', params: { markerType: 'bus-stop', markerId: arrival.id } }"
           class="flex w-full items-center"
         >
-          <span class="w-14">{{ arrival.planned }}</span>
+          <span class="w-14 min-w-12">{{ arrival.planned }}</span>
           <div
-            class="marker relative flex justify-center items-center mx-4 h-12 w-8 after:(absolute top-0 h-full bg-gray-800 dark:bg-gray-300)"
+            class="marker relative flex justify-center items-center mx-4 h-12 w-8 min-w-4 after:(absolute top-0 h-full bg-gray-800 dark:bg-gray-300)"
           >
             <div
               v-if="arrival.state !== 'departed' && trip.arrivals[i - 1]?.state === 'departed'"
