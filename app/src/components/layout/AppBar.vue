@@ -61,8 +61,6 @@ export default defineComponent({
         return searchInput.value;
       },
       set(_searchInput: string) {
-        searchInput.value = _searchInput;
-
         emit('update:search-input', _searchInput);
 
         if (_searchInput.length > 0 && route.name !== 'search') {
