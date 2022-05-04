@@ -120,6 +120,6 @@ export default defineComponent({
 
 <style scoped>
 .fade {
-  transition: height 1s ease;
+  transition: height 0.15s ease;
 }
 </style>
