@@ -1,6 +1,7 @@
 <template>
   <div class="relative h-full w-full items-center justify-center overflow-hidden">
-    <Map :selected-marker="selectedMarker" @marker-click="selectedMarker = $event" />
+    <AppBar v-model:search-input="searchInput" />
+
     <DetailsPopup :is-open="!!selectedMarker" size="3/4" @close="selectedMarker = undefined">
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
     </DetailsPopup>
@@ -17,7 +18,7 @@
       <AboutPopup />
     </DetailsPopup>
 
-    <AppBar v-model:search-input="searchInput" />
+    <Map :selected-marker="selectedMarker" @marker-click="selectedMarker = $event" />
   </div>
 </template>
 
