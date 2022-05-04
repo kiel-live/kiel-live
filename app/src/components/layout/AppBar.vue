@@ -12,11 +12,12 @@
     </router-link>
     <div class="flex flex-grow">
       <input
-        v-model="internalSearchInput"
+        :value="internalSearchInput"
         type="text"
         class="bg-transparent focus:outline-transparent w-full h-full"
         placeholder="Suchen ..."
         autofocus
+        @input="(event) => (internalSearchInput = (event.currentTarget as HTMLInputElement).value)"
         @keydown.escape="$router.back()"
         @click="$router.push({ name: 'search' })"
       />
