@@ -2,7 +2,7 @@
   <div class="flex flex-col min-h-0 flex-grow">
     <div class="flex pb-2 mb-2 border-b-1 dark:border-dark-100 space-x-2 items-center">
       <i-ph-magnifying-glass-bold />
-      <span class="text-lg">Suche</span>
+      <span class="text-lg">Suchergebnisse</span>
     </div>
     <div v-if="searchResults.length === 0 && searchInput.length < 3" class="m-auto max-w-52 text-center text-xl">
       <p>Suche nach einer Haltestelle oder einem Fahrzeug</p>
