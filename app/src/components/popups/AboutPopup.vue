@@ -12,14 +12,14 @@
       <p class="mb-2">Unterstütze uns indem du die App mit deinen Freunden teilst und gib uns Feedback!</p>
       <Button href="https://www.instagram.com/kiel.live/"><i-mdi-instagram class="mr-2" />Follow @kiel.live</Button>
       <Button href="https://github.com/kiel-live/kiel-live"><i-mdi-github class="mr-2" />Develop on Github</Button>
-      <h2 class="border-b-1 mb-2 font-bold">Changelog</h2>
-      <h3 class="border-b-1 mt-2 mb-1">{{ new Date('2022-05-03').toLocaleDateString() }}</h3>
+      <h2 class="border-b-1 dark:border-dark-100 mt-2 font-bold">Changelog</h2>
+      <h3 class="border-b-1 dark:border-dark-100 mt-2">{{ new Date('2022-05-03').toLocaleDateString() }}</h3>
       <span>Komplett neue App mit Fokus auf der Karte</span>
-      <h3 class="border-b-1 mt-2 mb-1">{{ new Date('2020-05-13').toLocaleDateString() }}</h3>
+      <h3 class="border-b-1 dark:border-dark-100 mt-2">{{ new Date('2020-05-13').toLocaleDateString() }}</h3>
       <span>Karte mit Haltestellen und Echtzeit-Positionen aller Busse</span>
-      <h3 class="border-b-1 mt-2 mb-1">{{ new Date('2019-06-22').toLocaleDateString() }}</h3>
+      <h3 class="border-b-1 dark:border-dark-100 mt-2">{{ new Date('2019-06-22').toLocaleDateString() }}</h3>
       <span>Anzeige von Verkehrs-Warnungen hinzugefügt</span>
-      <h3 class="border-b-1 mt-2 mb-1">{{ new Date('2019-05-20').toLocaleDateString() }}</h3>
+      <h3 class="border-b-1 dark:border-dark-100 mt-2">{{ new Date('2019-05-20').toLocaleDateString() }}</h3>
       <span><i-fa-solid-birthday-cake class="align-text-bottom" /> Projekt gestartet</span>
     </div>
   </div>

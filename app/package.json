@@ -46,10 +46,10 @@
     "unplugin-vue-components": "0.17.2",
     "vite": "2.7.1",
     "vite-plugin-pwa": "0.11.11",
-    "vite-plugin-windicss": "1.5.4",
+    "vite-plugin-windicss": "1.8.4",
     "vue-eslint-parser": "8.0.1",
     "vue-tsc": "0.34.11",
-    "windicss": "3.4.0",
+    "windicss": "3.5.1",
     "workbox-window": "6.4.2"
   }
 }
