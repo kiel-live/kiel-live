@@ -1,5 +1,6 @@
 <template>
   <div
+    v-show="isOpen"
     class="absolute bottom-0 left-0 right-0 flex flex-col w-full z-10 bg-white shadow-top md:shadow-right md:rounded-none md:w-80 md:top-0 md:h-auto transition dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
     :class="{
       'overflow-hidden max-h-0': actualSize === 'closed',
@@ -119,6 +120,6 @@ export default defineComponent({
 
 <style scoped>
 .fade {
-  transition: height 0.15s ease;
+  transition: height 1s ease;
 }
 </style>
