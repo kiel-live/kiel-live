@@ -18,7 +18,8 @@ export default defineConfig({
         'status-green': '#4caf50',
       },
       boxShadow: {
-        all: '0px 0px 8px 4px rgba(17, 24, 39, 0.25)',
+        right: '4px 0 8px 0 rgba(17, 24, 39, 0.25)',
+        top: '-4px 0 8px 0 rgba(17, 24, 39, 0.25)',
       },
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       stroke: (theme) => theme('colors'),
