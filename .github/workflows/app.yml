@@ -30,9 +30,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-
 
-      - uses: pnpm/action-setup@v2.0.1
-        working-directory: ./app
+      - uses: pnpm/action-setup@v2.2.1
         with:
+          cwd: ./app
           version: 6
           run_install: true
 
