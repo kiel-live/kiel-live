@@ -7,6 +7,7 @@ on:
     tags:
       - '*'
   pull_request:
+    types: [opened, synchronize, reopened, closed]
     branches:
       - main
 
@@ -40,8 +41,8 @@ jobs:
         run: pnpm build
         working-directory: ./app
         env:
-          APP_BACKEND_URL: ${{ secrets.BACKEND_URL }}
-          APP_TILE_SERVER_URL: ${{ secrets.TILE_SERVER_URL }}
+          VITE_NATS_URL: ${{ secrets.BACKEND_URL }}
+          # VITE_TILE_SERVER_URL: ${{ secrets.TILE_SERVER_URL }} # TODO
 
       - uses: afc163/surge-preview@v1
         if: "github.event_name == 'pull_request'"
