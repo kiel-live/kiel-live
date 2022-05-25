@@ -10,6 +10,9 @@ on:
     branches:
       - main
 
+env:
+  DOCKERHUB_USERNAME: anbraten
+
 jobs:
   build-kvg:
     runs-on: ubuntu-latest
@@ -18,11 +21,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build the Docker image
-        run: docker build --file collectors/kvg/Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/kiel-live-kvg:latest --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/kiel-live-kvg:latest .
+        run: docker build --file collectors/kvg/Dockerfile --tag ${{ env.DOCKERHUB_USERNAME }}/kiel-live-kvg:latest --cache-from ${{ env.DOCKERHUB_USERNAME }}/kiel-live-kvg:latest .
 
       - name: Login to DockerHub Registry
-        run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+        run: docker login -u ${{ env.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Push image to DockerHub
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/kiel-live-kvg:latest
+        run: docker push ${{ env.DOCKERHUB_USERNAME }}/kiel-live-kvg:latest
         if: "github.event.ref_type == 'tag'"
