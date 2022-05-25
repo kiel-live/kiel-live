@@ -12,7 +12,6 @@ on:
 
 jobs:
   build-kvg:
-    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
