@@ -334,3 +334,9 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+#map :deep(.maplibregl-ctrl-attrib) {
+  box-sizing: content-box;
+}
+</style>
