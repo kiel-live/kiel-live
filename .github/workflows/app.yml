@@ -43,8 +43,18 @@ jobs:
           APP_BACKEND_URL: ${{ secrets.BACKEND_URL }}
           APP_TILE_SERVER_URL: ${{ secrets.TILE_SERVER_URL }}
 
+      - uses: afc163/surge-preview@v1
+        if: "github.event_name == 'pull_request'"
+        with:
+          surge_token: ${{ secrets.SURGE_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          teardown: 'true'
+          dist: app/dist
+          build: echo "dummy"
+
       - name: Install SSH Client 🔑
         uses: webfactory/ssh-agent@v0.4.1
+        if: "github.event.ref_type == 'tag'"
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
