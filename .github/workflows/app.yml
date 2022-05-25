@@ -33,7 +33,6 @@ jobs:
 
       - uses: pnpm/action-setup@v2.2.1
         with:
-          cwd: ./app
           version: 6
           run_install: true
 
@@ -67,4 +66,4 @@ jobs:
           REPOSITORY_NAME: kiel-live/kiel-live.github.io
           BRANCH: master
           FOLDER: app/dist
-          CLEAN: true # Automatically remove deleted files from the deploy branch
+          CLEAN: true
