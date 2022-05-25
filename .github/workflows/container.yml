@@ -1,0 +1,29 @@
+name: Container
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-kvg:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Login to DockerHub Registry
+        run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build the Docker image
+        run: docker build --file collectors/kvg/Dockerfile --tag ${{ secrets.DOCKERHUB_USERNAME }}/kiel-live-kvg:latest --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/kiel-live-kvg:latest .
+
+      - name: Push image to DockerHub
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/kiel-live-kvg:latest
+        if: "github.event.ref_type == 'tag'"

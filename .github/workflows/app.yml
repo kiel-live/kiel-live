@@ -1,0 +1,59 @@
+name: App
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2.0.1
+        working-directory: ./app
+        with:
+          version: 6
+          run_install: true
+
+      - name: Build 🔧
+        run: pnpm build
+        working-directory: ./app
+        env:
+          APP_BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          APP_TILE_SERVER_URL: ${{ secrets.TILE_SERVER_URL }}
+
+      - name: Install SSH Client 🔑
+        uses: webfactory/ssh-agent@v0.4.1
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY_123 }}
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        if: "github.event.ref_type == 'tag'"
+        with:
+          SSH: true
+          REPOSITORY_NAME: kiel-live/kiel-live.github.io
+          BRANCH: master
+          FOLDER: app/dist
+          CLEAN: true # Automatically remove deleted files from the deploy branch
