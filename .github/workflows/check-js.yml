@@ -1,4 +1,4 @@
-name: JS linting
+name: Check JS
 on:
   pull_request:
     branches:
@@ -10,39 +10,6 @@ on:
       - main
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-
-      - name: Cache pnpm modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-
-      - uses: pnpm/action-setup@v2.0.1
-        with:
-          version: 6
-          run_install: |
-            - cwd: app
-              args: [--frozen-lockfile]
-
-      - name: Build
-        run: pnpm run build
-        working-directory: app
-        
   typecheck:
     name: Typecheck
     runs-on: ubuntu-latest
@@ -68,9 +35,7 @@ jobs:
       - uses: pnpm/action-setup@v2.0.1
         with:
           version: 6
-          run_install: |
-            - cwd: app
-              args: [--frozen-lockfile]
+          run_install: true
 
       - name: Typecheck
         run: pnpm run typecheck
@@ -101,9 +66,7 @@ jobs:
       - uses: pnpm/action-setup@v2.0.1
         with:
           version: 6
-          run_install: |
-            - cwd: app
-              args: [--frozen-lockfile]
+          run_install: true
 
       - name: Lint
         run: pnpm run lint
@@ -134,9 +97,7 @@ jobs:
       - uses: pnpm/action-setup@v2.0.1
         with:
           version: 6
-          run_install: |
-            - cwd: app
-              args: [--frozen-lockfile]
+          run_install: true
 
       - name: Check format
         run: pnpm run formatcheck

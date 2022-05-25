@@ -1,4 +1,4 @@
-name: golangci-lint
+name: Check GO
 on:
   pull_request:
     branches:
