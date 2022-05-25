@@ -14,7 +14,7 @@
       <input
         :value="internalSearchInput"
         type="text"
-        class="bg-transparent focus:outline-transparent w-full h-full"
+        class="bg-transparent p-2 border border-transparent focus:outline-none focus-visible:(outline-none rounded-md border-gray-300 border-opacity-50) w-full h-full"
         placeholder="Suchen ..."
         autofocus
         @input="(event) => (internalSearchInput = (event.currentTarget as HTMLInputElement).value)"
