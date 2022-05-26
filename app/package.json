@@ -10,12 +10,12 @@
     "start": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "deploy": "pnpm build && surge dist/ handsomely-ice.surge.sh",
     "lint": "eslint --max-warnings 0 --ext .js,.ts,.vue,.json .",
     "formatcheck": "prettier -c .",
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "canvas-confetti": "1.5.1",
     "fuse.js": "6.4.6",
     "maplibre-gl": "2.1.7",
     "nats.ws": "1.5.0",
@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@iconify/json": "1.1.438",
+    "@types/canvas-confetti": "1.4.2",
     "@types/geojson": "7946.0.8",
     "@types/node": "16.11.11",
     "@typescript-eslint/eslint-plugin": "5.5.0",

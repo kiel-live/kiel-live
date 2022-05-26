@@ -2,6 +2,7 @@
   <div class="app flex flex-col m-auto w-full h-full bg-gray-100 dark:bg-dark-400 dark:text-gray-300">
     <router-view />
     <ReloadPrompt />
+    <UpdateNotice />
   </div>
 </template>
 
@@ -9,12 +10,13 @@
 import { defineComponent } from 'vue';
 
 import ReloadPrompt from '~/components/ReloadPrompt.vue';
+import UpdateNotice from '~/components/UpdateNotice.vue';
 import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
 
 export default defineComponent({
   name: 'App',
 
-  components: { ReloadPrompt },
+  components: { ReloadPrompt, UpdateNotice },
 
   setup() {
     usePrefersColorSchemeDark();
