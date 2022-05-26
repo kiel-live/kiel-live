@@ -61,7 +61,7 @@ import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from '
 
 import { stops, subscribe, unsubscribe } from '~/api';
 import { Marker, StopArrival } from '~/api/types';
-import Button from '~/components/atomic/Button.vue';
+import Button from '~/components/atomic/CustomButton.vue';
 import NoData from '~/components/NoData.vue';
 import { useFavorites } from '~/compositions/useFavorites';
 
