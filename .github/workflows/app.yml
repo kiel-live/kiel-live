@@ -12,6 +12,7 @@ on:
       - main
     paths:
       - app/**
+      - .github/workflows/app.yml
 
 jobs:
   app:
