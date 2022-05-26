@@ -75,7 +75,7 @@ type alert struct {
 }
 
 type routes struct {
-	Alerts     []string `json:"alerts"`
+	Alerts     []alert  `json:"alerts"`
 	Authority  string   `json:"authority"`
 	Directions []string `json:"directions"`
 	ID         string   `json:"id"`
@@ -151,7 +151,9 @@ func GetStopDetails(stopShortName string) (*StopDetails, error) {
 		alerts = append(alerts, alert.Title)
 	}
 	for _, route := range stop.Routes {
-		alerts = append(alerts, route.Alerts...)
+		for _, alert := range route.Alerts {
+			alerts = append(alerts, route.Name+": "+alert.Title)
+		}
 	}
 
 	details := &StopDetails{
