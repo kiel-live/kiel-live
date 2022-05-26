@@ -28,4 +28,4 @@ jobs:
 
       - name: Push image to DockerHub
         run: docker push ${{ env.DOCKERHUB_USERNAME }}/kiel-live-kvg:latest
-        if: "github.event.ref_type == 'tag'"
+        if: "github.ref_type == 'tag'"
