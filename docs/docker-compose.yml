@@ -1,0 +1,47 @@
+# use this compose file for production
+
+version: '3'
+
+services:
+  nats:
+    image: nats:2.6.6-scratch
+    ports:
+      - 4222:4222
+      - 4223:4223
+      - 127.0.0.1:8222:8222
+    environment:
+      - NATS_TOKEN_ADMIN=${ADMIN_TOKEN}
+      - NATS_TOKEN_MANAGER=${MANAGER_TOKEN}
+      - NATS_TOKEN_COLLECTOR=${COLLECTOR_TOKEN}
+    volumes:
+      - ./nats-server.conf:/nats-server.conf
+    command: -c /nats-server.conf
+    restart: always
+    networks:
+      - web
+      - default
+  setup:
+    image: natsio/nats-box:0.7.0
+    environment:
+      - NATS_URL=nats:4222
+      - NATS_USER=admin
+      - NATS_PASSWORD=${ADMIN_TOKEN}
+    volumes:
+      - ./setup.sh:/setup.sh
+      - ./stream.json:/stream.json
+    command: /setup.sh
+    restart: on-failure
+    depends_on:
+      - nats
+  kvg:
+    image: anbraten/kiel-live-kvg:latest
+    environment:
+      - COLLECTOR_SERVER=nats
+      - COLLECTOR_TOKEN=${COLLECTOR_TOKEN}
+    restart: always
+    depends_on:
+      - nats
+
+networks:
+  web:
+    external: true
