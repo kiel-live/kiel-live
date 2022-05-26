@@ -9,6 +9,7 @@ on:
       - collectors/**
       - manager/**
       - protocol/**
+      - .github/workflows/check-go.yml
   push:
     branches:
       - main

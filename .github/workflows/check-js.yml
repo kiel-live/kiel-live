@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - app/**
+      - .github/workflows/check-js.yml
   push:
     branches:
       - main

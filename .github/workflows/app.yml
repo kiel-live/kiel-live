@@ -12,6 +12,7 @@ on:
       - main
     paths:
       - app/**
+      - .github/workflows/app.yml
 
 jobs:
   app:
@@ -44,6 +45,12 @@ jobs:
         env:
           VITE_NATS_URL: ${{ secrets.BACKEND_URL }}
           # VITE_TILE_SERVER_URL: ${{ secrets.TILE_SERVER_URL }} # TODO
+
+      - name: Copy service-worker for migration # TODO: remove after some time (added 26.05.2022)
+        run: |
+          cp sw.js service-worker.js
+          cp sw.js.map service-worker.js.map
+        working-directory: ./app/dist
 
       - uses: afc163/surge-preview@v1
         if: "github.event_name == 'pull_request'"
