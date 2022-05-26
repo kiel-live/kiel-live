@@ -1,0 +1,71 @@
+name: App
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+    paths:
+      - app/**
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - uses: pnpm/action-setup@v2.2.1
+        with:
+          version: 6
+          run_install: true
+
+      - name: Build 🔧
+        run: pnpm build
+        working-directory: ./app
+        env:
+          VITE_NATS_URL: ${{ secrets.BACKEND_URL }}
+          # VITE_TILE_SERVER_URL: ${{ secrets.TILE_SERVER_URL }} # TODO
+
+      - uses: afc163/surge-preview@v1
+        if: "github.event_name == 'pull_request'"
+        with:
+          surge_token: ${{ secrets.SURGE_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          teardown: 'true'
+          dist: app/dist
+          build: echo "dummy"
+
+      - name: Install SSH Client 🔑
+        uses: webfactory/ssh-agent@v0.4.1
+        if: "github.event.ref_type == 'tag'"
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        if: "github.event.ref_type == 'tag'"
+        with:
+          SSH: true
+          REPOSITORY_NAME: kiel-live/kiel-live.github.io
+          BRANCH: master
+          FOLDER: app/dist
+          CLEAN: true
