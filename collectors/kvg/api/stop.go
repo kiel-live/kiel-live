@@ -70,6 +70,10 @@ type departure struct {
 	Direction          string          `json:"direction"`
 }
 
+type alert struct {
+	Title string `json:"title"`
+}
+
 type routes struct {
 	Alerts     []string `json:"alerts"`
 	Authority  string   `json:"authority"`
@@ -96,7 +100,7 @@ func (d *departure) parse() protocol.StopArrival {
 
 type StopDepartures struct {
 	Departures    []departure `json:"actual"`
-	GeneralAlerts []string    `json:"generalAlerts"`
+	GeneralAlerts []alert     `json:"generalAlerts"`
 	Routes        []routes    `json:"routes"`
 }
 
@@ -142,7 +146,10 @@ func GetStopDetails(stopShortName string) (*StopDetails, error) {
 		departures = append(departures, departure.parse())
 	}
 
-	alerts := stop.GeneralAlerts
+	alerts := []string{}
+	for _, alert := range stop.GeneralAlerts {
+		alerts = append(alerts, alert.Title)
+	}
 	for _, route := range stop.Routes {
 		alerts = append(alerts, route.Alerts...)
 	}
