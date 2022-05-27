@@ -9,8 +9,8 @@
     </div>
 
     <div class="flex flex-row w-full gap-x-4 justify-center">
-      <Button type="button" @click="updateServiceWorker(true)">Installieren</Button>
-      <Button type="button" @click="close">Abbrechen</Button>
+      <Button @click="updateServiceWorker(true)">Installieren</Button>
+      <Button @click="close">Abbrechen</Button>
     </div>
   </div>
 </template>

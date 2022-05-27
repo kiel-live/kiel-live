@@ -56,8 +56,8 @@
   </NoData>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from 'vue';
+<script setup lang="ts">
+import { computed, onUnmounted, toRef, watch } from 'vue';
 
 import { stops, subscribe, unsubscribe } from '~/api';
 import { Marker, StopArrival } from '~/api/types';
@@ -65,56 +65,43 @@ import Button from '~/components/atomic/Button.vue';
 import NoData from '~/components/NoData.vue';
 import { useFavorites } from '~/compositions/useFavorites';
 
-export default defineComponent({
-  name: 'BusStopPopup',
+const props = defineProps<{
+  marker: Marker;
+}>();
 
-  components: { Button, NoData },
+const { addFavorite, removeFavorite, isFavorite } = useFavorites();
 
-  props: {
-    marker: {
-      type: Object as PropType<Marker>,
-      required: true,
-    },
+const marker = toRef(props, 'marker');
+const stop = computed(() => stops.value[props.marker.id]);
+let subject: string | null = null;
+const eta = (arrival: StopArrival) => {
+  const minutes = Math.round(arrival.eta / 60);
+
+  if (arrival.state === 'stopping') {
+    return 'hält';
+  }
+  if (minutes < 1) {
+    return 'sofort';
+  }
+
+  return `${minutes} Min`;
+};
+
+watch(
+  marker,
+  async () => {
+    if (subject !== null) {
+      await unsubscribe(subject);
+    }
+    subject = `data.map.stop.${props.marker.id}`;
+    await subscribe(subject, stops);
   },
+  { immediate: true },
+);
 
-  setup(props) {
-    const { addFavorite, removeFavorite, isFavorite } = useFavorites();
-
-    const marker = toRef(props, 'marker');
-    const stop = computed(() => stops.value[props.marker.id]);
-    let subject: string | null = null;
-    const eta = (arrival: StopArrival) => {
-      const minutes = Math.round(arrival.eta / 60);
-
-      if (arrival.state === 'stopping') {
-        return 'hält';
-      }
-      if (minutes < 1) {
-        return 'sofort';
-      }
-
-      return `${minutes} Min`;
-    };
-
-    watch(
-      marker,
-      async () => {
-        if (subject !== null) {
-          await unsubscribe(subject);
-        }
-        subject = `data.map.stop.${props.marker.id}`;
-        await subscribe(subject, stops);
-      },
-      { immediate: true },
-    );
-
-    onUnmounted(async () => {
-      if (subject !== null) {
-        await unsubscribe(subject);
-      }
-    });
-
-    return { stop, eta, addFavorite, removeFavorite, isFavorite };
-  },
+onUnmounted(async () => {
+  if (subject !== null) {
+    await unsubscribe(subject);
+  }
 });
 </script>

@@ -11,10 +11,10 @@
       </p>
       <p class="mb-2">Unterstütze uns indem du die App mit deinen Freunden teilst und gib uns Feedback!</p>
       <Button href="https://www.instagram.com/kiel.live/" class="w-full">
-        <i-mdi-instagram class="mr-2" />Follow @kiel.live
+        <i-mdi-instagram class="mr-2" /><span>Follow @kiel.live</span>
       </Button>
       <Button href="https://github.com/kiel-live/kiel-live" class="w-full">
-        <i-mdi-github class="mr-2" />Develop on Github
+        <i-mdi-github class="mr-2" /><span>Develop on Github</span>
       </Button>
 
       <h2 class="border-b-2 w-full dark:border-dark-100 mt-4 font-bold">Changelog</h2>
@@ -30,13 +30,6 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-
+<script setup lang="ts">
 import Button from '~/components/atomic/Button.vue';
-
-export default defineComponent({
-  name: 'AboutPopup',
-  components: { Button },
-});
 </script>
