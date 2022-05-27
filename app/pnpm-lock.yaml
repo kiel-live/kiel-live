@@ -5,6 +5,7 @@ specifiers:
   '@types/canvas-confetti': 1.4.2
   '@types/geojson': 7946.0.8
   '@types/node': 16.11.11
+  '@types/ua-parser-js': ^0.7.36
   '@typescript-eslint/eslint-plugin': 5.5.0
   '@typescript-eslint/parser': 5.5.0
   '@vitejs/plugin-vue': 2.3.1
@@ -25,6 +26,7 @@ specifiers:
   prettier: 2.5.1
   surge: 0.23.0
   typescript: 4.6.4
+  ua-parser-js: ^1.0.2
   unplugin-icons: 0.12.22
   unplugin-vue-components: 0.17.2
   vite: 2.7.1
@@ -42,6 +44,7 @@ dependencies:
   fuse.js: 6.4.6
   maplibre-gl: 2.1.9
   nats.ws: 1.5.0
+  ua-parser-js: 1.0.2
   vue: 3.2.33
   vue-router: 4.0.12_vue@3.2.33
 
@@ -50,6 +53,7 @@ devDependencies:
   '@types/canvas-confetti': 1.4.2
   '@types/geojson': 7946.0.8
   '@types/node': 16.11.11
+  '@types/ua-parser-js': 0.7.36
   '@typescript-eslint/eslint-plugin': 5.5.0_2374246f899d7989d0746344d6a22788
   '@typescript-eslint/parser': 5.5.0_eslint@8.4.0+typescript@4.6.4
   '@vitejs/plugin-vue': 2.3.1_vite@2.7.1+vue@3.2.33
@@ -1453,6 +1457,10 @@ packages:
 
   /@types/trusted-types/2.0.2:
     resolution: {integrity: sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg==}
+    dev: true
+
+  /@types/ua-parser-js/0.7.36:
+    resolution: {integrity: sha512-N1rW+njavs70y2cApeIw1vLMYXRwfBy+7trgavGuuTfOd7j1Yh7QTRc/yqsPl6ncokt72ZXuxEU0PiCp9bSwNQ==}
     dev: true
 
   /@typescript-eslint/eslint-plugin/5.5.0_2374246f899d7989d0746344d6a22788:
@@ -4706,6 +4714,10 @@ packages:
     engines: {node: '>=4.2.0'}
     hasBin: true
     dev: true
+
+  /ua-parser-js/1.0.2:
+    resolution: {integrity: sha512-00y/AXhx0/SsnI51fTc0rLRmafiGOM4/O+ny10Ps7f+j/b8p/ZY11ytMgznXkOVo4GQ+KwQG5UQLkLGirsACRg==}
+    dev: false
 
   /unbox-primitive/1.0.1:
     resolution: {integrity: sha512-tZU/3NqK3dA5gpE1KtyiJUrEB0lxnGkMFHptJ7q6ewdZ8s12QrODwNbhIJStmJkd1QDXa1NRA8aF2A1zk/Ypyw==}

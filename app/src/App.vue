@@ -3,12 +3,14 @@
     <router-view />
     <ReloadPrompt />
     <UpdateNotice />
+    <OpenInApp />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 
+import OpenInApp from '~/components/OpenInApp.vue';
 import ReloadPrompt from '~/components/ReloadPrompt.vue';
 import UpdateNotice from '~/components/UpdateNotice.vue';
 import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
@@ -16,7 +18,7 @@ import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme'
 export default defineComponent({
   name: 'App',
 
-  components: { ReloadPrompt, UpdateNotice },
+  components: { ReloadPrompt, UpdateNotice, OpenInApp },
 
   setup() {
     usePrefersColorSchemeDark();
