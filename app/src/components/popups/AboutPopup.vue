@@ -10,12 +10,12 @@
         deinem Bus an.
       </p>
       <p class="mb-2">Unterstütze uns indem du die App mit deinen Freunden teilst und gib uns Feedback!</p>
-      <ExternalLink href="https://www.instagram.com/kiel.live/" class="w-full">
+      <CustomButton href="https://www.instagram.com/kiel.live/" class="w-full">
         <i-mdi-instagram class="mr-2" /><span>Follow @kiel.live</span>
-      </ExternalLink>
-      <ExternalLink href="https://github.com/kiel-live/kiel-live" class="w-full">
+      </CustomButton>
+      <CustomButton href="https://github.com/kiel-live/kiel-live" class="w-full">
         <i-mdi-github class="mr-2" /><span>Develop on Github</span>
-      </ExternalLink>
+      </CustomButton>
 
       <h2 class="border-b-2 w-full dark:border-dark-100 mt-4 font-bold">Changelog</h2>
       <h3 class="border-b-1 dark:border-gray-600 mt-2">{{ new Date('2022-05-03').toLocaleDateString() }}</h3>
@@ -30,13 +30,6 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-import ExternalLink from '~/components/atomic/ExternalLink.vue';
-
-export default defineComponent({
-  name: 'AboutPopup',
-  components: { ExternalLink },
-});
+<script setup lang="ts">
+import CustomButton from '~/components/atomic/CustomButton.vue';
 </script>

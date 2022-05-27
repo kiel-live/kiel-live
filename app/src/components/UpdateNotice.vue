@@ -18,7 +18,7 @@
       </div>
 
       <div class="flex flex-row w-full justify-center mt-8">
-        <Button type="button" @click="close">Nice!</Button>
+        <CustomButton @click="close">Nice!</CustomButton>
       </div>
     </div>
   </div>
@@ -28,7 +28,7 @@
 import confetti from 'canvas-confetti';
 import { computed, onMounted, ref, watch } from 'vue';
 
-import Button from '~/components/atomic/CustomButton.vue';
+import CustomButton from '~/components/atomic/CustomButton.vue';
 
 const LS_VERSION_KEY = 'kiel-live-version-v1';
 const latestVersion = '2.0.0';

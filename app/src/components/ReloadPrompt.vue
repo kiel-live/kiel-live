@@ -9,8 +9,8 @@
     </div>
 
     <div class="flex flex-row w-full gap-x-4 justify-center">
-      <Button @click="updateServiceWorker(true)">Installieren</Button>
-      <Button @click="close">Abbrechen</Button>
+      <CustomButton @click="updateServiceWorker(true)">Installieren</CustomButton>
+      <CustomButton @click="close">Abbrechen</CustomButton>
     </div>
   </div>
 </template>
@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { useRegisterSW } from 'virtual:pwa-register/vue';
 
-import Button from '~/components/atomic/CustomButton.vue';
+import CustomButton from '~/components/atomic/CustomButton.vue';
 
 const { needRefresh, updateServiceWorker } = useRegisterSW();
 

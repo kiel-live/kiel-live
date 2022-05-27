@@ -19,7 +19,7 @@
     "fuse.js": "6.4.6",
     "maplibre-gl": "2.1.9",
     "nats.ws": "1.8.0",
-    "vue": "3.2.33",
+    "vue": "3.2.36",
     "vue-router": "4.0.12"
   },
   "devDependencies": {
