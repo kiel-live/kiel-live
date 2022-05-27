@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <div class="overflow-y-auto">
+    <div class="flex flex-col flex-grow overflow-y-auto">
       <div v-if="stop.alerts && stop.alerts.length >= 1" class="bg-red-600 bg-opacity-50 p-2 mb-2 rounded-md">
         <div class="flex items-center border-b-1 mb-4">
           <i-mdi-alert class="mr-2" /><span class="font-bold">Hinweise</span>
@@ -38,7 +38,7 @@
         </template>
         <NoData v-else>Hier will gerade wohl kein Manni halten.</NoData>
       </template>
-      <i-fa-solid-circle-notch v-else class="mx-auto mt-4 text-3xl animate-spin" />
+      <i-fa-solid-circle-notch v-else class="m-auto text-3xl animate-spin" />
     </div>
   </div>
   <NoData v-else>
