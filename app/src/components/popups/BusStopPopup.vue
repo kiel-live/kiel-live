@@ -41,7 +41,7 @@
   </div>
   <NoData v-else>
     Diese Haltestelle gibt es wohl nicht.
-    <CustomButton
+    <Button
       v-if="isFavorite(marker)"
       class="mt-2"
       @click="
@@ -52,7 +52,7 @@
       "
     >
       <i-ph-star-fill class="mr-2 text-yellow-300" /><span>Favorit löschen</span>
-    </CustomButton>
+    </Button>
   </NoData>
 </template>
 
@@ -61,7 +61,7 @@ import { computed, onUnmounted, toRef, watch } from 'vue';
 
 import { stops, subscribe, unsubscribe } from '~/api';
 import { Marker, StopArrival } from '~/api/types';
-import CustomButton from '~/components/atomic/CustomButton.vue';
+import Button from '~/components/atomic/Button.vue';
 import NoData from '~/components/NoData.vue';
 import { useFavorites } from '~/compositions/useFavorites';
 
