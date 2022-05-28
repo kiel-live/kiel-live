@@ -115,13 +115,14 @@ export default defineComponent({
       },
       filter: ['==', 'type', 'bus'],
       layout: {
-        'icon-image': [
-          'match',
-          ['get', 'id'],
-          selectedMarker.value.id || '',
-          ['get', 'iconNameFocused'],
-          ['get', 'iconName'],
-        ],
+        // 'icon-image': [
+        //   'match',
+        //   ['get', 'id'],
+        //   selectedMarker.value.id || '',
+        //   ['get', 'iconNameFocused'],
+        //   ['get', 'iconName'],
+        // ],
+        'icon-image': 'marker-bike',
         'icon-rotation-alignment': 'map',
         'icon-allow-overlap': true,
         'symbol-sort-key': [
@@ -188,6 +189,18 @@ export default defineComponent({
         map.addLayer(stopsLayer.value);
 
         map.addLayer(vehiclesLayer.value);
+
+        const bikeImg = '/icons/dark-bus.png';
+        // eslint-disable-next-line promise/prefer-await-to-callbacks
+        map.loadImage(bikeImg, (error, image) => {
+          if (error) {
+            throw error;
+          }
+          if (!image) {
+            throw new Error('Image is null');
+          }
+          map.addImage('marker-bike', image);
+        });
 
         initial = false;
       });
