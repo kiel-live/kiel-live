@@ -1,0 +1,34 @@
+tasks:
+  - name: Nats
+    init: |
+      docker-compose pull
+    command: |
+      docker-compose up -d
+  - name: PWA
+    init: |
+      cd app/
+      pnpm install
+    command: |
+      pnpm start
+  - name: Go setup
+    init: |
+      go mod tidy
+
+vscode:
+  extensions:
+    - editorconfig.editorconfig
+    - esbenp.prettier-vscode
+    - dbaeumer.vscode-eslint
+    - Vue.volar
+    - voorjaar.windicss-intellisense
+    - golang.go
+
+ports:
+  - port: 4222
+    onOpen: notify
+  - port: 4223
+    onOpen: notify
+  - port: 8222
+    onOpen: notify
+  - port: 3000
+    onOpen: open-browser
