@@ -49,4 +49,4 @@ pnpm start # start the PWA
 
 Nats is the message broker used to bring data from the collectors to the PWA clients.
 
-To start Nats simply copy the `.env.sample` file to `.env` adjust as needed and run `docker-compose up -d`.
+To start Nats simply copy the `.env.sample` file to `.env`, adjust as needed and run `docker-compose up -d`.
