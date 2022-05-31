@@ -1,9 +1,9 @@
+image:
+  file: .gitpod.Dockerfile
+
 tasks:
   - name: Nats
-    init: |
-      docker-compose pull
-    command: |
-      docker-compose up -d
+    command: docker-compose up -d
   - name: PWA
     init: |
       cd app/
