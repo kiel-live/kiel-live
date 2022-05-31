@@ -19,9 +19,9 @@ This app allows you to view Kiels public transport (busses, bus-stops) in realti
 
 ![Screenshot](screenshot.jpg)
 
-# Development
+## Development
 
-## Structure
+### Structure
 
 The project contains following parts:
 
@@ -30,11 +30,11 @@ The project contains following parts:
 - `collectors/*`: Multiple agents to scrape data from different apis
 - `nats/`: The NATS server used as message broker to stream data from collectors to the PWA clients
 
-## Gitpod
+### Gitpod
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/kiel-live/kiel-live)
 
-## PWA development
+### PWA development
 
 Copy the `.env.sample` file to `.env`. For the PWA development you only need to set `VITE_NATS_URL`.
 You can set it to `wss://api.kiel-live.ju60.de/` to use the production server so you don't need to start your own backend (nats & collectors).
@@ -45,7 +45,7 @@ pnpm install # install dependencies
 pnpm start # start the PWA
 ```
 
-## Nats & collectors development
+### Nats & collectors development
 
 Nats is the message broker used to bring data from the collectors to the PWA clients.
 
