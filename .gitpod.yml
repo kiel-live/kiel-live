@@ -3,11 +3,16 @@ image:
 
 tasks:
   - name: Nats
-    command: docker-compose up -d
+    init: |
+      cp .env.sample .env
+      gp sync-done env-file
+    command: |
+      docker-compose up -d
   - name: PWA
     init: |
       cd app/
       pnpm install
+      gp sync-await env-file
     command: |
       pnpm start
   - name: Go setup
