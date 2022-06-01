@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import vueI18n from '@intlify/vite-plugin-vue-i18n';
 import vue from '@vitejs/plugin-vue';
 import path from 'path';
 import IconsResolver from 'unplugin-icons/resolver';
@@ -16,6 +17,9 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    vueI18n({
+      include: path.resolve(__dirname, 'src/locales/**'),
+    }),
     WindiCSS(),
     Icons({ compiler: 'vue3' }),
     Components({
