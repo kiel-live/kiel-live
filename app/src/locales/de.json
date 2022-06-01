@@ -1,4 +1,10 @@
 {
   "language": "Language",
-  "search": "Suchen ..."
+  "search": "Suchen ...",
+  "trip_expired": "Diese Tour ist wohl schon zu Ende.",
+  "trip_does_not_exist": "Diese Tour gibt es wohl nicht (mehr).",
+  "add_favourites": "Füge neue Haltestellen als Favoriten hinzu, indem du beim Öffnen der Haltestelle auf den Stern klickst.",
+  "search_stop_vehicle":"Suche nach einer Haltestelle oder einem Fahrzeug",
+  "no_entry":"Zu deiner Suche existiert anscheinend kein Eintrag.",
+  "search_result": "Suchergebnisse"
 }

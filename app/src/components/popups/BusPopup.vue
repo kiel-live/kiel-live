@@ -34,15 +34,16 @@
           <span class="w-full">{{ arrival.name }}</span>
         </router-link>
       </div>
-      <NoData v-else>Diese Tour ist wohl schon zu Ende.</NoData>
+      <NoData v-else>{{ t('trip_expired') }}</NoData>
     </template>
     <i-fa-solid-circle-notch v-else class="mx-auto mt-4 text-3xl animate-spin" />
   </div>
-  <NoData v-else>Diese Tour gibt es wohl nicht (mehr).</NoData>
+  <NoData v-else>{{ t('trip_does_not_exist') }}</NoData>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { subscribe, trips, unsubscribe, vehicles } from '~/api';
 import { Marker } from '~/api/types';
@@ -61,6 +62,8 @@ export default defineComponent({
   },
 
   setup(props) {
+    const { t } = useI18n();
+
     const marker = toRef(props, 'marker');
     let subject: string | null = null;
 
@@ -93,7 +96,7 @@ export default defineComponent({
         await unsubscribe(subject);
       }
     });
-    return { trip, vehicle };
+    return { t, trip, vehicle };
   },
 });
 </script>
