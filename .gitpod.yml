@@ -25,7 +25,7 @@ vscode:
     - editorconfig.editorconfig
     - esbenp.prettier-vscode
     - dbaeumer.vscode-eslint
-    - Vue.volar
+    - lukashass.volar # TODO: use official extension once available
     - voorjaar.windicss-intellisense
     - golang.go
 
