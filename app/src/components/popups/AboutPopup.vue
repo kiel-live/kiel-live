@@ -6,10 +6,9 @@
     </h1>
     <div class="flex items-start flex-col gap-2 mx-2 text-l overflow-y-auto">
       <p class="mb-2">
-        Wo bleibt mein Bus? Kiel-Live zeigt aktuelle Abfahrtszeiten für alle Haltestellen und die aktuelle Position von
-        deinem Bus an.
+        {{ t('where_is_my_bus') }}
       </p>
-      <p class="mb-2">Unterstütze uns indem du die App mit deinen Freunden teilst und gib uns Feedback!</p>
+      <p class="mb-2">{{ t('support_us') }}</p>
       <Button href="https://www.instagram.com/kiel.live/" class="w-full">
         <i-mdi-instagram class="mr-2" /><span>Follow @kiel.live</span>
       </Button>
@@ -31,5 +30,9 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+
 import Button from '~/components/atomic/Button.vue';
+
+const { t } = useI18n();
 </script>

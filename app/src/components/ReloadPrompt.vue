@@ -5,7 +5,7 @@
     role="alert"
   >
     <div class="mb-2 text-xl">
-      <span>Eine neue Version ist verfügbar.</span>
+      <span>{{ t('new_version') }}</span>
     </div>
 
     <div class="flex flex-row w-full gap-x-4 justify-center">
@@ -17,10 +17,12 @@
 
 <script setup lang="ts">
 import { useRegisterSW } from 'virtual:pwa-register/vue';
+import { useI18n } from 'vue-i18n';
 
 import Button from '~/components/atomic/Button.vue';
 
 const { needRefresh, updateServiceWorker } = useRegisterSW();
+const { t } = useI18n();
 
 const close = async () => {
   needRefresh.value = false;

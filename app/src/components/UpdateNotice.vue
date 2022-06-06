@@ -8,11 +8,11 @@
       class="m-2 flex flex-col rounded-md p-4 bg-white border-1 border-gray-200 shadow-xl z-20 md:w-104 dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
     >
       <div class="flex flex-col text-center gap-4">
-        <span class="text-xl mb-2">Wuhuu es gibt ein Update!</span>
-        <span>Die neue Version soll dir bei der Navigation durch Kiel noch besser helfen.</span>
+        <span class="text-xl mb-2">{{ t('update_title') }}</span>
+        <span>{{ t('update_msg') }}</span>
         <span
-          >Schick uns gerne Feedback an <a :href="`mailto:${feedbackMail}`" class="underline">{{ feedbackMail }}</a> und
-          folge uns auf
+          >{{ t('feedback') }}<a :href="`mailto:${feedbackMail}`" class="underline">{{ feedbackMail }}</a>
+          {{ t('follow_us') }}
           <a href="https://www.instagram.com/kiel.live/" target="_blank" class="underline">Instagram</a>.</span
         >
       </div>
@@ -27,6 +27,7 @@
 <script setup lang="ts">
 import confetti from 'canvas-confetti';
 import { computed, onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import Button from '~/components/atomic/Button.vue';
 
@@ -36,6 +37,7 @@ const feedbackMail = atob('YW5kcm9pZEBqdTYwLmRl'); // email as base64
 
 const version = ref(localStorage.getItem(LS_VERSION_KEY));
 const show = computed(() => version.value !== null && version.value !== latestVersion);
+const { t } = useI18n();
 
 onMounted(async () => {
   const oldVersion = localStorage.getItem('version');

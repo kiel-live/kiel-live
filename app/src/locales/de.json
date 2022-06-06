@@ -6,5 +6,14 @@
   "add_favourites": "Füge neue Haltestellen als Favoriten hinzu, indem du beim Öffnen der Haltestelle auf den Stern klickst.",
   "search_stop_vehicle":"Suche nach einer Haltestelle oder einem Fahrzeug",
   "no_entry":"Zu deiner Suche existiert anscheinend kein Eintrag.",
-  "search_result": "Suchergebnisse"
+  "search_result": "Suchergebnisse",
+  "where_is_my_bus": "Wo bleibt mein Bus? Kiel-Live zeigt aktuelle Abfahrtszeiten für alle Haltestellen und die aktuelle Position von deinem Bus an.",
+  "support_us": "Unterstütze uns indem du die App mit deinen Freunden teilst und gib uns Feedback!",
+  "no_man_wants_to_stop_here_right_now.": "Hier will gerade wohl kein Manni halten.",
+  "this_stop_probably_does_not_exist": "Diese Haltestelle gibt es wohl nicht.",
+  "new_version": "Eine neue Version ist verfügbar.",
+  "update_title": "Wuhuu es gibt ein Update!",
+  "update_msg": "Die neue Version soll dir bei der Navigation durch Kiel noch besser helfen.",
+  "feedback": "Schick uns gerne Feedback an",
+  "follow_us": "und folge uns auf"
 }
