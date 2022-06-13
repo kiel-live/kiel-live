@@ -3,12 +3,18 @@ image:
 
 tasks:
   - name: Nats
-    command: docker-compose up -d
+    init: |
+      cp .env.sample .env
+      gp sync-done env-file
+    command: |
+      docker-compose up -d
   - name: PWA
     init: |
       cd app/
       pnpm install
+      gp sync-await env-file
     command: |
+      sed -i "s,VITE_NATS_URL=.*,VITE_NATS_URL=wss://4223-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}," ../.env
       pnpm start
   - name: Go setup
     init: |
@@ -19,7 +25,7 @@ vscode:
     - editorconfig.editorconfig
     - esbenp.prettier-vscode
     - dbaeumer.vscode-eslint
-    - Vue.volar
+    - lukashass.volar # TODO: use official extension once available
     - voorjaar.windicss-intellisense
     - golang.go
 

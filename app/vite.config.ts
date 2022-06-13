@@ -57,4 +57,9 @@ export default defineConfig({
       '~/': `${path.resolve(__dirname, 'src')}/`,
     },
   },
+  server: {
+    hmr: {
+      clientPort: process.env.GITPOD_WORKSPACE_URL ? 443 : undefined,
+    },
+  },
 });
