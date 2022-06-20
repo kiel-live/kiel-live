@@ -31,6 +31,4 @@ import { useFavorites } from '~/compositions/useFavorites';
 
 const { t } = useI18n();
 const { favorites } = useFavorites();
-
-return { t, favorites };
 </script>
