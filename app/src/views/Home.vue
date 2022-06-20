@@ -4,8 +4,8 @@
 
     <DetailsPopup
       :is-open="!!selectedMarker"
-      :disable-resize="isLite"
-      :size="isLite ? '1' : '3/4'"
+      :disable-resize="useLiteMode"
+      :size="useLiteMode ? '1' : '3/4'"
       @close="selectedMarker = undefined"
     >
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
@@ -13,17 +13,17 @@
 
     <DetailsPopup
       :is-open="$route.name === 'search'"
-      :disable-resize="isLite"
-      :size="isLite ? '1' : '1/2'"
+      :disable-resize="useLiteMode"
+      :size="useLiteMode ? '1' : '1/2'"
       @close="$router.replace({ name: 'home' })"
     >
       <SearchPopup v-model:search-input="searchInput" />
     </DetailsPopup>
 
     <DetailsPopup
-      :is-open="$route.name === 'favorites' || (isLite && $route.name === 'home')"
-      :disable-resize="isLite"
-      :size="isLite ? '1' : '1/2'"
+      :is-open="$route.name === 'favorites'"
+      :disable-resize="useLiteMode"
+      :size="useLiteMode ? '1' : '1/2'"
       @close="$router.replace({ name: 'home' })"
     >
       <FavoritesPopup />
@@ -31,14 +31,14 @@
 
     <DetailsPopup
       :is-open="$route.name === 'about'"
-      :disable-resize="isLite"
-      :size="isLite ? '1' : '1/2'"
+      :disable-resize="useLiteMode"
+      :size="useLiteMode ? '1' : '1/2'"
       @close="$router.replace({ name: 'home' })"
     >
       <AboutPopup />
     </DetailsPopup>
 
-    <Map v-if="!isLite" :selected-marker="selectedMarker" @marker-click="selectedMarker = $event" />
+    <Map v-if="!useLiteMode" :selected-marker="selectedMarker" @marker-click="selectedMarker = $event" />
   </div>
 </template>
 
@@ -54,9 +54,9 @@ import AboutPopup from '~/components/popups/AboutPopup.vue';
 import FavoritesPopup from '~/components/popups/FavoritesPopup.vue';
 import MarkerPopup from '~/components/popups/MarkerPopup.vue';
 import SearchPopup from '~/components/popups/SearchPopup.vue';
+import { useUserSettings } from '~/compositions/useUserSettings';
 
-const isLite = ref(true);
-
+const { useLiteMode } = useUserSettings();
 const route = useRoute();
 const router = useRouter();
 const selectedMarker = computed<Marker | undefined>({

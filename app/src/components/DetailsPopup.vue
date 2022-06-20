@@ -4,7 +4,7 @@
     class="absolute bottom-0 left-0 right-0 flex flex-col w-full z-10 bg-white shadow-top md:shadow-right md:rounded-none md:w-80 md:top-0 md:h-auto transition dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
     :class="{
       'overflow-hidden max-h-0': actualSize === 'closed',
-      'h-full': size === '1',
+      'h-full md:mx-auto md:w-200': actualSize === 'full',
       'h-1/2': size === '1/2' && actualSize === 'default',
       'h-3/4': size === '3/4' && actualSize === 'default',
       'p-4 pb-0 pt-2': actualSize !== 'closed' && actualSize !== 'full',
@@ -17,7 +17,7 @@
     @touchmove="move"
     @touchend="drop"
   >
-    <div class="w-full -mt-4 pt-4 pb-4 md:hidden" @touchstart="drag">
+    <div v-if="!disableResize" class="w-full -mt-4 pt-4 pb-4 md:hidden" @touchstart="drag">
       <div v-show="actualSize !== 'full'" class="flex-shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
     </div>
     <slot />

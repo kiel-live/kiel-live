@@ -1,6 +1,8 @@
 import { Component } from 'vue';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
+import { useUserSettings } from '~/compositions/useUserSettings';
+
 let firstStartOfApp = true;
 
 const routes: RouteRecordRaw[] = [
@@ -45,8 +47,10 @@ const router = createRouter({
   routes,
 });
 
+const { useLiteMode } = useUserSettings();
+
 router.beforeEach((to, from, next): void => {
-  if (firstStartOfApp && to.name === 'home') {
+  if (to.name === 'home' && (firstStartOfApp || useLiteMode.value)) {
     firstStartOfApp = false;
     next({ name: 'favorites' });
     return;
