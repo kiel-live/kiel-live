@@ -10,15 +10,18 @@
       <div class="flex flex-col text-center gap-4">
         <span class="text-xl mb-2">{{ t('update_title') }}</span>
         <span>{{ t('update_msg') }}</span>
-        <span
-          >{{ t('feedback') }}<a :href="`mailto:${feedbackMail}`" class="underline">{{ feedbackMail }}</a>
-          {{ t('follow_us') }}
-          <a href="https://www.instagram.com/kiel.live/" target="_blank" class="underline">Instagram</a>.</span
-        >
+        <i18n-t keypath="feedback" tag="span">
+          <template #email>
+            <a :href="`mailto:${feedbackMail}`" class="underline">{{ feedbackMail }}</a>
+          </template>
+          <template #instagram>
+            <a href="https://www.instagram.com/kiel.live/" target="_blank" class="underline">{{ t('instagram') }}</a>
+          </template>
+        </i18n-t>
       </div>
 
       <div class="flex flex-row w-full justify-center mt-8">
-        <Button @click="close">Nice!</Button>
+        <Button @click="close">{{ t('nice') }}</Button>
       </div>
     </div>
   </div>

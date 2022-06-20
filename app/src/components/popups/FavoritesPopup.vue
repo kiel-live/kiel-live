@@ -2,7 +2,7 @@
   <div class="flex flex-col min-h-0 flex-grow">
     <div class="flex pb-2 mb-2 border-b-1 dark:border-dark-100 space-x-2 items-center">
       <i-ph-star-fill />
-      <span class="text-lg">Favoriten</span>
+      <span class="text-lg">{{ t('favorites') }}</span>
     </div>
     <div v-if="favorites.length === 0" class="m-auto max-w-52 text-center text-xl">
       <p>{{ t('add_favourites') }}</p>
@@ -24,20 +24,13 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
 
 import { useFavorites } from '~/compositions/useFavorites';
 
-export default defineComponent({
-  name: 'FavoritesPopup',
+const { t } = useI18n();
+const { favorites } = useFavorites();
 
-  setup() {
-    const { t } = useI18n();
-    const { favorites } = useFavorites();
-
-    return { t, favorites };
-  },
-});
+return { t, favorites };
 </script>

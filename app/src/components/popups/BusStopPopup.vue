@@ -12,7 +12,7 @@
     <div class="flex flex-col flex-grow overflow-y-auto">
       <div v-if="stop.alerts && stop.alerts.length >= 1" class="bg-red-600 bg-opacity-50 p-2 mb-2 rounded-md">
         <div class="flex items-center border-b-1 mb-4">
-          <i-mdi-alert class="mr-2" /><span class="font-bold">Hinweise</span>
+          <i-mdi-alert class="mr-2" /><span class="font-bold">{{ t('alerts') }}</span>
         </div>
         <div v-for="(alert, i) in stop.alerts" :key="i" class="flex items-center">{{ alert }}</div>
       </div>
@@ -53,7 +53,7 @@
         }
       "
     >
-      <i-ph-star-fill class="mr-2 text-yellow-300" /><span>Favorit löschen</span>
+      <i-ph-star-fill class="mr-2 text-yellow-300" /><span>{{ t('remove_favorite') }}</span>
     </Button>
   </NoData>
 </template>
@@ -82,13 +82,13 @@ const eta = (arrival: StopArrival) => {
   const minutes = Math.round(arrival.eta / 60);
 
   if (arrival.state === 'stopping') {
-    return 'hält';
+    return t('stopping');
   }
   if (minutes < 1) {
-    return 'sofort';
+    return t('now');
   }
 
-  return `${minutes} Min`;
+  return t('minutes', { minutes });
 };
 
 watch(

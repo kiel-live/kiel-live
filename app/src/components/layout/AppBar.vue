@@ -4,11 +4,7 @@
     :class="{ 'bg-red-300': !isConnected }"
   >
     <router-link :to="{ name: 'home' }" class="p-2">
-      <img
-        alt="Kiel-Live Logo, die Vorderseite eines Busses auf dem Manni steht"
-        src="../../assets/logo.png"
-        class="w-6 h-6"
-      />
+      <img :alt="t('logo_alt')" src="../../assets/logo.png" class="w-6 h-6" />
     </router-link>
     <div class="flex flex-grow">
       <input
