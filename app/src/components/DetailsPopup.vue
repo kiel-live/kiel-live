@@ -4,6 +4,7 @@
     class="absolute bottom-0 left-0 right-0 flex flex-col w-full z-10 bg-white shadow-top md:shadow-right md:rounded-none md:w-80 md:top-0 md:h-auto transition dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
     :class="{
       'overflow-hidden max-h-0': actualSize === 'closed',
+      'h-full': size === '1',
       'h-1/2': size === '1/2' && actualSize === 'default',
       'h-3/4': size === '3/4' && actualSize === 'default',
       'p-4 pb-0 pt-2': actualSize !== 'closed' && actualSize !== 'full',
@@ -36,8 +37,12 @@ export default defineComponent({
     },
 
     size: {
-      type: String as PropType<'3/4' | '1/2'>,
+      type: String as PropType<'3/4' | '1/2' | '1'>,
       default: '3/4',
+    },
+
+    disableResize: {
+      type: Boolean,
     },
   },
 
@@ -50,8 +55,13 @@ export default defineComponent({
     const height = ref<number>();
     const isOpen = toRef(props, 'isOpen');
     const size = toRef(props, 'size');
+    const disableResize = toRef(props, 'disableResize');
 
     const actualSize = computed(() => {
+      if (disableResize.value && size.value === '1') {
+        return 'full';
+      }
+
       if (!isOpen.value) {
         return 'closed';
       }
@@ -85,6 +95,10 @@ export default defineComponent({
     });
 
     function drag(e: TouchEvent) {
+      if (disableResize.value) {
+        return;
+      }
+
       dragging.value = true;
       height.value = window.innerHeight - e.touches[0].clientY;
     }
