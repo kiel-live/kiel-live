@@ -5,3 +5,4 @@ package.json
 tsconfig.eslint.json
 tsconfig.json
 manifest.json
+src/locales/*.json

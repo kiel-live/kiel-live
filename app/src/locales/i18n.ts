@@ -1,6 +1,7 @@
 import { createI18n } from 'vue-i18n';
 
-import messages from '.';
+import de from '~/locales/de.json';
+import en from '~/locales/en.json';
 
 function getUserLanguage(): string {
   return navigator.language.split('-')[0];
@@ -9,7 +10,10 @@ function getUserLanguage(): string {
 const i18n = createI18n({
   legacy: false,
   locale: getUserLanguage(),
-  messages,
+  messages: {
+    de,
+    en,
+  },
 });
 
 export default i18n;
