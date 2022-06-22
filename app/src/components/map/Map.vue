@@ -11,6 +11,7 @@ import {
   AttributionControl,
   CircleLayerSpecification,
   GeoJSONSource,
+  GeolocateControl,
   Map,
   Source,
   SymbolLayerSpecification,
@@ -165,10 +166,19 @@ export default defineComponent({
       });
 
       const attributionControl = new AttributionControl({ compact: true });
-      map.addControl(attributionControl);
+      map.addControl(attributionControl, 'bottom-left');
 
-      // var nav = new MapLibre.NavigationControl();
-      // map.addControl(nav, 'bottom-right');
+      map.addControl(
+        new GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true,
+          },
+          trackUserLocation: true,
+        }),
+        'bottom-right',
+      );
+
+      // map.addControl(new NavigationControl({}), 'bottom-right');
 
       map.on('styleimagemissing', (e) => {
         const [type, focus, route, heading] = e.id.split('-');
