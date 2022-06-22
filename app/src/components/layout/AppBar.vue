@@ -4,18 +4,14 @@
     :class="{ 'bg-red-300': !isConnected }"
   >
     <router-link :to="{ name: 'home' }" class="p-2">
-      <img
-        alt="Kiel-Live Logo, die Vorderseite eines Busses auf dem Manni steht"
-        src="../../assets/logo.png"
-        class="w-6 h-6"
-      />
+      <img :alt="t('logo_alt')" src="../../assets/logo.png" class="w-6 h-6" />
     </router-link>
     <div class="flex flex-grow">
       <input
         :value="internalSearchInput"
         type="text"
         class="bg-transparent p-2 border border-transparent focus:outline-none focus-visible:(outline-none rounded-md border-gray-300 border-opacity-50) w-full h-full"
-        placeholder="Suchen ..."
+        :placeholder="t('search')"
         autofocus
         @input="(event) => (internalSearchInput = (event.currentTarget as HTMLInputElement).value)"
         @keydown.escape="$router.back()"
@@ -33,6 +29,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, toRef } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
 import { isConnected } from '~/api';
@@ -53,6 +50,7 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
+    const { t } = useI18n();
     const route = useRoute();
     const router = useRouter();
 
@@ -74,7 +72,7 @@ export default defineComponent({
       },
     });
 
-    return { isConnected, internalSearchInput };
+    return { t, isConnected, internalSearchInput };
   },
 });
 </script>

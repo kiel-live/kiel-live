@@ -2,13 +2,13 @@
   <div class="flex flex-col min-h-0 flex-grow">
     <div class="flex pb-2 mb-2 border-b-1 dark:border-dark-100 space-x-2 items-center">
       <i-ph-magnifying-glass-bold />
-      <span class="text-lg">Suchergebnisse</span>
+      <span class="text-lg">{{ t('search_result') }}</span>
     </div>
     <div v-if="searchResults.length === 0 && searchInput.length < 3" class="m-auto max-w-52 text-center text-xl">
-      <p>Suche nach einer Haltestelle oder einem Fahrzeug</p>
+      <p>{{ t('search_stop_vehicle') }}</p>
     </div>
     <div v-else-if="searchResults.length === 0 && searchInput.length >= 3" class="m-auto max-w-52 text-center text-xl">
-      <p>Zu deiner Suche existiert anscheinend kein Eintrag.</p>
+      <p>{{ t('no_entry') }}</p>
     </div>
     <div class="flex flex-col overflow-y-auto">
       <router-link
@@ -31,6 +31,7 @@
 <script lang="ts">
 import Fuse from 'fuse.js';
 import { computed, defineComponent, onMounted, toRef } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { stops, subscribe, vehicles } from '~/api';
 
@@ -50,6 +51,8 @@ export default defineComponent({
   },
 
   setup(props) {
+    const { t } = useI18n();
+
     const searchInput = toRef(props, 'searchInput');
     const searchData = computed(() => [...Object.values(stops.value)]);
     const searchIndex = computed(
@@ -74,7 +77,7 @@ export default defineComponent({
       await subscribe('data.map.stop.>', stops);
     });
 
-    return { searchResults };
+    return { t, searchResults };
   },
 });
 </script>

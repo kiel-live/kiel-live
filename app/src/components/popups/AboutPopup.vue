@@ -2,34 +2,37 @@
   <div class="flex flex-col min-h-0 flex-grow">
     <h1 class="flex pb-2 mb-2 border-b-1 dark:border-dark-100 space-x-2 items-center">
       <i-ph-info />
-      <span class="text-lg">Kiel-Live</span>
+      <span class="text-lg">{{ t('kiel_live') }}</span>
     </h1>
     <div class="flex items-start flex-col gap-2 mx-2 text-l overflow-y-auto">
       <p class="mb-2">
-        Wo bleibt mein Bus? Kiel-Live zeigt aktuelle Abfahrtszeiten für alle Haltestellen und die aktuelle Position von
-        deinem Bus an.
+        {{ t('where_is_my_bus') }}
       </p>
-      <p class="mb-2">Unterstütze uns indem du die App mit deinen Freunden teilst und gib uns Feedback!</p>
+      <p class="mb-2">{{ t('support_us') }}</p>
       <Button href="https://www.instagram.com/kiel.live/" class="w-full">
-        <i-mdi-instagram class="mr-2" /><span>Follow @kiel.live</span>
+        <i-mdi-instagram class="mr-2" /><span>{{ t('follow_instagram', { account: '@kiel.live' }) }}</span>
       </Button>
       <Button href="https://github.com/kiel-live/kiel-live" class="w-full">
-        <i-mdi-github class="mr-2" /><span>Develop on Github</span>
+        <i-mdi-github class="mr-2" /><span>{{ t('develop_on_github') }}</span>
       </Button>
 
-      <h2 class="border-b-2 w-full dark:border-dark-100 mt-4 font-bold">Changelog</h2>
+      <h2 class="border-b-2 w-full dark:border-dark-100 mt-4 font-bold">{{ t('changelog') }}</h2>
       <h3 class="border-b-1 dark:border-gray-600 mt-2">{{ new Date('2022-05-03').toLocaleDateString() }}</h3>
-      <span>Komplett neue App mit Fokus auf der Karte</span>
+      <span>{{ t('changelog_rewrite_version_2') }}</span>
       <h3 class="border-b-1 dark:border-gray-600 mt-2">{{ new Date('2020-05-13').toLocaleDateString() }}</h3>
-      <span>Karte mit Haltestellen und Echtzeit-Positionen aller Busse</span>
+      <span>{{ t('changelog_live_locations') }}</span>
       <h3 class="border-b-1 dark:border-gray-600 mt-2">{{ new Date('2019-06-22').toLocaleDateString() }}</h3>
-      <span>Anzeige von Verkehrs-Warnungen hinzugefügt</span>
+      <span>{{ t('changelog_alerts') }}</span>
       <h3 class="border-b-1 dark:border-gray-600 mt-2">{{ new Date('2019-05-20').toLocaleDateString() }}</h3>
-      <span><i-fa-solid-birthday-cake class="align-text-bottom" /> Projekt gestartet</span>
+      <span><i-fa-solid-birthday-cake class="align-text-bottom" /> {{ t('changelog_project_started') }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+
 import Button from '~/components/atomic/Button.vue';
+
+const { t } = useI18n();
 </script>
