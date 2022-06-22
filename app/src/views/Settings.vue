@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-col min-h-0 flex-grow">
-    <h1 class="flex pb-2 mb-2 border-b-1 dark:border-dark-100 space-x-2 items-center">
+    <h1 class="flex p-2 mb-2 border-b-1 dark:border-dark-100 space-x-2 items-center">
       <i-ph-info />
       <span class="text-lg">{{ t('kiel_live') }}</span>
     </h1>
-    <div class="flex items-start flex-col gap-2 mx-2 text-l overflow-y-auto">
+    <div class="flex items-start flex-col gap-2 p-2 overflow-y-auto">
       <p class="mb-2">
         {{ t('where_is_my_bus') }}
       </p>
@@ -29,7 +29,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
 
 import Button from '~/components/atomic/Button.vue';
