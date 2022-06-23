@@ -37,5 +37,7 @@
   "changelog_project_started": "Projekt gestartet",
   "stopping": "hält",
   "immediately": "sofort",
-  "minutes": "{minutes} Min"
+  "minutes": "{minutes} Min",
+  "settings": "Einstellungen",
+  "map": "Karte"
 }
