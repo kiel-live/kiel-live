@@ -1,14 +1,14 @@
 <template>
   <div class="flex flex-col min-h-0 flex-grow overflow-y-auto p-2">
-    <h1 class="mb-2 text-xl font-bold">{{ t('kiel_live') }}</h1>
+    <h1 class="mb-4 text-xl font-bold">{{ t('kiel_live') }}</h1>
 
-    <img src="../../assets/logo.png" alt="..." class="w-36 mx-auto my-4" />
+    <img src="../../assets/logo.png" alt="..." class="w-36 mx-auto mb-4" />
 
-    <p class="mb-2 text-center">{{ t('where_is_my_bus') }}</p>
+    <p class="mb-4 text-center">{{ t('where_is_my_bus') }}</p>
 
     <p class="mb-2 text-center">{{ t('support_us') }}</p>
 
-    <Button href="https://www.instagram.com/kiel.live/" class="mx-auto w-8/10">
+    <Button href="https://www.instagram.com/kiel.live/" class="mx-auto mb-auto w-8/10">
       <i-mdi-instagram class="mr-2" />
       <span>{{ t('follow_instagram', { account: '@kiel.live' }) }}</span>
     </Button>
