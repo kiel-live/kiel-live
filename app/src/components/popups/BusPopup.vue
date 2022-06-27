@@ -5,16 +5,18 @@
       <span class="text-lg">{{ vehicle.name }}</span>
     </div>
     <template v-if="trip">
-      <div v-if="trip.arrivals?.length > 0" class="overflow-y-auto">
+      <div v-if="trip.arrivals?.length" class="overflow-y-auto">
         <router-link
           v-for="(arrival, i) in trip.arrivals"
           :key="arrival.id"
           :to="{ name: 'map-marker', params: { markerType: 'bus-stop', markerId: arrival.id } }"
           class="flex w-full items-center"
+          :class="{ 'text-gray-500': arrival.state === 'departed' }"
         >
           <span class="w-14 min-w-12">{{ arrival.planned }}</span>
           <div
             class="marker relative flex justify-center items-center mx-4 h-12 w-8 min-w-4 after:(absolute top-0 h-full bg-gray-800 dark:bg-gray-300)"
+            :class="{ 'after:(bg-gray-500 dark:bg-gray-500)': arrival.state === 'departed' }"
           >
             <div
               v-if="arrival.state !== 'departed' && trip.arrivals[i - 1]?.state === 'departed'"
