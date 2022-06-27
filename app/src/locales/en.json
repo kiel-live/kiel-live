@@ -39,5 +39,6 @@
   "immediately": "immediately",
   "minutes": "{minutes} min",
   "settings": "Settings",
-  "map": "Map"
+  "map": "Map",
+  "analytics": "Analytics"
 }
