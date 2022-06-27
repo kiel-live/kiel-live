@@ -4,6 +4,6 @@ const localStoragePrefix = 'kiel_live.';
 
 export function useUserSettings() {
   return {
-    useLiteMode: ref(true),
+    liteMode: ref(true),
   };
 }

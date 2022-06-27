@@ -4,6 +4,17 @@
   >
     <div class="flex w-full justify-around max-w-96">
       <router-link
+        v-if="liteMode"
+        :to="{ name: 'search' }"
+        class="flex flex-col items-center w-1/3 p-2"
+        :class="{ 'text-blue-400': $route.name !== 'favorites' && $route.name !== 'settings' }"
+        :aria-label="t('search')"
+      >
+        <i-ph-magnifying-glass-bold class="w-6 h-6 mb-1" />
+        <span class="mt-auto text-xs">{{ t('search').split(' ')[0] }}</span>
+      </router-link>
+      <router-link
+        v-else
         :to="{ name: 'home' }"
         class="flex flex-col items-center w-1/3 p-2"
         :class="{ 'text-blue-400': $route.name !== 'favorites' && $route.name !== 'settings' }"
@@ -37,5 +48,8 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
 
+import { useUserSettings } from '~/compositions/useUserSettings';
+
 const { t } = useI18n();
+const { liteMode } = useUserSettings();
 </script>

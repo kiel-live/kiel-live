@@ -4,8 +4,8 @@
 
     <DetailsPopup
       :is-open="!!selectedMarker"
-      :disable-resize="useLiteMode"
-      :size="useLiteMode ? '1' : '3/4'"
+      :disable-resize="liteMode"
+      :size="liteMode ? '1' : '3/4'"
       @close="selectedMarker = undefined"
     >
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
@@ -13,8 +13,8 @@
 
     <DetailsPopup
       :is-open="$route.name === 'search'"
-      :disable-resize="useLiteMode"
-      :size="useLiteMode ? '1' : '1/2'"
+      :disable-resize="liteMode"
+      :size="liteMode ? '1' : '1/2'"
       @close="$router.replace({ name: 'home' })"
     >
       <SearchPopup v-model:search-input="searchInput" />
@@ -22,14 +22,14 @@
 
     <DetailsPopup
       :is-open="$route.name === 'favorites'"
-      :disable-resize="useLiteMode"
-      :size="useLiteMode ? '1' : '1/2'"
+      :disable-resize="liteMode"
+      :size="liteMode ? '1' : '1/2'"
       @close="$router.replace({ name: 'home' })"
     >
       <FavoritesPopup />
     </DetailsPopup>
 
-    <Map v-if="!useLiteMode" :selected-marker="selectedMarker" @marker-click="selectedMarker = $event" />
+    <Map v-if="!liteMode" :selected-marker="selectedMarker" @marker-click="selectedMarker = $event" />
   </div>
 </template>
 
@@ -46,7 +46,7 @@ import MarkerPopup from '~/components/popups/MarkerPopup.vue';
 import SearchPopup from '~/components/popups/SearchPopup.vue';
 import { useUserSettings } from '~/compositions/useUserSettings';
 
-const { useLiteMode } = useUserSettings();
+const { liteMode } = useUserSettings();
 const route = useRoute();
 const router = useRouter();
 const selectedMarker = computed<Marker | undefined>({
