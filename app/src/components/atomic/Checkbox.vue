@@ -19,8 +19,7 @@ const props = defineProps({
 
 const modelValue = toRef(props, 'modelValue');
 
-defineEmits({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  'update:modelValue': (_e: boolean) => true,
-});
+defineEmits<{
+  (e: 'update:modelValue', v: boolean): void;
+}>();
 </script>
