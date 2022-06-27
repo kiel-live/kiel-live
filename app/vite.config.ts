@@ -26,6 +26,9 @@ export default defineConfig({
       resolvers: [IconsResolver()],
     }),
     VitePWA({
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,png}'],
+      },
       includeAssets: ['favicon.ico'],
       manifest: {
         name: 'Kiel Live',
