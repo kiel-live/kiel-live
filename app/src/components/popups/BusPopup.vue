@@ -11,7 +11,7 @@
           :key="arrival.id"
           :to="{ name: 'map-marker', params: { markerType: 'bus-stop', markerId: arrival.id } }"
           class="flex w-full items-center"
-          :class="{ 'text-gray-500': arrival.state === 'departed' }"
+          :class="{ 'text-gray-500': arrival.state === 'departed', 'mt-6': i === 0 && arrival.state === 'predicted' }"
         >
           <span class="w-14 min-w-12">{{ arrival.planned }}</span>
           <div
@@ -19,7 +19,10 @@
             :class="{ 'after:(bg-gray-500 dark:bg-gray-500)': arrival.state === 'departed' }"
           >
             <div
-              v-if="arrival.state !== 'departed' && trip.arrivals[i - 1]?.state === 'departed'"
+              v-if="
+                arrival.state !== 'departed' &&
+                (trip.arrivals[i - 1] === undefined || trip.arrivals[i - 1].state === 'departed')
+              "
               class="vehicle before:(h-4 w-4 bg-red-700 rounded-full)"
               :class="{ driving: arrival.state === 'predicted' }"
             >
