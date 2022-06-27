@@ -92,6 +92,7 @@ export const loadApi = async () => {
   nc = await connect({
     servers: server,
     waitOnFirstConnect: true,
+    maxReconnectAttempts: -1,
   });
   isConnected.value = true;
   js = nc.jetstream();
