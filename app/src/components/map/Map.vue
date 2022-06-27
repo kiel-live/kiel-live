@@ -305,13 +305,15 @@ export default defineComponent({
       });
     });
 
-    // TODO: fix re-rendering of map content
     watch(prefersColorSchemeDark, () => {
       if (prefersColorSchemeDark.value) {
         map.setStyle(darkMapStyle);
       } else {
         map.setStyle(brightMapStyle);
       }
+      // TODO: properly re-render custom layers
+      // eslint-disable-next-line no-restricted-globals
+      location.reload();
     });
 
     watch(geojson, () => {
