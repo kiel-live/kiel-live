@@ -15,6 +15,9 @@
       <Button href="https://github.com/kiel-live/kiel-live">
         <i-mdi-github class="mr-2" /><span>{{ t('develop_on_github') }}</span>
       </Button>
+      <Button href="https://boomerang.ju60.de/share/z8KAHmGY/Kiel%20Live%202.0">
+        <i-ion-md-analytics class="mr-2" /><span>{{ t('analytics') }}</span>
+      </Button>
 
       <h2 class="border-b-2 w-full dark:border-dark-100 mt-4 font-bold">{{ t('changelog') }}</h2>
       <h3 class="border-b-1 dark:border-gray-600 mt-2">{{ new Date('2022-05-03').toLocaleDateString() }}</h3>

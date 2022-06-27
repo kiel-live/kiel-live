@@ -39,5 +39,6 @@
   "immediately": "sofort",
   "minutes": "{minutes} Min",
   "settings": "Einstellungen",
-  "map": "Karte"
+  "map": "Karte",
+  "analytics": "Analytics"
 }
