@@ -7,8 +7,8 @@
     "pnpm": "6"
   },
   "scripts": {
-    "start": "vite",
-    "build": "vite build",
+    "start": "VITE_BUILD_DATE=$(date '+%d.%m.%Y %H:%M:%S') vite",
+    "build": "VITE_BUILD_DATE=$(date '+%d.%m.%Y %H:%M:%S') vite build",
     "serve": "vite preview",
     "lint": "eslint --max-warnings 0 --ext .js,.ts,.vue,.json .",
     "formatcheck": "prettier -c .",
