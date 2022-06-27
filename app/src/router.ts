@@ -1,8 +1,6 @@
 import { Component } from 'vue';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
-import { useUserSettings } from '~/compositions/useUserSettings';
-
 let firstStartOfApp = true;
 
 const routes: RouteRecordRaw[] = [
@@ -40,12 +38,6 @@ const routes: RouteRecordRaw[] = [
     meta: { settings: true },
   },
   {
-    path: '/settings/settings',
-    name: 'settings-settings',
-    component: (): Component => import('~/views/settings/Settings.vue'),
-    meta: { settings: true },
-  },
-  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: (): Component => import('~/views/NotFound.vue'),
@@ -57,10 +49,8 @@ const router = createRouter({
   routes,
 });
 
-const { liteMode } = useUserSettings();
-
 router.beforeEach((to, from, next): void => {
-  if (to.name === 'home' && (firstStartOfApp || liteMode.value)) {
+  if (to.name === 'home' && firstStartOfApp) {
     firstStartOfApp = false;
     next({ name: 'favorites' });
     return;

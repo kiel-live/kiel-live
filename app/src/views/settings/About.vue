@@ -14,13 +14,6 @@
     </Button>
 
     <div class="flex flex-col mt-4">
-      <router-link
-        :to="{ name: 'settings-settings' }"
-        class="flex items-center border-b border-t dark:border-gray-600 py-4 px-2 gap-2"
-      >
-        <i-ph-gear-fill />
-        <span>{{ t('settings') }}</span>
-      </router-link>
       <a :href="`mailto:${feedbackMail}`" class="flex items-center border-b dark:border-gray-600 py-4 px-2 gap-2">
         <i-ic-round-message />
         <span>{{ t('give_feedback') }}</span>
