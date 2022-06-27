@@ -92,6 +92,7 @@ export const loadApi = async () => {
   nc = await connect({
     servers: server,
     waitOnFirstConnect: true,
+    maxReconnectAttempts: -1,
   });
   isConnected.value = true;
   js = nc.jetstream();
@@ -101,6 +102,8 @@ export const loadApi = async () => {
   void (async () => {
     // eslint-disable-next-line no-restricted-syntax
     for await (const s of nc.status()) {
+      console.log(s);
+
       if (s.type === Events.Disconnect) {
         isConnected.value = false;
       }
