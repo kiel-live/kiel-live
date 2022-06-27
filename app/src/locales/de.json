@@ -42,5 +42,8 @@
   "map": "Karte",
   "analytics": "Analytics",
   "version_from": "Version vom:",
-  "give_feedback": "Feedback geben"
+  "give_feedback": "Feedback geben",
+  "lite_mode": "Lite Mode",
+  "lite_mode_description": "Wenn du den Lite Mode aktiviert hast werden dir die Daten ohne Karte angezeigt, sodass du auch mit geringem Datenvolumen die App nutzen kannst.",
+  "changelog_trips_path_lite_mode": "Anzeige der Route eines ausgewählten Busses auf der Karte und neuer Lite-Modus um Datenvolumen zu sparen"
 }

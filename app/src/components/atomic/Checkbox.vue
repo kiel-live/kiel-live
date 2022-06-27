@@ -1,13 +1,13 @@
 <template>
   <input
     type="checkbox"
-    class="w-6 h-6 rounded"
+    class="w-5 h-5 flex-shrink-0 rounded"
     :checked="modelValue"
     @change="$emit('update:modelValue', !modelValue)"
   />
 </template>
 
-<srcript lang="ts" setup>
+<script lang="ts" setup>
 import { toRef } from 'vue';
 
 const props = defineProps({
@@ -17,9 +17,10 @@ const props = defineProps({
   },
 });
 
-const modelValue = toRef('props');
+const modelValue = toRef(props, 'modelValue');
 
 defineEmits({
-  'update:modelValue': (e: boolean) => true,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  'update:modelValue': (_e: boolean) => true,
 });
-</srcript>
+</script>

@@ -15,6 +15,7 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@vueuse/core": "8.7.5",
     "canvas-confetti": "1.5.1",
     "fuse.js": "6.4.6",
     "maplibre-gl": "2.1.9",
