@@ -23,6 +23,7 @@ import { stops, subscribe, trips, vehicles } from '~/api';
 import { Marker } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
+import { brightMapStyle, darkMapStyle } from '~/config';
 
 export default defineComponent({
   // eslint-disable-next-line vue/multi-word-component-names
@@ -45,10 +46,6 @@ export default defineComponent({
     let initial = true;
 
     const prefersColorSchemeDark = usePrefersColorSchemeDark();
-
-    // TODO configurable tiles server
-    const darkMapStyle = 'https://tiles.slucky.de/styles/gray-matter/style.json';
-    const brightMapStyle = 'https://tiles.slucky.de/styles/bright-matter/style.json';
 
     const vehiclesGeoJson = computed<Feature[]>(() =>
       Object.values(vehicles.value).map((v) => ({
@@ -305,13 +302,15 @@ export default defineComponent({
       });
     });
 
-    // TODO: fix re-rendering of map content
     watch(prefersColorSchemeDark, () => {
       if (prefersColorSchemeDark.value) {
         map.setStyle(darkMapStyle);
       } else {
         map.setStyle(brightMapStyle);
       }
+      // TODO: properly re-render custom layers
+      // eslint-disable-next-line no-restricted-globals
+      location.reload();
     });
 
     watch(geojson, () => {

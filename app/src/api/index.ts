@@ -11,6 +11,7 @@ import {
 import { Ref, ref } from 'vue';
 
 import { Models, Stop, Trip, Vehicle } from '~/api/types';
+import { natsServerUrl } from '~/config';
 
 const sc = StringCodec();
 
@@ -84,14 +85,14 @@ const processSubscriptionsQueue = async () => {
 };
 
 export const loadApi = async () => {
-  const server = import.meta.env.VITE_NATS_URL;
-  if (!server || typeof server !== 'string') {
+  if (!natsServerUrl || typeof natsServerUrl !== 'string') {
     throw new Error('NATS_URL is invalid!');
   }
 
   nc = await connect({
-    servers: server,
+    servers: [natsServerUrl],
     waitOnFirstConnect: true,
+    maxReconnectAttempts: -1,
   });
   isConnected.value = true;
   js = nc.jetstream();

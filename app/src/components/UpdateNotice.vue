@@ -33,10 +33,11 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import Button from '~/components/atomic/Button.vue';
-import { feedbackMail, version as latestVersion } from '~/config';
+import { feedbackMail } from '~/config';
 
 const LS_VERSION_KEY = 'kiel-live-version-v1';
 
+const latestVersion = '2.0.0';
 const version = ref(localStorage.getItem(LS_VERSION_KEY));
 const show = computed(() => version.value !== null && version.value !== latestVersion);
 const { t } = useI18n();
