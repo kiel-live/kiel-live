@@ -1,6 +1,6 @@
 {
   "language": "Language",
-  "search": "Search..",
+  "search": "Search ...",
   "trip_expired": "This tour is probably already over.",
   "trip_does_not_exist": "This tour probably does not exist (anymore).",
   "add_favourites": "Add new stops as favorites by clicking on the star when opening the stop.",
@@ -40,6 +40,11 @@
   "minutes": "{minutes} min",
   "settings": "Settings",
   "map": "Map",
-  "no_connection": "No connection",
-  "analytics": "Analytics"
+  "analytics": "Analytics",
+  "no_connection": "Keine Verbindung",
+  "version_from": "Version from:",
+  "give_feedback": "Give feedback",
+  "lite_mode": "Lite mode",
+  "lite_mode_description": "If you enable the lite mode the data will be shown to you without the map. This allows you to save some data volume.",
+  "changelog_trips_path_lite_mode": "Show the route of a selected bus on the map and new lite mode to save data volume"
 }

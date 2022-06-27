@@ -19,19 +19,23 @@ const routes: RouteRecordRaw[] = [
     path: '/search',
     name: 'search',
     component: (): Component => import('~/views/Home.vue'),
-    props: true,
   },
   {
     path: '/favorites',
     name: 'favorites',
     component: (): Component => import('~/views/Home.vue'),
-    props: true,
   },
   {
-    path: '/settings',
-    name: 'settings',
-    component: (): Component => import('~/views/Settings.vue'),
-    props: true,
+    path: '/settings/about',
+    name: 'settings-about',
+    component: (): Component => import('~/views/settings/About.vue'),
+    meta: { settings: true },
+  },
+  {
+    path: '/settings/changelog',
+    name: 'settings-changelog',
+    component: (): Component => import('~/views/settings/Changelog.vue'),
+    meta: { settings: true },
   },
   {
     path: '/:pathMatch(.*)*',
@@ -46,7 +50,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next): void => {
-  if (firstStartOfApp && to.name === 'home') {
+  if (to.name === 'home' && firstStartOfApp) {
     firstStartOfApp = false;
     next({ name: 'favorites' });
     return;

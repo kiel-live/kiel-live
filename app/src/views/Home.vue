@@ -18,8 +18,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, ref } from 'vue';
+<script lang="ts" setup>
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { Marker } from '~/api/types';
@@ -30,38 +30,26 @@ import FavoritesPopup from '~/components/popups/FavoritesPopup.vue';
 import MarkerPopup from '~/components/popups/MarkerPopup.vue';
 import SearchPopup from '~/components/popups/SearchPopup.vue';
 
-export default defineComponent({
-  // eslint-disable-next-line vue/multi-word-component-names
-  name: 'Home',
-
-  components: { Map, DetailsPopup, AppBar, MarkerPopup, SearchPopup, FavoritesPopup },
-
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const selectedMarker = computed<Marker | undefined>({
-      get() {
-        if (route.name !== 'map-marker') {
-          return undefined;
-        }
-
-        return {
-          type: route.params.markerType,
-          id: route.params.markerId,
-        } as Marker;
-      },
-      async set(marker) {
-        if (!marker) {
-          await router.replace({ name: 'home' });
-          return;
-        }
-        await router.replace({ name: 'map-marker', params: { markerType: marker.type, markerId: marker.id } });
-      },
-    });
-
-    const searchInput = ref('');
-
-    return { selectedMarker, searchInput };
+const route = useRoute();
+const router = useRouter();
+const selectedMarker = computed<Marker | undefined>({
+  get() {
+    if (route.name !== 'map-marker') {
+      return undefined;
+    }
+    return {
+      type: route.params.markerType,
+      id: route.params.markerId,
+    } as Marker;
+  },
+  async set(marker) {
+    if (!marker) {
+      await router.replace({ name: 'home' });
+      return;
+    }
+    await router.replace({ name: 'map-marker', params: { markerType: marker.type, markerId: marker.id } });
   },
 });
+
+const searchInput = ref('');
 </script>

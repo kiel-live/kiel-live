@@ -85,7 +85,7 @@ const eta = (arrival: StopArrival) => {
     return t('stopping');
   }
   if (minutes < 1) {
-    return t('now');
+    return t('immediately');
   }
 
   return t('minutes', { minutes });
