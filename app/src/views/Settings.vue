@@ -15,7 +15,7 @@
       <Button href="https://github.com/kiel-live/kiel-live">
         <i-mdi-github class="mr-2" /><span>{{ t('develop_on_github') }}</span>
       </Button>
-      <Button href="https://boomerang.ju60.de/share/z8KAHmGY/Kiel%20Live%202.0">
+      <Button href="https://boomerang.ju60.de/share/z8KAHmGY/Kiel%20Live">
         <i-ion-md-analytics class="mr-2" /><span>{{ t('analytics') }}</span>
       </Button>
 
