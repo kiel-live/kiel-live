@@ -37,5 +37,7 @@
   "changelog_project_started": "Project started",
   "stopping": "stopping",
   "immediately": "immediately",
-  "minutes": "{minutes} min"
+  "minutes": "{minutes} min",
+  "settings": "Settings",
+  "map": "Map"
 }

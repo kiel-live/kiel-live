@@ -36,7 +36,7 @@
             </div>
           </router-link>
         </template>
-        <NoData v-else>{{ t('no_man_wants_to_stop_here_right_now') }}</NoData>
+        <NoData v-else>{{ t('no_bus_wants_to_stop_here_right_now') }}</NoData>
       </template>
       <i-fa-solid-circle-notch v-else class="m-auto text-3xl animate-spin" />
     </div>

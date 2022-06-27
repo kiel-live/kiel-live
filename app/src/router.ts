@@ -28,9 +28,9 @@ const routes: RouteRecordRaw[] = [
     props: true,
   },
   {
-    path: '/about',
-    name: 'about',
-    component: (): Component => import('~/views/Home.vue'),
+    path: '/settings',
+    name: 'settings',
+    component: (): Component => import('~/views/Settings.vue'),
     props: true,
   },
   {
