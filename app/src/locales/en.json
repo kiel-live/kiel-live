@@ -40,5 +40,6 @@
   "minutes": "{minutes} min",
   "settings": "Settings",
   "map": "Map",
-  "no_connection": "No connection"
+  "no_connection": "No connection",
+  "analytics": "Analytics"
 }

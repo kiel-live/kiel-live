@@ -40,5 +40,6 @@
   "minutes": "{minutes} Min",
   "settings": "Einstellungen",
   "map": "Karte",
-  "no_connection": "Keine Verbindung"
+  "no_connection": "Keine Verbindung",
+  "analytics": "Analytics"
 }
