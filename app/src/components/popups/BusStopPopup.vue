@@ -12,7 +12,7 @@
     <div class="flex flex-col flex-grow overflow-y-auto">
       <div v-if="stop.alerts && stop.alerts.length >= 1" class="bg-red-600 bg-opacity-50 p-2 mb-2 rounded-md">
         <div class="flex items-center border-b-1 mb-4">
-          <i-mdi-alert class="mr-2" /><span class="font-bold">Hinweise</span>
+          <i-mdi-alert class="mr-2" /><span class="font-bold">{{ t('alerts') }}</span>
         </div>
         <div v-for="(alert, i) in stop.alerts" :key="i" class="flex items-center">{{ alert }}</div>
       </div>
@@ -36,13 +36,13 @@
             </div>
           </router-link>
         </template>
-        <NoData v-else>Hier will gerade wohl kein Manni halten.</NoData>
+        <NoData v-else>{{ t('no_bus_wants_to_stop_here_right_now') }}</NoData>
       </template>
       <i-fa-solid-circle-notch v-else class="m-auto text-3xl animate-spin" />
     </div>
   </div>
   <NoData v-else>
-    Diese Haltestelle gibt es wohl nicht.
+    {{ t('this_stop_probably_does_not_exist') }}
     <Button
       v-if="isFavorite(marker)"
       class="mt-2"
@@ -53,13 +53,14 @@
         }
       "
     >
-      <i-ph-star-fill class="mr-2 text-yellow-300" /><span>Favorit löschen</span>
+      <i-ph-star-fill class="mr-2 text-yellow-300" /><span>{{ t('remove_favorite') }}</span>
     </Button>
   </NoData>
 </template>
 
 <script setup lang="ts">
 import { computed, onUnmounted, toRef, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { stops, subscribe, unsubscribe } from '~/api';
 import { Marker, StopArrival } from '~/api/types';
@@ -72,6 +73,7 @@ const props = defineProps<{
 }>();
 
 const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+const { t } = useI18n();
 
 const marker = toRef(props, 'marker');
 const stop = computed(() => stops.value[props.marker.id]);
@@ -80,13 +82,13 @@ const eta = (arrival: StopArrival) => {
   const minutes = Math.round(arrival.eta / 60);
 
   if (arrival.state === 'stopping') {
-    return 'hält';
+    return t('stopping');
   }
   if (minutes < 1) {
-    return 'sofort';
+    return t('now');
   }
 
-  return `${minutes} Min`;
+  return t('minutes', { minutes });
 };
 
 watch(

@@ -2,10 +2,10 @@
   <div class="flex flex-col min-h-0 flex-grow">
     <div class="flex pb-2 mb-2 border-b-1 dark:border-dark-100 space-x-2 items-center">
       <i-ph-star-fill />
-      <span class="text-lg">Favoriten</span>
+      <span class="text-lg">{{ t('favorites') }}</span>
     </div>
     <div v-if="favorites.length === 0" class="m-auto max-w-52 text-center text-xl">
-      <p>Füge neue Haltestellen als Favoriten hinzu, indem du beim Öffnen der Haltestelle auf den Stern klickst.</p>
+      <p>{{ t('add_favourites') }}</p>
     </div>
     <div class="flex flex-col overflow-y-auto">
       <router-link
@@ -24,18 +24,11 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script lang="ts" setup>
+import { useI18n } from 'vue-i18n';
 
 import { useFavorites } from '~/compositions/useFavorites';
 
-export default defineComponent({
-  name: 'FavoritesPopup',
-
-  setup() {
-    const { favorites } = useFavorites();
-
-    return { favorites };
-  },
-});
+const { t } = useI18n();
+const { favorites } = useFavorites();
 </script>

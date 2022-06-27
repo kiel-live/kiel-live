@@ -11,13 +11,15 @@ import {
   AttributionControl,
   CircleLayerSpecification,
   GeoJSONSource,
+  GeolocateControl,
+  LineLayerSpecification,
   Map,
   Source,
   SymbolLayerSpecification,
 } from 'maplibre-gl';
 import { computed, defineComponent, onMounted, PropType, Ref, toRef, watch } from 'vue';
 
-import { stops, subscribe, vehicles } from '~/api';
+import { stops, subscribe, trips, vehicles } from '~/api';
 import { Marker } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
@@ -79,12 +81,49 @@ export default defineComponent({
       })),
     );
 
+    const selectedMarker = toRef(props, 'selectedMarker');
+
+    const selectedVehicle = computed(() => vehicles.value[selectedMarker.value.id]);
+
+    const trip = computed(() => {
+      if (!trips.value || !selectedVehicle.value) {
+        return null;
+      }
+      return trips.value[selectedVehicle.value.tripId];
+    });
+
+    const tripsGeoJson = computed<Feature[]>(() => {
+      if (selectedMarker.value.type === 'bus' && trip.value?.arrivals) {
+        return [
+          {
+            type: 'Feature',
+            properties: {
+              type: 'trip',
+            },
+            geometry: {
+              type: 'LineString',
+              coordinates: trip.value?.arrivals
+                ?.map((arrival) => {
+                  if (stops.value[arrival.id]) {
+                    return [
+                      stops.value[arrival.id].location.longitude / 3600000,
+                      stops.value[arrival.id].location.latitude / 3600000,
+                    ];
+                  }
+                  return [0, 0];
+                })
+                .filter((c) => c[0] !== 0 && c[1] !== 0),
+            },
+          },
+        ];
+      }
+      return [];
+    });
+
     const geojson = computed<FeatureCollection>(() => ({
       type: 'FeatureCollection',
-      features: [...vehiclesGeoJson.value, ...stopsGeoJson.value],
+      features: [...vehiclesGeoJson.value, ...stopsGeoJson.value, ...tripsGeoJson.value],
     }));
-
-    const selectedMarker = toRef(props, 'selectedMarker');
 
     const stopsLayer: Ref<CircleLayerSpecification> = computed(() => ({
       id: 'stops',
@@ -134,6 +173,17 @@ export default defineComponent({
       },
     }));
 
+    const tripsLayer: Ref<LineLayerSpecification> = computed(() => ({
+      id: 'trips',
+      type: 'line',
+      source: 'geojson',
+      filter: ['==', 'type', 'trip'],
+      paint: {
+        'line-width': 3,
+        'line-color': 'rgb(170, 0, 0)',
+      },
+    }));
+
     function flyTo(center: [number, number]) {
       if (!map) {
         return;
@@ -165,10 +215,19 @@ export default defineComponent({
       });
 
       const attributionControl = new AttributionControl({ compact: true });
-      map.addControl(attributionControl);
+      map.addControl(attributionControl, 'bottom-left');
 
-      // var nav = new MapLibre.NavigationControl();
-      // map.addControl(nav, 'bottom-right');
+      map.addControl(
+        new GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true,
+          },
+          trackUserLocation: true,
+        }),
+        'bottom-right',
+      );
+
+      // map.addControl(new NavigationControl({}), 'bottom-right');
 
       map.on('styleimagemissing', (e) => {
         const [type, focus, route, heading] = e.id.split('-');
@@ -186,6 +245,8 @@ export default defineComponent({
         });
 
         map.addLayer(stopsLayer.value);
+
+        map.addLayer(tripsLayer.value);
 
         map.addLayer(vehiclesLayer.value);
 
