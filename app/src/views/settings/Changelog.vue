@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="md:max-w-200 md:mx-auto">
     <h1 class="mb-2 text-xl font-bold">{{ t('changelog') }}</h1>
 
     <div v-for="(entry, id) in changelog" :key="id">

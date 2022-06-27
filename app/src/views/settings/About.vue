@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col min-h-0 flex-grow overflow-y-auto p-2">
+  <div class="flex flex-col min-h-0 flex-grow overflow-y-auto p-2 md:max-w-200 md:mx-auto">
     <h1 class="mb-4 text-xl font-bold">{{ t('kiel_live') }}</h1>
 
     <img src="../../assets/logo.png" alt="..." class="w-36 mx-auto mb-4" />
