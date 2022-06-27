@@ -83,13 +83,13 @@ export default defineComponent({
 
     const selectedMarker = toRef(props, 'selectedMarker');
 
-    const vehicle = computed(() => vehicles.value[selectedMarker.value.id]);
+    const selectedVehicle = computed(() => vehicles.value[selectedMarker.value.id]);
 
     const trip = computed(() => {
-      if (!trips.value || !vehicle.value) {
+      if (!trips.value || !selectedVehicle.value) {
         return null;
       }
-      return trips.value[vehicle.value.tripId];
+      return trips.value[selectedVehicle.value.tripId];
     });
 
     const tripsGeoJson = computed<Feature[]>(() => {
@@ -102,15 +102,17 @@ export default defineComponent({
             },
             geometry: {
               type: 'LineString',
-              coordinates: trip.value?.arrivals?.map((arrival) => {
-                if (stops.value[arrival.id]) {
-                  return [
-                    stops.value[arrival.id].location.longitude / 3600000,
-                    stops.value[arrival.id].location.latitude / 3600000,
-                  ];
-                }
-                return [0, 0];
-              }),
+              coordinates: trip.value?.arrivals
+                ?.map((arrival) => {
+                  if (stops.value[arrival.id]) {
+                    return [
+                      stops.value[arrival.id].location.longitude / 3600000,
+                      stops.value[arrival.id].location.latitude / 3600000,
+                    ];
+                  }
+                  return [0, 0];
+                })
+                .filter((c) => c[0] !== 0 && c[1] !== 0),
             },
           },
         ];
