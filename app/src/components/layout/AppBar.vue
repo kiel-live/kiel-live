@@ -10,7 +10,7 @@
         :value="internalSearchInput"
         type="text"
         class="bg-transparent p-2 border border-transparent focus:outline-none focus-visible:(outline-none rounded-md border-gray-300 border-opacity-50) w-full h-full"
-        :placeholder="t('search')"
+        :placeholder="`${t('search')} ...`"
         autofocus
         @input="(event) => (internalSearchInput = (event.currentTarget as HTMLInputElement).value)"
         @keydown.escape="$router.back()"

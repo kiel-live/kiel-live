@@ -11,7 +11,7 @@
         :aria-label="t('search')"
       >
         <i-ph-magnifying-glass-bold class="w-6 h-6 mb-1" />
-        <span class="mt-auto text-xs">{{ t('search').split(' ')[0] }}</span>
+        <span class="mt-auto text-xs">{{ t('search') }}</span>
       </router-link>
       <router-link
         v-else
