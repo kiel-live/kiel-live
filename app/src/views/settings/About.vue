@@ -1,19 +1,26 @@
 <template>
-  <div class="flex flex-col min-h-0 flex-grow overflow-y-auto p-2">
-    <h1 class="mb-2 text-xl font-bold">{{ t('kiel_live') }}</h1>
+  <div class="flex flex-col min-h-0 flex-grow overflow-y-auto p-2 md:max-w-200 md:mx-auto">
+    <h1 class="mb-4 text-xl font-bold">{{ t('kiel_live') }}</h1>
 
-    <img src="../../assets/logo.png" alt="..." class="w-36 mx-auto my-4" />
+    <img src="../../assets/logo.png" alt="..." class="w-36 mx-auto mb-4" />
 
-    <p class="mb-2 text-center">{{ t('where_is_my_bus') }}</p>
+    <p class="mb-4 text-center">{{ t('where_is_my_bus') }}</p>
 
     <p class="mb-2 text-center">{{ t('support_us') }}</p>
 
-    <Button href="https://www.instagram.com/kiel.live/" class="mx-auto w-8/10">
+    <Button href="https://www.instagram.com/kiel.live/" class="mx-auto mb-auto w-8/10">
       <i-mdi-instagram class="mr-2" />
       <span>{{ t('follow_instagram', { account: '@kiel.live' }) }}</span>
     </Button>
 
     <div class="flex flex-col mt-4">
+      <router-link
+        :to="{ name: 'settings-settings' }"
+        class="flex items-center border-b border-t dark:border-gray-600 py-4 px-2 gap-2"
+      >
+        <i-ph-gear-fill />
+        <span>{{ t('settings') }}</span>
+      </router-link>
       <a :href="`mailto:${feedbackMail}`" class="flex items-center border-b dark:border-gray-600 py-4 px-2 gap-2">
         <i-ic-round-message />
         <span>{{ t('give_feedback') }}</span>
