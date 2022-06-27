@@ -40,5 +40,7 @@
   "minutes": "{minutes} Min",
   "settings": "Einstellungen",
   "map": "Karte",
-  "analytics": "Analytics"
+  "analytics": "Analytics",
+  "version_from": "Version vom:",
+  "give_feedback": "Feedback geben"
 }

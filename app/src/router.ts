@@ -30,9 +30,21 @@ const routes: RouteRecordRaw[] = [
     props: true,
   },
   {
-    path: '/settings',
-    name: 'settings',
-    component: (): Component => import('~/views/Settings.vue'),
+    path: '/settings/about',
+    name: 'settings-about',
+    component: (): Component => import('~/views/settings/About.vue'),
+    props: true,
+  },
+  {
+    path: '/settings/changelog',
+    name: 'settings-changelog',
+    component: (): Component => import('~/views/settings/Changelog.vue'),
+    props: true,
+  },
+  {
+    path: '/settings/settings',
+    name: 'settings-settings',
+    component: (): Component => import('~/views/settings/Settings.vue'),
     props: true,
   },
   {
@@ -47,10 +59,10 @@ const router = createRouter({
   routes,
 });
 
-const { useLiteMode } = useUserSettings();
+const { liteMode } = useUserSettings();
 
 router.beforeEach((to, from, next): void => {
-  if (to.name === 'home' && (firstStartOfApp || useLiteMode.value)) {
+  if (to.name === 'home' && (firstStartOfApp || liteMode.value)) {
     firstStartOfApp = false;
     next({ name: 'favorites' });
     return;

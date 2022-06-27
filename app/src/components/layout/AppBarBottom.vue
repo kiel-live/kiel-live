@@ -7,7 +7,7 @@
         v-if="liteMode"
         :to="{ name: 'search' }"
         class="flex flex-col items-center w-1/3 p-2"
-        :class="{ 'text-blue-400': $route.name !== 'favorites' && $route.name !== 'settings' }"
+        :class="{ 'text-blue-400': $route.name !== 'favorites' && $route.name !== 'settings-about' }"
         :aria-label="t('search')"
       >
         <i-ph-magnifying-glass-bold class="w-6 h-6 mb-1" />
@@ -17,7 +17,7 @@
         v-else
         :to="{ name: 'home' }"
         class="flex flex-col items-center w-1/3 p-2"
-        :class="{ 'text-blue-400': $route.name !== 'favorites' && $route.name !== 'settings' }"
+        :class="{ 'text-blue-400': $route.name !== 'favorites' && $route.name !== 'settings-about' }"
         :aria-label="t('map')"
       >
         <i-carbon-map class="w-6 h-6 mb-1" />
@@ -33,9 +33,9 @@
         <span class="mt-auto text-xs">{{ t('favorites') }}</span>
       </router-link>
       <router-link
-        :to="{ name: 'settings' }"
+        :to="{ name: 'settings-about' }"
         class="flex flex-col items-center w-1/3 p-2"
-        :class="{ 'text-blue-400': $route.name === 'settings' }"
+        :class="{ 'text-blue-400': $route.name === 'settings-about' }"
         :aria-label="t('settings')"
       >
         <i-ic-baseline-settings class="w-6 h-6 mb-1" />
