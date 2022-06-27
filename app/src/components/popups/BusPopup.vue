@@ -11,11 +11,12 @@
           :key="arrival.id"
           :to="{ name: 'map-marker', params: { markerType: 'bus-stop', markerId: arrival.id } }"
           class="flex w-full items-center"
-          :class="{ 'mt-6': i === 0 && arrival.state === 'predicted' }"
+          :class="{ 'text-gray-500': arrival.state === 'departed', 'mt-6': i === 0 && arrival.state === 'predicted' }"
         >
           <span class="w-14 min-w-12">{{ arrival.planned }}</span>
           <div
             class="marker relative flex justify-center items-center mx-4 h-12 w-8 min-w-4 after:(absolute top-0 h-full bg-gray-800 dark:bg-gray-300)"
+            :class="{ 'after:(bg-gray-500 dark:bg-gray-500)': arrival.state === 'departed' }"
           >
             <div
               v-if="
