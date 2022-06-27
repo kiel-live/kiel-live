@@ -1,5 +1,5 @@
 <template>
-  <div class="md:max-w-200 md:mx-auto">
+  <SettingsContainer>
     <h1 class="mb-2 text-xl font-bold">{{ t('changelog') }}</h1>
 
     <div v-for="(entry, id) in changelog" :key="id">
@@ -10,11 +10,13 @@
       {{ new Date('2019-05-20').toLocaleDateString() }}
     </h3>
     <span><i-fa-solid-birthday-cake class="align-text-bottom" /> {{ t('changelog_project_started') }}</span>
-  </div>
+  </SettingsContainer>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
+
+import SettingsContainer from '~/components/layout/SettingsContainer.vue';
 
 const { t } = useI18n();
 

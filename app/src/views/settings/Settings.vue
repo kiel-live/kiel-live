@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col min-h-0 flex-grow overflow-y-auto p-2 md:max-w-200 md:mx-auto">
+  <SettingsContainer>
     <h1 class="mb-2 text-xl font-bold">{{ t('settings') }}</h1>
 
     <div class="flex gap-4 items-center">
@@ -9,13 +9,14 @@
       </div>
       <Checkbox v-model="liteMode" />
     </div>
-  </div>
+  </SettingsContainer>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
 
 import Checkbox from '~/components/atomic/Checkbox.vue';
+import SettingsContainer from '~/components/layout/SettingsContainer.vue';
 import { useUserSettings } from '~/compositions/useUserSettings';
 
 const { liteMode } = useUserSettings();
