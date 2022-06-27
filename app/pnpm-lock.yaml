@@ -9,7 +9,7 @@ specifiers:
   '@typescript-eslint/eslint-plugin': 5.5.0
   '@typescript-eslint/parser': 5.5.0
   '@vitejs/plugin-vue': 2.3.1
-  '@vueuse/core': ^8.7.5
+  '@vueuse/core': 8.7.5
   canvas-confetti: 1.5.1
   eslint: 8.4.0
   eslint-config-airbnb-base: 15.0.0
