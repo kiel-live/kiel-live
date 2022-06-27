@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex w-full justify-center border-t-1 border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-dark-400 dark:text-gray-300"
+    class="flex w-full justify-center border-t-1 border-gray-200 dark:border-gray-800 dark:bg-dark-400 dark:text-gray-300 shadow-top"
   >
     <div class="flex w-full justify-around max-w-96">
       <router-link

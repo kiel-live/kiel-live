@@ -9,10 +9,10 @@
         {{ t('where_is_my_bus') }}
       </p>
       <p class="mb-2">{{ t('support_us') }}</p>
-      <Button href="https://www.instagram.com/kiel.live/" class="w-full">
+      <Button href="https://www.instagram.com/kiel.live/">
         <i-mdi-instagram class="mr-2" /><span>{{ t('follow_instagram', { account: '@kiel.live' }) }}</span>
       </Button>
-      <Button href="https://github.com/kiel-live/kiel-live" class="w-full">
+      <Button href="https://github.com/kiel-live/kiel-live">
         <i-mdi-github class="mr-2" /><span>{{ t('develop_on_github') }}</span>
       </Button>
 
