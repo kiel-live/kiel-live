@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col min-h-0 flex-grow overflow-y-auto p-2 md:max-w-200 md:mx-auto">
+  <SettingsContainer>
     <h1 class="mb-4 text-xl font-bold">{{ t('kiel_live') }}</h1>
 
     <img src="../../assets/logo.png" alt="..." class="w-36 mx-auto mb-4" />
@@ -56,13 +56,14 @@
       <span>{{ t('version_from') }}</span>
       <span>{{ buildDate }}</span>
     </p>
-  </div>
+  </SettingsContainer>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
 
 import Button from '~/components/atomic/Button.vue';
+import SettingsContainer from '~/components/layout/SettingsContainer.vue';
 import { analyticsUrl, buildDate, feedbackMail } from '~/config';
 
 const { t } = useI18n();
