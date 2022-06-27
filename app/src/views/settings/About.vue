@@ -41,10 +41,15 @@
         <i-ic-outline-update />
         <span>{{ t('changelog') }}</span>
       </router-link>
-      <router-link :to="{ name: 'settings-changelog' }" class="flex items-center py-4 px-2 gap-2">
+      <a
+        href="https://github.com/kiel-live/kiel-live"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center py-4 px-2 gap-2"
+      >
         <i-mdi-github />
         <span>{{ t('develop_on_github') }}</span>
-      </router-link>
+      </a>
     </div>
 
     <p v-if="buildDate" class="flex dark:text-gray-500 text-sm gap-1">
