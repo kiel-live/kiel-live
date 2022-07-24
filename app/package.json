@@ -3,8 +3,8 @@
   "author": "kiel-live.github.io Team",
   "version": "0.0.0",
   "engines": {
-    "node": "14 || 16",
-    "pnpm": "6"
+    "node": "14 || 16 || 18",
+    "pnpm": "7"
   },
   "scripts": {
     "start": "VITE_BUILD_DATE=$(date '+%d.%m.%Y %H:%M:%S') vite",
