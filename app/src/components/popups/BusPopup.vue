@@ -46,63 +46,51 @@
   <NoData v-else>{{ t('trip_does_not_exist') }}</NoData>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from 'vue';
+<script lang="ts" setup>
+import { computed, onUnmounted, toRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { subscribe, trips, unsubscribe, vehicles } from '~/api';
 import { Marker } from '~/api/types';
 import NoData from '~/components/NoData.vue';
 
-export default defineComponent({
-  name: 'BusPopup',
+const props = defineProps<{
+  marker: Marker;
+}>();
 
-  components: { NoData },
+const { t } = useI18n();
 
-  props: {
-    marker: {
-      type: Object as PropType<Marker>,
-      required: true,
-    },
+const marker = toRef(props, 'marker');
+let subject: string | null = null;
+
+const vehicle = computed(() => vehicles.value[marker.value.id]);
+
+const trip = computed(() => {
+  if (!trips.value || !vehicle.value) {
+    return null;
+  }
+  return trips.value[vehicle.value.tripId];
+});
+
+watch(
+  vehicle,
+  async () => {
+    if (subject !== null) {
+      await unsubscribe(subject);
+    }
+    if (!vehicle.value) {
+      return;
+    }
+    subject = `data.map.trip.${vehicle.value.tripId}`;
+    await subscribe(subject, trips);
   },
+  { immediate: true },
+);
 
-  setup(props) {
-    const { t } = useI18n();
-
-    const marker = toRef(props, 'marker');
-    let subject: string | null = null;
-
-    const vehicle = computed(() => vehicles.value[marker.value.id]);
-
-    const trip = computed(() => {
-      if (!trips.value || !vehicle.value) {
-        return null;
-      }
-      return trips.value[vehicle.value.tripId];
-    });
-
-    watch(
-      vehicle,
-      async () => {
-        if (subject !== null) {
-          await unsubscribe(subject);
-        }
-        if (!vehicle.value) {
-          return;
-        }
-        subject = `data.map.trip.${vehicle.value.tripId}`;
-        await subscribe(subject, trips);
-      },
-      { immediate: true },
-    );
-
-    onUnmounted(async () => {
-      if (subject !== null) {
-        await unsubscribe(subject);
-      }
-    });
-    return { t, trip, vehicle };
-  },
+onUnmounted(async () => {
+  if (subject !== null) {
+    await unsubscribe(subject);
+  }
 });
 </script>
 

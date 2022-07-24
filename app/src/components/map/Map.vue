@@ -6,7 +6,7 @@
 // eslint-disable-next-line no-restricted-imports
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import { Feature, FeatureCollection, Point } from 'geojson';
+import type { Feature, FeatureCollection, Point } from 'geojson';
 import {
   AttributionControl,
   CircleLayerSpecification,
@@ -26,7 +26,6 @@ import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme'
 import { brightMapStyle, darkMapStyle } from '~/config';
 
 export default defineComponent({
-  // eslint-disable-next-line vue/multi-word-component-names
   name: 'Map',
 
   props: {

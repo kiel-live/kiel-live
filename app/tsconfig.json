@@ -17,5 +17,5 @@
     "types": ["vite/client", "unplugin-icons/types/vue", "vite-plugin-pwa/client"],
     "isolatedModules": true
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "components.d.ts"]
 }
