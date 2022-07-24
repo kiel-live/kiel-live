@@ -24,52 +24,40 @@
   </div>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, toRef } from 'vue';
+<script lang="ts" setup>
+import { computed, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
 import { isConnected } from '~/api';
 
-export default defineComponent({
-  name: 'AppBar',
+const props = defineProps<{
+  searchInput: string;
+}>();
 
-  props: {
-    searchInput: {
-      type: String,
-      required: true,
-    },
+const emit = defineEmits<{
+  (e: 'update:search-input', searchInput: string): void;
+}>();
+
+const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+
+const searchInput = toRef(props, 'searchInput');
+const internalSearchInput = computed({
+  get() {
+    return searchInput.value;
   },
+  set(_searchInput: string) {
+    emit('update:search-input', _searchInput);
 
-  emits: {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    'update:search-input': (_searchInput: string) => true,
-  },
+    if (_searchInput.length > 0 && route.name !== 'search') {
+      void router.push({ name: 'search' });
+    }
 
-  setup(props, { emit }) {
-    const { t } = useI18n();
-    const route = useRoute();
-    const router = useRouter();
-
-    const searchInput = toRef(props, 'searchInput');
-    const internalSearchInput = computed({
-      get() {
-        return searchInput.value;
-      },
-      set(_searchInput: string) {
-        emit('update:search-input', _searchInput);
-
-        if (_searchInput.length > 0 && route.name !== 'search') {
-          void router.push({ name: 'search' });
-        }
-
-        if (_searchInput.length === 0 && route.name === 'search') {
-          void router.push({ name: 'home' });
-        }
-      },
-    });
-
-    return { t, isConnected, internalSearchInput };
+    if (_searchInput.length === 0 && route.name === 'search') {
+      void router.push({ name: 'home' });
+    }
   },
 });
 </script>

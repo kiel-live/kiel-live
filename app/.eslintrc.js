@@ -80,7 +80,7 @@ module.exports = {
     'no-console': 'warn',
     'no-useless-concat': 'error',
     'prefer-const': 'error',
-    'spaced-comment': ['error', 'always'],
+    'spaced-comment': ['error', 'always', { markers: ['/'] }],
     'object-shorthand': ['error', 'always'],
     'no-useless-rename': 'error',
     eqeqeq: 'error',
@@ -122,6 +122,8 @@ module.exports = {
     ],
     'vue/new-line-between-multi-line-property': 'error',
     'vue/padding-line-between-blocks': 'error',
+    'vue/multi-word-component-names': 'off',
+    'vue/no-reserved-component-names': 'off',
 
     // css rules
     'vue-scoped-css/no-unused-selector': 'error',

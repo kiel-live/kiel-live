@@ -36,5 +36,5 @@ ports:
     onOpen: notify
   - port: 8222
     onOpen: notify
-  - port: 3000
+  - port: 5173
     onOpen: open-browser

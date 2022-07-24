@@ -60,12 +60,12 @@ const selectedMarker = computed<Marker | undefined>({
       id: route.params.markerId,
     } as Marker;
   },
-  async set(marker) {
+  set(marker) {
     if (!marker) {
-      await router.replace({ name: 'home' });
+      void router.replace({ name: 'home' });
       return;
     }
-    await router.replace({ name: 'map-marker', params: { markerType: marker.type, markerId: marker.id } });
+    void router.replace({ name: 'map-marker', params: { markerType: marker.type, markerId: marker.id } });
   },
 });
 
