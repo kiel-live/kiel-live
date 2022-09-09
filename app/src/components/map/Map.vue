@@ -6,7 +6,7 @@
 // eslint-disable-next-line no-restricted-imports
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import type { Feature, FeatureCollection, Point } from 'geojson';
+import type { Feature, FeatureCollection, Point, Position } from 'geojson';
 import {
   AttributionControl,
   CircleLayerSpecification,
@@ -90,6 +90,24 @@ export default defineComponent({
 
     const tripsGeoJson = computed<Feature[]>(() => {
       if (selectedMarker.value.type === 'bus' && trip.value?.arrivals) {
+        const coordinates: Position[] = [];
+        const { arrivals } = trip.value;
+        arrivals.forEach((arrival, i) => {
+          if (
+            (arrival.state === 'predicted' || arrival.state === 'stopping') &&
+            (i === 0 || arrivals[i - 1]?.state === 'departed')
+          ) {
+            coordinates.push([
+              selectedVehicle.value.location.longitude / 3600000,
+              selectedVehicle.value.location.latitude / 3600000,
+            ]);
+          }
+          const stop = stops.value[arrival.id];
+          if (stop) {
+            coordinates.push([stop.location.longitude / 3600000, stop.location.latitude / 3600000]);
+          }
+        });
+
         return [
           {
             type: 'Feature',
@@ -98,17 +116,7 @@ export default defineComponent({
             },
             geometry: {
               type: 'LineString',
-              coordinates: trip.value?.arrivals
-                ?.map((arrival) => {
-                  if (stops.value[arrival.id]) {
-                    return [
-                      stops.value[arrival.id].location.longitude / 3600000,
-                      stops.value[arrival.id].location.latitude / 3600000,
-                    ];
-                  }
-                  return [0, 0];
-                })
-                .filter((c) => c[0] !== 0 && c[1] !== 0),
+              coordinates,
             },
           },
         ];
