@@ -12,6 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  sliding_up_panel: ^2.0.0+1
+
   maplibre_gl:
     git:
       url: https://github.com/m0nac0/flutter-maplibre-gl.git

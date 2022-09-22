@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart'; // ignore: unnecessary_import
 import 'package:maplibre_gl/mapbox_gl.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class Map extends StatefulWidget {
   const Map();
@@ -33,15 +34,21 @@ class MapState extends State<Map> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(children: [
-        MaplibreMap(
+      body: SlidingUpPanel(
+        minHeight: MediaQuery.of(context).size.height * 0.2,
+        maxHeight: MediaQuery.of(context).size.height * 1,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+        panel: const Center(
+          child: Text("This is the sliding Widget"),
+        ),
+        body: MaplibreMap(
           styleString: "https://tiles.ju60.de/styles/gray-matter/style.json",
           onMapCreated: _onMapCreated,
-          initialCameraPosition:
-              const CameraPosition(target: LatLng(10.1283, 54.3166)),
+          initialCameraPosition: const CameraPosition(
+              target: LatLng(54.3166, 10.1283), zoom: 11.0),
           onStyleLoadedCallback: _onStyleLoadedCallback,
         ),
-      ]),
+      ),
     );
   }
 }
