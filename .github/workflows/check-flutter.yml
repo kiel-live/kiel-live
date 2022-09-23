@@ -1,0 +1,35 @@
+name: Check Flutter
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - flutter/**
+      - .github/workflows/check-flutter.yml
+  push:
+    branches:
+      - main
+permissions:
+  contents: read
+  # Optional: allow read access to pull request. Use with `only-new-issues` option.
+  # pull-requests: read
+jobs:
+  flutter:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.0.5'
+          channel: 'stable'
+          cache: true
+          cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:"
+      - run: flutter pub get
+        working-directory: flutter/
+      - run: flutter test
+        working-directory: flutter/
+      - run: flutter build apk
+        working-directory: flutter/
+      # - run: flutter build appbundle
+      #   working-directory: flutter/
