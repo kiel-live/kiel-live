@@ -34,18 +34,17 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, defineAsyncComponent, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { Marker } from '~/api/types';
 import DetailsPopup from '~/components/DetailsPopup.vue';
 import AppBar from '~/components/layout/AppBar.vue';
+import Map from '~/components/map/Map.vue';
 import FavoritesPopup from '~/components/popups/FavoritesPopup.vue';
 import MarkerPopup from '~/components/popups/MarkerPopup.vue';
 import SearchPopup from '~/components/popups/SearchPopup.vue';
 import { useUserSettings } from '~/compositions/useUserSettings';
-
-const Map = defineAsyncComponent(() => import('~/components/map/Map.vue'));
 
 const { liteMode } = useUserSettings();
 const route = useRoute();
