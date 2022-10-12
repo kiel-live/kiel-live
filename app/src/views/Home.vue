@@ -5,7 +5,7 @@
     <DetailsPopup
       :is-open="!!selectedMarker"
       :disable-resize="liteMode"
-      :size="liteMode ? '1' : '3/4'"
+      :size="popupSize"
       @close="selectedMarker = undefined"
     >
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
@@ -14,7 +14,7 @@
     <DetailsPopup
       :is-open="$route.name === 'search'"
       :disable-resize="liteMode"
-      :size="liteMode ? '1' : '1/2'"
+      :size="popupSize"
       @close="$router.replace({ name: 'home' })"
     >
       <SearchPopup v-model:search-input="searchInput" />
@@ -23,13 +23,18 @@
     <DetailsPopup
       :is-open="$route.name === 'favorites'"
       :disable-resize="liteMode"
-      :size="liteMode ? '1' : '1/2'"
+      :size="popupSize"
       @close="$router.replace({ name: 'home' })"
     >
       <FavoritesPopup />
     </DetailsPopup>
 
-    <Map v-if="!liteMode" :selected-marker="selectedMarker" @marker-click="selectedMarker = $event" />
+    <Map
+      v-if="!liteMode"
+      v-model:map-moved-manually="mapMovedManually"
+      :selected-marker="selectedMarker"
+      @marker-click="selectedMarker = $event"
+    />
   </div>
 </template>
 
@@ -69,4 +74,15 @@ const selectedMarker = computed<Marker | undefined>({
 });
 
 const searchInput = ref('');
+
+const mapMovedManually = ref(false);
+const popupSize = computed(() => {
+  if (liteMode.value) {
+    return '1';
+  }
+  if (route.name === 'search' || route.name === 'favorites' || mapMovedManually.value) {
+    return '1/2';
+  }
+  return '3/4';
+});
 </script>
