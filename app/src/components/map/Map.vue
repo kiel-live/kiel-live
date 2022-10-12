@@ -304,9 +304,6 @@ onMounted(async () => {
 
   map.on('drag', () => {
     mapMovedManually.value = true;
-    // if (selectedMarker.value !== null) {
-    //   emit('markerClick');
-    // }
   });
 });
 
