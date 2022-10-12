@@ -17,7 +17,7 @@ import {
   Source,
   SymbolLayerSpecification,
 } from 'maplibre-gl';
-import { computed, onMounted, Ref, ref, toRef, watch } from 'vue';
+import { computed, onMounted, Ref, toRef, watch } from 'vue';
 
 import { stops, subscribe, trips, vehicles } from '~/api';
 import { Marker } from '~/api/types';
@@ -28,6 +28,7 @@ import { brightMapStyle, darkMapStyle } from '~/config';
 const props = withDefaults(
   defineProps<{
     selectedMarker: Partial<Marker>;
+    mapMovedManually: boolean;
   }>(),
   {
     selectedMarker: () => ({}),
@@ -36,12 +37,16 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: 'markerClick', marker?: Marker): void;
+  (e: 'update:mapMovedManually', mapMovedManually: boolean): void;
 }>();
 
 let map: Map;
 let initial = true;
 
-const mapMovedManually = ref<boolean>(false);
+const mapMovedManually = computed({
+  get: () => props.mapMovedManually,
+  set: (value) => emit('update:mapMovedManually', value),
+});
 
 const prefersColorSchemeDark = usePrefersColorSchemeDark();
 
