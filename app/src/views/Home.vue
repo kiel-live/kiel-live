@@ -75,7 +75,7 @@ const selectedMarker = computed<Marker | undefined>({
 
 const searchInput = ref('');
 
-const mapMovedManually = ref<boolean>(false);
+const mapMovedManually = ref(false);
 const popupSize = computed(() => {
   if (liteMode.value) {
     return '1';
