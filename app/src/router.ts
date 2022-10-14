@@ -1,6 +1,8 @@
 import { Component } from 'vue';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
+import { useUserSettings } from '~/compositions/useUserSettings';
+
 let firstStartOfApp = true;
 
 const routes: RouteRecordRaw[] = [
@@ -19,19 +21,29 @@ const routes: RouteRecordRaw[] = [
     path: '/search',
     name: 'search',
     component: (): Component => import('~/views/Home.vue'),
-    props: true,
   },
   {
     path: '/favorites',
     name: 'favorites',
     component: (): Component => import('~/views/Home.vue'),
-    props: true,
   },
   {
-    path: '/about',
-    name: 'about',
-    component: (): Component => import('~/views/Home.vue'),
-    props: true,
+    path: '/settings/about',
+    name: 'settings-about',
+    component: (): Component => import('~/views/settings/About.vue'),
+    meta: { settings: true },
+  },
+  {
+    path: '/settings/changelog',
+    name: 'settings-changelog',
+    component: (): Component => import('~/views/settings/Changelog.vue'),
+    meta: { settings: true },
+  },
+  {
+    path: '/settings/settings',
+    name: 'settings-settings',
+    component: (): Component => import('~/views/settings/Settings.vue'),
+    meta: { settings: true },
   },
   {
     path: '/:pathMatch(.*)*',
@@ -45,8 +57,10 @@ const router = createRouter({
   routes,
 });
 
+const { liteMode } = useUserSettings();
+
 router.beforeEach((to, from, next): void => {
-  if (firstStartOfApp && to.name === 'home') {
+  if (to.name === 'home' && (firstStartOfApp || liteMode.value)) {
     firstStartOfApp = false;
     next({ name: 'favorites' });
     return;

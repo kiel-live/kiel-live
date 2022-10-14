@@ -5,19 +5,24 @@
       <span class="text-lg">{{ vehicle.name }}</span>
     </div>
     <template v-if="trip">
-      <div v-if="trip.arrivals?.length > 0" class="overflow-y-auto">
+      <div v-if="trip.arrivals?.length" class="overflow-y-auto">
         <router-link
           v-for="(arrival, i) in trip.arrivals"
           :key="arrival.id"
           :to="{ name: 'map-marker', params: { markerType: 'bus-stop', markerId: arrival.id } }"
           class="flex w-full items-center"
+          :class="{ 'text-gray-500': arrival.state === 'departed', 'mt-6': i === 0 && arrival.state === 'predicted' }"
         >
           <span class="w-14 min-w-12">{{ arrival.planned }}</span>
           <div
             class="marker relative flex justify-center items-center mx-4 h-12 w-8 min-w-4 after:(absolute top-0 h-full bg-gray-800 dark:bg-gray-300)"
+            :class="{ 'after:(bg-gray-500 dark:bg-gray-500)': arrival.state === 'departed' }"
           >
             <div
-              v-if="arrival.state !== 'departed' && trip.arrivals[i - 1]?.state === 'departed'"
+              v-if="
+                arrival.state !== 'departed' &&
+                (trip.arrivals[i - 1] === undefined || trip.arrivals[i - 1].state === 'departed')
+              "
               class="vehicle before:(h-4 w-4 bg-red-700 rounded-full)"
               :class="{ driving: arrival.state === 'predicted' }"
             >
@@ -34,67 +39,58 @@
           <span class="w-full">{{ arrival.name }}</span>
         </router-link>
       </div>
-      <NoData v-else>Diese Tour ist wohl schon zu Ende.</NoData>
+      <NoData v-else>{{ t('trip_expired') }}</NoData>
     </template>
     <i-fa-solid-circle-notch v-else class="mx-auto mt-4 text-3xl animate-spin" />
   </div>
-  <NoData v-else>Diese Tour gibt es wohl nicht (mehr).</NoData>
+  <NoData v-else>{{ t('trip_does_not_exist') }}</NoData>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, onUnmounted, PropType, toRef, watch } from 'vue';
+<script lang="ts" setup>
+import { computed, onUnmounted, toRef, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { subscribe, trips, unsubscribe, vehicles } from '~/api';
 import { Marker } from '~/api/types';
 import NoData from '~/components/NoData.vue';
 
-export default defineComponent({
-  name: 'BusPopup',
+const props = defineProps<{
+  marker: Marker;
+}>();
 
-  components: { NoData },
+const { t } = useI18n();
 
-  props: {
-    marker: {
-      type: Object as PropType<Marker>,
-      required: true,
-    },
+const marker = toRef(props, 'marker');
+let subject: string | null = null;
+
+const vehicle = computed(() => vehicles.value[marker.value.id]);
+
+const trip = computed(() => {
+  if (!trips.value || !vehicle.value) {
+    return null;
+  }
+  return trips.value[vehicle.value.tripId];
+});
+
+watch(
+  vehicle,
+  async () => {
+    if (subject !== null) {
+      await unsubscribe(subject);
+    }
+    if (!vehicle.value) {
+      return;
+    }
+    subject = `data.map.trip.${vehicle.value.tripId}`;
+    await subscribe(subject, trips);
   },
+  { immediate: true },
+);
 
-  setup(props) {
-    const marker = toRef(props, 'marker');
-    let subject: string | null = null;
-
-    const vehicle = computed(() => vehicles.value[marker.value.id]);
-
-    const trip = computed(() => {
-      if (!trips.value || !vehicle.value) {
-        return null;
-      }
-      return trips.value[vehicle.value.tripId];
-    });
-
-    watch(
-      vehicle,
-      async () => {
-        if (subject !== null) {
-          await unsubscribe(subject);
-        }
-        if (!vehicle.value) {
-          return;
-        }
-        subject = `data.map.trip.${vehicle.value.tripId}`;
-        await subscribe(subject, trips);
-      },
-      { immediate: true },
-    );
-
-    onUnmounted(async () => {
-      if (subject !== null) {
-        await unsubscribe(subject);
-      }
-    });
-    return { trip, vehicle };
-  },
+onUnmounted(async () => {
+  if (subject !== null) {
+    await unsubscribe(subject);
+  }
 });
 </script>
 
