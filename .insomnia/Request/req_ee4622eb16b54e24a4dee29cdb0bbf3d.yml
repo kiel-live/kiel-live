@@ -1,0 +1,23 @@
+_id: req_ee4622eb16b54e24a4dee29cdb0bbf3d
+type: Request
+parentId: fld_17df8ee9155248e787025f34ca68c74b
+modified: 1666121840135
+created: 1666121831255
+url: https://www.kvg-kiel.de/internetservice/services/tripInfo/tripPassages
+name: https://www.kvg-kiel.de/internetservice/services/tripInfo/tripPassages?tripId=60839568958959369
+description: ""
+method: GET
+body: {}
+parameters:
+  - name: tripId
+    value: "60839568958959369"
+headers: []
+authentication: {}
+metaSortKey: -1666121831255
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

@@ -1,0 +1,11 @@
+_id: env_23f31b4c4aec43268bc9326589ac44d1
+type: Environment
+parentId: env_5dc635e40a0547857b0822bfe41b832f17d042a0
+modified: 1666121825363
+created: 1666120112010
+name: New Environment
+data: {}
+dataPropertyOrder: {}
+color: null
+isPrivate: false
+metaSortKey: 1666120112010
