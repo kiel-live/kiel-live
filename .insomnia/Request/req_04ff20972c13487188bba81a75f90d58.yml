@@ -1,8 +1,8 @@
-_id: req_5f810b7629cd4b96a8489e11d4a819ab
+_id: req_04ff20972c13487188bba81a75f90d58
 type: Request
-parentId: fld_17df8ee9155248e787025f34ca68c74b
-modified: 1666121838575
-created: 1666121831256
+parentId: fld_ab5001af3ef04b40b54cbd416e29fc25
+modified: 1666122195440
+created: 1666122195440
 url: https://www.kvg-kiel.de/internetservice/services/stopInfo/stopPassages/stop
 name: https://www.kvg-kiel.de/internetservice/services/stopInfo/stopPassages/stop?stop=2191
 description: ""

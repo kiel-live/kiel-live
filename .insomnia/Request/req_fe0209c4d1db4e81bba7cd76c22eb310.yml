@@ -1,19 +1,19 @@
-_id: req_ab201b57beaa46a5b523953e716a5b4d
+_id: req_fe0209c4d1db4e81bba7cd76c22eb310
 type: Request
-parentId: fld_17df8ee9155248e787025f34ca68c74b
-modified: 1666121841714
-created: 1666121831251
+parentId: fld_ab5001af3ef04b40b54cbd416e29fc25
+modified: 1666122195436
+created: 1666122195436
 url: https://www.kvg-kiel.de/internetservice/services/passageInfo/stopPassages/stop
-name: https://www.kvg-kiel.de/internetservice/services/passageInfo/stopPassages/stop?stop=2151
+name: https://www.kvg-kiel.de/internetservice/services/passageInfo/stopPassages/stop?stop=2191
 description: ""
 method: GET
 body: {}
 parameters:
   - name: stop
-    value: "2151"
+    value: "2191"
 headers: []
 authentication: {}
-metaSortKey: -1666121831251
+metaSortKey: -1666121831249
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true
