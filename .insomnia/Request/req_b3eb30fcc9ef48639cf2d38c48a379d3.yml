@@ -1,0 +1,39 @@
+_id: req_b3eb30fcc9ef48639cf2d38c48a379d3
+type: Request
+parentId: fld_7841c8a5610d496eb9c6f25bec717136
+modified: 1666120088821
+created: 1665737991487
+url: "{{hostname}}/"
+name: Abfrage einer Haltestelle
+description: Beispiel für eine Abfahrtsmonitorabfrage
+method: POST
+body:
+  mimeType: application/graphql
+  text: '{"query":"{\n  station(id:\"2471\")
+    {\n    hafasID\n    longName\n    shortName\n    name\n\t\tlocation
+    {\n\t\t\tlat\n\t\t\tlong\n\t\t}\n\t\tjourneys {\n\t\t\telements
+    {\n\t\t\t\t... on Journey
+    {\n\t\t\t\t\tid\n\t\t\t\t\tshardKey\n\t\t\t\t\ttags {\n\t\t\t\t\t\telements
+    {\n\t\t\t\t\t\t\t... on Tag
+    {\n\t\t\t\t\t\t\t\tkey\n\t\t\t\t\t\t\t\tvalue\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tstarts
+    {\n\t\t\t\t\t\tisoString\n\t\t\t\t\t}\n\t\t\t\t\tends
+    {\n\t\t\t\t\t\tisoString\n\t\t\t\t\t}\n\t\t\t\t}\t\t\t\t\n\t\t\t}\n\t\t}\n\t}\n}"}'
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+    id: pair_a76dac9e5d7642089cbfb14e999aafac
+authentication:
+  type: bearer
+  disabled: false
+  token: "{% response 'body', 'req_70621402bb1648e0b3146e3430a522a5',
+    'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'never', 60 %}"
+  prefix: ""
+metaSortKey: -1665737991487
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

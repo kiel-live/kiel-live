@@ -1,0 +1,42 @@
+_id: req_a2c784f8979a4cc0b6541a2dced577a1
+type: Request
+parentId: fld_7841c8a5610d496eb9c6f25bec717136
+modified: 1666120080807
+created: 1665737991486
+url: "{{hostname}}/"
+name: Erstellung eines Abfahrtsmonitors
+description: Beispiel für eine Abfahrtsmonitorabfrage
+method: POST
+body:
+  mimeType: application/graphql
+  text: '{"query":"{\n\tstation(id: \"2417\")
+    {\n\t\thafasID\n\t\tlongName\n\t\tjourneys(startTime:
+    \"2022-10-14T11:17:00Z\", first: 5) {\n\t\t\ttotalCount\n\t\t\telements
+    {\n\t\t\t\t... on Journey {\n\t\t\t\t\tline
+    {\n\t\t\t\t\t\tid\n\t\t\t\t\t}\n\n\t\t\t\t\tstops
+    {\n\t\t\t\t\t\tplannedDeparture
+    {\n\t\t\t\t\t\t\tisoString\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\trealtimeDeparture
+    {\n\t\t\t\t\t\t\tisoString\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}\n"}'
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+    id: pair_2208032ba6ad44f083314b8a3a5a43e6
+  - id: pair_4c6eb3b5da8540d19cc32ee2b8717d39
+    name: ""
+    value: ""
+    description: ""
+authentication:
+  type: bearer
+  disabled: false
+  token: "{% response 'body', 'req_70621402bb1648e0b3146e3430a522a5',
+    'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'never', 60 %}"
+  prefix: ""
+metaSortKey: -1665737991486
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

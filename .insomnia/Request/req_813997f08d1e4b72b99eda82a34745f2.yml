@@ -1,0 +1,47 @@
+_id: req_813997f08d1e4b72b99eda82a34745f2
+type: Request
+parentId: fld_7841c8a5610d496eb9c6f25bec717136
+modified: 1666120079157
+created: 1665737991483
+url: "{{hostname}}/"
+name: Verbindungsauskunft
+description: Beispiel für eine Abfahrtsmonitorabfrage
+method: POST
+body:
+  mimeType: application/graphql
+  text: '{"query":"{\n  trips(originGlobalID:\"de:08222:2471\"
+    destinationGlobalID:\"de:08222:2417\"
+    departureTime:\"2022-10-14T15:15:00Z\") {\n    startTime
+    {\n      isoString\n    }\n    \n    endTime
+    {\n      isoString\n    }\n    \n    interchanges\n    \n    legs
+    {\n      \n      ... on InterchangeLeg
+    {\n        mode\n        \n      }\n      \n      ... on TimedLeg
+    {\n        board {\n          point {\n            ... on StopPoint
+    {\n              ref\n            \tlocationName\n            }\n          }\n          estimatedTime
+    {\n            isoString\n          }\n          timetabledTime
+    {\n            isoString\n          }\n        }\n        \n        alight
+    {\n          point {\n            ... on StopPoint
+    {\n              ref\n            \tlocationName\n            }\n          }\n          \n          estimatedTime
+    {\n            isoString\n          }\n          timetabledTime
+    {\n            isoString\n          }\n          \n          \n        }\n        \n        service
+    {\n          type\n          name\n          description\n          destinationLabel\n        }\n        \n        \n      }\n      \n      ...
+    on ContinuousLeg {\n        mode\n      }\n    }\n  }\n\n}"}'
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+    id: pair_81aa6ee16bdf41b1b7d3863b7dae9e54
+authentication:
+  type: bearer
+  disabled: false
+  token: "{% response 'body', 'req_70621402bb1648e0b3146e3430a522a5',
+    'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'never', 60 %}"
+  prefix: ""
+metaSortKey: -1665737991484
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

@@ -1,0 +1,37 @@
+_id: req_a7c3e451d66f49d6888a54da24ccd419
+type: Request
+parentId: fld_7841c8a5610d496eb9c6f25bec717136
+modified: 1666120881668
+created: 1665737991488
+url: "{{hostname}}/"
+name: Suche nach Haltestellen
+description: Beispiel für eine Abfahrtsmonitorabfrage
+method: POST
+body:
+  mimeType: application/graphql
+  text: '{"query":"{\n  stations (after: \"1079\")
+    {\n    totalCount\n\t\tcursor\n    elements {\n      ... on Station
+    {\n        hafasID\n        globalID\n        longName\n\t\t\t\tplace\n\t\t\t\tlocation
+    {\n\t\t\t\t\tlat\n\t\t\t\t\tlong\n\t\t\t\t\thash\n\t\t\t\t}\n\t\t\t\tplatforms
+    {\n\t\t\t\t\telements {\n\t\t\t\t\t\t... on Platform
+    {\n\t\t\t\t\t\t\tbarrierFreeType\n\t\t\t\t\t\t\thasStops\n\t\t\t\t\t\t\tlabel\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n      }\n    }\n  }\n\n\n  __schema
+    {\n    queryType {\n      name\n    }\n  }\n}"}'
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+    id: pair_17eccfc974f34942b7723312df313f0d
+authentication:
+  type: bearer
+  disabled: false
+  token: "{% response 'body', 'req_70621402bb1648e0b3146e3430a522a5',
+    'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'never', 60 %}"
+  prefix: ""
+metaSortKey: -1665737991488
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
