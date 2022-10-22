@@ -3,11 +3,11 @@
     <h1 class="mb-2 text-xl font-bold">{{ t('settings') }}</h1>
 
     <div class="flex gap-4 items-center">
-      <div class="flex flex-col">
+      <label class="flex flex-col" for="lite-mode">
         <span>{{ t('lite_mode') }}</span>
         <span class="text-sm dark:text-gray-400">{{ t('lite_mode_description') }}</span>
-      </div>
-      <Checkbox v-model="liteMode" />
+      </label>
+      <Checkbox id="lite-mode" v-model="liteMode" />
     </div>
   </SettingsContainer>
 </template>

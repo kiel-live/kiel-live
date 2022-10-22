@@ -5,8 +5,10 @@ function getUserLanguage(): string {
   return navigator.language.split('-')[0];
 }
 
+const userLanguage = getUserLanguage();
 const i18n = createI18n({
   legacy: false,
+  locale: userLanguage,
 });
 
 export const loadLocaleMessages = async (locale: string) => {
@@ -25,6 +27,6 @@ export const setI18nLanguage = async (lang: string): Promise<void> => {
   i18n.global.locale.value = lang;
 };
 
-void setI18nLanguage(getUserLanguage());
+await loadLocaleMessages(userLanguage);
 
 export default i18n;

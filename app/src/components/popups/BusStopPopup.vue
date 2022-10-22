@@ -2,11 +2,18 @@
   <div v-if="stop" class="flex flex-col min-h-0 flex-grow">
     <div class="flex flex-row pb-2 mb-2 border-b-1 dark:border-dark-100 items-center">
       <i-mdi-sign-real-estate v-if="stop.type === 'bus-stop'" />
-      <span class="text-lg ml-2">{{ stop.name }}</span>
-      <div class="flex ml-auto items-center cursor-pointer select-none">
-        <i-ph-star-fill v-if="isFavorite(stop)" class="text-yellow-300" @click="removeFavorite(stop)" />
-        <i-ph-star-bold v-else @click="addFavorite(stop)" />
-      </div>
+      <h1 class="text-lg ml-2">{{ stop.name }}</h1>
+      <Button
+        v-if="isFavorite(stop)"
+        class="text-yellow-300 ml-auto border-0"
+        :title="t('remove_favorite')"
+        @click="removeFavorite(stop)"
+      >
+        <i-ph-star-fill />
+      </Button>
+      <Button v-else class="ml-auto border-0" :title="t('add_favorite')" @click="addFavorite(stop)">
+        <i-ph-star-bold />
+      </Button>
     </div>
 
     <div class="flex flex-col flex-grow overflow-y-auto">

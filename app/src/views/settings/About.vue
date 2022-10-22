@@ -2,7 +2,7 @@
   <SettingsContainer>
     <h1 class="mb-4 text-xl font-bold">{{ t('kiel_live') }}</h1>
 
-    <img src="../../assets/logo.png" alt="..." class="w-36 mx-auto mb-4" />
+    <img src="../../assets/logo.png" :alt="t('logo_alt')" class="w-36 mx-auto mb-4" />
 
     <p class="mb-4 text-center">{{ t('where_is_my_bus') }}</p>
 
@@ -52,7 +52,7 @@
       </a>
     </div>
 
-    <p v-if="buildDate" class="flex dark:text-gray-500 text-sm gap-1">
+    <p v-if="buildDate" class="flex text-gray-500 dark:text-gray-400 text-sm gap-1">
       <span>{{ t('version_from') }}</span>
       <span>{{ buildDate }}</span>
     </p>
