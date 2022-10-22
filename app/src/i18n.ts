@@ -27,6 +27,6 @@ export const setI18nLanguage = async (lang: string): Promise<void> => {
   i18n.global.locale.value = lang;
 };
 
-await loadLocaleMessages(userLanguage);
+void loadLocaleMessages(userLanguage);
 
 export default i18n;
