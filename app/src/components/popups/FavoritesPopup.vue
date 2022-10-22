@@ -2,7 +2,7 @@
   <div class="flex flex-col min-h-0 flex-grow">
     <div class="flex pb-2 mb-2 border-b-1 dark:border-dark-100 space-x-2 items-center">
       <i-ph-star-fill />
-      <span class="text-lg">{{ t('favorites') }}</span>
+      <h1 class="text-lg">{{ t('favorites') }}</h1>
     </div>
     <div v-if="favorites.length === 0" class="m-auto max-w-52 text-center text-xl">
       <p>{{ t('add_favourites') }}</p>

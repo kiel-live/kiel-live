@@ -1,8 +1,8 @@
 <template>
   <div class="app flex flex-col m-auto w-full h-full dark:bg-dark-400 dark:text-gray-300">
-    <div class="flex flex-grow min-h-0">
+    <main class="flex flex-grow min-h-0">
       <router-view />
-    </div>
+    </main>
     <AppBarBottom class="mt-auto flex-shrink-0" />
     <ReloadPrompt />
     <UpdateNotice />
@@ -10,12 +10,24 @@
 </template>
 
 <script lang="ts" setup>
+import { watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+
 import AppBarBottom from '~/components/layout/AppBarBottom.vue';
 import ReloadPrompt from '~/components/ReloadPrompt.vue';
 import UpdateNotice from '~/components/UpdateNotice.vue';
 import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
 
 usePrefersColorSchemeDark();
+
+const { locale } = useI18n();
+watch(
+  locale,
+  () => {
+    document.documentElement.setAttribute('lang', locale.value);
+  },
+  { immediate: true },
+);
 </script>
 
 <!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
