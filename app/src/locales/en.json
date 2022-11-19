@@ -47,5 +47,10 @@
   "give_feedback": "Give feedback",
   "lite_mode": "Lite mode",
   "lite_mode_description": "If you enable the lite mode the data will be shown to you without the map. This allows you to save some data volume.",
-  "changelog_trips_path_lite_mode": "Show the route of a selected bus on the map and new lite mode to save data volume"
+  "changelog_trips_path_lite_mode": "Show the route of a selected bus on the map and new lite mode to save data volume",
+  "theme": "Theme",
+  "theme_description": "Choose a theme that fits your needs.",
+  "auto": "Use system theme",
+  "light": "Light",
+  "dark": "Dark"
 }

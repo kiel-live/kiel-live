@@ -22,7 +22,7 @@ import { computed, onMounted, Ref, toRef, watch } from 'vue';
 import { stops, subscribe, trips, vehicles } from '~/api';
 import { Marker } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
-import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
+import { useColorMode } from '~/compositions/useColorMode';
 import { brightMapStyle, darkMapStyle } from '~/config';
 
 const props = withDefaults(
@@ -48,7 +48,7 @@ const mapMovedManually = computed({
   set: (value) => emit('update:mapMovedManually', value),
 });
 
-const prefersColorSchemeDark = usePrefersColorSchemeDark();
+const colorScheme = useColorMode();
 
 const vehiclesGeoJson = computed<Feature[]>(() =>
   Object.values(vehicles.value).map((v) => ({
@@ -212,7 +212,7 @@ onMounted(async () => {
   map = new Map({
     container: 'map',
     // style: 'https://demotiles.maplibre.org/style.json',
-    style: prefersColorSchemeDark.value ? darkMapStyle : brightMapStyle,
+    style: colorScheme.value === 'dark' ? darkMapStyle : brightMapStyle,
     minZoom: 11,
     maxZoom: 18,
     center: [10.1283, 54.3166],
@@ -312,8 +312,8 @@ onMounted(async () => {
   });
 });
 
-watch(prefersColorSchemeDark, () => {
-  if (prefersColorSchemeDark.value) {
+watch(colorScheme, () => {
+  if (colorScheme.value === 'dark') {
     map.setStyle(darkMapStyle);
   } else {
     map.setStyle(brightMapStyle);
