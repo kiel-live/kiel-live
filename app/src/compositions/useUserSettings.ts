@@ -1,6 +1,6 @@
 import { useStorage } from '@vueuse/core';
 
-const localStoragePrefix = 'kiel_live';
+export const localStoragePrefix = 'kiel_live';
 
 const userSettings = {
   liteMode: useStorage(`${localStoragePrefix}.lite`, false),

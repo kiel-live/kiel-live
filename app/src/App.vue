@@ -1,5 +1,5 @@
 <template>
-  <div class="app flex flex-col m-auto w-full h-full dark:bg-dark-400 dark:text-gray-300">
+  <div class="app flex flex-col m-auto w-full h-full bg-white text-black dark:bg-dark-400 dark:text-gray-300">
     <main class="flex flex-grow min-h-0">
       <router-view />
     </main>
@@ -16,9 +16,10 @@ import { useI18n } from 'vue-i18n';
 import AppBarBottom from '~/components/layout/AppBarBottom.vue';
 import ReloadPrompt from '~/components/ReloadPrompt.vue';
 import UpdateNotice from '~/components/UpdateNotice.vue';
-import { usePrefersColorSchemeDark } from '~/compositions/usePrefersColorScheme';
 
-usePrefersColorSchemeDark();
+import { useColorMode } from './compositions/useColorMode';
+
+useColorMode();
 
 const { locale } = useI18n();
 watch(
