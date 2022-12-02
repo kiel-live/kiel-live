@@ -17,11 +17,18 @@
     </div>
 
     <div class="flex flex-col flex-grow overflow-y-auto">
-      <div v-if="stop.alerts && stop.alerts.length >= 1" class="bg-red-600 bg-opacity-50 p-2 mb-2 rounded-md">
-        <div class="flex items-center border-b-1 mb-4">
+      <div
+        v-if="stop.alerts && stop.alerts.length >= 1"
+        class="bg-red-300 dark:bg-red-800 bg-opacity-50 dark:bg-opacity-50 p-2 mb-2 rounded-md"
+      >
+        <div class="flex items-center border-b-1 border-gray-500 dark:border-gray-300 mb-2">
           <i-mdi-alert class="mr-2" /><span class="font-bold">{{ t('alerts') }}</span>
         </div>
-        <div v-for="(alert, i) in stop.alerts" :key="i" class="flex items-center">{{ alert }}</div>
+        <ul>
+          <li v-for="(alert, i) in stop.alerts" :key="i" class="items-center ml-5 list-outside list-disc">
+            {{ alert }}
+          </li>
+        </ul>
       </div>
 
       <template v-if="stop.arrivals">
