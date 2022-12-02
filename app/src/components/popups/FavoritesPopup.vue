@@ -5,7 +5,7 @@
       <h1 class="text-lg">{{ t('favorites') }}</h1>
     </div>
     <div v-if="favorites.length === 0" class="m-auto max-w-52 text-center text-xl">
-      <p>{{ t('add_favourites') }}</p>
+      <p>{{ t('add_favorites') }}</p>
     </div>
     <div class="flex flex-col overflow-y-auto">
       <router-link
