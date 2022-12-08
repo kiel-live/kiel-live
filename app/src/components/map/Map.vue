@@ -13,6 +13,7 @@ import {
   GeoJSONSource,
   GeolocateControl,
   LineLayerSpecification,
+  LngLatLike,
   Map,
   Source,
   SymbolLayerSpecification,
@@ -54,6 +55,7 @@ const vehiclesGeoJson = computed<Feature[]>(() =>
   Object.values(vehicles.value).map((v) => ({
     type: 'Feature',
     properties: {
+      kind: 'vehicle',
       type: v.type,
       name: v.name,
       id: v.id,
@@ -73,7 +75,7 @@ const vehiclesGeoJson = computed<Feature[]>(() =>
 const stopsGeoJson = computed<Feature[]>(() =>
   Object.values(stops.value).map((s) => ({
     type: 'Feature',
-    properties: { type: s.type, name: s.name, id: s.id },
+    properties: { kind: 'stop', type: s.type, name: s.name, id: s.id },
     geometry: {
       type: 'Point',
       coordinates: [s.location.longitude / 3600000, s.location.latitude / 3600000],
@@ -143,7 +145,7 @@ const stopsLayer: Ref<CircleLayerSpecification> = computed(() => ({
   id: 'stops',
   type: 'circle',
   source: 'geojson',
-  filter: ['==', 'type', 'bus-stop'],
+  filter: ['==', 'kind', 'stop'],
   paint: {
     'circle-color': ['match', ['get', 'id'], selectedMarker.value.id || '', '#1673fc', '#4f96fc'],
     'circle-radius': ['match', ['get', 'id'], selectedMarker.value.id || '', 8, 5],
@@ -166,7 +168,7 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
       selectedMarker.value.type === 'bus' ? 0.3 : 1,
     ],
   },
-  filter: ['==', 'type', 'bus'],
+  filter: ['==', 'kind', 'vehicle'],
   layout: {
     'icon-image': [
       'match',
@@ -209,16 +211,18 @@ onMounted(async () => {
   await subscribe('data.map.vehicle.>', vehicles);
   await subscribe('data.map.stop.>', stops);
 
+  const center: LngLatLike = [10.1283, 54.3166];
+
   map = new Map({
     container: 'map',
     // style: 'https://demotiles.maplibre.org/style.json',
     style: colorScheme.value === 'dark' ? darkMapStyle : brightMapStyle,
-    minZoom: 11,
+    // minZoom: 11,
     maxZoom: 18,
-    center: [10.1283, 54.3166],
+    center,
     zoom: 14,
     // [west, south, east, north]
-    maxBounds: [9.8, 54.21, 10.44, 54.52],
+    // maxBounds: [9.8, 54.21, 10.44, 54.52],
     attributionControl: false,
   });
 
@@ -314,13 +318,14 @@ onMounted(async () => {
 
 watch(colorScheme, () => {
   if (colorScheme.value === 'dark') {
-    map.setStyle(darkMapStyle);
+    map?.setStyle(darkMapStyle);
   } else {
-    map.setStyle(brightMapStyle);
+    map?.setStyle(brightMapStyle);
   }
   // TODO: properly re-render custom layers
   // eslint-disable-next-line no-restricted-globals
-  location.reload();
+  // location.reload();
+  console.log(colorScheme.value);
 });
 
 watch(geojson, () => {
