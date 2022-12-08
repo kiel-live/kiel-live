@@ -156,10 +156,25 @@ func GetStopDetails(stopShortName string) (*StopDetails, error) {
 		}
 	}
 
+	alerts = removeDuplicate(alerts)
+
 	details := &StopDetails{
 		Departures: departures,
 		Alerts:     alerts,
 	}
 
 	return details, nil
+}
+
+// https://stackoverflow.com/a/66751055/14671646
+func removeDuplicate[T string | int](sliceList []T) []T {
+	allKeys := make(map[T]bool)
+	list := []T{}
+	for _, item := range sliceList {
+		if _, value := allKeys[item]; !value {
+			allKeys[item] = true
+			list = append(list, item)
+		}
+	}
+	return list
 }
