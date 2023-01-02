@@ -14,6 +14,7 @@ import {
   LineLayerSpecification,
   LngLatLike,
   Map,
+  NavigationControl,
   Source,
   SymbolLayerSpecification,
 } from 'maplibre-gl';
@@ -250,12 +251,12 @@ onMounted(async () => {
     container: 'map',
     // style: 'https://demotiles.maplibre.org/style.json',
     style: colorScheme.value === 'dark' ? darkMapStyle : brightMapStyle,
-    // minZoom: 11,
+    minZoom: 5,
     maxZoom: 18,
     center,
     zoom: 14,
     // [west, south, east, north]
-    // maxBounds: [9.8, 54.21, 10.44, 54.52],
+    maxBounds: [5.0, 46.0, 15.0, 57.0],
     attributionControl: false,
   });
 
@@ -272,7 +273,7 @@ onMounted(async () => {
     'bottom-right',
   );
 
-  // map.addControl(new NavigationControl({}), 'bottom-right');
+  map.addControl(new NavigationControl({}), 'bottom-right');
 
   type IconData =
     | { kind: 'vehicle'; type: string; name: string; focused: boolean; heading: number }
@@ -470,5 +471,21 @@ watch(selectedMarkerItem, (_selectedMarkerItem) => {
 <style scoped>
 #map :deep(.maplibregl-ctrl-attrib) {
   box-sizing: content-box;
+}
+
+#map :deep(.mapboxgl-ctrl-group, .maplibregl-ctrl-group) {
+  @apply dark:bg-dark-400;
+}
+
+.dark #map :deep(.mapboxgl-ctrl-group:not(:empty), .maplibregl-ctrl-group:not(:empty)) {
+  box-shadow: 0 0 0 2px rgb(60 60 60);
+}
+
+#map :deep(.mapboxgl-ctrl-group button + button, .maplibregl-ctrl-group button + button) {
+  @apply dark:border-t-dark-100;
+}
+
+#map :deep(.mapboxgl-ctrl button .mapboxgl-ctrl-icon, .maplibregl-ctrl button .maplibregl-ctrl-icon) {
+  @apply dark:(filter invert);
 }
 </style>
