@@ -9,7 +9,6 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import type { Feature, FeatureCollection, Point, Position } from 'geojson';
 import {
   AttributionControl,
-  CircleLayerSpecification,
   GeoJSONSource,
   GeolocateControl,
   LineLayerSpecification,
@@ -52,30 +51,49 @@ const mapMovedManually = computed({
 const colorScheme = useColorMode();
 
 const vehiclesGeoJson = computed<Feature[]>(() =>
-  Object.values(vehicles.value).map((v) => ({
-    type: 'Feature',
-    properties: {
+  Object.values(vehicles.value).map((v) => {
+    const iconData = {
       kind: 'vehicle',
       type: v.type,
-      name: v.name,
-      id: v.id,
-      number: v.name.split(' ')[0],
-      to: v.name.split(' ').slice(1).join(' '),
-      iconName: `${v.type}-unfocused-${v.name.split(' ')[0]}-${v.location.heading}`,
-      iconNameFocused: `${v.type}-focused-${v.name.split(' ')[0]}-${v.location.heading}`,
-    },
+      name: v.name.split(' ')[0],
+      focused: false,
+      heading: v.location.heading,
+    };
 
-    geometry: {
-      type: 'Point',
-      coordinates: [v.location.longitude / 3600000, v.location.latitude / 3600000],
-    },
-  })),
+    return {
+      type: 'Feature',
+      properties: {
+        kind: 'vehicle',
+        type: v.type,
+        name: v.name,
+        id: v.id,
+        number: v.name.split(' ')[0],
+        to: v.name.split(' ').slice(1).join(' '),
+        iconName:
+          // eslint-disable-next-line no-nested-ternary
+          v.type === 'bus' ? JSON.stringify(iconData) : colorScheme.value === 'dark' ? `dark-${v.type}` : v.type,
+        iconNameFocused: v.type === 'bus' ? JSON.stringify({ ...iconData, focused: true }) : v.type,
+      },
+
+      geometry: {
+        type: 'Point',
+        coordinates: [v.location.longitude / 3600000, v.location.latitude / 3600000],
+      },
+    };
+  }),
 );
 
 const stopsGeoJson = computed<Feature[]>(() =>
   Object.values(stops.value).map((s) => ({
     type: 'Feature',
-    properties: { kind: 'stop', type: s.type, name: s.name, id: s.id },
+    properties: {
+      kind: 'stop',
+      type: s.type,
+      name: s.name,
+      id: s.id,
+      iconName: colorScheme.value === 'dark' ? `dark-${s.type}` : s.type,
+      iconNameFocused: s.type,
+    },
     geometry: {
       type: 'Point',
       coordinates: [s.location.longitude / 3600000, s.location.latitude / 3600000],
@@ -141,17 +159,32 @@ const geojson = computed<FeatureCollection>(() => ({
   features: [...vehiclesGeoJson.value, ...stopsGeoJson.value, ...tripsGeoJson.value],
 }));
 
-const stopsLayer: Ref<CircleLayerSpecification> = computed(() => ({
+const stopsLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   id: 'stops',
-  type: 'circle',
+  type: 'symbol',
   source: 'geojson',
   filter: ['==', 'kind', 'stop'],
   paint: {
-    'circle-color': ['match', ['get', 'id'], selectedMarker.value.id || '', '#1673fc', '#4f96fc'],
-    'circle-radius': ['match', ['get', 'id'], selectedMarker.value.id || '', 8, 5],
-    'circle-opacity': selectedMarker.value.type === 'bus' ? 0.5 : 1,
-    'circle-stroke-opacity': 0,
-    'circle-stroke-width': 5,
+    'icon-opacity': [
+      'match',
+      ['get', 'number'],
+      selectedVehicle.value?.name.split(' ')[0] ?? '',
+      1,
+      selectedMarker.value.type === 'bus' ? 0.3 : 1,
+    ],
+  },
+  layout: {
+    'icon-image': [
+      'match',
+      ['get', 'id'],
+      selectedMarker.value.id || '',
+      ['get', 'iconNameFocused'],
+      ['get', 'iconName'],
+    ],
+    'icon-size': 0.6,
+    'icon-rotation-alignment': 'map',
+    'icon-allow-overlap': true,
+    'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
   },
 }));
 
@@ -241,14 +274,44 @@ onMounted(async () => {
 
   // map.addControl(new NavigationControl({}), 'bottom-right');
 
+  type IconData =
+    | { kind: 'vehicle'; type: string; name: string; focused: boolean; heading: number }
+    | { kind: 'stop'; type: string; name: string; focused: boolean };
+
   map.on('styleimagemissing', (e) => {
-    const [type, focus, route, heading] = e.id.split('-');
-    if (type === 'bus') {
-      map.addImage(e.id, new BusIcon(map, focus === 'focused', route, Number.parseInt(heading, 10)), {
+    if (e.id[0] !== '{') {
+      return;
+    }
+
+    const iconData = JSON.parse(e.id) as IconData;
+    if (iconData.kind === 'vehicle' && iconData.type === 'bus') {
+      map.addImage(e.id, new BusIcon(map, iconData.focused, iconData.name, iconData.heading), {
         pixelRatio: 2,
       });
+    } else {
+      console.log(iconData);
     }
   });
+
+  const loadImage = (name: string, url: string) =>
+    new Promise<void>((resolve, reject) => {
+      // eslint-disable-next-line promise/prefer-await-to-callbacks
+      map.loadImage(url, (error, image) => {
+        if (error) {
+          reject(error);
+        } else if (image) {
+          map.addImage(name, image, { pixelRatio: 2 });
+          resolve();
+        }
+      });
+    });
+
+  async function loadImages() {
+    await loadImage('bus-stop', '/icons/bus.png');
+    await loadImage('dark-bus-stop', '/icons/dark-bus.png');
+    await loadImage('bike-stop', '/icons/bike.png');
+    await loadImage('dark-bike-stop', '/icons/dark-bike.png');
+  }
 
   map.on('load', () => {
     map.addSource('geojson', {
@@ -263,6 +326,8 @@ onMounted(async () => {
     map.addLayer(vehiclesLayer.value);
 
     initial = false;
+
+    void loadImages();
   });
 
   // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
@@ -323,9 +388,7 @@ watch(colorScheme, () => {
     map?.setStyle(brightMapStyle);
   }
   // TODO: properly re-render custom layers
-  // eslint-disable-next-line no-restricted-globals
   // location.reload();
-  console.log(colorScheme.value);
 });
 
 watch(geojson, () => {
