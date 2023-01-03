@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Kiel Live</string>
+    <string name="title_activity_main">Kiel Live</string>
+    <string name="package_name">de.kiellive.app</string>
+    <string name="custom_url_scheme">de.kiellive.app</string>
+</resources>

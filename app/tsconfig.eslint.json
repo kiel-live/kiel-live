@@ -1,4 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  "include": [".eslintrc.js", "vite.config.ts", "windi.config.ts", "src", "components.d.ts"]
+  "include": [".eslintrc.js", "vite.config.ts", "windi.config.ts", "src", "components.d.ts", "capacitor.config.ts"]
 }
