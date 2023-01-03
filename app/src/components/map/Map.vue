@@ -175,6 +175,7 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
       selectedMarker.value.id || '',
       ['get', 'iconNameFocused'],
       ['get', 'iconName'],
+      'bus-unfocused-1-0',
     ],
     'icon-rotation-alignment': 'map',
     'icon-allow-overlap': true,
