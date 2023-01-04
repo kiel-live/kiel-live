@@ -473,19 +473,19 @@ watch(selectedMarkerItem, (_selectedMarkerItem) => {
   box-sizing: content-box;
 }
 
-#map :deep(.mapboxgl-ctrl-group, .maplibregl-ctrl-group) {
+#map :deep(.maplibregl-ctrl-group) {
   @apply dark:bg-dark-400;
 }
 
-.dark #map :deep(.mapboxgl-ctrl-group:not(:empty), .maplibregl-ctrl-group:not(:empty)) {
+.dark #map :deep(.maplibregl-ctrl-group:not(:empty)) {
   box-shadow: 0 0 0 2px rgb(60 60 60);
 }
 
-#map :deep(.mapboxgl-ctrl-group button + button, .maplibregl-ctrl-group button + button) {
+#map :deep(.maplibregl-ctrl-group button + button) {
   @apply dark:border-t-dark-100;
 }
 
-#map :deep(.mapboxgl-ctrl button .mapboxgl-ctrl-icon, .maplibregl-ctrl button .maplibregl-ctrl-icon) {
+#map :deep(.maplibregl-ctrl button .maplibregl-ctrl-icon) {
   @apply dark:(filter invert);
 }
 </style>
