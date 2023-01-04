@@ -18,7 +18,7 @@
     "@vueuse/core": "9.10.0",
     "canvas-confetti": "1.6.0",
     "fuse.js": "6.6.2",
-    "maplibre-gl": "2.4.0",
+    "maplibre-gl": "3.0.0-pre.3",
     "nats.ws": "1.11.2",
     "vue": "3.2.45",
     "vue-i18n": "9.2.2",
