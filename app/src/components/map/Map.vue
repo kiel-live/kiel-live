@@ -85,7 +85,7 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
   })),
 );
 
-const stopsGeoJson = computed<Feature<Point, GeoJsonProperties & Marker>[]>(() =>
+const stopsGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
   Object.values(stops.value).map((s) => ({
     type: 'Feature',
     properties: { type: s.type, name: s.name, id: s.id },
