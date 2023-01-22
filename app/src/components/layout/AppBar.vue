@@ -22,7 +22,7 @@
       <span>{{ t('no_connection') }}</span>
       <i-ic-baseline-cloud-off class="text-red-600" />
     </div>
-    <Button v-if="!needRefresh" class="h-full gap-x-1" @click="updateServiceWorker(true)">
+    <Button v-if="needRefresh" class="h-full gap-x-1" @click="updateServiceWorker(true)">
       <i-ic-sharp-refresh />
       <span>{{ t('update') }}</span>
     </Button>
