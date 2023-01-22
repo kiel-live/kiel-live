@@ -9,7 +9,7 @@
     </div>
 
     <div class="flex flex-row w-full gap-x-4 justify-center">
-      <Button @click="updateServiceWorker(true)">{{ t('install') }}</Button>
+      <Button @click="updateServiceWorker(true)">{{ t('update') }}</Button>
       <Button @click="close">{{ t('cancel') }}</Button>
     </div>
   </div>

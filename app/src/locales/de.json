@@ -20,7 +20,7 @@
   "404_error": "Whoa 404, entweder es ist etwas kaputt gegangen oder du hast dich vertippt :-/",
   "404_back_to": "Zurück zur {link}",
   "home": "Startseite",
-  "install": "Installieren",
+  "update": "Aktualisieren",
   "cancel": "Abbrechen",
   "close": "Schließen",
   "alerts": "Hinweise",

@@ -20,7 +20,7 @@
   "404_error": "Whoa 404, either we broke something or you had a typing mishap :-/",
   "404_back_to": "Back to {link}",
   "home": "Home",
-  "install": "Install",
+  "update": "Update",
   "cancel": "Cancel",
   "close": "Close",
   "alerts": "Alerts",
