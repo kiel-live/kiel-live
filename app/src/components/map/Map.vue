@@ -402,7 +402,15 @@ watch(selectedMarkerItem, (_selectedMarkerItem) => {
 
 <style scoped>
 #map :deep(.maplibregl-ctrl-attrib) {
-  box-sizing: content-box;
+  @apply dark:bg-dark-400;
+}
+
+#map :deep(.maplibregl-ctrl-attrib a) {
+  @apply dark:text-gray-300;
+}
+
+#map :deep(.maplibregl-ctrl-attrib-button) {
+  @apply dark:(filter invert);
 }
 
 #map :deep(.maplibregl-ctrl-group) {
