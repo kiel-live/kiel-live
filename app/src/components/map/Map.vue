@@ -1,12 +1,21 @@
 <template>
-  <div id="map" class="w-full h-full" />
+  <div id="map" ref="mapElement" class="w-full h-full" />
 </template>
 
 <script lang="ts" setup>
 // eslint-disable-next-line no-restricted-imports
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import type { Feature, FeatureCollection, Point, Position } from 'geojson';
+import { useElementSize } from '@vueuse/core';
+import type {
+  Feature,
+  FeatureCollection,
+  GeoJsonProperties as _GeoJsonProperties,
+  Geometry,
+  LineString,
+  Point,
+  Position,
+} from 'geojson';
 import {
   AttributionControl,
   CircleLayerSpecification,
@@ -18,10 +27,10 @@ import {
   Source,
   SymbolLayerSpecification,
 } from 'maplibre-gl';
-import { computed, onMounted, Ref, toRef, watch } from 'vue';
+import { computed, onMounted, Ref, ref, toRef, watch } from 'vue';
 
 import { stops, subscribe, trips, vehicles } from '~/api';
-import { Marker } from '~/api/types';
+import { Marker, StopType, VehicleType } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
 import { brightMapStyle, darkMapStyle } from '~/config';
@@ -44,6 +53,11 @@ const emit = defineEmits<{
 let map: Map;
 let initial = true;
 
+type GeoJsonProperties = _GeoJsonProperties & {
+  type: StopType | VehicleType | 'trip';
+  id?: string;
+};
+
 const mapMovedManually = computed({
   get: () => props.mapMovedManually,
   set: (value) => emit('update:mapMovedManually', value),
@@ -51,7 +65,7 @@ const mapMovedManually = computed({
 
 const colorScheme = useColorMode();
 
-const vehiclesGeoJson = computed<Feature[]>(() =>
+const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
   Object.values(vehicles.value).map((v) => ({
     type: 'Feature',
     properties: {
@@ -71,7 +85,7 @@ const vehiclesGeoJson = computed<Feature[]>(() =>
   })),
 );
 
-const stopsGeoJson = computed<Feature[]>(() =>
+const stopsGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
   Object.values(stops.value).map((s) => ({
     type: 'Feature',
     properties: { type: s.type, name: s.name, id: s.id },
@@ -98,7 +112,7 @@ const trip = computed(() => {
   return trips.value[selectedVehicle.value.tripId];
 });
 
-const tripsGeoJson = computed<Feature[]>(() => {
+const tripsGeoJson = computed<Feature<LineString, GeoJsonProperties>[]>(() => {
   if (selectedVehicle.value?.type === 'bus' && trip.value?.arrivals) {
     const coordinates: Position[] = [];
     const { arrivals } = trip.value;
@@ -135,7 +149,7 @@ const tripsGeoJson = computed<Feature[]>(() => {
   return [];
 });
 
-const geojson = computed<FeatureCollection>(() => ({
+const geojson = computed<FeatureCollection<Geometry, GeoJsonProperties>>(() => ({
   type: 'FeatureCollection',
   features: [...vehiclesGeoJson.value, ...stopsGeoJson.value, ...tripsGeoJson.value],
 }));
@@ -193,6 +207,9 @@ const tripsLayer: Ref<LineLayerSpecification> = computed(() => ({
   },
 }));
 
+const mapElement = ref(null);
+const { width, height } = useElementSize(mapElement);
+
 function flyTo(center: [number, number]) {
   if (!map) {
     return;
@@ -201,7 +218,10 @@ function flyTo(center: [number, number]) {
   map.flyTo({
     center,
     padding: {
-      bottom: 500, // TODO use 3/4 of screen height
+      // 768: md breakpoint
+      // 320: sidebar width w-80
+      left: width.value >= 768 ? 320 : 0,
+      bottom: width.value >= 768 ? 0 : height.value * (2 / 3),
     },
   });
 }
@@ -304,7 +324,6 @@ onMounted(async () => {
     }
 
     mapMovedManually.value = false;
-    flyTo(feature.geometry.coordinates as [number, number]);
     emit('markerClick', { type: feature.properties.type, id: feature.properties.id });
   });
 
@@ -389,14 +408,19 @@ const selectedMarkerItem = computed(() => {
   if (!marker) {
     return undefined;
   }
-  return geojson.value.features.find((f) => (f.properties as Marker).id === marker.id);
+  return geojson.value.features.find((f) => f.properties.id === marker.id);
 });
-watch(selectedMarkerItem, (_selectedMarkerItem) => {
-  if (!map || !_selectedMarkerItem || mapMovedManually.value) {
+watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
+  if (
+    !map ||
+    !newSelectedMarkerItem ||
+    newSelectedMarkerItem.properties.id === oldSelectedMarkerItem?.properties.id ||
+    mapMovedManually.value
+  ) {
     return;
   }
 
-  flyTo((_selectedMarkerItem.geometry as Point)?.coordinates as [number, number]);
+  flyTo((newSelectedMarkerItem.geometry as Point)?.coordinates as [number, number]);
 });
 </script>
 
