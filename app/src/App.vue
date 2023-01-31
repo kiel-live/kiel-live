@@ -4,7 +4,6 @@
       <router-view />
     </main>
     <AppBarBottom class="mt-auto flex-shrink-0" />
-    <ReloadPrompt />
     <UpdateNotice />
   </div>
 </template>
@@ -14,7 +13,6 @@ import { watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import AppBarBottom from '~/components/layout/AppBarBottom.vue';
-import ReloadPrompt from '~/components/ReloadPrompt.vue';
 import UpdateNotice from '~/components/UpdateNotice.vue';
 
 import { useColorMode } from './compositions/useColorMode';
