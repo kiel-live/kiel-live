@@ -23,7 +23,7 @@
       <i-ic-baseline-cloud-off class="text-red-600" />
     </div>
     <Button v-if="needRefresh" class="h-full gap-x-1" @click="updateServiceWorker(true)">
-      <i-ic-sharp-refresh />
+      <i-majesticons-cloud-download-line />
       <span>{{ t('update') }}</span>
     </Button>
   </div>
