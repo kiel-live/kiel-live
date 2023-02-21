@@ -31,22 +31,27 @@
         </ul>
       </div>
 
-      <template v-if="stop.arrivals">
-        <template v-if="stop.arrivals.length > 0">
+      <template v-if="augmentedArrivals">
+        <template v-if="augmentedArrivals.length > 0">
           <router-link
-            v-for="arrival in stop.arrivals"
+            v-for="arrival in augmentedArrivals"
             :key="arrival.tripId"
-            class="flex py-2 w-full not-last:border-b-1 dark:border-dark-300"
+            class="flex flex-col py-2 w-full not-last:border-b-1 dark:border-dark-300"
             :to="{ name: 'map-marker', params: { markerType: 'bus', markerId: arrival.vehicleId } }"
           >
-            <i-fa-bus class="mr-2" />
-            <span class="mr-2">{{ arrival.routeName }}</span>
-            <span class="flex-grow">{{ arrival.direction }}</span>
-            <span>{{ eta(arrival) }}</span>
-            <div class="ml-2">
-              <i-fa-solid-clock v-if="arrival.state === 'planned'" />
-              <i-fa-solid-hand-paper v-if="arrival.state === 'stopping'" />
-              <i-fa-solid-running v-if="arrival.state === 'predicted'" />
+            <div class="flex flex-row">
+              <i-fa-bus class="mr-2" />
+              <span class="mr-2">{{ arrival.routeName }}</span>
+              <span class="flex-grow">{{ arrival.direction }}</span>
+              <span>{{ eta(arrival) }}</span>
+              <div class="ml-2">
+                <i-fa-solid-clock v-if="arrival.state === 'planned'" />
+                <i-fa-solid-hand-paper v-if="arrival.state === 'stopping'" />
+                <i-fa-solid-running v-if="arrival.state === 'predicted'" />
+              </div>
+            </div>
+            <div>
+              <span class="text-gray-600 text-sm">Next Stop: {{ arrival.nextStopName }}</span>
             </div>
           </router-link>
         </template>
@@ -76,7 +81,7 @@
 import { computed, onUnmounted, toRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { stops, subscribe, unsubscribe } from '~/api';
+import { stops, subscribe, trips, unsubscribe } from '~/api';
 import { Marker, StopArrival } from '~/api/types';
 import Button from '~/components/atomic/Button.vue';
 import NoData from '~/components/NoData.vue';
@@ -105,6 +110,31 @@ const eta = (arrival: StopArrival) => {
   return t('minutes', { minutes });
 };
 
+const augmentedArrivals = computed<(StopArrival & { nextStopName?: string })[]>(() => {
+  if (stop.value === undefined || !stop.value.arrivals) {
+    return [];
+  }
+
+  return stop.value.arrivals.map((a) => {
+    const trip = trips.value[a.tripId];
+    console.log(trip);
+
+    if (trip === undefined || trip.arrivals === undefined) {
+      return a;
+    }
+
+    const nextStopIndex = trip.arrivals.findIndex((s) => s.id === props.marker.id);
+    if (nextStopIndex === -1) {
+      return a;
+    }
+
+    return {
+      ...a,
+      nextStopName: trip.arrivals[nextStopIndex + 1]?.name,
+    };
+  });
+});
+
 watch(
   marker,
   async () => {
@@ -117,9 +147,36 @@ watch(
   { immediate: true },
 );
 
+const tripSubscriptions = new Set<string>();
+
+// watch arrivals and subscribe to trips
+watch(
+  stop,
+  async (newStop, oldStop) => {
+    console.log('stop changed', newStop, oldStop);
+
+    if (newStop === null || newStop.arrivals === null || newStop.arrivals === oldStop?.arrivals) {
+      return;
+    }
+
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const arrival of newStop.arrivals) {
+      if (!tripSubscriptions.has(arrival.tripId)) {
+        tripSubscriptions.add(arrival.tripId);
+        await subscribe(`data.map.trip.${arrival.tripId}`, trips);
+      }
+    }
+  },
+  { immediate: true },
+);
+
 onUnmounted(async () => {
   if (subject !== null) {
     await unsubscribe(subject);
+  }
+  // eslint-disable-next-line no-restricted-syntax
+  for await (const tripId of tripSubscriptions) {
+    await unsubscribe(`data.map.trip.${tripId}`);
   }
 });
 </script>
