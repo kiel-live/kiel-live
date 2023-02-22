@@ -43,15 +43,17 @@
               <i-fa-bus class="mr-2" />
               <span class="mr-2">{{ arrival.routeName }}</span>
               <span class="flex-grow">{{ arrival.direction }}</span>
-              <span>{{ eta(arrival) }}</span>
+              <span>{{ arrival.eta }}</span>
               <div class="ml-2">
                 <i-fa-solid-clock v-if="arrival.state === 'planned'" />
                 <i-fa-solid-hand-paper v-if="arrival.state === 'stopping'" />
                 <i-fa-solid-running v-if="arrival.state === 'predicted'" />
               </div>
             </div>
-            <div>
-              <span class="text-gray-600 text-sm">Next Stop: {{ arrival.nextStopName }}</span>
+            <div class="flex flex-row gap-2 text-gray-500 dark:text-gray-400 text-xs">
+              <span>Next Stop:</span>
+              <span v-if="arrival.nextStopName">{{ arrival.nextStopName }}</span>
+              <div v-else class="w-1/3 mb-1 bg-gray-500 dark:bg-gray-400 rounded-lg animate-pulse opacity-10" />
             </div>
           </router-link>
         </template>
@@ -110,27 +112,26 @@ const eta = (arrival: StopArrival) => {
   return t('minutes', { minutes });
 };
 
-const augmentedArrivals = computed<(StopArrival & { nextStopName?: string })[]>(() => {
+const augmentedArrivals = computed<(Omit<StopArrival, 'eta'> & { nextStopName?: string; eta: string })[]>(() => {
   if (stop.value === undefined || !stop.value.arrivals) {
     return [];
   }
 
   return stop.value.arrivals.map((a) => {
     const trip = trips.value[a.tripId];
-    console.log(trip);
 
-    if (trip === undefined || trip.arrivals === undefined) {
-      return a;
-    }
-
-    const nextStopIndex = trip.arrivals.findIndex((s) => s.id === props.marker.id);
-    if (nextStopIndex === -1) {
-      return a;
+    let nextStopName: string | undefined;
+    if (trip !== undefined && trip.arrivals !== undefined) {
+      const nextStopIndex = trip.arrivals.findIndex((s) => s.id === props.marker.id);
+      if (nextStopIndex !== -1) {
+        nextStopName = trip.arrivals[nextStopIndex + 1]?.name;
+      }
     }
 
     return {
       ...a,
-      nextStopName: trip.arrivals[nextStopIndex + 1]?.name,
+      nextStopName,
+      eta: eta(a),
     };
   });
 });
@@ -153,8 +154,6 @@ const tripSubscriptions = new Set<string>();
 watch(
   stop,
   async (newStop, oldStop) => {
-    console.log('stop changed', newStop, oldStop);
-
     if (newStop === null || newStop.arrivals === null || newStop.arrivals === oldStop?.arrivals) {
       return;
     }
