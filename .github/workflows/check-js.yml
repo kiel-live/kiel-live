@@ -131,6 +131,6 @@ jobs:
           version: 7
           run_install: true
 
-      - name: Check format
+      - name: Test
         run: pnpm run test
         working-directory: app
