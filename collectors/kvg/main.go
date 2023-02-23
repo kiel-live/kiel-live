@@ -81,7 +81,6 @@ func main() {
 			collectors["map-stops"].Run(stopIDs)
 			return
 		}
-
 	})
 
 	s := gocron.NewScheduler(time.UTC)
