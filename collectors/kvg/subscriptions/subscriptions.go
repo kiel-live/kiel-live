@@ -34,7 +34,7 @@ func New(client *client.Client) *Subscriptions {
 	return &Subscriptions{client: client}
 }
 
-func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func(string)) {
+func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func(subject string)) {
 	s.Lock()
 	defer s.Unlock()
 
