@@ -79,7 +79,11 @@ func (c *VehicleCollector) publishRemoved(vehicle *protocol.Vehicle) error {
 	return nil
 }
 
-func (c *VehicleCollector) Run() {
+func (c *VehicleCollector) SubjectsToIDs(subjects []string) []string {
+	return []string{}
+}
+
+func (c *VehicleCollector) Run(_ []string) {
 	vehicles, err := api.GetVehicles()
 	if err != nil {
 		log.Error(err)

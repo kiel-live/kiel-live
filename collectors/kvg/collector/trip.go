@@ -85,14 +85,19 @@ func (c *TripCollector) publishRemoved(trip *protocol.Trip) error {
 	return nil
 }
 
-func (c *TripCollector) Run() {
-	trips := map[string]*protocol.Trip{}
-	for _, subject := range c.subscriptions.GetSubscriptions() {
-		if !strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, "")) || subject == fmt.Sprintf(protocol.SubjectDetailsTrip, ">") {
-			continue
+func (c *TripCollector) SubjectsToIDs(subjects []string) []string {
+	ids := []string{}
+	for _, subject := range subjects {
+		if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, "")) && subject != fmt.Sprintf(protocol.SubjectDetailsTrip, ">") {
+			ids = append(ids, strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, "")+api.IDPrefix))
 		}
-		// trim prefix of subject
-		tripID := strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, "")+api.IDPrefix)
+	}
+	return ids
+}
+
+func (c *TripCollector) Run(tripIDs []string) {
+	trips := map[string]*protocol.Trip{}
+	for _, tripID := range tripIDs {
 		trip, err := api.GetTrip(tripID)
 		if err != nil {
 			log.Error(err)
@@ -111,13 +116,16 @@ func (c *TripCollector) Run() {
 		}
 	}
 
-	// publish all removed trips
-	removed := c.getRemovedTrips(trips)
-	for _, trip := range removed {
-		log.Debugf("publish removed trip: %v", trip)
-		err := c.publishRemoved(trip)
-		if err != nil {
-			log.Error(err)
+	var removed []*protocol.Trip
+	if len(trips) == 1 {
+		// publish all removed trips
+		removed = c.getRemovedTrips(trips)
+		for _, trip := range removed {
+			log.Debugf("publish removed trip: %v", trip)
+			err := c.publishRemoved(trip)
+			if err != nil {
+				log.Error(err)
+			}
 		}
 	}
 

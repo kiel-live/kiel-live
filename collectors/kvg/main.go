@@ -70,9 +70,18 @@ func main() {
 		return
 	}
 
-	subscriptions.Subscribe(func() {
-		collectors["map-stops"].Run()
-		collectors["trips"].Run()
+	subscriptions.Subscribe(func(subject string) {
+		tripIDs := collectors["trips"].SubjectsToIDs([]string{subject})
+		if len(tripIDs) > 0 {
+			collectors["trips"].Run(tripIDs)
+			return
+		}
+		stopIDs := collectors["map-stops"].SubjectsToIDs([]string{subject})
+		if len(stopIDs) > 0 {
+			collectors["map-stops"].Run(stopIDs)
+			return
+		}
+
 	})
 
 	s := gocron.NewScheduler(time.UTC)
@@ -82,10 +91,11 @@ func main() {
 			return
 		}
 
+		subjects := subscriptions.GetSubscriptions()
 		for name, c := range collectors {
 			// TODO maybe run in go routine
 			log.Debugln("Collector for", name, "running ...")
-			c.Run()
+			c.Run(c.SubjectsToIDs(subjects))
 		}
 	})
 	if err != nil {
