@@ -1,8 +1,6 @@
 import { JetStreamClient } from 'nats.ws';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
-
-import { isConnected, js, subscribe } from '.';
 
 vi.mock('nats.ws', async () => {
   const original = await vi.importActual<typeof import('nats.ws')>('nats.ws');
@@ -18,14 +16,45 @@ vi.mock('nats.ws', async () => {
 });
 
 describe('api', () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
   it('should only subscribe once when called multiple times', async () => {
+    const { subscribe, js, isConnected } = await import('.');
     const state = ref({});
-    js.value = { subscribe: vi.fn(() => []) } as unknown as JetStreamClient;
+    const subscribeMock = vi.fn(() => []);
+    js.value = { subscribe: subscribeMock } as unknown as JetStreamClient;
     isConnected.value = true;
 
     await Promise.all([subscribe('test', state), subscribe('test', state), subscribe('test', state)]);
 
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(js.value.subscribe).toBeCalledTimes(1);
+    expect(subscribeMock).toBeCalledTimes(1);
+  });
+
+  it('should unsubscribe immediately after subscribing', async () => {
+    const { subscribe, js, isConnected, unsubscribe } = await import('.');
+    const unsubscribeMock = vi.fn();
+    const subscribeMock = vi.fn(() => ({
+      unsubscribe: unsubscribeMock,
+      [Symbol.asyncIterator]() {
+        return {
+          next: async () =>
+            new Promise((resolve) => {
+              resolve({ done: true });
+            }),
+        };
+      },
+    }));
+    const state = ref({});
+    js.value = {
+      subscribe: subscribeMock,
+    } as unknown as JetStreamClient;
+    isConnected.value = true;
+
+    await Promise.all([subscribe('test', state), unsubscribe('test')]);
+
+    expect(subscribeMock).toBeCalledTimes(1);
+    expect(unsubscribeMock).toBeCalledTimes(1);
   });
 });
