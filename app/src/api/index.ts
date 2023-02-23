@@ -55,11 +55,13 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
         // delete vehicles.value[''];
       } else {
         const newModel = JSON.parse(raw) as Models;
-        // eslint-disable-next-line no-param-reassign
-        state.value = Object.freeze({
-          ...state.value,
-          [newModel.id]: Object.freeze(newModel),
-        });
+        if (raw !== JSON.stringify(state.value[newModel.id])) {
+          // eslint-disable-next-line no-param-reassign
+          state.value = Object.freeze({
+            ...state.value,
+            [newModel.id]: Object.freeze(newModel),
+          });
+        }
       }
     }
   })();
