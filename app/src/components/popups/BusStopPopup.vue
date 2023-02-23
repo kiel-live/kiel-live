@@ -158,6 +158,13 @@ watch(
       return;
     }
 
+    oldStop?.arrivals?.forEach((arrival) => {
+      if (!newStop.arrivals.some((a) => a.tripId === arrival.tripId)) {
+        tripSubscriptions.delete(arrival.tripId);
+        unsubscribe(`data.map.trip.${arrival.tripId}`);
+      }
+    });
+
     newStop.arrivals.forEach((arrival) => {
       if (!tripSubscriptions.has(arrival.tripId)) {
         tripSubscriptions.add(arrival.tripId);
