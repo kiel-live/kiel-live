@@ -50,5 +50,6 @@
   "theme_description": "Choose a theme that fits your needs.",
   "auto": "Use system theme",
   "light": "Light",
-  "dark": "Dark"
+  "dark": "Dark",
+  "next_stop": "Next stop:"
 }

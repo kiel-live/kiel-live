@@ -51,7 +51,7 @@
               </div>
             </div>
             <div class="flex flex-row gap-2 text-gray-500 dark:text-gray-400 text-xs">
-              <span>Next Stop:</span>
+              <span>{{ t('next_stop') }}</span>
               <span v-if="arrival.nextStopName">{{ arrival.nextStopName }}</span>
               <div v-else class="w-1/3 mb-1 bg-gray-500 dark:bg-gray-400 rounded-lg animate-pulse opacity-10" />
             </div>
@@ -140,7 +140,7 @@ watch(
   marker,
   async () => {
     if (subject !== null) {
-      await unsubscribe(subject);
+      unsubscribe(subject);
     }
     subject = `data.map.stop.${props.marker.id}`;
     await subscribe(subject, stops);
@@ -158,24 +158,20 @@ watch(
       return;
     }
 
-    // eslint-disable-next-line no-restricted-syntax
-    for await (const arrival of newStop.arrivals) {
+    newStop.arrivals.forEach((arrival) => {
       if (!tripSubscriptions.has(arrival.tripId)) {
         tripSubscriptions.add(arrival.tripId);
-        await subscribe(`data.map.trip.${arrival.tripId}`, trips);
+        void subscribe(`data.map.trip.${arrival.tripId}`, trips);
       }
-    }
+    });
   },
   { immediate: true },
 );
 
-onUnmounted(async () => {
+onUnmounted(() => {
   if (subject !== null) {
-    await unsubscribe(subject);
+    unsubscribe(subject);
   }
-  // eslint-disable-next-line no-restricted-syntax
-  for await (const tripId of tripSubscriptions) {
-    await unsubscribe(`data.map.trip.${tripId}`);
-  }
+  tripSubscriptions.forEach((tripId) => unsubscribe(`data.map.trip.${tripId}`));
 });
 </script>

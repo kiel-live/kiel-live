@@ -65,7 +65,7 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
   })();
 };
 
-export const unsubscribe = async (subject: string) => {
+export const unsubscribe = (subject: string) => {
   if (subscriptions.value[subject]) {
     subscriptions.value[subject].unsubscribe();
     delete subscriptions.value[subject];

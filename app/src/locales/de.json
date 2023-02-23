@@ -51,5 +51,6 @@
   "theme_description": "Wähle ein Theme aus, das dir gefällt.",
   "auto": "System Theme nutzen",
   "light": "Hell",
-  "dark": "Dunkel"
+  "dark": "Dunkel",
+  "next_stop": "Nächster Stop:"
 }
