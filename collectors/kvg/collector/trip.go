@@ -95,7 +95,7 @@ func (c *TripCollector) SubjectsToIDs(subjects []string) []string {
 	return ids
 }
 
-func (c *TripCollector) Run(tripIDs []string) {
+func (c *TripCollector) Run(tripIDs []string, runRemoved bool) {
 	trips := map[string]*protocol.Trip{}
 	for _, tripID := range tripIDs {
 		trip, err := api.GetTrip(tripID)
@@ -117,7 +117,7 @@ func (c *TripCollector) Run(tripIDs []string) {
 	}
 
 	var removed []*protocol.Trip
-	if len(trips) == 1 {
+	if runRemoved {
 		// publish all removed trips
 		removed = c.getRemovedTrips(trips)
 		for _, trip := range removed {

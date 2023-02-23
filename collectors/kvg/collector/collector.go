@@ -8,7 +8,7 @@ import (
 )
 
 type Collector interface {
-	Run([]string)
+	Run(IDs []string, runRemove bool)
 	SubjectsToIDs([]string) []string
 }
 

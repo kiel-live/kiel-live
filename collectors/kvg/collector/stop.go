@@ -103,7 +103,7 @@ func (c *StopCollector) SubjectsToIDs(subjects []string) []string {
 	return ids
 }
 
-func (c *StopCollector) Run(stopIDs []string) {
+func (c *StopCollector) Run(stopIDs []string, _ bool) {
 	stops, err := api.GetStops()
 	if err != nil {
 		log.Error(err)

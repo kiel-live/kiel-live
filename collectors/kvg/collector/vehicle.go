@@ -83,7 +83,7 @@ func (c *VehicleCollector) SubjectsToIDs(subjects []string) []string {
 	return []string{}
 }
 
-func (c *VehicleCollector) Run(_ []string) {
+func (c *VehicleCollector) Run(_ []string, _ bool) {
 	vehicles, err := api.GetVehicles()
 	if err != nil {
 		log.Error(err)
