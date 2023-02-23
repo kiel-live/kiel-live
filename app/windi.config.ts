@@ -16,6 +16,9 @@ export default defineConfig({
         'status-gray': colors.gray[400],
         'status-blue': colors.blue[400],
         'status-green': '#4caf50',
+
+        // override red-500 to fix accessibility issues
+        'red-500': 'rgba(250, 68, 68, var(--tw-text-opacity))',
       },
       boxShadow: {
         right: '4px 0 8px 0 rgba(17, 24, 39, 0.25)',
