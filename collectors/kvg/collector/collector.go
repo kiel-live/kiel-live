@@ -8,7 +8,8 @@ import (
 )
 
 type Collector interface {
-	Run()
+	Run(IDs []string, runRemove bool)
+	SubjectsToIDs(subjects []string) []string
 }
 
 func NewCollector(client *client.Client, collectorType string, subscriptions *subscriptions.Subscriptions) (Collector, error) {

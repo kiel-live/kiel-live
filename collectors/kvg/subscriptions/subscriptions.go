@@ -34,7 +34,7 @@ func New(client *client.Client) *Subscriptions {
 	return &Subscriptions{client: client}
 }
 
-func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func()) {
+func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func(subject string)) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -64,7 +64,7 @@ func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func()) {
 		s.numberOfSubscriptionsPerSubject[consumerInfo.Config.FilterSubject]++
 		s.Unlock()
 
-		subscriptionCreatedCallback()
+		subscriptionCreatedCallback(consumerInfo.Config.FilterSubject)
 	})
 	if err != nil {
 		log.Errorf("Subscribe failed, reason: %v \n", err)
