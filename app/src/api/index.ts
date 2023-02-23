@@ -45,6 +45,8 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
   opts.ackNone();
   opts.replayInstantly();
   const sub = await js.value.subscribe(subject, opts);
+
+  // If a subscription got unsubscribed before the subscription process finished immediately unsubscribe at this place again
   if (subscriptions.value[subject] !== 'pending') {
     sub.unsubscribe();
     return;
