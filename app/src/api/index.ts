@@ -22,18 +22,19 @@ export const stops = ref<Record<string, Stop>>({});
 export const trips = ref<Record<string, Trip>>({});
 export const isConnected = ref(false);
 
-const subscriptions = ref<Record<string, JetStreamSubscription>>({});
+const subscriptions = ref<Record<string, JetStreamSubscription | 'pending'>>({});
 const subscriptionsQueue: Record<string, Ref<Record<string, Models>>> = {};
 
 let nc: NatsConnection | undefined;
-let js: JetStreamClient | undefined;
+export const js: Ref<JetStreamClient | undefined> = ref();
 
 export const subscribe = async (subject: string, state: Ref<Record<string, Models>>) => {
   if (subscriptions.value[subject]) {
     return;
   }
+  subscriptions.value[subject] = 'pending';
 
-  if (!isConnected.value || !js) {
+  if (!isConnected.value || !js.value) {
     subscriptionsQueue[subject] = state;
     return;
   }
@@ -43,7 +44,13 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
   opts.deliverAll();
   opts.ackNone();
   opts.replayInstantly();
-  const sub = await js.subscribe(subject, opts);
+  const sub = await js.value.subscribe(subject, opts);
+
+  // If a subscription got unsubscribed before the subscription process finished immediately unsubscribe at this place again
+  if (subscriptions.value[subject] !== 'pending') {
+    sub.unsubscribe();
+    return;
+  }
   subscriptions.value[subject] = sub;
 
   void (async () => {
@@ -69,7 +76,10 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
 
 export const unsubscribe = async (subject: string) => {
   if (subscriptions.value[subject]) {
-    subscriptions.value[subject].unsubscribe();
+    const subscription = subscriptions.value[subject];
+    if (subscription !== 'pending') {
+      subscription.unsubscribe();
+    }
     delete subscriptions.value[subject];
   }
   if (subscriptionsQueue[subject]) {
@@ -97,7 +107,7 @@ export const loadApi = async () => {
     maxReconnectAttempts: -1,
   });
   isConnected.value = true;
-  js = nc.jetstream();
+  js.value = nc.jetstream();
 
   await processSubscriptionsQueue();
 
