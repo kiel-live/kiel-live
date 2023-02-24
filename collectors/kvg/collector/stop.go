@@ -93,19 +93,24 @@ func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
 	return nil
 }
 
-func (c *StopCollector) Run() {
+func (c *StopCollector) SubjectsToIDs(subjects []string) []string {
+	var ids []string
+	for _, subject := range subjects {
+		if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")) && subject != fmt.Sprintf(protocol.SubjectMapStop, ">") {
+			ids = append(ids, strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")+api.IDPrefix))
+		}
+	}
+	return ids
+}
+
+func (c *StopCollector) Run(stopIDs []string, _ bool) {
 	stops, err := api.GetStops()
 	if err != nil {
 		log.Error(err)
 		return
 	}
 
-	for _, subject := range c.subscriptions.GetSubscriptions() {
-		if !strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")) || subject == fmt.Sprintf(protocol.SubjectMapStop, ">") {
-			continue
-		}
-		// trim prefix of subject
-		stopID := strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")+api.IDPrefix)
+	for _, stopID := range stopIDs {
 		log.Debug("StopCollector: Run: ", stopID)
 		details, err := api.GetStopDetails(stopID)
 		if err != nil {

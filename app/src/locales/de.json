@@ -20,8 +20,7 @@
   "404_error": "Whoa 404, entweder es ist etwas kaputt gegangen oder du hast dich vertippt :-/",
   "404_back_to": "Zurück zur {link}",
   "home": "Startseite",
-  "install": "Installieren",
-  "cancel": "Abbrechen",
+  "update": "Aktualisieren",
   "close": "Schließen",
   "alerts": "Hinweise",
   "favorites": "Favoriten",
@@ -52,5 +51,6 @@
   "theme_description": "Wähle ein Theme aus, das dir gefällt.",
   "auto": "System Theme nutzen",
   "light": "Hell",
-  "dark": "Dunkel"
+  "dark": "Dunkel",
+  "next_stop": "Nächster Stop:"
 }

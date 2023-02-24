@@ -10,11 +10,14 @@ import (
 )
 
 const (
-	baseURL     = "https://www.kvg-kiel.de"
-	stopURL     = baseURL + "/internetservice/services/passageInfo/stopPassages/stop"
-	tripURL     = baseURL + "/internetservice/services/tripInfo/tripPassages"
-	vehiclesURL = baseURL + "/internetservice/geoserviceDispatcher/services/vehicleinfo/vehicles"
-	stopsURL    = baseURL + "/internetservice/geoserviceDispatcher/services/stopinfo/stops"
+	baseURL      = "https://www.kvg-kiel.de"
+	stopURL      = baseURL + "/internetservice/services/passageInfo/stopPassages/stop"
+	platformURL  = baseURL + "/internetservice/services/passageInfo/stopPassages/stopPoint"
+	tripURL      = baseURL + "/internetservice/services/tripInfo/tripPassages"
+	tripPathURL  = baseURL + "/internetservice/geoserviceDispatcher/services/pathinfo/trip"
+	vehiclesURL  = baseURL + "/internetservice/geoserviceDispatcher/services/vehicleinfo/vehicles"
+	stopsURL     = baseURL + "/internetservice/geoserviceDispatcher/services/stopinfo/stops"
+	platformsURL = baseURL + "/internetservice/geoserviceDispatcher/services/stopinfo/stopPoints"
 )
 
 const IDPrefix = "kvg-"

@@ -10,6 +10,7 @@ export type StopArrival = {
   state: ArrivalState;
   planned: string;
   eta: number; // in seconds
+  platform: string;
 };
 
 export type TripArrival = {
