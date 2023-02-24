@@ -112,9 +112,9 @@ const eta = (arrival: StopArrival) => {
   return t('minutes', { minutes });
 };
 
-const augmentedArrivals = computed<(Omit<StopArrival, 'eta'> & { nextStopName?: string; eta: string })[]>(() => {
+const augmentedArrivals = computed<(Omit<StopArrival, 'eta'> & { nextStopName?: string; eta: string })[] | null>(() => {
   if (stop.value === undefined || !stop.value.arrivals) {
-    return [];
+    return null;
   }
 
   return stop.value.arrivals.map((a) => {
@@ -159,7 +159,7 @@ watch(
     }
 
     oldStop?.arrivals?.forEach((arrival) => {
-      if (!newStop.arrivals.some((a) => a.tripId === arrival.tripId)) {
+      if (!newStop.arrivals?.some((a) => a.tripId === arrival.tripId)) {
         tripSubscriptions.delete(arrival.tripId);
         unsubscribe(`data.map.trip.${arrival.tripId}`);
       }

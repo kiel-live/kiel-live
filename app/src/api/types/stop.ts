@@ -8,8 +8,8 @@ export type Stop = {
   provider: string;
   name: string;
   type: StopType;
-  routes: string[]; // list of routes using this stop
-  alerts: string[]; // general alerts for this stop
-  arrivals: StopArrival[];
+  routes: string[] | null; // list of routes using this stop
+  alerts: string[] | null; // general alerts for this stop
+  arrivals: StopArrival[] | null;
   location: GpsLocation;
 };
