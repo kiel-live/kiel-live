@@ -113,26 +113,7 @@ const trip = computed(() => {
 });
 
 const tripsGeoJson = computed<Feature<LineString, GeoJsonProperties>[]>(() => {
-  if (selectedVehicle.value?.type === 'bus' && trip.value?.arrivals) {
-    const coordinates: Position[] = [];
-    const { arrivals } = trip.value;
-    arrivals.forEach((arrival, i) => {
-      if (
-        selectedVehicle.value &&
-        (arrival.state === 'predicted' || arrival.state === 'stopping') &&
-        (i === 0 || arrivals[i - 1]?.state === 'departed')
-      ) {
-        coordinates.push([
-          selectedVehicle.value.location.longitude / 3600000,
-          selectedVehicle.value.location.latitude / 3600000,
-        ]);
-      }
-      const stop = stops.value[arrival.id];
-      if (stop) {
-        coordinates.push([stop.location.longitude / 3600000, stop.location.latitude / 3600000]);
-      }
-    });
-
+  if (selectedVehicle.value?.type === 'bus' && trip.value?.path) {
     return [
       {
         type: 'Feature',
@@ -141,7 +122,7 @@ const tripsGeoJson = computed<Feature<LineString, GeoJsonProperties>[]>(() => {
         },
         geometry: {
           type: 'LineString',
-          coordinates,
+          coordinates: trip.value.path.map((p) => [p.longitude / 3600000, p.latitude / 3600000]),
         },
       },
     ];

@@ -13,6 +13,7 @@ const (
 	baseURL     = "https://www.kvg-kiel.de"
 	stopURL     = baseURL + "/internetservice/services/passageInfo/stopPassages/stop"
 	tripURL     = baseURL + "/internetservice/services/tripInfo/tripPassages"
+	tripPathURL = baseURL + "/internetservice/geoserviceDispatcher/services/pathinfo/trip"
 	vehiclesURL = baseURL + "/internetservice/geoserviceDispatcher/services/vehicleinfo/vehicles"
 	stopsURL    = baseURL + "/internetservice/geoserviceDispatcher/services/stopinfo/stops"
 )
