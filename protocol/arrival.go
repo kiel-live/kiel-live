@@ -21,6 +21,7 @@ type StopArrival struct {
 	State     ArrivalState `json:"state"`
 	Planned   string       `json:"planned"`
 	ETA       int          `json:"eta"` // in seconds
+	Platform  string       `json:"platform"`
 }
 
 type TripArrival struct {

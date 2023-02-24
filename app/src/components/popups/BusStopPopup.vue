@@ -50,10 +50,11 @@
                 <i-fa-solid-running v-if="arrival.state === 'predicted'" />
               </div>
             </div>
-            <div class="flex flex-row gap-2 text-gray-500 dark:text-gray-400 text-xs">
+            <div class="flex flex-row gap-1 text-gray-500 dark:text-gray-400 text-xs">
               <span>{{ t('next_stop') }}</span>
               <span v-if="arrival.nextStopName">{{ arrival.nextStopName }}</span>
               <div v-else class="w-1/3 mb-1 bg-gray-500 dark:bg-gray-400 rounded-lg animate-pulse opacity-10" />
+              <span class="ml-auto">{{ arrival.platform }}</span>
             </div>
           </router-link>
         </template>
@@ -154,7 +155,7 @@ const tripSubscriptions = new Set<string>();
 watch(
   stop,
   async (newStop, oldStop) => {
-    if (newStop === null || newStop.arrivals === null || newStop.arrivals === oldStop?.arrivals) {
+    if (!newStop || newStop.arrivals === null || newStop.arrivals === oldStop?.arrivals) {
       return;
     }
 
