@@ -68,6 +68,7 @@ type departure struct {
 	RouteID            string          `json:"routeId"`
 	RouteName          string          `json:"patternText"`
 	Direction          string          `json:"direction"`
+	Platform           string          `json:"platform"`
 }
 
 type alert struct {
@@ -95,6 +96,7 @@ func (d *departure) parse() protocol.StopArrival {
 		State:     d.Status.parse(),
 		ETA:       d.ActualRelativeTime,
 		Planned:   d.ActualTime,
+		Platform:  d.Platform,
 	}
 }
 
@@ -139,6 +141,27 @@ func GetStopDetails(stopShortName string) (*StopDetails, error) {
 	var stop StopDepartures
 	if err := json.Unmarshal(resp, &stop); err != nil {
 		return nil, err
+	}
+
+	platforms, err := GetPlatforms(stopShortName)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, platform := range platforms {
+		if platform.Label != "" {
+			platformDepartures, err := GetPlatformDepartures(platform.StopPoint)
+			if err != nil {
+				return nil, err
+			}
+			for _, departure := range platformDepartures.Departures {
+				for i, d := range stop.Departures {
+					if d.TripID == departure.TripID {
+						stop.Departures[i].Platform = platform.Label
+					}
+				}
+			}
+		}
 	}
 
 	departures := []protocol.StopArrival{}
