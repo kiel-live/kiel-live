@@ -7,4 +7,5 @@ type Trip struct {
 	VehicleID string        `json:"vehicleId"`
 	Direction string        `json:"direction"`
 	Arrivals  []TripArrival `json:"arrivals"`
+	Path      []Location    `json:"path"`
 }
