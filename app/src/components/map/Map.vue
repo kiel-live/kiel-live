@@ -14,7 +14,6 @@ import type {
   Geometry,
   LineString,
   Point,
-  Position,
 } from 'geojson';
 import {
   AttributionControl,
