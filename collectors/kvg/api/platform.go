@@ -5,17 +5,17 @@ import (
 	"net/url"
 )
 
-type platforms struct {
-	Platforms []platform `json:"stopPoints"`
-}
-
-type platform struct {
+type Platform struct {
 	StopPoint string `json:"stopPoint"`
 	ShortName string `json:"shortName"`
 	Label     string `json:"label"`
 }
 
-func GetPlatforms(stopShortName string) ([]platform, error) {
+type platforms struct {
+	Platforms []Platform `json:"stopPoints"`
+}
+
+func GetPlatforms(stopShortName string) ([]Platform, error) {
 	var platforms platforms
 	data := url.Values{}
 	data.Set("top", "324000000")
@@ -28,7 +28,7 @@ func GetPlatforms(stopShortName string) ([]platform, error) {
 		return nil, err
 	}
 
-	var res []platform
+	var res []Platform
 	for _, platform := range platforms.Platforms {
 		if platform.ShortName == stopShortName {
 			res = append(res, platform)
