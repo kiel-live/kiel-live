@@ -40,12 +40,19 @@ public class MainActivity extends AppCompatActivity {
 
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        webSettings.setAppCacheEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         webSettings.setDatabaseEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setGeolocationEnabled(true);
 
-        myWebView.setWebViewClient(new MyWebViewClient(this));
+        MyWebViewClient webViewClient = new MyWebViewClient(this);
+
+        myWebView.setOnApplyWindowInsetsListener((view, insets) -> {
+            webViewClient.inject(myWebView, insets.getStableInsetTop());
+            return insets.consumeSystemWindowInsets();
+        });
+
+        myWebView.setWebViewClient(webViewClient);
         myWebView.setWebChromeClient(new MyWebChromeClient(this));
 
         Map<String, String> extraHeaders = new HashMap<>();

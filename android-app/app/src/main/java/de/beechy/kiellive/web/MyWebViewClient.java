@@ -10,6 +10,7 @@ import de.beechy.kiellive.Config;
 
 public class MyWebViewClient extends WebViewClient {
     private Context context;
+    private int statusBarHeight;
 
     public MyWebViewClient(Context context) {
         this.context = context;
@@ -27,4 +28,47 @@ public class MyWebViewClient extends WebViewClient {
         context.startActivity(intent);
         return true;
     }
+
+    // https://stackoverflow.com/a/30270803
+    private final static String CREATE_CUSTOM_SHEET =
+            "if (typeof(document.head) != 'undefined' && typeof(customSheet) == 'undefined') {"
+                    + "var customSheet = (function() {"
+                    + "var style = document.createElement(\"style\");"
+                    + "style.appendChild(document.createTextNode(\"\"));"
+                    + "document.head.appendChild(style);"
+                    + "return style.sheet;"
+                    + "})();"
+                    + "}";
+
+    // https://stackoverflow.com/a/30270803
+    void injectCssIntoWebView(WebView webView, int statusBarHeight) {
+        StringBuilder jsUrl = new StringBuilder("javascript:");
+        jsUrl
+                .append(CREATE_CUSTOM_SHEET)
+                .append("if (typeof(customSheet) != 'undefined') {")
+                .append("const pixel = " + statusBarHeight + " / window.devicePixelRatio;")
+                .append("customSheet.insertRule('")
+                .append("#app > div > main > div > div.absolute { margin-top: ' + pixel + 'px; }")
+                .append("', ")
+                .append(0)
+                .append(");");
+        jsUrl.append("}");
+
+        webView.loadUrl(jsUrl.toString());
+    }
+
+    public void inject(WebView webView, int statusBarHeight) {
+        statusBarHeight += 8;
+        this.statusBarHeight = statusBarHeight;
+    }
+
+    @Override
+    public void onPageFinished(WebView webView, String url) {
+        injectCssIntoWebView(
+                webView,
+                statusBarHeight
+        );
+    }
+
+
 }
