@@ -79,7 +79,7 @@ watch(
   vehicle,
   async () => {
     if (subject !== null) {
-      await unsubscribe(subject);
+      unsubscribe(subject);
     }
     if (!vehicle.value) {
       return;
@@ -90,9 +90,9 @@ watch(
   { immediate: true },
 );
 
-onUnmounted(async () => {
+onUnmounted(() => {
   if (subject !== null) {
-    await unsubscribe(subject);
+    unsubscribe(subject);
   }
 });
 </script>
