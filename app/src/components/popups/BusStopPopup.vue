@@ -155,7 +155,7 @@ const tripSubscriptions = new Set<string>();
 watch(
   stop,
   async (newStop, oldStop) => {
-    if (newStop === null || newStop.arrivals === null || newStop.arrivals === oldStop?.arrivals) {
+    if (!newStop || newStop.arrivals === null || newStop.arrivals === oldStop?.arrivals) {
       return;
     }
 
