@@ -22,7 +22,7 @@ export const stops = ref<Record<string, Stop>>({});
 export const trips = ref<Record<string, Trip>>({});
 export const isConnected = ref(false);
 
-const subscriptions = ref<Record<string, JetStreamSubscription | 'pending'>>({});
+const subscriptions = ref<Record<string, { subscription?: JetStreamSubscription; pending?: Promise<void> }>>({});
 const subscriptionsQueue: Record<string, Ref<Record<string, Models>>> = {};
 
 let nc: NatsConnection | undefined;
@@ -32,7 +32,13 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
   if (subscriptions.value[subject]) {
     return;
   }
-  subscriptions.value[subject] = 'pending';
+
+  let resolvePendingSubscription: () => void = () => {};
+  subscriptions.value[subject] = {
+    pending: new Promise((resolve) => {
+      resolvePendingSubscription = resolve;
+    }),
+  };
 
   if (!isConnected.value || !js.value) {
     subscriptionsQueue[subject] = state;
@@ -46,12 +52,8 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
   opts.replayInstantly();
   const sub = await js.value.subscribe(subject, opts);
 
-  // If a subscription got unsubscribed before the subscription process finished immediately unsubscribe at this place again
-  if (subscriptions.value[subject] !== 'pending') {
-    sub.unsubscribe();
-    return;
-  }
-  subscriptions.value[subject] = sub;
+  subscriptions.value[subject].subscription = sub;
+  resolvePendingSubscription();
 
   void (async () => {
     // eslint-disable-next-line no-restricted-syntax
@@ -74,12 +76,13 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
   })();
 };
 
-export const unsubscribe = (subject: string) => {
+export const unsubscribe = async (subject: string) => {
   if (subscriptions.value[subject]) {
-    const subscription = subscriptions.value[subject];
-    if (subscription !== 'pending') {
-      subscription.unsubscribe();
+    const { pending } = subscriptions.value[subject];
+    if (pending) {
+      await pending;
     }
+    subscriptions.value[subject]?.subscription?.unsubscribe();
     delete subscriptions.value[subject];
   }
   if (subscriptionsQueue[subject]) {

@@ -139,9 +139,12 @@ const augmentedArrivals = computed<(Omit<StopArrival, 'eta'> & { nextStopName?: 
 
 watch(
   marker,
-  async () => {
+  async (newMarker, oldMarker) => {
+    if (newMarker.id === oldMarker?.id) {
+      return;
+    }
     if (subject !== null) {
-      unsubscribe(subject);
+      void unsubscribe(subject);
     }
     subject = `data.map.stop.${props.marker.id}`;
     await subscribe(subject, stops);
@@ -162,7 +165,7 @@ watch(
     oldStop?.arrivals?.forEach((arrival) => {
       if (!newStop.arrivals?.some((a) => a.tripId === arrival.tripId)) {
         tripSubscriptions.delete(arrival.tripId);
-        unsubscribe(`data.map.trip.${arrival.tripId}`);
+        void unsubscribe(`data.map.trip.${arrival.tripId}`);
       }
     });
 
@@ -178,8 +181,10 @@ watch(
 
 onUnmounted(() => {
   if (subject !== null) {
-    unsubscribe(subject);
+    void unsubscribe(subject);
   }
-  tripSubscriptions.forEach((tripId) => unsubscribe(`data.map.trip.${tripId}`));
+  tripSubscriptions.forEach((tripId) => {
+    void unsubscribe(`data.map.trip.${tripId}`);
+  });
 });
 </script>
