@@ -1,13 +1,9 @@
 package de.beechy.kiellive.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.webkit.WebSettingsCompat;
-import androidx.webkit.WebViewFeature;
-
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,12 +12,14 @@ import android.webkit.GeolocationPermissions;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import de.beechy.kiellive.BuildConfig;
 import de.beechy.kiellive.Config;
-import de.beechy.kiellive.web.MyWebChromeClient;
 import de.beechy.kiellive.web.MyWebViewClient;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
             path = "/";
         }
 
-        myWebView = new WebView(this.getBaseContext());
+        myWebView = new WebView(this);
         setContentView(myWebView);
 
         WebSettings webSettings = myWebView.getSettings();
@@ -60,16 +58,6 @@ public class MainActivity extends AppCompatActivity {
             webViewClient.setStatusBarHeight(insets.getStableInsetTop());
             return insets.consumeSystemWindowInsets();
         });
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-            int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-            if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-                // Theme is switched to Night/Dark mode, turn on webview darkening
-                WebSettingsCompat.setForceDark(myWebView.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
-            } else {
-                // Theme is not switched to Night/Dark mode, turn off webview darkening
-                WebSettingsCompat.setForceDark(myWebView.getSettings(), WebSettingsCompat.FORCE_DARK_OFF);
-            }
-        }
 
         myWebView.setWebViewClient(webViewClient);
         myWebView.setWebChromeClient(new MyWebChromeClient(this));
