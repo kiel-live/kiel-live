@@ -33,17 +33,17 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
     return;
   }
 
+  if (!isConnected.value || !js.value) {
+    subscriptionsQueue[subject] = state;
+    return;
+  }
+
   let resolvePendingSubscription: () => void = () => {};
   subscriptions.value[subject] = {
     pending: new Promise((resolve) => {
       resolvePendingSubscription = resolve;
     }),
   };
-
-  if (!isConnected.value || !js.value) {
-    subscriptionsQueue[subject] = state;
-    return;
-  }
 
   const opts = consumerOpts();
   opts.deliverTo(createInbox());
