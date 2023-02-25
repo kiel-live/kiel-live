@@ -146,7 +146,7 @@ watch(
     if (subject !== null) {
       void unsubscribe(subject);
     }
-    subject = `data.map.stop.${props.marker.id}`;
+    subject = `data.map.stop.${newMarker.id}`;
     await subscribe(subject, stops);
   },
   { immediate: true },

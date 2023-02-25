@@ -54,7 +54,7 @@ import { computed, onUnmounted, toRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { subscribe, trips, unsubscribe, vehicles } from '~/api';
-import { Marker } from '~/api/types';
+import { Marker, Vehicle } from '~/api/types';
 import NoData from '~/components/NoData.vue';
 
 const props = defineProps<{
@@ -66,7 +66,7 @@ const { t } = useI18n();
 const marker = toRef(props, 'marker');
 let subject: string | null = null;
 
-const vehicle = computed(() => vehicles.value[marker.value.id]);
+const vehicle = computed<Vehicle | undefined>(() => vehicles.value[marker.value.id]);
 
 const trip = computed(() => {
   if (!trips.value || !vehicle.value) {
@@ -78,16 +78,16 @@ const trip = computed(() => {
 watch(
   vehicle,
   async (newVehicle, oldVehicle) => {
-    if (newVehicle.tripId === oldVehicle?.tripId) {
+    if (newVehicle?.tripId === oldVehicle?.tripId) {
       return;
     }
     if (subject !== null) {
       void unsubscribe(subject);
     }
-    if (!vehicle.value) {
+    if (!newVehicle) {
       return;
     }
-    subject = `data.map.trip.${vehicle.value.tripId}`;
+    subject = `data.map.trip.${newVehicle.tripId}`;
     await subscribe(subject, trips);
   },
   { immediate: true },
