@@ -20,6 +20,7 @@ import java.util.Map;
 
 import de.beechy.kiellive.BuildConfig;
 import de.beechy.kiellive.Config;
+import de.beechy.kiellive.web.MyWebChromeClient;
 import de.beechy.kiellive.web.MyWebViewClient;
 
 public class MainActivity extends AppCompatActivity {
