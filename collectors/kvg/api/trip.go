@@ -63,7 +63,10 @@ func GetTripPath(tripID string) []protocol.Location {
 	data := url.Values{}
 	data.Set("id", tripID)
 
-	resp, _ := post(tripPathURL, data)
+	resp, err := post(tripPathURL, data)
+	if err != nil {
+		return nil
+	}
 	var paths tripPaths
 	if err := json.Unmarshal(resp, &paths); err != nil {
 		return nil
@@ -80,17 +83,20 @@ func GetTripPath(tripID string) []protocol.Location {
 	return path
 }
 
-func GetTrip(tripID string) (protocol.Trip, error) {
+func GetTrip(tripID string) (*protocol.Trip, error) {
 	data := url.Values{}
 	data.Set("tripId", tripID)
 
-	resp, _ := post(tripURL, data)
+	resp, err := post(tripURL, data)
+	if err != nil {
+		return nil, err
+	}
 	var trip trip
 	if err := json.Unmarshal(resp, &trip); err != nil {
-		return protocol.Trip{}, err
+		return nil, err
 	}
 	protocolTrip := trip.parse()
 	protocolTrip.ID = IDPrefix + tripID
 	protocolTrip.Path = GetTripPath(tripID)
-	return protocolTrip, nil
+	return &protocolTrip, nil
 }

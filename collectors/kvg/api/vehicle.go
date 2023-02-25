@@ -42,7 +42,10 @@ func (v *vehicle) parse() protocol.Vehicle {
 func GetVehicles() (res map[string]*protocol.Vehicle, err error) {
 	res = make(map[string]*protocol.Vehicle)
 	url := fmt.Sprintf("%s?cacheBuster=%d&positionType=RAW", vehiclesURL, time.Now().Unix())
-	body, _ := post(url, nil)
+	body, err := post(url, nil)
+	if err != nil {
+		return nil, err
+	}
 	// 	cacheBuster: new Date().getTime(),
 	//   colorType: 'ROUTE_BASED',
 	//   // lastUpdate: new Date().getTime(),

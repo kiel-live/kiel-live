@@ -51,7 +51,8 @@ func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func(subject strin
 	err := s.client.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.CREATED.>", func(msg *client.SubjectMessage) {
 		var consumerEvent consumerEvent
 		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
-			log.Fatalf("Parse response failed, reason: %v \n", err)
+			log.Errorf("Parse response failed, reason: %v \n", err)
+			return
 		}
 		consumerInfo, err := s.client.JS.ConsumerInfo(consumerEvent.Stream, consumerEvent.Consumer)
 		if err != nil {
@@ -74,7 +75,8 @@ func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func(subject strin
 	err = s.client.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.DELETED.>", func(msg *client.SubjectMessage) {
 		var consumerEvent consumerEvent
 		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
-			log.Fatalf("Parse response failed, reason: %v \n", err)
+			log.Errorf("Parse response failed, reason: %v \n", err)
+			return
 		}
 
 		s.Lock()
