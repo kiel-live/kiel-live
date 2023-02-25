@@ -77,9 +77,12 @@ const trip = computed(() => {
 
 watch(
   vehicle,
-  async () => {
+  async (newVehicle, oldVehicle) => {
+    if (newVehicle.tripId === oldVehicle?.tripId) {
+      return;
+    }
     if (subject !== null) {
-      unsubscribe(subject);
+      void unsubscribe(subject);
     }
     if (!vehicle.value) {
       return;
@@ -92,7 +95,7 @@ watch(
 
 onUnmounted(() => {
   if (subject !== null) {
-    unsubscribe(subject);
+    void unsubscribe(subject);
   }
 });
 </script>
