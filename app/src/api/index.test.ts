@@ -57,4 +57,33 @@ describe('api', () => {
     expect(subscribeMock).toBeCalledTimes(1);
     expect(unsubscribeMock).toBeCalledTimes(1);
   });
+
+  it('should subscribe after unsubscribing', async () => {
+    const { subscribe, js, isConnected, unsubscribe } = await import('.');
+    const unsubscribeMock = vi.fn();
+    const subscribeMock = vi.fn(() => ({
+      unsubscribe: unsubscribeMock,
+      [Symbol.asyncIterator]() {
+        return {
+          next: async () =>
+            new Promise((resolve) => {
+              resolve({ done: true });
+            }),
+        };
+      },
+    }));
+    const state = ref({});
+    js.value = {
+      subscribe: subscribeMock,
+    } as unknown as JetStreamClient;
+    isConnected.value = true;
+
+    await subscribe('test', state);
+    await unsubscribe('test');
+    await subscribe('test', state);
+    await unsubscribe('test');
+
+    expect(subscribeMock).toBeCalledTimes(2);
+    expect(unsubscribeMock).toBeCalledTimes(2);
+  });
 });
