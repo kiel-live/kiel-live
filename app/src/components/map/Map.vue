@@ -207,8 +207,8 @@ function flyTo(center: [number, number]) {
 }
 
 onMounted(async () => {
-  await subscribe('data.map.vehicle.>', vehicles);
-  await subscribe('data.map.stop.>', stops);
+  void subscribe('data.map.vehicle.>', vehicles);
+  void subscribe('data.map.stop.>', stops);
 
   map = new Map({
     container: 'map',
