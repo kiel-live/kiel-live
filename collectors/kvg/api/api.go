@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -25,7 +23,6 @@ const IDPrefix = "kvg-"
 func post(url string, data url.Values) ([]byte, error) {
 	resp, err := http.Post(url, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
 	if err != nil {
-		log.Errorln(err)
 		return nil, err
 	}
 	defer resp.Body.Close()
