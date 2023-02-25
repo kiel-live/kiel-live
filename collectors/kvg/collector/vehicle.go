@@ -7,7 +7,7 @@ import (
 	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
 	"github.com/kiel-live/kiel-live/protocol"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 type VehicleCollector struct {
@@ -84,6 +84,7 @@ func (c *VehicleCollector) SubjectsToIDs(subjects []string) []string {
 }
 
 func (c *VehicleCollector) Run(_ []string, _ bool) {
+	log := logrus.WithField("collector", "vehicle")
 	vehicles, err := api.GetVehicles()
 	if err != nil {
 		log.Error(err)

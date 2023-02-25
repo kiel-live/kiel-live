@@ -114,7 +114,10 @@ func GetStops() (res map[string]*protocol.Stop, err error) {
 	data.Set("left", "-648000000")
 	data.Set("right", "648000000")
 
-	body, _ := post(stopsURL, data)
+	body, err := post(stopsURL, data)
+	if err != nil {
+		return nil, err
+	}
 	var stops stops
 	if err := json.Unmarshal(body, &stops); err != nil {
 		return nil, err
@@ -137,7 +140,10 @@ func GetStopDetails(stopShortName string) (*StopDetails, error) {
 	data := url.Values{}
 	data.Set("stop", stopShortName)
 
-	resp, _ := post(stopURL, data)
+	resp, err := post(stopURL, data)
+	if err != nil {
+		return nil, err
+	}
 	var stop StopDepartures
 	if err := json.Unmarshal(resp, &stop); err != nil {
 		return nil, err

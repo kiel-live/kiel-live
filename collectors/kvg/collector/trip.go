@@ -9,7 +9,7 @@ import (
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
 	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
 	"github.com/kiel-live/kiel-live/protocol"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 type TripCollector struct {
@@ -96,6 +96,7 @@ func (c *TripCollector) SubjectsToIDs(subjects []string) []string {
 }
 
 func (c *TripCollector) Run(tripIDs []string, runRemoved bool) {
+	log := logrus.WithField("collector", "trip")
 	trips := map[string]*protocol.Trip{}
 	for _, tripID := range tripIDs {
 		trip, err := api.GetTrip(tripID)
@@ -103,7 +104,7 @@ func (c *TripCollector) Run(tripIDs []string, runRemoved bool) {
 			log.Error(err)
 			continue
 		}
-		trips[trip.ID] = &trip
+		trips[trip.ID] = trip
 	}
 
 	// publish all changed trips
