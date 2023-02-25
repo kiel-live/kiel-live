@@ -6,7 +6,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -44,11 +46,15 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setDatabaseEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setGeolocationEnabled(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            webSettings.setSafeBrowsingEnabled(false);
+        }
 
         MyWebViewClient webViewClient = new MyWebViewClient(this);
 
+        myWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         myWebView.setOnApplyWindowInsetsListener((view, insets) -> {
-            webViewClient.inject(myWebView, insets.getStableInsetTop());
+            webViewClient.setStatusBarHeight(insets.getStableInsetTop());
             return insets.consumeSystemWindowInsets();
         });
 
@@ -117,4 +123,3 @@ public class MainActivity extends AppCompatActivity {
         return uri.getPath();
     }
 }
-

@@ -43,22 +43,16 @@ public class MyWebViewClient extends WebViewClient {
     // https://stackoverflow.com/a/30270803
     void injectCssIntoWebView(WebView webView, int statusBarHeight) {
         StringBuilder jsUrl = new StringBuilder("javascript:");
-        jsUrl
-                .append(CREATE_CUSTOM_SHEET)
-                .append("if (typeof(customSheet) != 'undefined') {")
-                .append("const pixel = " + statusBarHeight + " / window.devicePixelRatio;")
-                .append("customSheet.insertRule('")
-                .append("#app > div > main > div > div.absolute { margin-top: ' + pixel + 'px; }")
-                .append("', ")
-                .append(0)
-                .append(");");
-        jsUrl.append("}");
+        jsUrl.append(CREATE_CUSTOM_SHEET)
+            .append("if (typeof(customSheet) != 'undefined') {")
+            .append("const pixel = " + statusBarHeight + " / window.devicePixelRatio + 8;")
+            .append("customSheet.insertRule('#app > div > main > div > div.absolute { margin-top: ' + pixel + 'px; }', 0);")
+            .append("}");
 
         webView.loadUrl(jsUrl.toString());
     }
 
-    public void inject(WebView webView, int statusBarHeight) {
-        statusBarHeight += 8;
+    public void setStatusBarHeight(int statusBarHeight) {
         this.statusBarHeight = statusBarHeight;
     }
 
@@ -69,6 +63,4 @@ public class MyWebViewClient extends WebViewClient {
                 statusBarHeight
         );
     }
-
-
 }
