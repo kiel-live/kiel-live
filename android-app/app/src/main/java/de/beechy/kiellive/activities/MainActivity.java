@@ -1,19 +1,19 @@
 package de.beechy.kiellive.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.webkit.WebSettingsCompat;
-import androidx.webkit.WebViewFeature;
-
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,28 +39,28 @@ public class MainActivity extends AppCompatActivity {
             path = "/";
         }
 
-        myWebView = new WebView(this.getBaseContext());
+        myWebView = new WebView(this);
         setContentView(myWebView);
 
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        webSettings.setAppCacheEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         webSettings.setDatabaseEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setGeolocationEnabled(true);
-
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-            int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-            if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-                // Theme is switched to Night/Dark mode, turn on webview darkening
-                WebSettingsCompat.setForceDark(myWebView.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
-            } else {
-                // Theme is not switched to Night/Dark mode, turn off webview darkening
-                WebSettingsCompat.setForceDark(myWebView.getSettings(), WebSettingsCompat.FORCE_DARK_OFF);
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            webSettings.setSafeBrowsingEnabled(false);
         }
 
-        myWebView.setWebViewClient(new MyWebViewClient(this));
+        MyWebViewClient webViewClient = new MyWebViewClient(this);
+
+        myWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        myWebView.setOnApplyWindowInsetsListener((view, insets) -> {
+            webViewClient.setStatusBarHeight(insets.getStableInsetTop());
+            return insets.consumeSystemWindowInsets();
+        });
+
+        myWebView.setWebViewClient(webViewClient);
         myWebView.setWebChromeClient(new MyWebChromeClient(this));
 
         Map<String, String> extraHeaders = new HashMap<>();
@@ -126,4 +126,3 @@ public class MainActivity extends AppCompatActivity {
         return uri.getPath();
     }
 }
-
