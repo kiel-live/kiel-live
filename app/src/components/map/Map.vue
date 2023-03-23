@@ -21,6 +21,7 @@ import {
   GeoJSONSource,
   GeolocateControl,
   LineLayerSpecification,
+  LngLatLike,
   Map,
   NavigationControl,
   Source,
@@ -33,6 +34,7 @@ import { Marker, StopType, VehicleType } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
 import { brightMapStyle, darkMapStyle } from '~/config';
+import { useUserSettings } from '~/compositions/useUserSettings';
 
 const props = withDefaults(
   defineProps<{
@@ -210,13 +212,15 @@ onMounted(async () => {
   void subscribe('data.map.vehicle.>', vehicles);
   void subscribe('data.map.stop.>', stops);
 
+  const { lastLocation } = useUserSettings();
+
   map = new Map({
     container: 'map',
     // style: 'https://demotiles.maplibre.org/style.json',
     style: colorScheme.value === 'dark' ? darkMapStyle : brightMapStyle,
     minZoom: 5,
     maxZoom: 18,
-    center: [10.1283, 54.3166],
+    center: lastLocation.value,
     zoom: 14,
     // [west, south, east, north]
     maxBounds: [5.0, 46.0, 15.0, 57.0],
@@ -280,6 +284,10 @@ onMounted(async () => {
   // Change it back to a pointer when it leaves.
   map.on('mouseleave', 'stops', () => {
     map.getCanvas().style.cursor = '';
+  });
+
+  map.on('move', () => {
+    lastLocation.value = map.getCenter();
   });
 
   map.on('click', (e) => {
