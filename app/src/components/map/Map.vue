@@ -210,22 +210,13 @@ onMounted(async () => {
   void subscribe('data.map.vehicle.>', vehicles);
   void subscribe('data.map.stop.>', stops);
 
-  let center: [number, number] = [10.1283, 54.3166];
-  const { state: geolocationPermission } = await navigator.permissions.query({ name: 'geolocation' });
-  if (geolocationPermission === 'granted') {
-    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(resolve, reject);
-    });
-    center = [position.coords.longitude, position.coords.latitude];
-  }
-
   map = new Map({
     container: 'map',
     // style: 'https://demotiles.maplibre.org/style.json',
     style: colorScheme.value === 'dark' ? darkMapStyle : brightMapStyle,
     minZoom: 5,
     maxZoom: 18,
-    center,
+    center: [10.1283, 54.3166],
     zoom: 14,
     // [west, south, east, north]
     maxBounds: [5.0, 46.0, 15.0, 57.0],
