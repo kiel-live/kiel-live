@@ -51,9 +51,11 @@
               </div>
             </div>
             <div class="flex flex-row gap-1 text-gray-500 dark:text-gray-400 text-xs">
-              <span>{{ t('next_stop') }}</span>
-              <span v-if="arrival.nextStopName">{{ arrival.nextStopName }}</span>
-              <div v-else class="w-1/3 mb-1 bg-gray-500 dark:bg-gray-400 rounded-lg animate-pulse opacity-10" />
+              <template v-if="arrival.nextStopName">
+                <span>{{ t('next_stop') }}</span>
+                <span>{{ arrival.nextStopName }}</span>
+              </template>
+              <!-- <div v-else class="w-1/3 mb-1 bg-gray-500 dark:bg-gray-400 rounded-lg animate-pulse opacity-10" /> -->
               <span class="ml-auto">{{ arrival.platform }}</span>
             </div>
           </router-link>
@@ -139,11 +141,14 @@ const augmentedArrivals = computed<(Omit<StopArrival, 'eta'> & { nextStopName?: 
 
 watch(
   marker,
-  async () => {
-    if (subject !== null) {
-      unsubscribe(subject);
+  async (newMarker, oldMarker) => {
+    if (newMarker.id === oldMarker?.id) {
+      return;
     }
-    subject = `data.map.stop.${props.marker.id}`;
+    if (subject !== null) {
+      void unsubscribe(subject);
+    }
+    subject = `data.map.stop.${newMarker.id}`;
     await subscribe(subject, stops);
   },
   { immediate: true },
@@ -152,34 +157,36 @@ watch(
 const tripSubscriptions = new Set<string>();
 
 // watch arrivals and subscribe to trips
-watch(
-  stop,
-  async (newStop, oldStop) => {
-    if (!newStop || newStop.arrivals === null || newStop.arrivals === oldStop?.arrivals) {
-      return;
-    }
+// watch(
+//   stop,
+//   async (newStop, oldStop) => {
+//     if (!newStop || newStop.arrivals === null || newStop.arrivals === oldStop?.arrivals) {
+//       return;
+//     }
 
-    oldStop?.arrivals?.forEach((arrival) => {
-      if (!newStop.arrivals?.some((a) => a.tripId === arrival.tripId)) {
-        tripSubscriptions.delete(arrival.tripId);
-        unsubscribe(`data.map.trip.${arrival.tripId}`);
-      }
-    });
+//     oldStop?.arrivals?.forEach((arrival) => {
+//       if (!newStop.arrivals?.some((a) => a.tripId === arrival.tripId)) {
+//         tripSubscriptions.delete(arrival.tripId);
+//         void unsubscribe(`data.map.trip.${arrival.tripId}`);
+//       }
+//     });
 
-    newStop.arrivals.forEach((arrival) => {
-      if (!tripSubscriptions.has(arrival.tripId)) {
-        tripSubscriptions.add(arrival.tripId);
-        void subscribe(`data.map.trip.${arrival.tripId}`, trips);
-      }
-    });
-  },
-  { immediate: true },
-);
+//     newStop.arrivals.forEach((arrival) => {
+//       if (!tripSubscriptions.has(arrival.tripId)) {
+//         tripSubscriptions.add(arrival.tripId);
+//         void subscribe(`data.map.trip.${arrival.tripId}`, trips);
+//       }
+//     });
+//   },
+//   { immediate: true },
+// );
 
 onUnmounted(() => {
   if (subject !== null) {
-    unsubscribe(subject);
+    void unsubscribe(subject);
   }
-  tripSubscriptions.forEach((tripId) => unsubscribe(`data.map.trip.${tripId}`));
+  tripSubscriptions.forEach((tripId) => {
+    void unsubscribe(`data.map.trip.${tripId}`);
+  });
 });
 </script>

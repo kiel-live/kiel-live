@@ -23,7 +23,10 @@ func GetPlatforms(stopShortName string) ([]Platform, error) {
 	data.Set("left", "-648000000")
 	data.Set("right", "648000000")
 
-	resp, _ := post(platformsURL, data)
+	resp, err := post(platformsURL, data)
+	if err != nil {
+		return nil, err
+	}
 	if err := json.Unmarshal(resp, &platforms); err != nil {
 		return nil, err
 	}
@@ -40,7 +43,10 @@ func GetPlatforms(stopShortName string) ([]Platform, error) {
 
 func GetPlatformDepartures(stopPoint string) (*StopDepartures, error) {
 	var platformDepartures StopDepartures
-	resp, _ := post(platformURL, url.Values{"stopPoint": {stopPoint}})
+	resp, err := post(platformURL, url.Values{"stopPoint": {stopPoint}})
+	if err != nil {
+		return nil, err
+	}
 	if err := json.Unmarshal(resp, &platformDepartures); err != nil {
 		return nil, err
 	}

@@ -10,7 +10,7 @@ import (
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
 	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
 	"github.com/kiel-live/kiel-live/protocol"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 type StopCollector struct {
@@ -104,6 +104,7 @@ func (c *StopCollector) SubjectsToIDs(subjects []string) []string {
 }
 
 func (c *StopCollector) Run(stopIDs []string, _ bool) {
+	log := logrus.WithField("collector", "stop")
 	stops, err := api.GetStops()
 	if err != nil {
 		log.Error(err)

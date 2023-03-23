@@ -242,8 +242,17 @@ function flyTo(center: [number, number]) {
 }
 
 onMounted(async () => {
-  await subscribe('data.map.vehicle.>', vehicles);
-  await subscribe('data.map.stop.>', stops);
+  void subscribe('data.map.vehicle.>', vehicles);
+  void subscribe('data.map.stop.>', stops);
+
+  let center: [number, number] = [10.1283, 54.3166];
+  const { state: geolocationPermission } = await navigator.permissions.query({ name: 'geolocation' });
+  if (geolocationPermission === 'granted') {
+    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject);
+    });
+    center = [position.coords.longitude, position.coords.latitude];
+  }
 
   const center: LngLatLike = [10.1283, 54.3166];
 

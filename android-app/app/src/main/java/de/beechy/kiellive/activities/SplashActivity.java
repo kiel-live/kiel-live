@@ -24,21 +24,11 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_activity);
 
-        // set current version
-        try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            String appVersion = pInfo.versionName;
-            TextView appVersionText = findViewById(R.id.app_version);
-            appVersionText.setText("Version " + appVersion);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-
         // wait some time before opening web-view
         Handler handler = new Handler();
         handler.postDelayed(() -> {
             openMain();
-        },1000);
+        }, 500);
 
         // add click-listener to skip splash-screen
         RelativeLayout layout = findViewById(R.id.layout);
@@ -48,6 +38,7 @@ public class SplashActivity extends AppCompatActivity {
             openMain();
         });
     }
+
     private void openMain() {
         Intent intent = new Intent(SplashActivity.this, MainActivity.class);
         startActivity(intent);
