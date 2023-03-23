@@ -245,7 +245,7 @@ onMounted(async () => {
   void subscribe('data.map.vehicle.>', vehicles);
   void subscribe('data.map.stop.>', stops);
 
-  let center: [number, number] = [10.1283, 54.3166];
+  let center: LngLatLike = [10.1283, 54.3166];
   const { state: geolocationPermission } = await navigator.permissions.query({ name: 'geolocation' });
   if (geolocationPermission === 'granted') {
     const position = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -253,8 +253,6 @@ onMounted(async () => {
     });
     center = [position.coords.longitude, position.coords.latitude];
   }
-
-  const center: LngLatLike = [10.1283, 54.3166];
 
   map = new Map({
     container: 'map',
