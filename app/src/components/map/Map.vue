@@ -106,7 +106,7 @@ const stopsGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
       name: s.name,
       id: s.id,
       iconName: colorScheme.value === 'dark' ? `dark-${s.type}` : s.type,
-      iconNameFocused: s.type,
+      iconNameFocused: colorScheme.value === 'dark' ? `dark-${s.type}-selected` : `${s.type}-selected`,
     },
     geometry: {
       type: 'Point',
@@ -158,7 +158,7 @@ const stopsLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   id: 'stops',
   type: 'symbol',
   source: 'geojson',
-  filter: ['==', 'kind', 'stop'],
+  filter: ['all', ['==', 'kind', 'stop']],
   paint: {
     'icon-opacity': [
       'match',
@@ -187,6 +187,7 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   id: 'vehicles',
   type: 'symbol',
   source: 'geojson',
+  minzoom: 14,
   paint: {
     'icon-opacity': [
       'match',
@@ -296,8 +297,6 @@ onMounted(async () => {
       map.addImage(e.id, new BusIcon(map, iconData.focused, iconData.name, iconData.heading), {
         pixelRatio: 2,
       });
-    } else {
-      console.log(iconData);
     }
   });
 
@@ -315,10 +314,12 @@ onMounted(async () => {
     });
 
   async function loadImages() {
-    await loadImage('bus-stop', '/icons/bus.png');
-    await loadImage('dark-bus-stop', '/icons/dark-bus.png');
-    await loadImage('bike-stop', '/icons/bike.png');
-    await loadImage('dark-bike-stop', '/icons/dark-bike.png');
+    await loadImage('bus-stop', '/icons/stop-bus.png');
+    await loadImage('dark-bus-stop', '/icons/stop-bus.png');
+    await loadImage('bus-stop-selected', '/icons/stop-selected-bus.svg');
+    await loadImage('dark-bus-stop-selected', '/icons/stop-selected-bus.svg');
+    // await loadImage('bike-stop', '/icons/bike.png');
+    // await loadImage('dark-bike-stop', '/icons/dark-bike.png');
   }
 
   map.on('load', () => {
