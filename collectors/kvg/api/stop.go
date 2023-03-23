@@ -149,26 +149,26 @@ func GetStopDetails(stopShortName string) (*StopDetails, error) {
 		return nil, err
 	}
 
-	platforms, err := GetPlatforms(stopShortName)
-	if err != nil {
-		return nil, err
-	}
+	// platforms, err := GetPlatforms(stopShortName)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	for _, platform := range platforms {
-		if platform.Label != "" {
-			platformDepartures, err := GetPlatformDepartures(platform.StopPoint)
-			if err != nil {
-				return nil, err
-			}
-			for _, departure := range platformDepartures.Departures {
-				for i, d := range stop.Departures {
-					if d.TripID == departure.TripID {
-						stop.Departures[i].Platform = platform.Label
-					}
-				}
-			}
-		}
-	}
+	// for _, platform := range platforms {
+	// 	if platform.Label != "" {
+	// 		platformDepartures, err := GetPlatformDepartures(platform.StopPoint)
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+	// 		for _, departure := range platformDepartures.Departures {
+	// 			for i, d := range stop.Departures {
+	// 				if d.TripID == departure.TripID {
+	// 					stop.Departures[i].Platform = platform.Label
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	departures := []protocol.StopArrival{}
 	for _, departure := range stop.Departures {
