@@ -32,6 +32,7 @@ import { stops, subscribe, trips, vehicles } from '~/api';
 import { Marker, StopType, VehicleType } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
+import { useUserSettings } from '~/compositions/useUserSettings';
 import { brightMapStyle, darkMapStyle } from '~/config';
 
 const props = withDefaults(
@@ -206,9 +207,19 @@ function flyTo(center: [number, number]) {
   });
 }
 
+const { geolocationAllowed } = useUserSettings();
+
 onMounted(async () => {
   void subscribe('data.map.vehicle.>', vehicles);
   void subscribe('data.map.stop.>', stops);
+
+  let center: [number, number] = [10.1283, 54.3166];
+  if (geolocationAllowed) {
+    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject);
+    });
+    center = [position.coords.longitude, position.coords.latitude];
+  }
 
   map = new Map({
     container: 'map',
@@ -216,7 +227,7 @@ onMounted(async () => {
     style: colorScheme.value === 'dark' ? darkMapStyle : brightMapStyle,
     minZoom: 5,
     maxZoom: 18,
-    center: [10.1283, 54.3166],
+    center,
     zoom: 14,
     // [west, south, east, north]
     maxBounds: [5.0, 46.0, 15.0, 57.0],
@@ -232,13 +243,10 @@ onMounted(async () => {
     },
     trackUserLocation: true,
   });
-
   map.addControl(geolocateControl, 'bottom-right');
-
-  const { state: geolocationPermission } = await navigator.permissions.query({ name: 'geolocation' });
-  if (geolocationPermission === 'granted') {
-    geolocateControl.trigger();
-  }
+  geolocateControl.on('geolocate', () => {
+    geolocationAllowed.value = true;
+  });
 
   map.addControl(new NavigationControl({}), 'bottom-right');
 
