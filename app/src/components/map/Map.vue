@@ -21,7 +21,6 @@ import {
   GeoJSONSource,
   GeolocateControl,
   LineLayerSpecification,
-  LngLatLike,
   Map,
   NavigationControl,
   Source,
@@ -33,8 +32,8 @@ import { stops, subscribe, trips, vehicles } from '~/api';
 import { Marker, StopType, VehicleType } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
-import { brightMapStyle, darkMapStyle } from '~/config';
 import { useUserSettings } from '~/compositions/useUserSettings';
+import { brightMapStyle, darkMapStyle } from '~/config';
 
 const props = withDefaults(
   defineProps<{
