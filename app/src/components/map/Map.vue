@@ -32,6 +32,7 @@ import { stops, subscribe, trips, vehicles } from '~/api';
 import { Marker, StopType, VehicleType } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
+import { useUserSettings } from '~/compositions/useUserSettings';
 import { brightMapStyle, darkMapStyle } from '~/config';
 
 const props = withDefaults(
@@ -210,14 +211,18 @@ onMounted(async () => {
   void subscribe('data.map.vehicle.>', vehicles);
   void subscribe('data.map.stop.>', stops);
 
+  const { lastLocation } = useUserSettings();
+
   map = new Map({
     container: 'map',
     // style: 'https://demotiles.maplibre.org/style.json',
     style: colorScheme.value === 'dark' ? darkMapStyle : brightMapStyle,
     minZoom: 5,
     maxZoom: 18,
-    center: [10.1283, 54.3166],
-    zoom: 14,
+    center: lastLocation.value.center,
+    zoom: lastLocation.value.zoom,
+    pitch: lastLocation.value.pitch,
+    bearing: lastLocation.value.bearing,
     // [west, south, east, north]
     maxBounds: [5.0, 46.0, 15.0, 57.0],
     attributionControl: false,
@@ -309,6 +314,15 @@ onMounted(async () => {
 
   map.on('drag', () => {
     mapMovedManually.value = true;
+  });
+
+  map.on('move', () => {
+    lastLocation.value = {
+      center: map.getCenter(),
+      zoom: map.getZoom(),
+      pitch: map.getPitch(),
+      bearing: map.getBearing(),
+    };
   });
 });
 
