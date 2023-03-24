@@ -5,7 +5,15 @@ export const localStoragePrefix = 'kiel_live';
 
 const userSettings = {
   liteMode: useStorage(`${localStoragePrefix}.lite`, false),
-  lastLocation: useStorage<LngLatLike>(`${localStoragePrefix}.last_location`, [10.1283, 54.3166]),
+  lastLocation: useStorage<{ center: LngLatLike; zoom: number; pitch?: number; bearing?: number }>(
+    `${localStoragePrefix}.last_location`,
+    {
+      center: [10.1283, 54.3166],
+      zoom: 14,
+      pitch: undefined,
+      bearing: undefined,
+    },
+  ),
 };
 
 export function useUserSettings() {

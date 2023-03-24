@@ -219,8 +219,10 @@ onMounted(async () => {
     style: colorScheme.value === 'dark' ? darkMapStyle : brightMapStyle,
     minZoom: 5,
     maxZoom: 18,
-    center: lastLocation.value,
-    zoom: 14,
+    center: lastLocation.value.center,
+    zoom: lastLocation.value.zoom,
+    pitch: lastLocation.value.pitch,
+    bearing: lastLocation.value.bearing,
     // [west, south, east, north]
     maxBounds: [5.0, 46.0, 15.0, 57.0],
     attributionControl: false,
@@ -285,10 +287,6 @@ onMounted(async () => {
     map.getCanvas().style.cursor = '';
   });
 
-  map.on('move', () => {
-    lastLocation.value = map.getCenter();
-  });
-
   map.on('click', (e) => {
     const features = map.queryRenderedFeatures(e.point, {
       layers: ['stops', 'vehicles'],
@@ -316,6 +314,12 @@ onMounted(async () => {
 
   map.on('drag', () => {
     mapMovedManually.value = true;
+    lastLocation.value = {
+      center: map.getCenter(),
+      zoom: map.getZoom(),
+      pitch: map.getPitch(),
+      bearing: map.getBearing(),
+    };
   });
 });
 
