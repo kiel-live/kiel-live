@@ -314,6 +314,9 @@ onMounted(async () => {
 
   map.on('drag', () => {
     mapMovedManually.value = true;
+  });
+
+  map.on('move', () => {
     lastLocation.value = {
       center: map.getCenter(),
       zoom: map.getZoom(),
