@@ -74,6 +74,20 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
       heading: v.location.heading,
     };
 
+    let iconName: string = v.type;
+    if (v.type === 'bus') {
+      iconName = JSON.stringify(iconData);
+    } else if (colorScheme.value === 'dark') {
+      iconName = `dark-${v.type}`;
+    }
+
+    let iconNameFocused = `${v.type}-selected`;
+    if (v.type === 'bus') {
+      iconNameFocused = JSON.stringify({ ...iconData, focused: true });
+    } else if (colorScheme.value === 'dark') {
+      iconNameFocused = `dark-${v.type}-selected`;
+    }
+
     return {
       type: 'Feature',
       properties: {
@@ -83,10 +97,8 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
         id: v.id,
         number: v.name.split(' ')[0],
         to: v.name.split(' ').slice(1).join(' '),
-        iconName:
-          // eslint-disable-next-line no-nested-ternary
-          v.type === 'bus' ? JSON.stringify(iconData) : colorScheme.value === 'dark' ? `dark-${v.type}` : v.type,
-        iconNameFocused: v.type === 'bus' ? JSON.stringify({ ...iconData, focused: true }) : v.type,
+        iconName,
+        iconNameFocused,
       },
 
       geometry: {
