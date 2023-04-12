@@ -20,7 +20,6 @@ import {
   GeoJSONSource,
   GeolocateControl,
   LineLayerSpecification,
-  LngLatLike,
   Map,
   NavigationControl,
   Source,
@@ -127,8 +126,6 @@ const stopsGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
     },
   })),
 );
-
-const stopTypes = computed(() => Object.values(stops.value).filter((s) => s.type === 'bike-stop'));
 
 const selectedMarker = toRef(props, 'selectedMarker');
 
@@ -324,10 +321,10 @@ onMounted(async () => {
     });
 
   async function loadImages() {
-    await loadImage('bus-stop', '/icons/stop-bus.png');
-    await loadImage('dark-bus-stop', '/icons/stop-bus.png');
-    await loadImage('bus-stop-selected', '/icons/stop-selected-bus.svg');
-    await loadImage('dark-bus-stop-selected', '/icons/stop-selected-bus.svg');
+    // await loadImage('bus-stop', '/icons/stop-bus.png');
+    // await loadImage('dark-bus-stop', '/icons/stop-bus.png');
+    // await loadImage('bus-stop-selected', '/icons/stop-selected-bus.svg');
+    // await loadImage('dark-bus-stop-selected', '/icons/stop-selected-bus.svg');
     // await loadImage('bike-stop', '/icons/bike.png');
     // await loadImage('dark-bike-stop', '/icons/dark-bike.png');
   }
