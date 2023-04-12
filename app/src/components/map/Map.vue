@@ -32,6 +32,7 @@ import { stops, subscribe, trips, vehicles } from '~/api';
 import { Marker, StopType, VehicleType } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
+import { useUserSettings } from '~/compositions/useUserSettings';
 import { brightMapStyle, darkMapStyle } from '~/config';
 
 const props = withDefaults(
@@ -126,6 +127,8 @@ const stopsGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
     },
   })),
 );
+
+const stopTypes = computed(() => Object.values(stops.value).filter((s) => s.type === 'bike-stop'));
 
 const selectedMarker = toRef(props, 'selectedMarker');
 
@@ -258,14 +261,7 @@ onMounted(async () => {
   void subscribe('data.map.vehicle.>', vehicles);
   void subscribe('data.map.stop.>', stops);
 
-  let center: LngLatLike = [10.1283, 54.3166];
-  const { state: geolocationPermission } = await navigator.permissions.query({ name: 'geolocation' });
-  if (geolocationPermission === 'granted') {
-    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(resolve, reject);
-    });
-    center = [position.coords.longitude, position.coords.latitude];
-  }
+  const { lastLocation } = useUserSettings();
 
   map = new Map({
     container: 'map',
@@ -273,8 +269,10 @@ onMounted(async () => {
     style: colorScheme.value === 'dark' ? darkMapStyle : brightMapStyle,
     minZoom: 5,
     maxZoom: 18,
-    center,
-    zoom: 14,
+    center: lastLocation.value.center,
+    zoom: lastLocation.value.zoom,
+    pitch: lastLocation.value.pitch,
+    bearing: lastLocation.value.bearing,
     // [west, south, east, north]
     maxBounds: [5.0, 46.0, 15.0, 57.0],
     attributionControl: false,
@@ -398,6 +396,15 @@ onMounted(async () => {
 
   map.on('drag', () => {
     mapMovedManually.value = true;
+  });
+
+  map.on('move', () => {
+    lastLocation.value = {
+      center: map.getCenter(),
+      zoom: map.getZoom(),
+      pitch: map.getPitch(),
+      bearing: map.getBearing(),
+    };
   });
 });
 
