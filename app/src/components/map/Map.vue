@@ -69,6 +69,7 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
     let iconName: string = v.type;
     let iconNameFocused = `${v.type}-selected`;
 
+    // TODO: remove custom bus icons at some point
     if (v.type === 'bus') {
       const iconData = {
         kind: 'vehicle',
@@ -193,7 +194,6 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   id: 'vehicles',
   type: 'symbol',
   source: 'geojson',
-  minzoom: 14,
   paint: {
     'icon-opacity': [
       'match',
@@ -319,9 +319,21 @@ onMounted(async () => {
     await loadImage('bus-stop', '/icons/stop-bus.png');
     await loadImage('bus-stop-selected', '/icons/stop-bus.png');
 
-    // bike
-    await loadImage('bike-stop', '/icons/stop-bus.png');
-    await loadImage('bike-stop-selected', '/icons/stop-bus.png');
+    // bike stop
+    await loadImage('bike-stop', '/icons/stop-bike.png');
+    await loadImage('bike-stop-selected', '/icons/stop-bike-selected.png');
+
+    // tram stop
+    await loadImage('tram-stop', '/icons/stop-tram.png');
+    await loadImage('tram-stop-selected', '/icons/stop-tram-selected.png');
+
+    // train stop
+    await loadImage('train-stop', '/icons/stop-train.png');
+    await loadImage('train-stop-selected', '/icons/stop-train-selected.png');
+
+    // e-scooter
+    await loadImage('escooter', '/icons/vehicle-escooter.png');
+    await loadImage('escooter-selected', '/icons/vehicle-escooter-selected.png');
   }
 
   map.on('load', () => {
@@ -333,9 +345,7 @@ onMounted(async () => {
     });
 
     map.addLayer(stopsLayer.value);
-
     map.addLayer(tripsLayer.value);
-
     map.addLayer(vehiclesLayer.value);
 
     initial = false;

@@ -1,26 +1,16 @@
 <template>
   <BusPopup v-if="marker.type === 'bus'" :marker="marker" />
   <BusStopPopup v-else-if="marker.type === 'bus-stop'" :marker="marker" />
-  <pre v-else>{{ marker }}</pre>
+  <FallbackStopPopup v-else :marker="marker" />
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from 'vue';
-
+<script lang="ts" setup>
 import { Marker } from '~/api/types';
 import BusPopup from '~/components/popups/BusPopup.vue';
 import BusStopPopup from '~/components/popups/BusStopPopup.vue';
+import FallbackStopPopup from '~/components/popups/FallbackStopPopup.vue';
 
-export default defineComponent({
-  name: 'MarkerPopup',
-
-  components: { BusPopup, BusStopPopup },
-
-  props: {
-    marker: {
-      type: Object as PropType<Marker>,
-      required: true,
-    },
-  },
-});
+defineProps<{
+  marker: Marker;
+}>();
 </script>
