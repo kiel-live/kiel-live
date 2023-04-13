@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -40,6 +40,11 @@ func main() {
 		log.Fatalln("Please provide a token for the collector with COLLECTOR_TOKEN")
 	}
 
+	cityIds := os.Getenv("NEXT_BIKE_CITY_IDS")
+	if token == "" {
+		log.Fatalln("Please provide a comma separated list of next-bike city ids with NEXT_BIKE_CITY_IDS (exp: '613,195' for Kiel & Mannheim)")
+	}
+
 	c := client.NewClient(server, client.WithAuth("collector", token))
 	err = c.Connect()
 	if err != nil {
@@ -60,12 +65,12 @@ func main() {
 			return nil
 		}
 
-		resp, err := http.Get("https://api.nextbike.net/maps/nextbike-live.json?city=613")
+		resp, err := http.Get("https://api.nextbike.net/maps/nextbike-live.json?city=" + cityIds)
 		if err != nil {
 			return err
 		}
 
-		data, err := ioutil.ReadAll(resp.Body)
+		data, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return err
 		}
