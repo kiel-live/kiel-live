@@ -94,7 +94,7 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
         to: v.name.split(' ').slice(1).join(' '),
         iconName,
         iconNameFocused,
-        iconSize: v.type === 'bus' ? 1 : 0.8,
+        iconSize: v.type === 'bus' ? 1.2 : 0.8,
       },
 
       geometry: {
@@ -184,7 +184,7 @@ const stopsLayer: Ref<SymbolLayerSpecification> = computed(() => ({
       ['get', 'iconNameFocused'],
       ['get', 'iconName'],
     ],
-    'icon-size': 0.6,
+    'icon-size': 0.4,
     'icon-rotation-alignment': 'map',
     'icon-allow-overlap': true,
     'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
