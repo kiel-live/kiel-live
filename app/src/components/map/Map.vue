@@ -94,6 +94,7 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
         to: v.name.split(' ').slice(1).join(' '),
         iconName,
         iconNameFocused,
+        iconSize: v.type === 'bus' ? 1 : 0.8,
       },
 
       geometry: {
@@ -212,6 +213,7 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
       ['get', 'iconNameFocused'],
       ['get', 'iconName'],
     ],
+    'icon-size': ['get', 'iconSize'],
     'icon-rotation-alignment': 'map',
     'icon-allow-overlap': true,
     'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
@@ -317,7 +319,7 @@ onMounted(async () => {
   async function loadImages() {
     // bus stop
     await loadImage('bus-stop', '/icons/stop-bus.png');
-    await loadImage('bus-stop-selected', '/icons/stop-bus.png');
+    await loadImage('bus-stop-selected', '/icons/stop-bus-selected.png');
 
     // bike stop
     await loadImage('bike-stop', '/icons/stop-bike.png');
