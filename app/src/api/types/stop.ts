@@ -1,7 +1,7 @@
 import { StopArrival } from './arrival';
 import { GpsLocation } from './location';
 
-export type StopType = 'bus-stop' | 'parking-spot' | 'ferry-stop' | 'train-stop' | 'subway-stop';
+export type StopType = 'bus-stop' | 'parking-spot' | 'ferry-stop' | 'train-stop' | 'subway-stop' | 'bike-stop';
 
 export type Stop = {
   id: string;

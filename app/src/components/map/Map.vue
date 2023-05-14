@@ -17,7 +17,6 @@ import type {
 } from 'geojson';
 import {
   AttributionControl,
-  CircleLayerSpecification,
   GeoJSONSource,
   GeolocateControl,
   LineLayerSpecification,
@@ -66,29 +65,57 @@ const mapMovedManually = computed({
 const colorScheme = useColorMode();
 
 const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
-  Object.values(vehicles.value).map((v) => ({
-    type: 'Feature',
-    properties: {
-      type: v.type,
-      name: v.name,
-      id: v.id,
-      number: v.name.split(' ')[0],
-      to: v.name.split(' ').slice(1).join(' '),
-      iconName: `${v.type}-unfocused-${v.name.split(' ')[0]}-${v.location.heading}`,
-      iconNameFocused: `${v.type}-focused-${v.name.split(' ')[0]}-${v.location.heading}`,
-    },
+  Object.values(vehicles.value).map((v) => {
+    let iconName: string = v.type;
+    let iconNameFocused = `${v.type}-selected`;
 
-    geometry: {
-      type: 'Point',
-      coordinates: [v.location.longitude / 3600000, v.location.latitude / 3600000],
-    },
-  })),
+    // TODO: remove custom bus icons at some point
+    if (v.type === 'bus') {
+      const iconData = {
+        kind: 'vehicle',
+        type: v.type,
+        name: v.name.split(' ')[0],
+        focused: false,
+        heading: v.location.heading,
+      };
+
+      iconName = JSON.stringify(iconData);
+      iconNameFocused = JSON.stringify({ ...iconData, focused: true });
+    }
+
+    return {
+      type: 'Feature',
+      properties: {
+        kind: 'vehicle',
+        type: v.type,
+        name: v.name,
+        id: v.id,
+        number: v.name.split(' ')[0],
+        to: v.name.split(' ').slice(1).join(' '),
+        iconName,
+        iconNameFocused,
+        iconSize: v.type === 'bus' ? 1.2 : 0.8,
+      },
+
+      geometry: {
+        type: 'Point',
+        coordinates: [v.location.longitude / 3600000, v.location.latitude / 3600000],
+      },
+    };
+  }),
 );
 
 const stopsGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
   Object.values(stops.value).map((s) => ({
     type: 'Feature',
-    properties: { type: s.type, name: s.name, id: s.id },
+    properties: {
+      kind: 'stop',
+      type: s.type,
+      name: s.name,
+      id: s.id,
+      iconName: s.type,
+      iconNameFocused: `${s.type}-selected`,
+    },
     geometry: {
       type: 'Point',
       coordinates: [s.location.longitude / 3600000, s.location.latitude / 3600000],
@@ -135,17 +162,32 @@ const geojson = computed<FeatureCollection<Geometry, GeoJsonProperties>>(() => (
   features: [...vehiclesGeoJson.value, ...stopsGeoJson.value, ...tripsGeoJson.value],
 }));
 
-const stopsLayer: Ref<CircleLayerSpecification> = computed(() => ({
+const stopsLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   id: 'stops',
-  type: 'circle',
+  type: 'symbol',
   source: 'geojson',
-  filter: ['==', 'type', 'bus-stop'],
+  filter: ['==', 'kind', 'stop'],
   paint: {
-    'circle-color': ['match', ['get', 'id'], selectedMarker.value.id || '', '#1673fc', '#4f96fc'],
-    'circle-radius': ['match', ['get', 'id'], selectedMarker.value.id || '', 8, 5],
-    'circle-opacity': selectedMarker.value.type === 'bus' ? 0.5 : 1,
-    'circle-stroke-opacity': 0,
-    'circle-stroke-width': 5,
+    'icon-opacity': [
+      'match',
+      ['get', 'number'],
+      selectedVehicle.value?.name.split(' ')[0] ?? '',
+      1,
+      selectedMarker.value.type === 'bus' ? 0.3 : 1,
+    ],
+  },
+  layout: {
+    'icon-image': [
+      'match',
+      ['get', 'id'],
+      selectedMarker.value.id || '',
+      ['get', 'iconNameFocused'],
+      ['get', 'iconName'],
+    ],
+    'icon-size': 0.4,
+    'icon-rotation-alignment': 'map',
+    'icon-allow-overlap': true,
+    'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
   },
 }));
 
@@ -162,7 +204,7 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
       selectedMarker.value.type === 'bus' ? 0.3 : 1,
     ],
   },
-  filter: ['==', 'type', 'bus'],
+  filter: ['==', 'kind', 'vehicle'],
   layout: {
     'icon-image': [
       'match',
@@ -171,6 +213,7 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
       ['get', 'iconNameFocused'],
       ['get', 'iconName'],
     ],
+    'icon-size': ['get', 'iconSize'],
     'icon-rotation-alignment': 'map',
     'icon-allow-overlap': true,
     'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
@@ -243,25 +286,68 @@ onMounted(async () => {
 
   map.addControl(new NavigationControl({}), 'bottom-right');
 
+  type IconData =
+    | { kind: 'vehicle'; type: string; name: string; focused: boolean; heading: number }
+    | { kind: 'stop'; type: string; name: string; focused: boolean };
+
   map.on('styleimagemissing', (e) => {
-    const [type, focus, route, heading] = e.id.split('-');
-    if (type === 'bus') {
-      map.addImage(e.id, new BusIcon(map, focus === 'focused', route, Number.parseInt(heading, 10)), {
+    if (e.id[0] !== '{') {
+      return;
+    }
+
+    const iconData = JSON.parse(e.id) as IconData;
+    if (iconData.kind === 'vehicle' && iconData.type === 'bus') {
+      map.addImage(e.id, new BusIcon(map, iconData.focused, iconData.name, iconData.heading), {
         pixelRatio: 2,
       });
     }
   });
 
+  const loadImage = (name: string, url: string) =>
+    new Promise<void>((resolve, reject) => {
+      // eslint-disable-next-line promise/prefer-await-to-callbacks
+      map.loadImage(url, (error, image) => {
+        if (error) {
+          reject(error);
+        } else if (image) {
+          map.addImage(name, image, { pixelRatio: 2 });
+          resolve();
+        }
+      });
+    });
+
+  async function loadImages() {
+    // bus stop
+    await loadImage('bus-stop', '/icons/stop-bus.png');
+    await loadImage('bus-stop-selected', '/icons/stop-bus-selected.png');
+
+    // bike stop
+    await loadImage('bike-stop', '/icons/stop-bike.png');
+    await loadImage('bike-stop-selected', '/icons/stop-bike-selected.png');
+
+    // tram stop
+    await loadImage('tram-stop', '/icons/stop-tram.png');
+    await loadImage('tram-stop-selected', '/icons/stop-tram-selected.png');
+
+    // train stop
+    await loadImage('train-stop', '/icons/stop-train.png');
+    await loadImage('train-stop-selected', '/icons/stop-train-selected.png');
+
+    // e-scooter
+    await loadImage('escooter', '/icons/vehicle-escooter.png');
+    await loadImage('escooter-selected', '/icons/vehicle-escooter-selected.png');
+  }
+
   map.on('load', () => {
+    void loadImages();
+
     map.addSource('geojson', {
       type: 'geojson',
       data: Object.freeze(geojson.value),
     });
 
     map.addLayer(stopsLayer.value);
-
     map.addLayer(tripsLayer.value);
-
     map.addLayer(vehiclesLayer.value);
 
     initial = false;
@@ -332,9 +418,9 @@ watch(colorScheme, () => {
   } else {
     map.setStyle(brightMapStyle);
   }
+
   // TODO: properly re-render custom layers
-  // eslint-disable-next-line no-restricted-globals
-  location.reload();
+  window.location.reload();
 });
 
 watch(geojson, () => {
