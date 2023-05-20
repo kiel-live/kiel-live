@@ -83,10 +83,8 @@ func main() {
 		for _, country := range nextbikeResp.Countries {
 			for _, city := range country.Cities {
 				for _, place := range city.Places {
-					ID := fmt.Sprintf("nextbike-%d", place.UID)
-
 					stop := &protocol.Stop{
-						ID:       ID,
+						ID:       fmt.Sprintf("donkey-%d", place.UID),
 						Provider: "nextbike",
 						Name:     place.Name,
 						Type:     "bike-stop",
@@ -101,7 +99,7 @@ func main() {
 						return err
 					}
 
-					subject := fmt.Sprintf(protocol.SubjectMapStop, ID)
+					subject := fmt.Sprintf(protocol.SubjectMapStop, stop.ID)
 					err = c.Publish(subject, string(d))
 					if err != nil {
 						return err
