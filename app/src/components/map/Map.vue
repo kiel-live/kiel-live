@@ -491,12 +491,7 @@ const selectedMarkerItem = computed(() => {
   return geojson.value.features.find((f) => f.properties.id === marker.id);
 });
 watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
-  if (
-    !map ||
-    !newSelectedMarkerItem ||
-    newSelectedMarkerItem.properties.id === oldSelectedMarkerItem?.properties.id ||
-    mapMovedManually.value
-  ) {
+  if (!map || !newSelectedMarkerItem || newSelectedMarkerItem.properties.id === oldSelectedMarkerItem?.properties.id) {
     return;
   }
 
