@@ -40,11 +40,6 @@ func main() {
 		log.Fatalln("Please provide a token for the collector with COLLECTOR_TOKEN")
 	}
 
-	// cityIds := os.Getenv("NEXT_BIKE_CITY_IDS")
-	// if token == "" {
-	// 	log.Fatalln("Please provide a comma separated list of next-bike city ids with NEXT_BIKE_CITY_IDS (exp: '613,195' for Kiel & Mannheim)")
-	// }
-
 	c := client.NewClient(server, client.WithAuth("collector", token))
 	err = c.Connect()
 	if err != nil {
@@ -65,6 +60,7 @@ func main() {
 			return nil
 		}
 
+		// TODO: allow to configure the bounding box
 		top := "54.48855"
 		left := "9.94689"
 		right := "10.30319"
