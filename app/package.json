@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "engines": {
     "node": "14 || 16 || 18",
-    "pnpm": "7"
+    "pnpm": "8"
   },
   "scripts": {
     "start": "VITE_BUILD_DATE=$(date '+%d.%m.%Y %H:%M:%S') vite",
