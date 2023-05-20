@@ -38,7 +38,7 @@ jobs:
             type=ref,event=pr
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Login to DockerHub
+      - name: Login to registry
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
