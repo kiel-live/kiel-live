@@ -11,14 +11,34 @@ import (
 	"github.com/kiel-live/kiel-live/hub/graph/model"
 )
 
-// CreateTodo is the resolver for the createTodo field.
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	return nil, fmt.Errorf("not implemented: CreateTodo - createTodo")
+// UpdateVehicle is the resolver for the updateVehicle field.
+func (r *mutationResolver) UpdateVehicle(ctx context.Context, vehicle model.VehicleInput) (*model.Vehicle, error) {
+	panic(fmt.Errorf("not implemented: UpdateVehicle - updateVehicle"))
 }
 
-// Todos is the resolver for the todos field.
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	return nil, fmt.Errorf("not implemented: Todos - todos")
+// RemoveVehicle is the resolver for the removeVehicle field.
+func (r *mutationResolver) RemoveVehicle(ctx context.Context, id string) (bool, error) {
+	panic(fmt.Errorf("not implemented: RemoveVehicle - removeVehicle"))
+}
+
+// UpdateStop is the resolver for the updateStop field.
+func (r *mutationResolver) UpdateStop(ctx context.Context, stop model.StopInput) (*model.Stop, error) {
+	panic(fmt.Errorf("not implemented: UpdateStop - updateStop"))
+}
+
+// RemoveStop is the resolver for the removeStop field.
+func (r *mutationResolver) RemoveStop(ctx context.Context, id string) (bool, error) {
+	panic(fmt.Errorf("not implemented: RemoveStop - removeStop"))
+}
+
+// Stops is the resolver for the stops field.
+func (r *queryResolver) Stops(ctx context.Context) ([]*model.Stop, error) {
+	return nil, fmt.Errorf("not implemented: Stops - stops")
+}
+
+// Vehicles is the resolver for the vehicles field.
+func (r *queryResolver) Vehicles(ctx context.Context) ([]*model.Vehicle, error) {
+	return nil, fmt.Errorf("not implemented: Vehicles - vehicles")
 }
 
 // Mutation returns MutationResolver implementation.

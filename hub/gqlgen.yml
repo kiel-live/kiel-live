@@ -15,8 +15,9 @@ resolver:
   package: graph
   filename_template: "{name}.resolvers.go"
 
-autobind:
-  - "github.com/kiel-live/kiel-live/protocol"
+# TODO: reuse types
+# autobind:
+#   - "github.com/kiel-live/kiel-live/protocol"
 
 models:
   ID:

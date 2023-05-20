@@ -2,19 +2,84 @@
 
 package model
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+type Location struct {
+	Latitude  int `json:"latitude"`
+	Longitude int `json:"longitude"`
+	Heading   int `json:"heading"`
 }
 
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
+type LocationInput struct {
+	Latitude  int `json:"latitude"`
+	Longitude int `json:"longitude"`
+	Heading   int `json:"heading"`
 }
 
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+type Stop struct {
+	ID       string         `json:"id"`
+	Provider string         `json:"provider"`
+	Name     bool           `json:"name"`
+	Type     string         `json:"type"`
+	Routes   []string       `json:"routes"`
+	Alerts   []string       `json:"alerts"`
+	Arrivals []*StopArrival `json:"arrivals"`
+	Location *Location      `json:"location"`
+}
+
+type StopArrival struct {
+	Name      string `json:"name"`
+	VehicleID string `json:"vehicleId"`
+	TripID    string `json:"tripId"`
+	RouteID   string `json:"routeId"`
+	RouteName string `json:"routeName"`
+	Direction string `json:"direction"`
+	State     string `json:"state"`
+	Planned   string `json:"planned"`
+	Eta       int    `json:"eta"`
+	Platform  string `json:"platform"`
+}
+
+type StopArrivalInput struct {
+	Name      string `json:"name"`
+	VehicleID string `json:"vehicleId"`
+	TripID    string `json:"tripId"`
+	RouteID   string `json:"routeId"`
+	RouteName string `json:"routeName"`
+	Direction string `json:"direction"`
+	State     string `json:"state"`
+	Planned   string `json:"planned"`
+	Eta       int    `json:"eta"`
+	Platform  string `json:"platform"`
+}
+
+type StopInput struct {
+	ID       string              `json:"id"`
+	Provider string              `json:"provider"`
+	Name     bool                `json:"name"`
+	Type     string              `json:"type"`
+	Routes   []string            `json:"routes"`
+	Alerts   []string            `json:"alerts"`
+	Arrivals []*StopArrivalInput `json:"arrivals"`
+	Location *LocationInput      `json:"location"`
+}
+
+type Vehicle struct {
+	ID       string    `json:"id"`
+	Provider string    `json:"provider"`
+	Name     string    `json:"name"`
+	Type     string    `json:"type"`
+	State    string    `json:"state"`
+	Battery  string    `json:"battery"`
+	Location *Location `json:"location"`
+	TripID   string    `json:"tripId"`
+}
+
+type VehicleInput struct {
+	ID       string         `json:"id"`
+	Provider string         `json:"provider"`
+	Name     string         `json:"name"`
+	Type     string         `json:"type"`
+	State    string         `json:"state"`
+	Battery  string         `json:"battery"`
+	Location *LocationInput `json:"location"`
+	TripID   string         `json:"tripId"`
 }
