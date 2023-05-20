@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/go-co-op/gocron"
@@ -17,7 +16,7 @@ import (
 )
 
 func main() {
-	log.Infof("🚌 Nextbike collector version %s", "1.0.0") // TODO use proper version
+	log.Infof("🚴‍♀️ Nextbike collector version %s", "1.0.0") // TODO use proper version
 
 	err := godotenv.Load()
 	if err != nil {
@@ -84,8 +83,10 @@ func main() {
 		for _, country := range nextbikeResp.Countries {
 			for _, city := range country.Cities {
 				for _, place := range city.Places {
+					ID := fmt.Sprintf("nextbike-%d", place.UID)
+
 					stop := &protocol.Stop{
-						ID:       fmt.Sprintf("nextbike-%d", place.UID),
+						ID:       ID,
 						Provider: "nextbike",
 						Name:     place.Name,
 						Type:     "bike-stop",
@@ -100,7 +101,7 @@ func main() {
 						return err
 					}
 
-					subject := fmt.Sprintf(protocol.SubjectMapStop, strconv.Itoa(place.UID))
+					subject := fmt.Sprintf(protocol.SubjectMapStop, ID)
 					err = c.Publish(subject, string(d))
 					if err != nil {
 						return err

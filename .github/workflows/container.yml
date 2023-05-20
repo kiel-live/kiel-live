@@ -11,22 +11,48 @@ on:
       - main
 
 env:
-  DOCKERHUB_USERNAME: anbraten
+  REGISTRY: ghcr.io
+  IMAGE_OWNER: ${{ github.repository_owner }}
 
 jobs:
-  build-kvg:
+  build-collector-images:
+    name: Build collector container image
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        collector:
+          - kvg
+          - nextbike
+          - donkey
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
 
-      - name: Build the Docker image
-        run: docker build --file collectors/kvg/Containerfile --tag ${{ env.DOCKERHUB_USERNAME }}/kiel-live-kvg:latest --cache-from ${{ env.DOCKERHUB_USERNAME }}/kiel-live-kvg:latest .
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ matrix.collector }}-collector
+          tags: |
+            type=ref,event=tag
+            type=ref,event=pr
+            type=raw,value=next,enable={{is_default_branch}}
 
-      - name: Login to DockerHub Registry
-        run: docker login -u ${{ env.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
-        if: "github.ref_type == 'tag'"
+      - name: Login to registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push image to DockerHub
-        run: docker push ${{ env.DOCKERHUB_USERNAME }}/kiel-live-kvg:latest
-        if: "github.ref_type == 'tag'"
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: collectors/Containerfile
+          build-args: |
+            COLLECTOR_NAME=${{ matrix.collector }}
