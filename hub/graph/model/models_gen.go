@@ -14,6 +14,25 @@ type LocationInput struct {
 	Heading   int `json:"heading"`
 }
 
+type Map struct {
+	Stops    []*Stop    `json:"stops"`
+	Vehicles []*Vehicle `json:"vehicles"`
+}
+
+type Route struct {
+	ID       string       `json:"id"`
+	Provider string       `json:"provider"`
+	Name     string       `json:"name"`
+	Type     string       `json:"type"`
+	IsActive bool         `json:"isActive"`
+	Stops    []*RouteStop `json:"stops"`
+}
+
+type RouteStop struct {
+	ID       string    `json:"id"`
+	Location *Location `json:"location"`
+}
+
 type Stop struct {
 	ID       string         `json:"id"`
 	Provider string         `json:"provider"`
@@ -60,6 +79,22 @@ type StopInput struct {
 	Alerts   []string            `json:"alerts"`
 	Arrivals []*StopArrivalInput `json:"arrivals"`
 	Location *LocationInput      `json:"location"`
+}
+
+type Trip struct {
+	ID        string         `json:"id"`
+	Provider  string         `json:"provider"`
+	VehicleID string         `json:"vehicleId"`
+	Direction string         `json:"direction"`
+	Arrivals  []*TripArrival `json:"arrivals"`
+	Path      []*Location    `json:"path"`
+}
+
+type TripArrival struct {
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	State   string `json:"state"`
+	Planned string `json:"planned"`
 }
 
 type Vehicle struct {

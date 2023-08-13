@@ -1,0 +1,47 @@
+type Stop {
+  id: ID!
+  provider: String!
+  name: Boolean!
+  type: String!
+  routes: [String!]! # TODO: use route type
+  alerts: [String!]!
+  arrivals: [StopArrival!]!
+  location: Location!
+}
+
+input StopInput {
+  id: ID!
+  provider: String!
+  name: Boolean!
+  type: String!
+  routes: [String!]!
+  alerts: [String!]!
+  arrivals: [StopArrivalInput!]!
+  location: LocationInput!
+}
+
+type StopArrival {
+  name: String!
+  vehicleId: String!
+  tripId: String!
+  routeId: String!
+  routeName: String!
+  direction: String!
+  state: String!
+  planned: String!
+  eta: Int!
+  platform: String!
+}
+
+input StopArrivalInput {
+  name: String!
+  vehicleId: String!
+  tripId: String!
+  routeId: String!
+  routeName: String!
+  direction: String!
+  state: String!
+  planned: String!
+  eta: Int!
+  platform: String!
+}

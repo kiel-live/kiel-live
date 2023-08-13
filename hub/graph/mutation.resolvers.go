@@ -31,21 +31,7 @@ func (r *mutationResolver) RemoveStop(ctx context.Context, id string) (bool, err
 	panic(fmt.Errorf("not implemented: RemoveStop - removeStop"))
 }
 
-// Stops is the resolver for the stops field.
-func (r *queryResolver) Stops(ctx context.Context) ([]*model.Stop, error) {
-	return nil, fmt.Errorf("not implemented: Stops - stops")
-}
-
-// Vehicles is the resolver for the vehicles field.
-func (r *queryResolver) Vehicles(ctx context.Context) ([]*model.Vehicle, error) {
-	return nil, fmt.Errorf("not implemented: Vehicles - vehicles")
-}
-
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
 type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }

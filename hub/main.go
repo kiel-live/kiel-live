@@ -19,7 +19,14 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	db, err := openDatabase()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
+		DB: db,
+	}}))
 	srv.AddTransport(&transport.Websocket{})
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))

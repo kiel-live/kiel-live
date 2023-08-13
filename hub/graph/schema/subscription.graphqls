@@ -1,0 +1,8 @@
+type Map {
+  stops: [Stop!]!
+  vehicles: [Vehicle!]!
+}
+
+type Subscription {
+  map(north: Float!, east: Float!, south: Float!, west: Float!): Map!
+}

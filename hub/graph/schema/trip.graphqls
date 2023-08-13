@@ -1,0 +1,15 @@
+type Trip {
+  id: ID!
+  provider: String!
+  vehicleId: String!
+  direction: String!
+  arrivals: [TripArrival!]!
+  path: [Location!]!
+}
+
+type TripArrival {
+  id: ID!
+  name: String!
+  state: String!
+  planned: String!
+}

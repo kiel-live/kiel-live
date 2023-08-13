@@ -1,0 +1,21 @@
+type Vehicle {
+  id: ID!
+  provider: String!
+  name: String!
+  type: String!
+  state: String!
+  battery: String!
+  location: Location!
+  tripId: String!
+}
+
+input VehicleInput {
+  id: ID!
+  provider: String!
+  name: String!
+  type: String!
+  state: String!
+  battery: String!
+  location: LocationInput!
+  tripId: String!
+}

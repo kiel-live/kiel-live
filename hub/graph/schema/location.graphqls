@@ -1,0 +1,11 @@
+input LocationInput {
+  latitude: Int!
+  longitude: Int!
+  heading: Int!
+}
+
+type Location {
+  latitude: Int!
+  longitude: Int!
+  heading: Int!
+}

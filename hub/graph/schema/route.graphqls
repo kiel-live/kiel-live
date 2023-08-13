@@ -1,0 +1,13 @@
+type Route {
+  id: ID!
+  provider: String!
+  name: String!
+  type: String!
+  isActive: Boolean!
+  stops: [RouteStop!]!
+}
+
+type RouteStop {
+  id: ID!
+  location: Location!
+}
