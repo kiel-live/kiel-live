@@ -14,6 +14,9 @@ on:
       - app/**
       - .github/workflows/app.yml
 
+permissions:
+  pull-requests: write # allow surge-preview to create/update PR comments
+
 jobs:
   app:
     runs-on: ubuntu-latest
