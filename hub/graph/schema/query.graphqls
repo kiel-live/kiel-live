@@ -1,20 +1,22 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
 type Query {
   stops: [Stop!]!
   vehicles: [Vehicle!]!
-  trips: [Trip!]!
-  routes: [Route!]!
+  # trips: [Trip!]!
+  # routes: [Route!]!
 
-  stop(id: ID!): Stop!
-  vehicle(id: ID!): Vehicle!
-  trip(id: ID!): Trip!
-  route(id: ID!): Route!
+  # stop(id: ID!): Stop!
+  # vehicle(id: ID!): Vehicle!
+  # trip(id: ID!): Trip!
+  # route(id: ID!): Route!
 }
 
 # map: vehicle (location, type), stops (location, type)
 # trip-popup: trip (name, type, stops)
 # bus-stop-popup: stop (name, type, arrivals, routes)
 # bike-stop-popup
+
+# map (gps-locations) => stops, vehicles
+# search (string) => stops, vehicles, trips, routes
+
+# map popup (stop) => stop, arrivals
+# map popup (vehicle) => vehicle, name, type, fuel, charging, range, pricing, license-plate description (md), deep-link

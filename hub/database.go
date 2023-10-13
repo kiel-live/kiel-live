@@ -17,20 +17,25 @@ func openDatabase() (*buntdb.DB, error) {
 	}
 
 	if len(indexes) == 0 {
-		err = db.CreateSpatialIndex("pois", "poi:*:pos", buntdb.IndexRect)
+		err = db.CreateSpatialIndex("subscription_map", "subscription:map:*", buntdb.IndexRect)
 		if err != nil {
 			return nil, err
 		}
 
-		err = db.CreateIndex("stops", "stop:*:details", buntdb.IndexString)
-		if err != nil {
-			return nil, err
-		}
+		// err = db.CreateSpatialIndex("pois", "poi:*:pos", buntdb.IndexRect)
+		// if err != nil {
+		// 	return nil, err
+		// }
 
-		err = db.CreateIndex("stop-arrivals", "stop:*:arrivals", buntdb.IndexString)
-		if err != nil {
-			return nil, err
-		}
+		// err = db.CreateIndex("stops", "stop:*:details", buntdb.IndexString)
+		// if err != nil {
+		// 	return nil, err
+		// }
+
+		// err = db.CreateIndex("stop_arrivals", "stop:*:arrivals", buntdb.IndexString)
+		// if err != nil {
+		// 	return nil, err
+		// }
 	}
 
 	return db, nil

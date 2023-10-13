@@ -4,5 +4,5 @@ type Map {
 }
 
 type Subscription {
-  map(north: Float!, east: Float!, south: Float!, west: Float!): Map!
+  map(minLat: Float!, minLng: Float!, maxLat: Float!, maxLng: Float!): Map!
 }

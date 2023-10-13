@@ -13,7 +13,27 @@ import (
 
 // UpdateVehicle is the resolver for the updateVehicle field.
 func (r *mutationResolver) UpdateVehicle(ctx context.Context, vehicle model.VehicleInput) (*model.Vehicle, error) {
-	panic(fmt.Errorf("not implemented: UpdateVehicle - updateVehicle"))
+	// channelID := "123" // TODO
+	// dbID := "subscription:map:" + channelID
+
+	// r.DB.Update(func(tx *buntdb.Tx) error {
+	// 	pos := fmt.Sprintf("[%f %f],[%f %f]", minLat, minLat, maxLat, maxLng)
+	// 	tx.Set(dbID, pos, nil)
+	// 	return nil
+	// })
+
+	channels, err := r.GetMapChannels(vehicle.Location.Latitude, vehicle.Location.Longitude)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, ch := range channels {
+		ch <- &model.Map{
+			Vehicles: []*model.Vehicle{&vehicle},
+		}
+	}
+
+	return nil, nil
 }
 
 // RemoveVehicle is the resolver for the removeVehicle field.

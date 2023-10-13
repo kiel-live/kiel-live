@@ -9,11 +9,32 @@ import (
 	"fmt"
 
 	"github.com/kiel-live/kiel-live/hub/graph/model"
+	"github.com/tidwall/buntdb"
 )
 
 // Map is the resolver for the map field.
-func (r *subscriptionResolver) Map(ctx context.Context, north float64, east float64, south float64, west float64) (<-chan *model.Map, error) {
-	panic(fmt.Errorf("not implemented: Map - map"))
+func (r *subscriptionResolver) Map(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (<-chan *model.Map, error) {
+	channelID := "123" // TODO
+	dbID := "subscription:map:" + channelID
+	ch := r.OpenMapChannel(channelID)
+
+	r.DB.Update(func(tx *buntdb.Tx) error {
+		pos := fmt.Sprintf("[%f %f],[%f %f]", minLat, minLat, maxLat, maxLng)
+		tx.Set(dbID, pos, nil)
+		return nil
+	})
+
+	go func() {
+		<-ctx.Done()
+		r.DB.Update(func(tx *buntdb.Tx) error {
+			tx.Delete(dbID)
+			return nil
+		})
+	}()
+
+	// TODO: send initial data (all matching vehicles & stops)
+
+	return ch, nil
 }
 
 // Subscription returns SubscriptionResolver implementation.

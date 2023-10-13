@@ -14,12 +14,17 @@
     "formatcheck": "prettier -c .",
     "typecheck": "vue-tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "story:start": "histoire dev",
+    "story:build": "histoire build",
+    "story:preview": "histoire preview"
   },
   "dependencies": {
+    "@histoire/plugin-vue": "^0.16.1",
     "@vueuse/core": "9.13.0",
     "canvas-confetti": "1.6.0",
     "fuse.js": "6.6.2",
+    "histoire": "^0.16.1",
     "maplibre-gl": "3.0.0-pre.3",
     "nats.ws": "1.13.1",
     "vue": "3.2.47",

@@ -3,14 +3,14 @@
 package model
 
 type Location struct {
-	Latitude  int `json:"latitude"`
-	Longitude int `json:"longitude"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
 	Heading   int `json:"heading"`
 }
 
 type LocationInput struct {
-	Latitude  int `json:"latitude"`
-	Longitude int `json:"longitude"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
 	Heading   int `json:"heading"`
 }
 
