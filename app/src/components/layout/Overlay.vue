@@ -23,7 +23,10 @@ export default defineComponent({
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease, height 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    height 0.3s ease;
 }
 
 .fade-enter-to,
