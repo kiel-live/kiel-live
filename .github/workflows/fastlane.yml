@@ -27,7 +27,9 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version: 11
+          distribution: "temurin"
+          java-version: 21
+          cache: "gradle"
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
