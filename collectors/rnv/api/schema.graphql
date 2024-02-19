@@ -1,0 +1,893 @@
+"""Directs the executor to include this field or fragment only when the `if` argument is true."""
+directive @include(
+"""Included when true."""
+	if: Boolean!
+) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"""Directs the executor to skip this field or fragment when the `if` argument is true."""
+directive @skip(
+"""Skipped when true."""
+	if: Boolean!
+) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"""Marks an element of a GraphQL schema as no longer supported."""
+directive @deprecated(
+"""Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/)."""
+	reason: String
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
+
+"""Exposes a URL that specifies the behavior of this scalar."""
+directive @specifiedBy(
+"""The URL that specifies the behavior of this scalar."""
+	url: String!
+) on SCALAR
+
+"""Geokoordinate"""
+type GeoPoint {
+"""Breitgrad in der Dezimalschreibweise"""
+	lat: Float
+"""Längengrad in der Dezimalschreibweise"""
+	long: Float
+"""Geohash gemäß http://geohash.org"""
+	hash: String
+}
+
+"""The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point)."""
+scalar Float
+
+"""The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text."""
+scalar String
+
+"""News und Ticker"""
+type Uffbasse implements Tagable{
+"""ID"""
+	id: ID!
+"""Type des Uffbasses"""
+	type: UffbasseType
+"""Gültigkeit ab"""
+	validFrom: Time
+"""Gültigkeit bis"""
+	validUntil: Time
+"""Darstellung ab"""
+	displayFrom: Time
+"""Datum der Erstellung"""
+	date: Time
+"""Titel mit HTML Formatierung"""
+	title: String
+"""Text mit HTML Formatierung """
+	text: String
+"""Titel ohne HTML Formatierung"""
+	rawTitle: String
+"""Text ohne HTML Formatierung"""
+	rawText: String
+"""Betroffene Liniengruppen als Pagination"""
+	affectedLineGroups(
+		first: Int
+		after: String
+	): SearchResult
+"""Betroffene Haltestellen als Pagination"""
+	affectedStations(
+		first: Int
+		after: String
+	): SearchResult
+"""Betroffene Masten als Pagination"""
+	affectedPoles(
+		first: Int
+		after: String
+	): SearchResult
+"""Betroffene Linien als Pagination"""
+	affectedLines(
+		first: Int
+		after: String
+	): SearchResult
+"""Liste von Links als Liste"""
+	links: [URL]
+"""Liste von Bildern als Liste"""
+	images: [URL]
+"""Liste von Vorschauen als Liste"""
+	thumbs: [URL]
+"""Liste von Tags als Liste"""
+	tags(
+		key: String
+		first: Int
+		after: String
+	): SearchResult
+	global: Boolean
+	scope: UffbasseScope
+	region: Region
+}
+
+"""The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `"4"`) or integer (such as `4`) input value will be accepted as an ID."""
+scalar ID
+
+"""The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."""
+scalar Int
+
+"""The `Boolean` scalar type represents `true` or `false`."""
+scalar Boolean
+
+"""Aufzählungstyp für Uffbasses"""
+enum UffbasseType {
+	NEWS
+	TICKER
+	ALERT
+	CANCELLATION
+	INFORMATION
+}
+
+enum UffbasseScope {
+	REGION
+	POLE
+	STATION
+	LINE
+	LINEGROUP
+}
+
+"""Eine Haltestelle"""
+type Station implements Tagable{
+	id: ID!
+"""hafasID entspricht der ID"""
+	hafasID: ID!
+"""Globale ID im Format cc:nnnnn:n*"""
+	globalID: String
+	shortName: String
+	name: String
+	longName: String
+	place: String
+	style: Style
+	location: GeoPoint
+"""Fahrten der Haltestelle, die nach den Kriterien startTime und endTime abgefragt werden können"""
+	journeys(
+		startTime: String
+		endTime: String
+		lineIDs: [ID]
+		poleIDs: [ID]
+		platformIDs: [ID]
+		first: Int
+		after: String
+		timetable: TimetableType
+	): SearchResult
+	lines(
+		first: Int
+		after: String
+	): SearchResult
+	platforms(
+		first: Int
+		after: String
+	): SearchResult
+	poles(
+		first: Int
+		after: String
+	): SearchResult
+	uffbasses(
+		on: String
+		type: UffbasseType
+		first: Int
+		after: String
+	): SearchResult
+"""Alle VRN Halte, sofern die Haltestelle auch von der VRN angefahren wird"""
+	vrnStops(
+		time: String
+	): [VRNStop]
+	hasVRNStops: Boolean
+	tags(
+		key: String
+		first: Int
+		after: String
+	): SearchResult
+}
+
+"""Ein Mast"""
+type Pole implements Tagable{
+	id: ID!
+	location: GeoPoint
+	station: Station
+	platform: Platform
+	zone: Zone
+	hasStops: Boolean
+	uffbasses(
+		on: String
+		type: UffbasseType
+		first: Int
+		after: String
+	): SearchResult
+	tags(
+		key: String
+		first: Int
+		after: String
+	): SearchResult
+}
+
+"""Ein Steig oder Gleis"""
+type Platform implements Tagable{
+	id: ID!
+	station: Station
+	location: GeoPoint
+	label: String
+	type: PlatformType
+	hasStops: Boolean
+	barrierFreeType: BarrierFreeType
+	locationType: LocationType
+	poles(
+		first: Int
+		after: String
+	): SearchResult
+	tags(
+		key: String
+		first: Int
+		after: String
+	): SearchResult
+}
+
+enum TimetableType {
+	ESTIMATED
+	PLANNED
+}
+
+enum PlatformType {
+	STEIG
+	GLEIS
+}
+
+"""Eine Fahrt"""
+type Journey implements Tagable{
+	id: ID!
+	shardKey: String
+	line: Line
+	capacity: Capacity
+	canceled: Boolean
+	cancelled: Boolean
+	starts: Time
+	ends: Time
+	type: JourneyType
+"""Alle Halte einer Fahrt, wobei nach einer hafasID sofort gefiltert werden kann oder ab einer hafasID"""
+	stops(
+		only: ID
+		starting: ID
+		onlyHafasID: String
+		startingHafasID: String
+		onlyGlobalID: String
+		startingGlobalID: String
+		first: Int
+	): [Stop!]
+"""Besetzgrad, wobei nach einer hafasID sofort gefiltert werden kann oder ab einer hafasID"""
+	loads(
+		only: ID
+		starting: ID
+		onlyHafasID: String
+		startingHafasID: String
+		onlyGlobalID: String
+		startingGlobalID: String
+		first: Int
+	): [Load]
+	loadsForecastType: LoadForecastType
+	tags(
+		key: String
+		first: Int
+		after: String
+	): SearchResult
+}
+
+"""Ein Halt"""
+type Stop {
+	id: ID!
+	station: Station
+	destinationLabel: String
+	pole: Pole
+"""Soll Ankunft"""
+	plannedArrival: Time
+"""Soll Abfahrt"""
+	plannedDeparture: Time
+"""Prognostisierte Ankunft"""
+	realtimeArrival: Time
+"""Prognostisierte Abfahrt"""
+	realtimeDeparture: Time
+}
+
+"""Ein Besetztgrad"""
+type Load {
+	id: ID!
+	station: Station
+	pole: Pole
+"""Initial rein statistisch ermittelt zu Beginn der Fahrt ermittelt ohne weitere Anpassungen"""
+	forecast: Float
+"""Echtzeitbesetzung, sofern vorhanden"""
+	realtime: Float
+"""Statistischer Wert angepasst durch ggfs. vorhandene Echtzeitdaten"""
+	adjusted: Float
+"""das Verhältnis von Statistischer Wert angepasst durch ggfs. vorhandene Echtzeitdaten zu Kapazität"""
+	ratio: Float
+"""Besetztgrad in interpretierter Form"""
+	loadType: LoadType
+}
+
+enum LoadType {
+"""Nicht vorhanden"""
+	NA
+"""Stufe1 - empty - leer"""
+	I
+"""Stufe2 - light - mittel-voll"""
+	II
+"""Stufe4 - full - voll"""
+	III
+}
+
+"""Eine Linie"""
+type Line implements Tagable{
+	id: ID!
+	lineGroup: LineGroup
+	style: Style
+	visibility: LineVisibility
+	lastJourneyTypes: [JourneyType]
+	stations(
+		first: Int
+		after: String
+	): SearchResult
+"""Fahrten der Linie, die nach den Kriterien startTime und endTime abgefragt werden können"""
+	journeys(
+		startTime: String
+		endTime: String
+		first: Int
+		after: String
+	): SearchResult
+	uffbasses(
+		on: String
+		type: UffbasseType
+		first: Int
+		after: String
+	): SearchResult
+	tags(
+		key: String
+		first: Int
+		after: String
+	): SearchResult
+}
+
+"""Kapazität einer Fahrt"""
+type Capacity {
+"""Gesamtkapazität"""
+	total: Int
+"""Anzahl Sitzplätze"""
+	seats: Int
+"""Anzahl Stehplätze"""
+	standing: Int
+"""Anzahl Sonderplätze"""
+	special: Int
+}
+
+"""Eine Liniengruppe"""
+type LineGroup implements Tagable{
+	id: ID!
+	label: String
+	style: Style
+	type: LineGroupType
+	lines(
+		first: Int
+		after: String
+	): SearchResult
+	stations(
+		first: Int
+		after: String
+	): SearchResult
+"""Fahrten der Linie, die nach den Kriterien startTime und endTime abgefragt werden können"""
+	journeys(
+		startTime: String
+		endTime: String
+		first: Int
+		after: String
+	): SearchResult
+	uffbasses(
+		on: String
+		type: UffbasseType
+		first: Int
+		after: String
+	): SearchResult
+	tags(
+		key: String
+		first: Int
+		after: String
+	): SearchResult
+	region: Region
+}
+
+enum Region {
+	MA
+	HD
+	LU
+	UNSET
+}
+
+enum LineVisibility {
+	RNV
+	VRN
+	NONE
+	UNSET
+}
+
+enum ProductType {
+	ICE
+	ECE
+	TGV
+	IC
+	EC
+	RJX
+	FLX
+	IRE
+	RE
+	RB
+	NJ
+	S
+	RNV
+}
+
+enum JourneyType {
+	UNKNOWN
+	ZUG
+	SBAHN
+	STRASSENBAHN
+	STADTBUS
+	REGIOBUS
+	RUFTAXI
+	LINIENTAXI
+	BERGBAHN
+	FAEHRE
+}
+
+enum LineGroupType {
+	ZUG
+	SBAHN
+	STRASSENBAHN
+	STADTBUS
+	REGIOBUS
+	RUFTAXI
+	LINIENTAXI
+	BERGBAHN
+	FAEHRE
+}
+
+enum LanguageType {
+	DE
+}
+
+enum SourceType {
+	REALTIMEONLY
+	SCHEDULEDONLY
+	BOTH
+}
+
+"""Datentyp um ergänzende Informationen zum Styling zu übertragen"""
+type Style {
+	primary: Color
+	secondary: Color
+	contrast: Color
+	icon: URL
+	image: URL
+	video: URL
+	audio: URL
+	font: URL
+	misc: [URL]
+}
+
+"""Repräsentation eines HTTP-Links"""
+type URL {
+	protocol: String
+	host: String
+	port: Int
+	path: String
+	pathname: String
+	query: String
+	search: String
+	address: String
+}
+
+"""Repräsentation einer Farbe"""
+type Color {
+	hex: String
+	r: Int
+	g: Int
+	b: Int
+	c: Float
+	m: Float
+	y: Float
+	k: Float
+}
+
+"""Eine Wabe"""
+type Zone implements Tagable{
+	id: ID!
+	poles(
+		first: Int
+		after: String
+	): SearchResult
+	tags(
+		key: String
+		first: Int
+		after: String
+	): SearchResult
+}
+
+"""Ein Zeitstempel"""
+type Time {
+"""Tag, beginnend bei 1 ... 31"""
+	date: Int
+"""Monat, beginnend bei 1 ... 12"""
+	month: Int
+"""Vierstellig, bspw. 2019"""
+	year: Int
+"""Stunden, beginnend bei 0 ... 23"""
+	h: Int
+"""Minuten, beginnend bei 0 ... 59"""
+	m: Int
+"""Sekunden, beginnend bei 0 ... 59"""
+	s: Int
+"""Anzahl der Sekunden seit dem 1.1.1970T00:00:00 UTC+0"""
+	X: Int
+"""UTC Offset, bspw +2 für MESZ oder +0"""
+	offSet: Int
+"""Repräsentation der Zeit als Zeichenkette nach ISO 8601"""
+	isoString: String
+}
+
+enum BarrierFreeType {
+	NONE
+	RAMP
+	LEVEL
+}
+
+enum LocationType {
+	DEFAULT
+	HIGH
+	LOW
+	UNDERGROUND
+	OUTSIDE
+}
+
+"""Hilfskonstrukt zur Pagination"""
+union Element =Pole | Station | Journey | Uffbasse | Platform | Zone | Line | LineGroup | Tag | VRNStation
+
+"""Datentyp zur Pagniation"""
+type SearchResult {
+	totalCount: Int
+	cursor: String
+	elements: [Element]
+}
+
+"""Hilfskonstrukt für Tags"""
+interface Tagable {
+"""Hilfskonstrukt für Tags"""
+	tags: SearchResult
+}
+
+enum TagType {
+	POLE
+	STATION
+	LINE
+	LINEGROUP
+	PLATFORM
+	ZONE
+	UFFBASSE
+	JOURNEY
+}
+
+enum StatusType {
+	OK
+	MAYBE
+	NOTOK
+}
+
+"""Ein Tag, um Informationen zu Tabable Datentypen zu annotieren"""
+type Tag {
+	id: ID!
+	key: String
+	value: String
+	references(
+		type: TagType
+		first: Int
+		after: String
+	): SearchResult
+}
+
+"""Alle Abfragen"""
+type Query {
+	tags(
+		key: String
+		target: TagType
+		first: Int
+		after: String
+	): SearchResult
+	tag(
+		id: String!
+	): Tag
+	lines(
+		label: String
+		onlyWithJourneys: Boolean
+		first: Int
+		after: String
+	): SearchResult
+	line(
+		id: String!
+	): Line
+	lineGroups(
+		label: String
+		first: Int
+		after: String
+	): SearchResult
+	lineGroup(
+		id: String!
+	): LineGroup
+	stations(
+		name: String
+		lat: Float
+		long: Float
+		distance: Float
+		first: Int
+		after: String
+	): SearchResult
+	station(
+		id: String
+		globalID: String
+		hafasID: String
+	): Station
+	journeys(
+		startTime: String
+		endTime: String
+		first: Int
+		after: String
+		source: SourceType
+	): SearchResult
+	journey(
+		id: String!
+		shardKey: String!
+	): Journey
+	uffbasse(
+		id: String!
+	): Uffbasse
+	uffbasses(
+		on: String
+		type: UffbasseType
+		first: Int
+		after: String
+	): SearchResult
+	pole(
+		id: String!
+	): Pole
+	poles(
+		first: Int
+		after: String
+	): SearchResult
+	platform(
+		id: String!
+	): Platform
+	platforms(
+		first: Int
+		after: String
+	): SearchResult
+	zone(
+		id: String!
+	): Zone
+	zones(
+		first: Int
+		after: String
+	): SearchResult
+	addresses(
+		query: String
+		street: String
+		city: String
+		housenumber: String
+		lat: Float
+		long: Float
+	): [Address]
+"""VDV431"""
+	trips(
+		originLat: Float
+		originLong: Float
+		originGlobalID: String
+		viaLat: Float
+		viaLong: Float
+		viaGlobalID: String
+		destinationGlobalID: String
+		destinationLat: Float
+		destinationLong: Float
+		departureTime: String
+		arrivalTime: String
+	): [Trip]
+	vrnStations(
+		query: String
+		lat: Float
+		long: Float
+		distance: Float
+		first: Int
+		after: String
+	): SearchResult
+	vrnStation(
+		id: String!
+	): VRNStation
+	vrnStops(
+		globalID: String!
+		time: String
+	): [VRNStop]
+	ping: Ping
+}
+
+type Ping {
+	realtimeStatus: StatusType
+	dbStatus: StatusType
+}
+
+"""VDV 431 Stop"""
+type VRNStop {
+	timetabledTime: Time!
+	platform: String
+	estimatedTime: Time
+	service: VRNService
+	stopsChain: [VRNStopsChain]
+	situations: [Situation]
+}
+
+type VRNStopsChain {
+	timetabledTime: Time!
+	platform: String
+	estimatedTime: Time
+	globalID: ID
+	name: String
+	stopSequence: Int
+	station: Station
+	VRNStation: VRNStation
+}
+
+"""VDV 431 Service"""
+type VRNService {
+	type: JourneyType
+	vrnType: String
+	vrnSubType: String
+	name: String
+	description: String
+	notes: String
+	destinationLabel: String
+	lineGroup: LineGroup
+	cancelled: Boolean
+	productType: ProductType
+	label: String
+}
+
+type Situation {
+	created: Time
+	validFrom: Time
+	validUntil: Time
+	title: String
+	rawTitle: String
+	text: String
+	rawText: String
+}
+
+"""VDV 431 Trip"""
+type Trip {
+	id: ID!
+	startTime: Time
+	endTime: Time
+	interchanges: Int
+	legs: [Leg]
+	situations: [Situation]
+	passedZones: [String]
+	tickets: [Ticket]
+}
+
+type Ticket {
+	title: String
+	description: String
+	from_price: String
+	passenger_info: String
+	validation_info: String
+	transportation_info: String
+	scope_info: String
+	validity_info: String
+	other_info: String
+	bc_filter: Boolean
+	bus_link: String
+	vending_machine_link: String
+	selling_point_link: String
+	onlineshop_link: String
+	online_subscription_link: String
+	etarif_app_link: String
+	mobile_app_link: String
+	moovel_app_link: String
+	price_from: Boolean
+}
+
+union Leg =InterchangeLeg | TimedLeg | ContinuousLeg
+
+union Point =StopPoint | GeoPosition
+
+"""VDV 431 InterchangeLeg"""
+type InterchangeLeg {
+	mode: String
+	start: Point
+	end: Point
+	startTime: Time
+	endTime: Time
+}
+
+"""VDV 431 ContinuousLeg"""
+type ContinuousLeg {
+	mode: String
+	start: Point
+	end: Point
+	startTime: Time
+	endTime: Time
+}
+
+"""VDV 431 StopPoint"""
+type StopPoint {
+	ref: String
+	locationName: String
+	stopPointName: String
+	station: Station
+}
+
+"""VDV 431 GeoPosition"""
+type GeoPosition {
+"""Breitgrad in der Dezimalschreibweise"""
+	lat: Float
+"""Längengrad in der Dezimalschreibweise"""
+	long: Float
+"""Optionaler Ortsname"""
+	locationName: String
+}
+
+"""VDV 431 TimedLeg"""
+type TimedLeg {
+	board: TimedLegEntry
+	alight: TimedLegEntry
+	service: VRNService
+	legIntermediates: [LegIntermediate]
+	legProjection: [GeoPosition]
+}
+
+"""VDV 431 TimedLegEntry"""
+type TimedLegEntry {
+	point: Point
+	timetabledTime: Time
+	estimatedTime: Time
+}
+
+"""VDV 431 LegIntermediate"""
+type LegIntermediate {
+	point: Point
+	timetabledArrivalTime: Time
+	timetabledDepartureTime: Time
+	estimatedArrivalTime: Time
+	estimatedDepartureTime: Time
+	sequence: Int
+}
+
+"""VDV 431 Station"""
+type VRNStation {
+	point: Point
+	place: String
+	location: GeoPoint
+}
+
+type Address {
+	street: String!
+	city: String!
+	housenumbers: [Housenumber]
+	location: GeoPoint!
+	postalCode: String
+	distance: Float
+	probability: Float
+}
+
+type Housenumber {
+	housenumber: String!
+	postalCode: String
+	location: GeoPoint!
+}
+
+enum LoadForecastType {
+	UNKNOWN
+	STATISTICAL
+	REALTIME
+	PARTIALLY_REALTIME
+}
+
+

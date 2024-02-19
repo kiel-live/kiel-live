@@ -1,0 +1,18 @@
+query getStationsPage($cursor: String!) {
+  stations(after: $cursor) {
+    totalCount
+    cursor
+    elements {
+      ... on Station {
+        hafasID
+        globalID
+        longName
+        place
+        location {
+          lat
+          long
+        }
+      }
+    }
+  }
+}
