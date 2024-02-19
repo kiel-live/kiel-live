@@ -6,7 +6,7 @@ platform :android do
     gradle(project_dir: 'android-app', task: 'test')
   end
 
-  desc 'Submit a new Beta Build to Crashlytics Beta'
+  desc 'Submit a new beta build to Google Play'
   lane :beta do
     releaseFilePath = File.join(Dir.pwd, 'android-keys.jks')
     gradle(project_dir: 'android-app', task: 'clean')
@@ -25,9 +25,21 @@ platform :android do
     upload_to_play_store(track: 'beta', release_status: 'draft')
   end
 
-  desc 'Deploy a new version to the Google Play'
+  desc 'Submit a new production build to Google Play'
   lane :production do
-    gradle(project_dir: 'android-app', task: 'clean assembleRelease')
+    gradle(project_dir: 'android-app', task: 'clean')
+    gradle(
+      project_dir: 'android-app',
+      task: 'bundle',
+      build_type: 'Release',
+      print_command: false,
+      properties: {
+        'android.injected.signing.store.file' => releaseFilePath,
+        'android.injected.signing.store.password' => ENV['ANDROID_KEYSTORE_PASSWORD'],
+        'android.injected.signing.key.alias' => 'key0',
+        'android.injected.signing.key.password' => ENV['ANDROID_KEY_PASSWORD'],
+      }
+    )
     upload_to_play_store(release_status: 'draft')
   end
 end
