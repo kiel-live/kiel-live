@@ -1,0 +1,5 @@
+gplay-key.json
+.env*
+*.jks
+*.keystore
+report.xml
