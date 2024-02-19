@@ -1,0 +1,50 @@
+name: fastlane
+
+on:
+  push:
+    tags:
+      - "*"
+  workflow_dispatch:
+    inputs:
+      track:
+        description: "The track to deploy to"
+        type: choice
+        options:
+          - beta
+          - production
+        required: true
+        default: beta
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Setup Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: "2.6"
+
+      - name: Install bundler & Fastlane
+        run: |
+          gem install bundler:2.2.27
+          bundle config path vendor/bundle
+          cd fastlane
+          bundle install --jobs 4 --retry 3
+
+      - name: Generate gplay-key.json file
+        run: echo ${{secrets.GPLAY_PRIVATE_SERVICE_ACCOUNT_KEY}} | base64 -d > fastlane/gplay-key.json
+
+      - name: Generate .jks file
+        run: echo ${{secrets.ANDROID_SIGNING_KEY}} | base64 -d > fastlane/android-keys.jks
+
+      - run: fastlane ${{ inputs.track || 'beta' }}
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{secrets.ANDROID_KEYSTORE_PASSWORD}}
+          ANDROID_KEY_PASSWORD: ${{secrets.ANDROID_KEY_PASSWORD}}

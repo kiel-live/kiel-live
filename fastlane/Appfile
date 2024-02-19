@@ -1,0 +1,2 @@
+json_key_file("/app/fastlane/gplay-key.json")
+package_name("de.beechy.kiellive")
