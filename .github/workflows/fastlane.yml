@@ -22,22 +22,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup JDK
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
           java-version: 11
 
       - name: Setup Ruby
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: fastlane
 
       - name: Install bundler & Fastlane
         run: |
-          gem install bundler:2.5
-          bundle config path vendor/bundle
           cd fastlane
           bundle install --jobs 4 --retry 3
 
