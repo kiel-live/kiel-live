@@ -66,22 +66,8 @@ const colorScheme = useColorMode();
 
 const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
   Object.values(vehicles.value).map((v) => {
-    let iconName: string = v.type;
-    let iconNameFocused = `${v.type}-selected`;
-
-    // TODO: remove custom bus icons at some point
-    if (v.type === 'bus') {
-      const iconData = {
-        kind: 'vehicle',
-        type: v.type,
-        name: v.name.split(' ')[0],
-        focused: false,
-        heading: v.location.heading,
-      };
-
-      iconName = JSON.stringify(iconData);
-      iconNameFocused = JSON.stringify({ ...iconData, focused: true });
-    }
+    const iconName: string = v.type;
+    const iconNameFocused = `${v.type}-selected`;
 
     return {
       type: 'Feature',
@@ -89,12 +75,11 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
         kind: 'vehicle',
         type: v.type,
         name: v.name,
+        shortName: v.name.split(' ')[0],
         id: v.id,
-        number: v.name.split(' ')[0],
-        to: v.name.split(' ').slice(1).join(' '),
         iconName,
         iconNameFocused,
-        iconSize: v.type === 'bus' ? 1.2 : 0.8,
+        heading: v.location.heading,
       },
 
       geometry: {
@@ -166,15 +151,10 @@ const stopsLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   id: 'stops',
   type: 'symbol',
   source: 'geojson',
+  minzoom: 12,
   filter: ['==', 'kind', 'stop'],
   paint: {
-    'icon-opacity': [
-      'match',
-      ['get', 'number'],
-      selectedVehicle.value?.name.split(' ')[0] ?? '',
-      1,
-      selectedMarker.value.type === 'bus' ? 0.3 : 1,
-    ],
+    'icon-opacity': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 1, 1],
   },
   layout: {
     'icon-image': [
@@ -184,7 +164,14 @@ const stopsLayer: Ref<SymbolLayerSpecification> = computed(() => ({
       ['get', 'iconNameFocused'],
       ['get', 'iconName'],
     ],
-    'icon-size': 0.4,
+    'icon-size': {
+      stops: [
+        [12, 0.4],
+        [14, 0.6],
+        [16, 0.8],
+        [18, 1],
+      ],
+    },
     'icon-rotation-alignment': 'map',
     'icon-allow-overlap': true,
     'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
@@ -195,15 +182,10 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   id: 'vehicles',
   type: 'symbol',
   source: 'geojson',
-  paint: {
-    'icon-opacity': [
-      'match',
-      ['get', 'number'],
-      selectedVehicle.value?.name.split(' ')[0] ?? '',
-      1,
-      selectedMarker.value.type === 'bus' ? 0.3 : 1,
-    ],
-  },
+  minzoom: 12,
+  // paint: {
+  //   'icon-opacity': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 1, 0.3],
+  // },
   filter: ['==', 'kind', 'vehicle'],
   layout: {
     'icon-image': [
@@ -213,11 +195,26 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
       ['get', 'iconNameFocused'],
       ['get', 'iconName'],
     ],
-    'icon-size': ['get', 'iconSize'],
+    'icon-size': {
+      stops: [
+        [12, 0.4],
+        [14, 0.6],
+        [16, 0.8],
+        [18, 1],
+      ],
+    },
+    'icon-rotate': ['get', 'heading'],
     'icon-rotation-alignment': 'map',
     'icon-allow-overlap': true,
+    "text-field": ['get', 'shortName'],
+    'text-font': ["Metropolis Regular","Klokantech Noto Sans Regular"],
+    'text-size': 12,
+    'text-offset': [2, 0],
     'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
   },
+  paint: {
+    'text-color': 'rgb(185, 25, 25)',
+  }
 }));
 
 const tripsLayer: Ref<LineLayerSpecification> = computed(() => ({
@@ -305,13 +302,17 @@ onMounted(async () => {
 
   async function loadImage(name: string, url: string) {
     const image = await map.loadImage(url);
-    map.addImage(name, image.data, { pixelRatio: 2 });
+    map.addImage(name, image.data);
   }
 
   async function loadImages() {
     // bus stop
     await loadImage('bus-stop', '/icons/stop-bus.png');
     await loadImage('bus-stop-selected', '/icons/stop-bus-selected.png');
+
+    // bus vehicle
+    await loadImage('bus', '/icons/vehicle-bus.png');
+    await loadImage('bus-selected', '/icons/vehicle-bus-selected.png');
 
     // bike stop
     await loadImage('bike-stop', '/icons/stop-bike.png');
