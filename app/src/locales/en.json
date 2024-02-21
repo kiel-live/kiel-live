@@ -51,5 +51,6 @@
   "auto": "Use system theme",
   "light": "Light",
   "dark": "Dark",
-  "next_stop": "Next stop:"
+  "next_stop": "Next stop:",
+  "ok": "Ok"
 }

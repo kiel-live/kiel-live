@@ -11,7 +11,6 @@
   "support_us": "Unterstütze uns indem du die App mit deinen Freunden teilst und gib uns Feedback!",
   "no_bus_wants_to_stop_here_right_now": "Hier will gerade wohl kein Manni halten.",
   "this_stop_probably_does_not_exist": "Diese Haltestelle gibt es wohl nicht.",
-  "new_version": "Eine neue Version ist verfügbar.",
   "update_title": "Wuhuu es gibt ein Update!",
   "update_msg": "Die neue Version soll dir bei der Navigation durch Kiel noch besser helfen.",
   "feedback": "Schick uns gerne Feedback an {email} und folge uns auf {instagram}",
@@ -52,5 +51,6 @@
   "auto": "System Theme nutzen",
   "light": "Hell",
   "dark": "Dunkel",
-  "next_stop": "Nächster Stop:"
+  "next_stop": "Nächster Stop:",
+  "ok": "Ok"
 }

@@ -1,44 +1,37 @@
 <template>
-  <div
-    v-if="show"
-    class="flex fixed top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-80 z-1000 justify-center items-center"
-    @click="close"
-  >
-    <div
-      class="m-2 flex flex-col rounded-md p-4 bg-white border-1 border-gray-200 shadow-xl z-20 md:w-104 dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
-    >
-      <div class="flex flex-col text-center gap-4">
-        <span class="text-xl mb-2">{{ t('update_title') }}</span>
-        <span>{{ t('update_msg') }}</span>
-        <i18n-t keypath="feedback" tag="span">
-          <template #email>
-            <a :href="`mailto:${feedbackMail}`" class="underline">{{ feedbackMail }}</a>
-          </template>
-          <template #instagram>
-            <a href="https://www.instagram.com/kiel.live/" target="_blank" class="underline">{{ t('instagram') }}</a>
-          </template>
-        </i18n-t>
-      </div>
-
-      <div class="flex flex-row w-full justify-center mt-8">
-        <Button @click="close">{{ t('nice') }}</Button>
-      </div>
+  <PopupNotice :show="show" @close="close">
+    <div class="flex flex-col text-center gap-4">
+      <span class="text-xl mb-2">{{ t('update_title') }}</span>
+      <span>{{ t('update_msg') }}</span>
+      <i18n-t keypath="feedback" tag="span">
+        <template #email>
+          <a :href="`mailto:${feedbackMail}`" class="underline">{{ feedbackMail }}</a>
+        </template>
+        <template #instagram>
+          <a href="https://www.instagram.com/kiel.live/" target="_blank" class="underline">{{ t('instagram') }}</a>
+        </template>
+      </i18n-t>
     </div>
-  </div>
+
+    <div class="flex flex-row w-full justify-center mt-8">
+      <Button @click="close">{{ t('nice') }}</Button>
+    </div>
+  </PopupNotice>
 </template>
 
 <script setup lang="ts">
+import { useStorage } from '@vueuse/core';
 import confetti from 'canvas-confetti';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import Button from '~/components/atomic/Button.vue';
+import PopupNotice from '~/components/PopupNotice.vue';
+import { localStoragePrefix } from '~/compositions/useUserSettings';
 import { feedbackMail } from '~/config';
 
-const LS_VERSION_KEY = 'kiel-live-version-v1';
-
 const latestVersion = '2.0.0';
-const version = ref(localStorage.getItem(LS_VERSION_KEY));
+const version = useStorage(`${localStoragePrefix}.version`, '2.0.0');
 const show = computed(() => version.value !== null && version.value !== latestVersion);
 const { t } = useI18n();
 
@@ -75,7 +68,6 @@ watch(
 );
 
 function close() {
-  localStorage.setItem(LS_VERSION_KEY, latestVersion);
   version.value = latestVersion;
 }
 </script>
