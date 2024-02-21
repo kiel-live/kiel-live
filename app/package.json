@@ -14,13 +14,15 @@
     "formatcheck": "prettier -c .",
     "typecheck": "vue-tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "translate": "pnpx @geprog/translator translate ./src/locales"
   },
   "dependencies": {
     "@vueuse/core": "10.7.2",
     "canvas-confetti": "1.9.2",
     "fuse.js": "7.0.0",
     "maplibre-gl": "4.0.1",
+    "micromark": "4.0.0",
     "nats.ws": "1.19.1",
     "vue": "3.4.19",
     "vue-i18n": "9.9.1",
