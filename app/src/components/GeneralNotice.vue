@@ -24,17 +24,33 @@ import { localStoragePrefix } from '~/compositions/useUserSettings';
 
 const { t } = useI18n();
 
-const alerts = [
+type Alert = {
+  id: string;
+  title: string;
+  start?: Date;
+  end?: Date;
+  msg: string;
+};
+
+const alerts: Alert[] = [
   {
     id: 'kvg-rbl-umzug',
-    title: '⚠️ Teilweise Einschränkungen bei der KVG',
-    msg: `Die KVG stellt vom 20.02-22.02 ihr rechnergestütztes Betriebsleitsystem um, sodass es teilweise zu Einschränkungen bei den Busdaten kommen kann: [weitere Informationen](https://www.kvg-kiel.de/aktuelles/betriebliches/unser-rechnergestuetztes-betriebsleitsystem-rbl-zieht-um).`,
+    title: '⚠️ Einschränkungen bei den Busdaten der KVG',
+    start: new Date('2024-02-20 00:00:00'),
+    end: new Date('2024-02-22 23:59:59'),
+    msg: `Die KVG stellt vom **20. bis zum 22. Februar 2024** ihr rechnergestütztes Betriebsleitsystem (RBL) um,
+ sodass es teilweise zu Einschränkungen bei den Busdaten kommen kann. [weitere Informationen](https://www.kvg-kiel.de/aktuelles/betriebliches/unser-rechnergestuetztes-betriebsleitsystem-rbl-zieht-um).`,
   },
 ];
 
 const readAlerts = useStorage<string[]>(`${localStoragePrefix}.alerts`, []);
 
-const alert = computed(() => alerts.find((a) => !readAlerts.value.includes(a.id)));
+const alert = computed(() =>
+  alerts.find((a) => {
+    const currentlyActive = a.start && a.end ? a.start <= new Date() && a.end >= new Date() : true;
+    return !readAlerts.value.includes(a.id) && currentlyActive;
+  }),
+);
 
 function close() {
   if (!alert.value) {

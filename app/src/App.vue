@@ -65,7 +65,7 @@ body {
   @apply bg-transparent;
 }
 
-.prose {
+.prose * {
   @apply dark:text-white;
 }
 
