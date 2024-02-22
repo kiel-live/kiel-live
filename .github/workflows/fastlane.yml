@@ -45,11 +45,11 @@ jobs:
 
       - name: Generate gplay-key.json file
         if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
-        run: echo ${{secrets.GPLAY_PRIVATE_SERVICE_ACCOUNT_KEY}} | base64 -d > fastlane/gplay-key.json
+        run: echo "${{secrets.GPLAY_PRIVATE_SERVICE_ACCOUNT_KEY}}" | base64 -d > fastlane/gplay-key.json
 
       - name: Generate .jks file
         if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
-        run: echo ${{secrets.ANDROID_SIGNING_KEY}} | base64 -d > fastlane/android-keys.jks
+        run: echo "${{secrets.ANDROID_SIGNING_KEY}}"| base64 -d > fastlane/android-keys.jks
 
       - name: Build and submit to Google Play
         if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
