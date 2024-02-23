@@ -46,6 +46,17 @@ const routes: RouteRecordRaw[] = [
     meta: { settings: true },
   },
   {
+    path: '/settings/contact',
+    name: 'settings-contact',
+    component: (): Component => import('~/views/settings/Contact.vue'),
+    meta: { settings: true },
+  },
+  {
+    path: '/contact',
+    name: 'contact',
+    redirect: { name: 'settings-contact' },
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: (): Component => import('~/views/NotFound.vue'),
