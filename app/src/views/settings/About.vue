@@ -21,10 +21,13 @@
         <i-ph-gear-fill />
         <span>{{ t('settings') }}</span>
       </router-link>
-      <a :href="`mailto:${feedbackMail}`" class="flex items-center border-b dark:border-gray-600 py-4 px-2 gap-2">
+      <router-link
+        :to="{ name: 'settings-contact' }"
+        class="flex items-center border-b dark:border-gray-600 py-4 px-2 gap-2"
+      >
         <i-ic-round-message />
-        <span>{{ t('give_feedback') }}</span>
-      </a>
+        <span>{{ t('contact_us') }}</span>
+      </router-link>
       <a
         :href="analyticsUrl"
         target="_blank"
@@ -64,7 +67,7 @@ import { useI18n } from 'vue-i18n';
 
 import Button from '~/components/atomic/Button.vue';
 import SettingsContainer from '~/components/layout/SettingsContainer.vue';
-import { analyticsUrl, buildDate, feedbackMail } from '~/config';
+import { analyticsUrl, buildDate } from '~/config';
 
 const { t } = useI18n();
 </script>

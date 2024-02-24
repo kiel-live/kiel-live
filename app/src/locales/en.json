@@ -42,7 +42,6 @@
   "analytics": "Analytics",
   "no_connection": "Keine Verbindung",
   "version_from": "Version from:",
-  "give_feedback": "Give feedback",
   "lite_mode": "Lite mode",
   "lite_mode_description": "If you enable the lite mode the data will be shown to you without the map. This allows you to save some data volume.",
   "changelog_trips_path_lite_mode": "Show the route of a selected bus on the map and new lite mode to save data volume",
@@ -52,5 +51,9 @@
   "light": "Light",
   "dark": "Dark",
   "next_stop": "Next stop:",
-  "ok": "Ok"
+  "ok": "Ok",
+  "contact_title": "Would you like to share feedback, propose an idea, report an issue, or simply express gratitude? Your email would be greatly appreciated!",
+  "contact_email_body": "Hi Kiel-Live Team 👋,\n\n",
+  "send_email": "Send email",
+  "contact_us": "Contact us"
 }
