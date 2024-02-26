@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "de.beechy.kiellive",
+      "sha256_cert_fingerprints": [
+        "EC:3E:16:A9:F4:12:C0:0A:94:1D:12:44:C5:0D:C8:76:68:65:FC:E8:5F:B4:05:04:EA:57:82:AD:CC:6B:87:D7"
+      ]
+    }
+  }
+]
