@@ -24,6 +24,7 @@
     "maplibre-gl": "4.0.1",
     "micromark": "4.0.0",
     "nats.ws": "1.19.1",
+    "vaul-vue": "0.1.0",
     "vue": "3.4.19",
     "vue-i18n": "9.9.1",
     "vue-router": "4.2.5"
