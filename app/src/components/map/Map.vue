@@ -303,18 +303,10 @@ onMounted(async () => {
     }
   });
 
-  const loadImage = (name: string, url: string) =>
-    new Promise<void>((resolve, reject) => {
-      // eslint-disable-next-line promise/prefer-await-to-callbacks
-      map.loadImage(url, (error, image) => {
-        if (error) {
-          reject(error);
-        } else if (image) {
-          map.addImage(name, image, { pixelRatio: 2 });
-          resolve();
-        }
-      });
-    });
+  async function loadImage(name: string, url: string) {
+    const image = await map.loadImage(url);
+    map.addImage(name, image.data, { pixelRatio: 2 });
+  }
 
   async function loadImages() {
     // bus stop

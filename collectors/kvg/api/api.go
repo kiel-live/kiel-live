@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	baseURL      = "https://www.kvg-kiel.de"
+	baseURL      = "https://kvg-internetservice-proxy.p.networkteam.com"
 	stopURL      = baseURL + "/internetservice/services/passageInfo/stopPassages/stop"
 	platformURL  = baseURL + "/internetservice/services/passageInfo/stopPassages/stopPoint"
 	tripURL      = baseURL + "/internetservice/services/tripInfo/tripPassages"

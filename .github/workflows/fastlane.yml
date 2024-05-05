@@ -1,0 +1,63 @@
+name: fastlane
+
+on:
+  push:
+    tags:
+      - "*"
+  workflow_dispatch:
+    inputs:
+      track:
+        description: "The track to deploy to"
+        type: choice
+        options:
+          - beta
+          - production
+        required: true
+        default: beta
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: 17
+          cache: "gradle"
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: fastlane
+
+      - name: Install bundler & Fastlane
+        run: |
+          cd fastlane
+          bundle install --jobs 4 --retry 3
+
+      - name: Generate gplay-key.json file
+        if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
+        run: echo "${{secrets.GPLAY_PRIVATE_SERVICE_ACCOUNT_KEY}}" | base64 -d > fastlane/gplay-key.json
+
+      - name: Generate .jks file
+        if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
+        run: echo "${{secrets.ANDROID_SIGNING_KEY}}"| base64 -d > fastlane/android-keys.jks
+
+      - name: Build and submit to Google Play
+        if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
+        run: fastlane ${{ inputs.track || 'beta' }}
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{secrets.ANDROID_KEYSTORE_PASSWORD}}
+          ANDROID_KEY_PASSWORD: ${{secrets.ANDROID_KEY_PASSWORD}}
+
+      - name: Build bundle
+        if: github.event_name == 'pull_request'
+        run: fastlane build

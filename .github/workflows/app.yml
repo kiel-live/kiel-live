@@ -14,6 +14,9 @@ on:
       - app/**
       - .github/workflows/app.yml
 
+permissions:
+  pull-requests: write # allow surge-preview to create/update PR comments
+
 jobs:
   app:
     runs-on: ubuntu-latest
@@ -34,7 +37,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-
 
-      - uses: pnpm/action-setup@v2.2.1
+      - uses: pnpm/action-setup@v3
         with:
           version: 8
           run_install: true

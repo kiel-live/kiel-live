@@ -5,6 +5,7 @@
     </main>
     <AppBarBottom class="mt-auto flex-shrink-0" />
     <UpdateNotice />
+    <GeneralNotice />
   </div>
 </template>
 
@@ -62,6 +63,14 @@ body {
 
 *::-webkit-scrollbar-corner {
   @apply bg-transparent;
+}
+
+.prose * {
+  @apply dark:text-white;
+}
+
+.prose a {
+  @apply text-blue-500 dark:text-white;
 }
 </style>
 
