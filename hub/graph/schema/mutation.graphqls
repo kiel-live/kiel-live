@@ -1,13 +1,13 @@
 type Mutation {
-  updateVehicle(vehicle: VehicleInput!): Vehicle!
+  setVehicle(vehicle: VehicleInput!): Vehicle!
   removeVehicle(id: ID!): Boolean!
 
-  updateStop(stop: StopInput!): Stop!
+  setStop(stop: StopInput!): Stop!
   removeStop(id: ID!): Boolean!
 
-  # updateRoute(route: RouteInput!): Route!
-  # removeRoute(id: ID!): Boolean!
+  setRoute(route: RouteInput!): Route!
+  removeRoute(id: ID!): Boolean!
 
-  # updateTrip(trip: TripInput!): Trip!
-  # removeTrip(id: ID!): Boolean!
+  setTrip(trip: TripInput!): Trip!
+  removeTrip(id: ID!): Boolean!
 }

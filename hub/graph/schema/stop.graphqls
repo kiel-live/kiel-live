@@ -3,9 +3,10 @@ type Stop {
   provider: String!
   name: Boolean!
   type: String!
-  routes: [String!]! # TODO: use route type
+  routes: [Route!]!
   alerts: [String!]!
   arrivals: [StopArrival!]!
+  vehicles: [Vehicle!]!
   location: Location!
 }
 
@@ -17,6 +18,7 @@ input StopInput {
   routes: [String!]!
   alerts: [String!]!
   arrivals: [StopArrivalInput!]!
+  vehicles: [VehicleInput!]!
   location: LocationInput!
 }
 

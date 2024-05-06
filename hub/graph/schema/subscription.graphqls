@@ -5,4 +5,8 @@ type Map {
 
 type Subscription {
   map(minLat: Float!, minLng: Float!, maxLat: Float!, maxLng: Float!): Map!
+  stop(id: ID!): Stop!
+  vehicle(id: ID!): Vehicle!
+  trip(id: ID!): Trip!
+  route(id: ID!): Route!
 }

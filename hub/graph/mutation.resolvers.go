@@ -11,8 +11,8 @@ import (
 	"github.com/kiel-live/kiel-live/hub/graph/model"
 )
 
-// UpdateVehicle is the resolver for the updateVehicle field.
-func (r *mutationResolver) UpdateVehicle(ctx context.Context, vehicle model.VehicleInput) (*model.Vehicle, error) {
+// SetVehicle is the resolver for the setVehicle field.
+func (r *mutationResolver) SetVehicle(ctx context.Context, vehicle model.VehicleInput) (*model.Vehicle, error) {
 	// channelID := "123" // TODO
 	// dbID := "subscription:map:" + channelID
 
@@ -41,14 +41,34 @@ func (r *mutationResolver) RemoveVehicle(ctx context.Context, id string) (bool, 
 	panic(fmt.Errorf("not implemented: RemoveVehicle - removeVehicle"))
 }
 
-// UpdateStop is the resolver for the updateStop field.
-func (r *mutationResolver) UpdateStop(ctx context.Context, stop model.StopInput) (*model.Stop, error) {
-	panic(fmt.Errorf("not implemented: UpdateStop - updateStop"))
+// SetStop is the resolver for the setStop field.
+func (r *mutationResolver) SetStop(ctx context.Context, stop model.StopInput) (*model.Stop, error) {
+	panic(fmt.Errorf("not implemented: SetStop - setStop"))
 }
 
 // RemoveStop is the resolver for the removeStop field.
 func (r *mutationResolver) RemoveStop(ctx context.Context, id string) (bool, error) {
 	panic(fmt.Errorf("not implemented: RemoveStop - removeStop"))
+}
+
+// SetRoute is the resolver for the setRoute field.
+func (r *mutationResolver) SetRoute(ctx context.Context, route model.RouteInput) (*model.Route, error) {
+	panic(fmt.Errorf("not implemented: SetRoute - setRoute"))
+}
+
+// RemoveRoute is the resolver for the removeRoute field.
+func (r *mutationResolver) RemoveRoute(ctx context.Context, id string) (bool, error) {
+	panic(fmt.Errorf("not implemented: RemoveRoute - removeRoute"))
+}
+
+// SetTrip is the resolver for the setTrip field.
+func (r *mutationResolver) SetTrip(ctx context.Context, trip model.TripInput) (*model.Trip, error) {
+	panic(fmt.Errorf("not implemented: SetTrip - setTrip"))
+}
+
+// RemoveTrip is the resolver for the removeTrip field.
+func (r *mutationResolver) RemoveTrip(ctx context.Context, id string) (bool, error) {
+	panic(fmt.Errorf("not implemented: RemoveTrip - removeTrip"))
 }
 
 // Mutation returns MutationResolver implementation.

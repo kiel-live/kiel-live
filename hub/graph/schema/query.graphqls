@@ -1,13 +1,8 @@
 type Query {
-  stops: [Stop!]!
-  vehicles: [Vehicle!]!
-  # trips: [Trip!]!
-  # routes: [Route!]!
-
-  # stop(id: ID!): Stop!
-  # vehicle(id: ID!): Vehicle!
-  # trip(id: ID!): Trip!
-  # route(id: ID!): Route!
+  stop(id: ID!): Stop!
+  vehicle(id: ID!): Vehicle!
+  trip(id: ID!): Trip!
+  route(id: ID!): Route!
 }
 
 # map: vehicle (location, type), stops (location, type)

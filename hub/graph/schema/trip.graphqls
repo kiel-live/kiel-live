@@ -13,3 +13,19 @@ type TripArrival {
   state: String!
   planned: String!
 }
+
+input TripInput {
+  id: ID!
+  provider: String!
+  vehicleId: String!
+  direction: String!
+  arrivals: [TripArrivalInput!]!
+  path: [LocationInput!]!
+}
+
+input TripArrivalInput {
+  id: ID!
+  name: String!
+  state: String!
+  planned: String!
+}

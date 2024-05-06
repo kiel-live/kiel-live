@@ -61,15 +61,21 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		RemoveRoute   func(childComplexity int, id string) int
 		RemoveStop    func(childComplexity int, id string) int
+		RemoveTrip    func(childComplexity int, id string) int
 		RemoveVehicle func(childComplexity int, id string) int
-		UpdateStop    func(childComplexity int, stop model.StopInput) int
-		UpdateVehicle func(childComplexity int, vehicle model.VehicleInput) int
+		SetRoute      func(childComplexity int, route model.RouteInput) int
+		SetStop       func(childComplexity int, stop model.StopInput) int
+		SetTrip       func(childComplexity int, trip model.TripInput) int
+		SetVehicle    func(childComplexity int, vehicle model.VehicleInput) int
 	}
 
 	Query struct {
-		Stops    func(childComplexity int) int
-		Vehicles func(childComplexity int) int
+		Route   func(childComplexity int, id string) int
+		Stop    func(childComplexity int, id string) int
+		Trip    func(childComplexity int, id string) int
+		Vehicle func(childComplexity int, id string) int
 	}
 
 	Route struct {
@@ -95,6 +101,7 @@ type ComplexityRoot struct {
 		Provider func(childComplexity int) int
 		Routes   func(childComplexity int) int
 		Type     func(childComplexity int) int
+		Vehicles func(childComplexity int) int
 	}
 
 	StopArrival struct {
@@ -111,7 +118,11 @@ type ComplexityRoot struct {
 	}
 
 	Subscription struct {
-		Map func(childComplexity int, minLat float64, minLng float64, maxLat float64, maxLng float64) int
+		Map     func(childComplexity int, minLat float64, minLng float64, maxLat float64, maxLng float64) int
+		Route   func(childComplexity int, id string) int
+		Stop    func(childComplexity int, id string) int
+		Trip    func(childComplexity int, id string) int
+		Vehicle func(childComplexity int, id string) int
 	}
 
 	Trip struct {
@@ -143,17 +154,27 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	UpdateVehicle(ctx context.Context, vehicle model.VehicleInput) (*model.Vehicle, error)
+	SetVehicle(ctx context.Context, vehicle model.VehicleInput) (*model.Vehicle, error)
 	RemoveVehicle(ctx context.Context, id string) (bool, error)
-	UpdateStop(ctx context.Context, stop model.StopInput) (*model.Stop, error)
+	SetStop(ctx context.Context, stop model.StopInput) (*model.Stop, error)
 	RemoveStop(ctx context.Context, id string) (bool, error)
+	SetRoute(ctx context.Context, route model.RouteInput) (*model.Route, error)
+	RemoveRoute(ctx context.Context, id string) (bool, error)
+	SetTrip(ctx context.Context, trip model.TripInput) (*model.Trip, error)
+	RemoveTrip(ctx context.Context, id string) (bool, error)
 }
 type QueryResolver interface {
-	Stops(ctx context.Context) ([]*model.Stop, error)
-	Vehicles(ctx context.Context) ([]*model.Vehicle, error)
+	Stop(ctx context.Context, id string) (*model.Stop, error)
+	Vehicle(ctx context.Context, id string) (*model.Vehicle, error)
+	Trip(ctx context.Context, id string) (*model.Trip, error)
+	Route(ctx context.Context, id string) (*model.Route, error)
 }
 type SubscriptionResolver interface {
 	Map(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (<-chan *model.Map, error)
+	Stop(ctx context.Context, id string) (<-chan *model.Stop, error)
+	Vehicle(ctx context.Context, id string) (<-chan *model.Vehicle, error)
+	Trip(ctx context.Context, id string) (<-chan *model.Trip, error)
+	Route(ctx context.Context, id string) (<-chan *model.Route, error)
 }
 
 type executableSchema struct {
@@ -210,6 +231,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Map.Vehicles(childComplexity), true
 
+	case "Mutation.removeRoute":
+		if e.complexity.Mutation.RemoveRoute == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeRoute_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveRoute(childComplexity, args["id"].(string)), true
+
 	case "Mutation.removeStop":
 		if e.complexity.Mutation.RemoveStop == nil {
 			break
@@ -221,6 +254,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RemoveStop(childComplexity, args["id"].(string)), true
+
+	case "Mutation.removeTrip":
+		if e.complexity.Mutation.RemoveTrip == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeTrip_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveTrip(childComplexity, args["id"].(string)), true
 
 	case "Mutation.removeVehicle":
 		if e.complexity.Mutation.RemoveVehicle == nil {
@@ -234,43 +279,101 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RemoveVehicle(childComplexity, args["id"].(string)), true
 
-	case "Mutation.updateStop":
-		if e.complexity.Mutation.UpdateStop == nil {
+	case "Mutation.setRoute":
+		if e.complexity.Mutation.SetRoute == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateStop_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_setRoute_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateStop(childComplexity, args["stop"].(model.StopInput)), true
+		return e.complexity.Mutation.SetRoute(childComplexity, args["route"].(model.RouteInput)), true
 
-	case "Mutation.updateVehicle":
-		if e.complexity.Mutation.UpdateVehicle == nil {
+	case "Mutation.setStop":
+		if e.complexity.Mutation.SetStop == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateVehicle_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_setStop_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateVehicle(childComplexity, args["vehicle"].(model.VehicleInput)), true
+		return e.complexity.Mutation.SetStop(childComplexity, args["stop"].(model.StopInput)), true
 
-	case "Query.stops":
-		if e.complexity.Query.Stops == nil {
+	case "Mutation.setTrip":
+		if e.complexity.Mutation.SetTrip == nil {
 			break
 		}
 
-		return e.complexity.Query.Stops(childComplexity), true
+		args, err := ec.field_Mutation_setTrip_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
 
-	case "Query.vehicles":
-		if e.complexity.Query.Vehicles == nil {
+		return e.complexity.Mutation.SetTrip(childComplexity, args["trip"].(model.TripInput)), true
+
+	case "Mutation.setVehicle":
+		if e.complexity.Mutation.SetVehicle == nil {
 			break
 		}
 
-		return e.complexity.Query.Vehicles(childComplexity), true
+		args, err := ec.field_Mutation_setVehicle_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetVehicle(childComplexity, args["vehicle"].(model.VehicleInput)), true
+
+	case "Query.route":
+		if e.complexity.Query.Route == nil {
+			break
+		}
+
+		args, err := ec.field_Query_route_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Route(childComplexity, args["id"].(string)), true
+
+	case "Query.stop":
+		if e.complexity.Query.Stop == nil {
+			break
+		}
+
+		args, err := ec.field_Query_stop_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Stop(childComplexity, args["id"].(string)), true
+
+	case "Query.trip":
+		if e.complexity.Query.Trip == nil {
+			break
+		}
+
+		args, err := ec.field_Query_trip_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Trip(childComplexity, args["id"].(string)), true
+
+	case "Query.vehicle":
+		if e.complexity.Query.Vehicle == nil {
+			break
+		}
+
+		args, err := ec.field_Query_vehicle_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Vehicle(childComplexity, args["id"].(string)), true
 
 	case "Route.id":
 		if e.complexity.Route.ID == nil {
@@ -384,6 +487,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Stop.Type(childComplexity), true
 
+	case "Stop.vehicles":
+		if e.complexity.Stop.Vehicles == nil {
+			break
+		}
+
+		return e.complexity.Stop.Vehicles(childComplexity), true
+
 	case "StopArrival.direction":
 		if e.complexity.StopArrival.Direction == nil {
 			break
@@ -465,6 +575,54 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Subscription.Map(childComplexity, args["minLat"].(float64), args["minLng"].(float64), args["maxLat"].(float64), args["maxLng"].(float64)), true
+
+	case "Subscription.route":
+		if e.complexity.Subscription.Route == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_route_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.Route(childComplexity, args["id"].(string)), true
+
+	case "Subscription.stop":
+		if e.complexity.Subscription.Stop == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_stop_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.Stop(childComplexity, args["id"].(string)), true
+
+	case "Subscription.trip":
+		if e.complexity.Subscription.Trip == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_trip_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.Trip(childComplexity, args["id"].(string)), true
+
+	case "Subscription.vehicle":
+		if e.complexity.Subscription.Vehicle == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_vehicle_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.Vehicle(childComplexity, args["id"].(string)), true
 
 	case "Trip.arrivals":
 		if e.complexity.Trip.Arrivals == nil {
@@ -601,8 +759,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputLocationInput,
+		ec.unmarshalInputRouteInput,
+		ec.unmarshalInputRouteStopInput,
 		ec.unmarshalInputStopArrivalInput,
 		ec.unmarshalInputStopInput,
+		ec.unmarshalInputTripArrivalInput,
+		ec.unmarshalInputTripInput,
 		ec.unmarshalInputVehicleInput,
 	)
 	first := true
@@ -744,7 +906,37 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) field_Mutation_removeRoute_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_removeStop_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_removeTrip_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -774,7 +966,22 @@ func (ec *executionContext) field_Mutation_removeVehicle_args(ctx context.Contex
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateStop_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_setRoute_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.RouteInput
+	if tmp, ok := rawArgs["route"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("route"))
+		arg0, err = ec.unmarshalNRouteInput2githubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRouteInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["route"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setStop_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 model.StopInput
@@ -789,7 +996,22 @@ func (ec *executionContext) field_Mutation_updateStop_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateVehicle_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_setTrip_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.TripInput
+	if tmp, ok := rawArgs["trip"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trip"))
+		arg0, err = ec.unmarshalNTripInput2githubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTripInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["trip"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_setVehicle_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 model.VehicleInput
@@ -816,6 +1038,66 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_route_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_stop_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_trip_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_vehicle_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -858,6 +1140,66 @@ func (ec *executionContext) field_Subscription_map_args(ctx context.Context, raw
 		}
 	}
 	args["maxLng"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_route_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_stop_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_trip_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_vehicle_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -1084,6 +1426,8 @@ func (ec *executionContext) fieldContext_Map_stops(ctx context.Context, field gr
 				return ec.fieldContext_Stop_alerts(ctx, field)
 			case "arrivals":
 				return ec.fieldContext_Stop_arrivals(ctx, field)
+			case "vehicles":
+				return ec.fieldContext_Stop_vehicles(ctx, field)
 			case "location":
 				return ec.fieldContext_Stop_location(ctx, field)
 			}
@@ -1155,8 +1499,8 @@ func (ec *executionContext) fieldContext_Map_vehicles(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateVehicle(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateVehicle(ctx, field)
+func (ec *executionContext) _Mutation_setVehicle(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_setVehicle(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1169,7 +1513,7 @@ func (ec *executionContext) _Mutation_updateVehicle(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateVehicle(rctx, fc.Args["vehicle"].(model.VehicleInput))
+		return ec.resolvers.Mutation().SetVehicle(rctx, fc.Args["vehicle"].(model.VehicleInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1186,7 +1530,7 @@ func (ec *executionContext) _Mutation_updateVehicle(ctx context.Context, field g
 	return ec.marshalNVehicle2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicle(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateVehicle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_setVehicle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -1221,7 +1565,7 @@ func (ec *executionContext) fieldContext_Mutation_updateVehicle(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateVehicle_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_setVehicle_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1283,8 +1627,8 @@ func (ec *executionContext) fieldContext_Mutation_removeVehicle(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateStop(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateStop(ctx, field)
+func (ec *executionContext) _Mutation_setStop(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_setStop(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1297,7 +1641,7 @@ func (ec *executionContext) _Mutation_updateStop(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateStop(rctx, fc.Args["stop"].(model.StopInput))
+		return ec.resolvers.Mutation().SetStop(rctx, fc.Args["stop"].(model.StopInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1314,7 +1658,7 @@ func (ec *executionContext) _Mutation_updateStop(ctx context.Context, field grap
 	return ec.marshalNStop2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐStop(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateStop(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_setStop(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -1336,6 +1680,8 @@ func (ec *executionContext) fieldContext_Mutation_updateStop(ctx context.Context
 				return ec.fieldContext_Stop_alerts(ctx, field)
 			case "arrivals":
 				return ec.fieldContext_Stop_arrivals(ctx, field)
+			case "vehicles":
+				return ec.fieldContext_Stop_vehicles(ctx, field)
 			case "location":
 				return ec.fieldContext_Stop_location(ctx, field)
 			}
@@ -1349,7 +1695,7 @@ func (ec *executionContext) fieldContext_Mutation_updateStop(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateStop_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_setStop_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1411,8 +1757,8 @@ func (ec *executionContext) fieldContext_Mutation_removeStop(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_stops(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_stops(ctx, field)
+func (ec *executionContext) _Mutation_setRoute(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_setRoute(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1425,7 +1771,7 @@ func (ec *executionContext) _Query_stops(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Stops(rctx)
+		return ec.resolvers.Mutation().SetRoute(rctx, fc.Args["route"].(model.RouteInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1437,12 +1783,260 @@ func (ec *executionContext) _Query_stops(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Stop)
+	res := resTmp.(*model.Route)
 	fc.Result = res
-	return ec.marshalNStop2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐStopᚄ(ctx, field.Selections, res)
+	return ec.marshalNRoute2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRoute(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_stops(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_setRoute(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Route_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Route_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Route_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Route_type(ctx, field)
+			case "isActive":
+				return ec.fieldContext_Route_isActive(ctx, field)
+			case "stops":
+				return ec.fieldContext_Route_stops(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Route", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_setRoute_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_removeRoute(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_removeRoute(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RemoveRoute(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_removeRoute(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_removeRoute_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_setTrip(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_setTrip(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SetTrip(rctx, fc.Args["trip"].(model.TripInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Trip)
+	fc.Result = res
+	return ec.marshalNTrip2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTrip(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_setTrip(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Trip_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Trip_provider(ctx, field)
+			case "vehicleId":
+				return ec.fieldContext_Trip_vehicleId(ctx, field)
+			case "direction":
+				return ec.fieldContext_Trip_direction(ctx, field)
+			case "arrivals":
+				return ec.fieldContext_Trip_arrivals(ctx, field)
+			case "path":
+				return ec.fieldContext_Trip_path(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Trip", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_setTrip_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_removeTrip(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_removeTrip(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RemoveTrip(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_removeTrip(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_removeTrip_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_stop(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_stop(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Stop(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Stop)
+	fc.Result = res
+	return ec.marshalNStop2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐStop(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_stop(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1464,17 +2058,30 @@ func (ec *executionContext) fieldContext_Query_stops(ctx context.Context, field 
 				return ec.fieldContext_Stop_alerts(ctx, field)
 			case "arrivals":
 				return ec.fieldContext_Stop_arrivals(ctx, field)
+			case "vehicles":
+				return ec.fieldContext_Stop_vehicles(ctx, field)
 			case "location":
 				return ec.fieldContext_Stop_location(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Stop", field.Name)
 		},
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_stop_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_vehicles(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_vehicles(ctx, field)
+func (ec *executionContext) _Query_vehicle(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_vehicle(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1487,7 +2094,7 @@ func (ec *executionContext) _Query_vehicles(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Vehicles(rctx)
+		return ec.resolvers.Query().Vehicle(rctx, fc.Args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1499,12 +2106,12 @@ func (ec *executionContext) _Query_vehicles(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Vehicle)
+	res := resTmp.(*model.Vehicle)
 	fc.Result = res
-	return ec.marshalNVehicle2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicleᚄ(ctx, field.Selections, res)
+	return ec.marshalNVehicle2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicle(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_vehicles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_vehicle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1531,6 +2138,155 @@ func (ec *executionContext) fieldContext_Query_vehicles(ctx context.Context, fie
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Vehicle", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_vehicle_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_trip(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_trip(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Trip(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Trip)
+	fc.Result = res
+	return ec.marshalNTrip2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTrip(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_trip(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Trip_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Trip_provider(ctx, field)
+			case "vehicleId":
+				return ec.fieldContext_Trip_vehicleId(ctx, field)
+			case "direction":
+				return ec.fieldContext_Trip_direction(ctx, field)
+			case "arrivals":
+				return ec.fieldContext_Trip_arrivals(ctx, field)
+			case "path":
+				return ec.fieldContext_Trip_path(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Trip", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_trip_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_route(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_route(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Route(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Route)
+	fc.Result = res
+	return ec.marshalNRoute2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRoute(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_route(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Route_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Route_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Route_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Route_type(ctx, field)
+			case "isActive":
+				return ec.fieldContext_Route_isActive(ctx, field)
+			case "stops":
+				return ec.fieldContext_Route_stops(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Route", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_route_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -2232,9 +2988,9 @@ func (ec *executionContext) _Stop_routes(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]string)
+	res := resTmp.([]*model.Route)
 	fc.Result = res
-	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+	return ec.marshalNRoute2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRouteᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Stop_routes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2244,7 +3000,21 @@ func (ec *executionContext) fieldContext_Stop_routes(ctx context.Context, field 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Route_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Route_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Route_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Route_type(ctx, field)
+			case "isActive":
+				return ec.fieldContext_Route_isActive(ctx, field)
+			case "stops":
+				return ec.fieldContext_Route_stops(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Route", field.Name)
 		},
 	}
 	return fc, nil
@@ -2355,6 +3125,68 @@ func (ec *executionContext) fieldContext_Stop_arrivals(ctx context.Context, fiel
 				return ec.fieldContext_StopArrival_platform(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type StopArrival", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Stop_vehicles(ctx context.Context, field graphql.CollectedField, obj *model.Stop) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Stop_vehicles(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Vehicles, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Vehicle)
+	fc.Result = res
+	return ec.marshalNVehicle2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicleᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Stop_vehicles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Stop",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Vehicle_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Vehicle_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Vehicle_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Vehicle_type(ctx, field)
+			case "state":
+				return ec.fieldContext_Vehicle_state(ctx, field)
+			case "battery":
+				return ec.fieldContext_Vehicle_battery(ctx, field)
+			case "location":
+				return ec.fieldContext_Vehicle_location(ctx, field)
+			case "tripId":
+				return ec.fieldContext_Vehicle_tripId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Vehicle", field.Name)
 		},
 	}
 	return fc, nil
@@ -2921,6 +3753,348 @@ func (ec *executionContext) fieldContext_Subscription_map(ctx context.Context, f
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Subscription_map_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_stop(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_stop(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().Stop(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.Stop):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNStop2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐStop(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_stop(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Stop_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Stop_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Stop_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Stop_type(ctx, field)
+			case "routes":
+				return ec.fieldContext_Stop_routes(ctx, field)
+			case "alerts":
+				return ec.fieldContext_Stop_alerts(ctx, field)
+			case "arrivals":
+				return ec.fieldContext_Stop_arrivals(ctx, field)
+			case "vehicles":
+				return ec.fieldContext_Stop_vehicles(ctx, field)
+			case "location":
+				return ec.fieldContext_Stop_location(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Stop", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_stop_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_vehicle(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_vehicle(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().Vehicle(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.Vehicle):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNVehicle2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicle(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_vehicle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Vehicle_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Vehicle_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Vehicle_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Vehicle_type(ctx, field)
+			case "state":
+				return ec.fieldContext_Vehicle_state(ctx, field)
+			case "battery":
+				return ec.fieldContext_Vehicle_battery(ctx, field)
+			case "location":
+				return ec.fieldContext_Vehicle_location(ctx, field)
+			case "tripId":
+				return ec.fieldContext_Vehicle_tripId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Vehicle", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_vehicle_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_trip(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_trip(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().Trip(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.Trip):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNTrip2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTrip(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_trip(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Trip_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Trip_provider(ctx, field)
+			case "vehicleId":
+				return ec.fieldContext_Trip_vehicleId(ctx, field)
+			case "direction":
+				return ec.fieldContext_Trip_direction(ctx, field)
+			case "arrivals":
+				return ec.fieldContext_Trip_arrivals(ctx, field)
+			case "path":
+				return ec.fieldContext_Trip_path(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Trip", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_trip_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_route(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_route(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().Route(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.Route):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNRoute2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRoute(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_route(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Route_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Route_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Route_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Route_type(ctx, field)
+			case "isActive":
+				return ec.fieldContext_Route_isActive(ctx, field)
+			case "stops":
+				return ec.fieldContext_Route_stops(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Route", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_route_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -5559,6 +6733,102 @@ func (ec *executionContext) unmarshalInputLocationInput(ctx context.Context, obj
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRouteInput(ctx context.Context, obj interface{}) (model.RouteInput, error) {
+	var it model.RouteInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "provider", "name", "type", "isActive", "stops"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "provider":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("provider"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Provider = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "type":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
+		case "isActive":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isActive"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsActive = data
+		case "stops":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("stops"))
+			data, err := ec.unmarshalNRouteStopInput2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRouteStopInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Stops = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRouteStopInput(ctx context.Context, obj interface{}) (model.RouteStopInput, error) {
+	var it model.RouteStopInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "location"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "location":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("location"))
+			data, err := ec.unmarshalNLocationInput2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐLocationInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Location = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputStopArrivalInput(ctx context.Context, obj interface{}) (model.StopArrivalInput, error) {
 	var it model.StopArrivalInput
 	asMap := map[string]interface{}{}
@@ -5656,7 +6926,7 @@ func (ec *executionContext) unmarshalInputStopInput(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "provider", "name", "type", "routes", "alerts", "arrivals", "location"}
+	fieldsInOrder := [...]string{"id", "provider", "name", "type", "routes", "alerts", "arrivals", "vehicles", "location"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5712,6 +6982,13 @@ func (ec *executionContext) unmarshalInputStopInput(ctx context.Context, obj int
 				return it, err
 			}
 			it.Arrivals = data
+		case "vehicles":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vehicles"))
+			data, err := ec.unmarshalNVehicleInput2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicleInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Vehicles = data
 		case "location":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("location"))
 			data, err := ec.unmarshalNLocationInput2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐLocationInput(ctx, v)
@@ -5719,6 +6996,116 @@ func (ec *executionContext) unmarshalInputStopInput(ctx context.Context, obj int
 				return it, err
 			}
 			it.Location = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTripArrivalInput(ctx context.Context, obj interface{}) (model.TripArrivalInput, error) {
+	var it model.TripArrivalInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "name", "state", "planned"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "state":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("state"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.State = data
+		case "planned":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("planned"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Planned = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTripInput(ctx context.Context, obj interface{}) (model.TripInput, error) {
+	var it model.TripInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "provider", "vehicleId", "direction", "arrivals", "path"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "provider":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("provider"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Provider = data
+		case "vehicleId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vehicleId"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VehicleID = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		case "arrivals":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arrivals"))
+			data, err := ec.unmarshalNTripArrivalInput2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTripArrivalInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Arrivals = data
+		case "path":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("path"))
+			data, err := ec.unmarshalNLocationInput2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐLocationInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Path = data
 		}
 	}
 
@@ -5921,9 +7308,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "updateVehicle":
+		case "setVehicle":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateVehicle(ctx, field)
+				return ec._Mutation_setVehicle(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -5935,9 +7322,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "updateStop":
+		case "setStop":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateStop(ctx, field)
+				return ec._Mutation_setStop(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -5945,6 +7332,34 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "removeStop":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_removeStop(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "setRoute":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_setRoute(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "removeRoute":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removeRoute(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "setTrip":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_setTrip(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "removeTrip":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removeTrip(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -5991,7 +7406,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "stops":
+		case "stop":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -6000,7 +7415,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_stops(ctx, field)
+				res = ec._Query_stop(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -6013,7 +7428,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "vehicles":
+		case "vehicle":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -6022,7 +7437,51 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_vehicles(ctx, field)
+				res = ec._Query_vehicle(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "trip":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_trip(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "route":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_route(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -6220,6 +7679,11 @@ func (ec *executionContext) _Stop(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "vehicles":
+			out.Values[i] = ec._Stop_vehicles(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "location":
 			out.Values[i] = ec._Stop_location(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -6347,6 +7811,14 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	switch fields[0].Name {
 	case "map":
 		return ec._Subscription_map(ctx, fields[0])
+	case "stop":
+		return ec._Subscription_stop(ctx, fields[0])
+	case "vehicle":
+		return ec._Subscription_vehicle(ctx, fields[0])
+	case "trip":
+		return ec._Subscription_trip(ctx, fields[0])
+	case "route":
+		return ec._Subscription_route(ctx, fields[0])
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}
@@ -6984,6 +8456,23 @@ func (ec *executionContext) marshalNLocation2ᚖgithubᚗcomᚋkielᚑliveᚋkie
 	return ec._Location(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNLocationInput2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐLocationInputᚄ(ctx context.Context, v interface{}) ([]*model.LocationInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.LocationInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNLocationInput2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐLocationInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
 func (ec *executionContext) unmarshalNLocationInput2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐLocationInput(ctx context.Context, v interface{}) (*model.LocationInput, error) {
 	res, err := ec.unmarshalInputLocationInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
@@ -7001,6 +8490,69 @@ func (ec *executionContext) marshalNMap2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑl
 		return graphql.Null
 	}
 	return ec._Map(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRoute2githubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRoute(ctx context.Context, sel ast.SelectionSet, v model.Route) graphql.Marshaler {
+	return ec._Route(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRoute2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRouteᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Route) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRoute2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRoute(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNRoute2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRoute(ctx context.Context, sel ast.SelectionSet, v *model.Route) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Route(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRouteInput2githubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRouteInput(ctx context.Context, v interface{}) (model.RouteInput, error) {
+	res, err := ec.unmarshalInputRouteInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNRouteStop2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRouteStopᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.RouteStop) graphql.Marshaler {
@@ -7055,6 +8607,28 @@ func (ec *executionContext) marshalNRouteStop2ᚖgithubᚗcomᚋkielᚑliveᚋki
 		return graphql.Null
 	}
 	return ec._RouteStop(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRouteStopInput2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRouteStopInputᚄ(ctx context.Context, v interface{}) ([]*model.RouteStopInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.RouteStopInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNRouteStopInput2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRouteStopInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNRouteStopInput2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRouteStopInput(ctx context.Context, v interface{}) (*model.RouteStopInput, error) {
+	res, err := ec.unmarshalInputRouteStopInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNStop2githubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐStop(ctx context.Context, sel ast.SelectionSet, v model.Stop) graphql.Marshaler {
@@ -7243,6 +8817,20 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 	return ret
 }
 
+func (ec *executionContext) marshalNTrip2githubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTrip(ctx context.Context, sel ast.SelectionSet, v model.Trip) graphql.Marshaler {
+	return ec._Trip(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTrip2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTrip(ctx context.Context, sel ast.SelectionSet, v *model.Trip) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Trip(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNTripArrival2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTripArrivalᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.TripArrival) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -7295,6 +8883,33 @@ func (ec *executionContext) marshalNTripArrival2ᚖgithubᚗcomᚋkielᚑliveᚋ
 		return graphql.Null
 	}
 	return ec._TripArrival(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTripArrivalInput2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTripArrivalInputᚄ(ctx context.Context, v interface{}) ([]*model.TripArrivalInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.TripArrivalInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTripArrivalInput2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTripArrivalInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNTripArrivalInput2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTripArrivalInput(ctx context.Context, v interface{}) (*model.TripArrivalInput, error) {
+	res, err := ec.unmarshalInputTripArrivalInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTripInput2githubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTripInput(ctx context.Context, v interface{}) (model.TripInput, error) {
+	res, err := ec.unmarshalInputTripInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNVehicle2githubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicle(ctx context.Context, sel ast.SelectionSet, v model.Vehicle) graphql.Marshaler {
@@ -7358,6 +8973,28 @@ func (ec *executionContext) marshalNVehicle2ᚖgithubᚗcomᚋkielᚑliveᚋkiel
 func (ec *executionContext) unmarshalNVehicleInput2githubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicleInput(ctx context.Context, v interface{}) (model.VehicleInput, error) {
 	res, err := ec.unmarshalInputVehicleInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNVehicleInput2ᚕᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicleInputᚄ(ctx context.Context, v interface{}) ([]*model.VehicleInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.VehicleInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNVehicleInput2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicleInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNVehicleInput2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicleInput(ctx context.Context, v interface{}) (*model.VehicleInput, error) {
+	res, err := ec.unmarshalInputVehicleInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

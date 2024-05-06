@@ -11,3 +11,17 @@ type RouteStop {
   id: ID!
   location: Location!
 }
+
+input RouteInput {
+  id: ID!
+  provider: String!
+  name: String!
+  type: String!
+  isActive: Boolean!
+  stops: [RouteStopInput!]!
+}
+
+input RouteStopInput {
+  id: ID!
+  location: LocationInput!
+}

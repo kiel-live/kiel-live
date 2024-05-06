@@ -8,6 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/kiel-live/kiel-live/hub/database"
 	"github.com/kiel-live/kiel-live/hub/graph"
 )
 
@@ -19,8 +20,8 @@ func main() {
 		port = defaultPort
 	}
 
-	db, err := openDatabase()
-	if err != nil {
+	db := database.NewBunt()
+	if err := db.Open(); err != nil {
 		log.Fatal(err)
 	}
 

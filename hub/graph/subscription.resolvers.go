@@ -37,6 +37,26 @@ func (r *subscriptionResolver) Map(ctx context.Context, minLat float64, minLng f
 	return ch, nil
 }
 
+// Stop is the resolver for the stop field.
+func (r *subscriptionResolver) Stop(ctx context.Context, id string) (<-chan *model.Stop, error) {
+	panic(fmt.Errorf("not implemented: Stop - stop"))
+}
+
+// Vehicle is the resolver for the vehicle field.
+func (r *subscriptionResolver) Vehicle(ctx context.Context, id string) (<-chan *model.Vehicle, error) {
+	panic(fmt.Errorf("not implemented: Vehicle - vehicle"))
+}
+
+// Trip is the resolver for the trip field.
+func (r *subscriptionResolver) Trip(ctx context.Context, id string) (<-chan *model.Trip, error) {
+	panic(fmt.Errorf("not implemented: Trip - trip"))
+}
+
+// Route is the resolver for the route field.
+func (r *subscriptionResolver) Route(ctx context.Context, id string) (<-chan *model.Route, error) {
+	panic(fmt.Errorf("not implemented: Route - route"))
+}
+
 // Subscription returns SubscriptionResolver implementation.
 func (r *Resolver) Subscription() SubscriptionResolver { return &subscriptionResolver{r} }
 
