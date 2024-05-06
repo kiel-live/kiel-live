@@ -5,18 +5,24 @@ package model
 type Location struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
-	Heading   int `json:"heading"`
+	Heading   int     `json:"heading"`
 }
 
 type LocationInput struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
-	Heading   int `json:"heading"`
+	Heading   int     `json:"heading"`
 }
 
 type Map struct {
 	Stops    []*Stop    `json:"stops"`
 	Vehicles []*Vehicle `json:"vehicles"`
+}
+
+type Mutation struct {
+}
+
+type Query struct {
 }
 
 type Route struct {
@@ -79,6 +85,9 @@ type StopInput struct {
 	Alerts   []string            `json:"alerts"`
 	Arrivals []*StopArrivalInput `json:"arrivals"`
 	Location *LocationInput      `json:"location"`
+}
+
+type Subscription struct {
 }
 
 type Trip struct {
