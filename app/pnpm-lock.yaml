@@ -35,8 +35,8 @@ dependencies:
 
 devDependencies:
   '@histoire/plugin-vue':
-    specifier: ^0.16.1
-    version: 0.16.5(histoire@0.17.17)(vite@5.2.11)(vue@3.4.26)
+    specifier: ^0.17.17
+    version: 0.17.17(histoire@0.17.17)(vite@5.2.11)(vue@3.4.26)
   '@iconify/json':
     specifier: 2.2.206
     version: 2.2.206
@@ -1682,22 +1682,6 @@ packages:
       - vite
     dev: true
 
-  /@histoire/controls@0.16.5(vite@5.2.11):
-    resolution: {integrity: sha512-2Yng6fPbBOz9EMPb4arZfvnK4/SDoxA0jYaqjtuby/WDFXk/Lvp3je8xs8PbPAzXralDDSqCu02cfBQy4bUQqg==}
-    dependencies:
-      '@codemirror/commands': 6.5.0
-      '@codemirror/lang-json': 6.0.1
-      '@codemirror/language': 6.10.1
-      '@codemirror/lint': 6.7.0
-      '@codemirror/state': 6.4.1
-      '@codemirror/theme-one-dark': 6.1.2
-      '@codemirror/view': 6.26.3
-      '@histoire/shared': 0.16.5(vite@5.2.11)
-      '@histoire/vendors': 0.16.5
-    transitivePeerDependencies:
-      - vite
-    dev: true
-
   /@histoire/controls@0.17.17(vite@5.2.11):
     resolution: {integrity: sha512-W22HZ/X078IZmE09XEKj4Fq7LxQPP/w/aMYAzm94V2NIGhI0fkiSaBDvyTUl7NYrGT66Wq5+9Po1IWPMllk3cQ==}
     dependencies:
@@ -1714,37 +1698,23 @@ packages:
       - vite
     dev: true
 
-  /@histoire/plugin-vue@0.16.5(histoire@0.17.17)(vite@5.2.11)(vue@3.4.26):
-    resolution: {integrity: sha512-MT11ncSwjsnTCABcmwAdrlKbgisZv2Mh4LFfqZlN3I5LyaYOcqN/2jwEERWpZ+oZYYx3SwLnB0wTWoubRpOKjA==}
+  /@histoire/plugin-vue@0.17.17(histoire@0.17.17)(vite@5.2.11)(vue@3.4.26):
+    resolution: {integrity: sha512-O5h/Ww6IT2CygVVT4onN27IZt11Z2qE8XeHeXJCEese3dxnnVWRhjMpsaWAU5XqgfjKNAiALJk86b49/6NQaRg==}
     peerDependencies:
-      histoire: ^0.16.5
+      histoire: ^0.17.17
       vue: ^3.2.47
     dependencies:
-      '@histoire/controls': 0.16.5(vite@5.2.11)
-      '@histoire/shared': 0.16.5(vite@5.2.11)
-      '@histoire/vendors': 0.16.5
+      '@histoire/controls': 0.17.17(vite@5.2.11)
+      '@histoire/shared': 0.17.17(vite@5.2.11)
+      '@histoire/vendors': 0.17.17
       change-case: 4.1.2
       globby: 13.2.2
       histoire: 0.17.17(@types/node@20.12.8)(vite@5.2.11)
       launch-editor: 2.6.1
-      pathe: 0.2.0
+      pathe: 1.1.2
       vue: 3.4.26(typescript@5.4.5)
     transitivePeerDependencies:
       - vite
-    dev: true
-
-  /@histoire/shared@0.16.5(vite@5.2.11):
-    resolution: {integrity: sha512-iLz/y5SiKERZGK4Ux2xXaYi89w2+ecyYTPHi62YitzfHMp7YXYi8Bk48T2NfU1HbZIi1NzbHoY8c4F6fiUG2Ag==}
-    peerDependencies:
-      vite: ^2.9.0 || ^3.0.0 || ^4.0.0
-    dependencies:
-      '@histoire/vendors': 0.16.5
-      '@types/fs-extra': 9.0.13
-      '@types/markdown-it': 12.2.3
-      chokidar: 3.6.0
-      pathe: 0.2.0
-      picocolors: 1.0.0
-      vite: 5.2.11(@types/node@20.12.8)
     dev: true
 
   /@histoire/shared@0.17.17(vite@5.2.11):
@@ -1759,10 +1729,6 @@ packages:
       pathe: 1.1.2
       picocolors: 1.0.0
       vite: 5.2.11(@types/node@20.12.8)
-    dev: true
-
-  /@histoire/vendors@0.16.5:
-    resolution: {integrity: sha512-25a90vugBz3KH3VzuddxuKeAjBQ1+osXQy2QICQO0kUXAtGHNj4u8T4iG5AgQD9CQXf6dc5+pnPoFZADHlW9VQ==}
     dev: true
 
   /@histoire/vendors@0.17.17:
@@ -5590,10 +5556,6 @@ packages:
   /path-type@4.0.0:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
-    dev: true
-
-  /pathe@0.2.0:
-    resolution: {integrity: sha512-sTitTPYnn23esFR3RlqYBWn4c45WGeLcsKzQiUpXJAyfcWkolvlYpV8FLo7JishK946oQwMFUCHXQ9AjGPKExw==}
     dev: true
 
   /pathe@1.1.2:
