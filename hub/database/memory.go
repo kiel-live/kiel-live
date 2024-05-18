@@ -36,20 +36,12 @@ func (b *MemoryDatabase) Close() error {
 	return nil
 }
 
-func (b *MemoryDatabase) getCellIDsForListOptions(opts *ListOptions) []s2.CellID {
-	p1 := s2.LatLngFromDegrees(opts.Location.MinLat, opts.Location.MinLng)
-	p2 := s2.LatLngFromDegrees(opts.Location.MaxLat, opts.Location.MaxLng)
-	r := s2.RectFromLatLng(p1).AddPoint(p2)
-	rc := s2.RegionCoverer{MaxLevel: 11, MinLevel: 11, MaxCells: 100}
-	return rc.Covering(r)
-}
-
 func (b *MemoryDatabase) GetStops(opts *ListOptions) ([]*model.Stop, error) {
 	b.RLock()
 	defer b.RUnlock()
 
 	var stops []*model.Stop
-	for _, cellID := range b.getCellIDsForListOptions(opts) {
+	for _, cellID := range opts.Location.GetCellIDs() {
 		if stopsInCell, ok := b.stopsCellsIndex[cellID]; ok {
 			for stopID := range stopsInCell {
 				if stop, ok := b.stops[stopID]; ok {
@@ -120,7 +112,7 @@ func (b *MemoryDatabase) GetVehicles(opts *ListOptions) ([]*model.Vehicle, error
 	defer b.RUnlock()
 
 	var vehicles []*model.Vehicle
-	for _, cellID := range b.getCellIDsForListOptions(opts) {
+	for _, cellID := range opts.Location.GetCellIDs() {
 		if vehiclesInCell, ok := b.vehiclesCellsIndex[cellID]; ok {
 			for vehicleID := range vehiclesInCell {
 				if vehicle, ok := b.vehicles[vehicleID]; ok {

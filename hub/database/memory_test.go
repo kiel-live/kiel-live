@@ -78,15 +78,12 @@ func TestMemoryDatabase(t *testing.T) {
 }
 
 func TestGetCellIDs(t *testing.T) {
-	db := MemoryDatabase{}
-	ids := db.getCellIDsForListOptions(&ListOptions{
-		Location: &BoundingBox{
-			MinLat: 54.526130648172995,
-			MinLng: 9.876994965672509,
-			MaxLat: 53.95617973610979,
-			MaxLng: 10.709999024470449,
-		},
-	})
+	ids := (&BoundingBox{
+		MinLat: 54.526130648172995,
+		MinLng: 9.876994965672509,
+		MaxLat: 53.95617973610979,
+		MaxLng: 10.709999024470449,
+	}).GetCellIDs()
 
 	poiID := (&model.Location{
 		Latitude:  54.31981897337084,
