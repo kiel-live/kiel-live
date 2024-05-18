@@ -1,6 +1,8 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/kiel-live/kiel-live/hub/graph/model"
 	"github.com/tidwall/buntdb"
 )
@@ -65,11 +67,17 @@ func (b *BuntDatabase) GetStop(id string) (*model.Stop, error) {
 }
 
 func (b *BuntDatabase) SetStop(stop *model.Stop) error {
-	return nil
+	return b.db.Update(func(tx *buntdb.Tx) error {
+		_, _, err := tx.Set("stop:"+stop.ID, fmt.Sprintf("[%f %f]", stop.Location.Longitude, stop.Location.Latitude), nil)
+		return err
+	})
 }
 
 func (b *BuntDatabase) DeleteStop(id string) error {
-	return nil
+	return b.db.Update(func(tx *buntdb.Tx) error {
+		_, err := tx.Delete("stop:" + id)
+		return err
+	})
 }
 
 func (b *BuntDatabase) GetVehicles(opts *ListOptions) ([]*model.Vehicle, error) {
@@ -77,13 +85,37 @@ func (b *BuntDatabase) GetVehicles(opts *ListOptions) ([]*model.Vehicle, error) 
 }
 
 func (b *BuntDatabase) GetVehicle(id string) (*model.Vehicle, error) {
-	return nil, nil
+	var vehicle *model.Vehicle
+	err := b.db.View(func(tx *buntdb.Tx) error {
+		val, err := tx.Get("vehicle:" + id)
+		if err != nil {
+			return err
+		}
+
+		vehicle = &model.Vehicle{
+			ID: id,
+			Location: &model.Location{
+				Longitude: 0,
+				Latitude:  0,
+			},
+		}
+
+		fmt.Sscanf(val, "[%f %f]", &vehicle.Location.Longitude, &vehicle.Location.Latitude)
+		return nil
+	})
+	return vehicle, err
 }
 
 func (b *BuntDatabase) SetVehicle(vehicle *model.Vehicle) error {
-	return nil
+	return b.db.Update(func(tx *buntdb.Tx) error {
+		_, _, err := tx.Set("vehicle:"+vehicle.ID, fmt.Sprintf("[%f %f]", vehicle.Location.Longitude, vehicle.Location.Latitude), nil)
+		return err
+	})
 }
 
 func (b *BuntDatabase) DeleteVehicle(id string) error {
-	return nil
+	return b.db.Update(func(tx *buntdb.Tx) error {
+		_, err := tx.Delete("vehicle:" + id)
+		return err
+	})
 }

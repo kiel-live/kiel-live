@@ -56,7 +56,7 @@ type RouteStopInput struct {
 type Stop struct {
 	ID       string         `json:"id"`
 	Provider string         `json:"provider"`
-	Name     bool           `json:"name"`
+	Name     string         `json:"name"`
 	Type     string         `json:"type"`
 	Routes   []*Route       `json:"routes"`
 	Alerts   []string       `json:"alerts"`
@@ -94,7 +94,7 @@ type StopArrivalInput struct {
 type StopInput struct {
 	ID       string              `json:"id"`
 	Provider string              `json:"provider"`
-	Name     bool                `json:"name"`
+	Name     string              `json:"name"`
 	Type     string              `json:"type"`
 	Routes   []string            `json:"routes"`
 	Alerts   []string            `json:"alerts"`

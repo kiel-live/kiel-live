@@ -29,7 +29,7 @@ func (r *mutationResolver) SetVehicle(ctx context.Context, vehicle model.Vehicle
 
 	for _, ch := range channels {
 		ch <- &model.Map{
-			Vehicles: []*model.Vehicle{&vehicle},
+			Vehicles: []*model.Vehicle{},
 		}
 	}
 

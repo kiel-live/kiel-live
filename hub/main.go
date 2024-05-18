@@ -20,7 +20,7 @@ func main() {
 		port = defaultPort
 	}
 
-	db := database.NewBunt()
+	db := database.NewMemoryDatabase()
 	if err := db.Open(); err != nil {
 		log.Fatal(err)
 	}

@@ -1,7 +1,7 @@
 type Stop {
   id: ID!
   provider: String!
-  name: Boolean!
+  name: String!
   type: String!
   routes: [Route!]!
   alerts: [String!]!
@@ -13,7 +13,7 @@ type Stop {
 input StopInput {
   id: ID!
   provider: String!
-  name: Boolean!
+  name: String!
   type: String!
   routes: [String!]!
   alerts: [String!]!
