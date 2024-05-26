@@ -18,7 +18,7 @@ func (r *subscriptionResolver) MapStopUpdated(ctx context.Context, minLat float6
 	ch := make(chan *model.Stop)
 
 	r.subscribeBoundingBox(ctx, minLat, minLng, maxLat, maxLng, "map-stop-updated", func(message pubsub.Message) {
-		var stop *model.Stop
+		stop := &model.Stop{}
 		err := json.Unmarshal(message, stop)
 		if err != nil {
 			return
@@ -34,7 +34,7 @@ func (r *subscriptionResolver) MapStopDeleted(ctx context.Context, minLat float6
 	ch := make(chan *model.Stop)
 
 	r.subscribeBoundingBox(ctx, minLat, minLng, maxLat, maxLng, "map-stop-deleted", func(message pubsub.Message) {
-		var stop *model.Stop
+		stop := &model.Stop{}
 		err := json.Unmarshal(message, stop)
 		if err != nil {
 			return
@@ -50,7 +50,7 @@ func (r *subscriptionResolver) MapVehicleUpdated(ctx context.Context, minLat flo
 	ch := make(chan *model.Vehicle)
 
 	r.subscribeBoundingBox(ctx, minLat, minLng, maxLat, maxLng, "map-vehicle-updated", func(message pubsub.Message) {
-		var vehicle *model.Vehicle
+		vehicle := &model.Vehicle{}
 		err := json.Unmarshal(message, vehicle)
 		if err != nil {
 			return
@@ -66,7 +66,7 @@ func (r *subscriptionResolver) MapVehicleDeleted(ctx context.Context, minLat flo
 	ch := make(chan *model.Vehicle)
 
 	r.subscribeBoundingBox(ctx, minLat, minLng, maxLat, maxLng, "map-vehicle-deleted", func(message pubsub.Message) {
-		var vehicle *model.Vehicle
+		vehicle := &model.Vehicle{}
 		err := json.Unmarshal(message, vehicle)
 		if err != nil {
 			return
@@ -82,7 +82,7 @@ func (r *subscriptionResolver) StopUpdated(ctx context.Context, id string) (<-ch
 	ch := make(chan *model.Stop)
 
 	err := r.PubSub.Subscribe(ctx, fmt.Sprintf("stop-updated:%s", id), func(message pubsub.Message) {
-		var stop *model.Stop
+		stop := &model.Stop{}
 		err := json.Unmarshal(message, stop)
 		if err != nil {
 			return
@@ -102,7 +102,7 @@ func (r *subscriptionResolver) StopDeleted(ctx context.Context, id string) (<-ch
 	ch := make(chan *model.Stop)
 
 	err := r.PubSub.Subscribe(ctx, fmt.Sprintf("stop-deleted:%s", id), func(message pubsub.Message) {
-		var stop *model.Stop
+		stop := &model.Stop{}
 		err := json.Unmarshal(message, stop)
 		if err != nil {
 			return
@@ -122,7 +122,7 @@ func (r *subscriptionResolver) VehicleUpdated(ctx context.Context, id string) (<
 	ch := make(chan *model.Vehicle)
 
 	err := r.PubSub.Subscribe(ctx, fmt.Sprintf("vehicle-updated:%s", id), func(message pubsub.Message) {
-		var vehicle *model.Vehicle
+		vehicle := &model.Vehicle{}
 		err := json.Unmarshal(message, vehicle)
 		if err != nil {
 			return
@@ -142,7 +142,7 @@ func (r *subscriptionResolver) VehicleDeleted(ctx context.Context, id string) (<
 	ch := make(chan *model.Vehicle)
 
 	err := r.PubSub.Subscribe(ctx, fmt.Sprintf("vehicle-deleted:%s", id), func(message pubsub.Message) {
-		var vehicle *model.Vehicle
+		vehicle := &model.Vehicle{}
 		err := json.Unmarshal(message, vehicle)
 		if err != nil {
 			return

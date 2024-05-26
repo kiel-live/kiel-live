@@ -10,6 +10,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/kiel-live/kiel-live/hub/database"
 	"github.com/kiel-live/kiel-live/hub/graph"
+	"github.com/kiel-live/kiel-live/hub/pubsub"
 )
 
 const defaultPort = "4567"
@@ -26,7 +27,8 @@ func main() {
 	}
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
-		DB: db,
+		DB:     db,
+		PubSub: pubsub.NewMemory(),
 	}}))
 	srv.AddTransport(&transport.Websocket{})
 
