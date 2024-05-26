@@ -1,8 +1,11 @@
 package graph
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/kiel-live/kiel-live/hub/database"
-	"github.com/kiel-live/kiel-live/hub/graph/model"
+	"github.com/kiel-live/kiel-live/hub/pubsub"
 )
 
 //go:generate go run github.com/99designs/gqlgen generate
@@ -12,40 +15,24 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	DB       database.Database
-	Channels map[string]chan *model.Map
+	DB     database.Database
+	PubSub pubsub.Broker
 }
 
-func (r *Resolver) OpenMapChannel(id string) chan *model.Map {
-	ch := make(chan *model.Map, 1)
-	r.Channels[id] = ch
-	return ch
-}
+func (r *Resolver) subscribeBoundingBox(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64, topicPrefix string, subscriber func(pubsub.Message)) error {
+	cellIDs := (&database.BoundingBox{
+		MinLat: minLat,
+		MinLng: minLng,
+		MaxLat: maxLat,
+		MaxLng: maxLng,
+	}).GetCellIDs()
 
-func (r *Resolver) GetMapChannel(id string) (chan *model.Map, bool) {
-	ch, ok := r.Channels[id]
-	return ch, ok
-}
+	for _, cellID := range cellIDs {
+		err := r.PubSub.Subscribe(ctx, fmt.Sprintf("%s:%d", topicPrefix, cellID), subscriber)
+		if err != nil {
+			return err
+		}
+	}
 
-func (r *Resolver) CloseMapChannel(id string) {
-	close(r.Channels[id])
-	delete(r.Channels, id)
-}
-
-func (r *Resolver) GetMapChannels(lat, lng float64) (map[string]chan *model.Map, error) {
-	channels := make(map[string]chan *model.Map)
-
-	// err := r.DB.View(func(tx *buntdb.Tx) error {
-	// 	pos := fmt.Sprintf("[%f %f]", lat, lng)
-	// 	return tx.Intersects("subscription_map", pos, func(key, val string) bool {
-	// 		channelID := strings.Replace(key, "subscription:map:", "", 1)
-	// 		ch, ok := r.GetMapChannel(channelID)
-	// 		if ok {
-	// 			channels[channelID] = ch
-	// 		}
-	// 		return true
-	// 	})
-	// })
-
-	return channels, nil
+	return nil
 }

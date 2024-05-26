@@ -12,43 +12,97 @@ import (
 )
 
 // SetVehicle is the resolver for the setVehicle field.
-func (r *mutationResolver) SetVehicle(ctx context.Context, vehicle model.VehicleInput) (*model.Vehicle, error) {
-	// channelID := "123" // TODO
-	// dbID := "subscription:map:" + channelID
+func (r *mutationResolver) SetVehicle(ctx context.Context, _vehicle model.VehicleInput) (*model.Vehicle, error) {
+	vehicle := _vehicle.ToVehicle()
 
-	// r.DB.Update(func(tx *buntdb.Tx) error {
-	// 	pos := fmt.Sprintf("[%f %f],[%f %f]", minLat, minLat, maxLat, maxLng)
-	// 	tx.Set(dbID, pos, nil)
-	// 	return nil
-	// })
-
-	channels, err := r.GetMapChannels(vehicle.Location.Latitude, vehicle.Location.Longitude)
+	err := r.DB.SetVehicle(vehicle)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, ch := range channels {
-		ch <- &model.Map{
-			Vehicles: []*model.Vehicle{},
-		}
+	err = r.PubSub.Publish(ctx, fmt.Sprintf("vehicle-updated:%s", vehicle.ID), vehicle.ToJSON())
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, nil
+	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-vehicle-updated:%s", vehicle.Location.GetCellID()), vehicle.ToJSON())
+	if err != nil {
+		return nil, err
+	}
+
+	return vehicle, nil
 }
 
 // RemoveVehicle is the resolver for the removeVehicle field.
 func (r *mutationResolver) RemoveVehicle(ctx context.Context, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: RemoveVehicle - removeVehicle"))
+	vehicle, err := r.DB.GetVehicle(id)
+	if err != nil {
+		return false, err
+	}
+
+	err = r.DB.DeleteVehicle(id)
+	if err != nil {
+		return false, err
+	}
+
+	err = r.PubSub.Publish(ctx, fmt.Sprintf("vehicle-deleted:%s", vehicle.ID), vehicle.ToJSON())
+	if err != nil {
+		return false, err
+	}
+
+	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-vehicle-deleted:%s", vehicle.Location.GetCellID()), vehicle.ToJSON())
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 // SetStop is the resolver for the setStop field.
-func (r *mutationResolver) SetStop(ctx context.Context, stop model.StopInput) (*model.Stop, error) {
-	panic(fmt.Errorf("not implemented: SetStop - setStop"))
+func (r *mutationResolver) SetStop(ctx context.Context, _stop model.StopInput) (*model.Stop, error) {
+	stop := _stop.ToStop()
+
+	err := r.DB.SetStop(stop)
+	if err != nil {
+		return nil, err
+	}
+
+	err = r.PubSub.Publish(ctx, fmt.Sprintf("stop-updated:%s", stop.ID), stop.ToJSON())
+	if err != nil {
+		return nil, err
+	}
+
+	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-stop-updated:%s", stop.Location.GetCellID()), stop.ToJSON())
+	if err != nil {
+		return nil, err
+	}
+
+	return stop, nil
 }
 
 // RemoveStop is the resolver for the removeStop field.
 func (r *mutationResolver) RemoveStop(ctx context.Context, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: RemoveStop - removeStop"))
+	stop, err := r.DB.GetStop(id)
+	if err != nil {
+		return false, err
+	}
+
+	err = r.DB.DeleteStop(id)
+	if err != nil {
+		return false, err
+	}
+
+	err = r.PubSub.Publish(ctx, fmt.Sprintf("stop-deleted:%s", stop.ID), stop.ToJSON())
+	if err != nil {
+		return false, err
+	}
+
+	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-stop-deleted:%s", stop.Location.GetCellID()), stop.ToJSON())
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 // SetRoute is the resolver for the setRoute field.

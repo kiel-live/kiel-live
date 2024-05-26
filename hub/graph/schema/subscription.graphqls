@@ -1,12 +1,19 @@
-type Map {
-  stops: [Stop!]!
-  vehicles: [Vehicle!]!
-}
-
 type Subscription {
-  map(minLat: Float!, minLng: Float!, maxLat: Float!, maxLng: Float!): Map!
-  stop(id: ID!): Stop!
-  vehicle(id: ID!): Vehicle!
-  trip(id: ID!): Trip!
-  route(id: ID!): Route!
+  mapStopUpdated(minLat: Float!, minLng: Float!, maxLat: Float!, maxLng: Float!): Stop
+  mapStopDeleted(minLat: Float!, minLng: Float!, maxLat: Float!, maxLng: Float!): Stop
+
+  mapVehicleUpdated(minLat: Float!, minLng: Float!, maxLat: Float!, maxLng: Float!): Vehicle
+  mapVehicleDeleted(minLat: Float!, minLng: Float!, maxLat: Float!, maxLng: Float!): Vehicle
+
+  stopUpdated(id: ID!): Stop!
+  stopDeleted(id: ID!): Stop!
+
+  vehicleUpdated(id: ID!): Vehicle!
+  vehicleDeleted(id: ID!): Vehicle!
+
+  routeUpdated(id: ID!): Route!
+  routeDeleted(id: ID!): Route!
+
+  tripUpdated(id: ID!): Trip!
+  tripDeleted(id: ID!): Trip!
 }

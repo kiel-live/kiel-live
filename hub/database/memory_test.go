@@ -20,7 +20,7 @@ func TestMemoryDatabase(t *testing.T) {
 			Longitude: 10.182968719044112,
 			Heading:   32,
 		},
-		Name: "Hamburg",
+		Name: "Central Station",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -31,13 +31,13 @@ func TestMemoryDatabase(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if stop.Name != "Hamburg" {
-		t.Fatalf("expected Hamburg, got %s", stop.Name)
+	if stop.Name != "Central Station" {
+		t.Fatalf("expected Central Station, got %s", stop.Name)
 	}
 
 	stops, err := db.GetStops(&ListOptions{
 		Location: &BoundingBox{
-			MinLat: 54.1634014386689,
+			MinLat: 54.526130648172995,
 			MinLng: 9.876994965672509,
 			MaxLat: 53.95617973610979,
 			MaxLng: 10.709999024470449,
@@ -51,29 +51,18 @@ func TestMemoryDatabase(t *testing.T) {
 		t.Fatalf("expected 1 stop, got %d", len(stops))
 	}
 
-	if stops[0].Name != "Hamburg" {
-		t.Fatalf("expected Hamburg, got %s", stops[0].Name)
-	}
-
-	stops, err = db.GetStops(&ListOptions{
-		Location: &BoundingBox{
-			MinLat: 54.1634014386689,
-			MinLng: 9.876994965672509,
-			MaxLat: 53.95617973610979,
-			MaxLng: 10.709999024470449,
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(stops) != 1 {
-		t.Fatalf("expected 1 stop, got %d", len(stops))
+	if stops[0].Name != "Central Station" {
+		t.Fatalf("expected Central Station, got %s", stops[0].Name)
 	}
 
 	err = db.DeleteStop("1")
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	_, err = db.GetStop("1")
+	if err == nil {
+		t.Fatal("expected error")
 	}
 }
 

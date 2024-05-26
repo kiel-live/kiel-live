@@ -11,6 +11,11 @@ import (
 	"github.com/kiel-live/kiel-live/hub/graph/model"
 )
 
+// Map is the resolver for the map field.
+func (r *queryResolver) Map(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (*model.Map, error) {
+	panic(fmt.Errorf("not implemented: Map - map"))
+}
+
 // Stop is the resolver for the stop field.
 func (r *queryResolver) Stop(ctx context.Context, id string) (*model.Stop, error) {
 	panic(fmt.Errorf("not implemented: Stop - stop"))

@@ -72,6 +72,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Map     func(childComplexity int, minLat float64, minLng float64, maxLat float64, maxLng float64) int
 		Route   func(childComplexity int, id string) int
 		Stop    func(childComplexity int, id string) int
 		Trip    func(childComplexity int, id string) int
@@ -118,11 +119,18 @@ type ComplexityRoot struct {
 	}
 
 	Subscription struct {
-		Map     func(childComplexity int, minLat float64, minLng float64, maxLat float64, maxLng float64) int
-		Route   func(childComplexity int, id string) int
-		Stop    func(childComplexity int, id string) int
-		Trip    func(childComplexity int, id string) int
-		Vehicle func(childComplexity int, id string) int
+		MapStopDeleted    func(childComplexity int, minLat float64, minLng float64, maxLat float64, maxLng float64) int
+		MapStopUpdated    func(childComplexity int, minLat float64, minLng float64, maxLat float64, maxLng float64) int
+		MapVehicleDeleted func(childComplexity int, minLat float64, minLng float64, maxLat float64, maxLng float64) int
+		MapVehicleUpdated func(childComplexity int, minLat float64, minLng float64, maxLat float64, maxLng float64) int
+		RouteDeleted      func(childComplexity int, id string) int
+		RouteUpdated      func(childComplexity int, id string) int
+		StopDeleted       func(childComplexity int, id string) int
+		StopUpdated       func(childComplexity int, id string) int
+		TripDeleted       func(childComplexity int, id string) int
+		TripUpdated       func(childComplexity int, id string) int
+		VehicleDeleted    func(childComplexity int, id string) int
+		VehicleUpdated    func(childComplexity int, id string) int
 	}
 
 	Trip struct {
@@ -164,17 +172,25 @@ type MutationResolver interface {
 	RemoveTrip(ctx context.Context, id string) (bool, error)
 }
 type QueryResolver interface {
+	Map(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (*model.Map, error)
 	Stop(ctx context.Context, id string) (*model.Stop, error)
 	Vehicle(ctx context.Context, id string) (*model.Vehicle, error)
 	Trip(ctx context.Context, id string) (*model.Trip, error)
 	Route(ctx context.Context, id string) (*model.Route, error)
 }
 type SubscriptionResolver interface {
-	Map(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (<-chan *model.Map, error)
-	Stop(ctx context.Context, id string) (<-chan *model.Stop, error)
-	Vehicle(ctx context.Context, id string) (<-chan *model.Vehicle, error)
-	Trip(ctx context.Context, id string) (<-chan *model.Trip, error)
-	Route(ctx context.Context, id string) (<-chan *model.Route, error)
+	MapStopUpdated(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (<-chan *model.Stop, error)
+	MapStopDeleted(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (<-chan *model.Stop, error)
+	MapVehicleUpdated(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (<-chan *model.Vehicle, error)
+	MapVehicleDeleted(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (<-chan *model.Vehicle, error)
+	StopUpdated(ctx context.Context, id string) (<-chan *model.Stop, error)
+	StopDeleted(ctx context.Context, id string) (<-chan *model.Stop, error)
+	VehicleUpdated(ctx context.Context, id string) (<-chan *model.Vehicle, error)
+	VehicleDeleted(ctx context.Context, id string) (<-chan *model.Vehicle, error)
+	RouteUpdated(ctx context.Context, id string) (<-chan *model.Route, error)
+	RouteDeleted(ctx context.Context, id string) (<-chan *model.Route, error)
+	TripUpdated(ctx context.Context, id string) (<-chan *model.Trip, error)
+	TripDeleted(ctx context.Context, id string) (<-chan *model.Trip, error)
 }
 
 type executableSchema struct {
@@ -326,6 +342,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SetVehicle(childComplexity, args["vehicle"].(model.VehicleInput)), true
+
+	case "Query.map":
+		if e.complexity.Query.Map == nil {
+			break
+		}
+
+		args, err := ec.field_Query_map_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Map(childComplexity, args["minLat"].(float64), args["minLng"].(float64), args["maxLat"].(float64), args["maxLng"].(float64)), true
 
 	case "Query.route":
 		if e.complexity.Query.Route == nil {
@@ -564,65 +592,149 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.StopArrival.VehicleID(childComplexity), true
 
-	case "Subscription.map":
-		if e.complexity.Subscription.Map == nil {
+	case "Subscription.mapStopDeleted":
+		if e.complexity.Subscription.MapStopDeleted == nil {
 			break
 		}
 
-		args, err := ec.field_Subscription_map_args(context.TODO(), rawArgs)
+		args, err := ec.field_Subscription_mapStopDeleted_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Subscription.Map(childComplexity, args["minLat"].(float64), args["minLng"].(float64), args["maxLat"].(float64), args["maxLng"].(float64)), true
+		return e.complexity.Subscription.MapStopDeleted(childComplexity, args["minLat"].(float64), args["minLng"].(float64), args["maxLat"].(float64), args["maxLng"].(float64)), true
 
-	case "Subscription.route":
-		if e.complexity.Subscription.Route == nil {
+	case "Subscription.mapStopUpdated":
+		if e.complexity.Subscription.MapStopUpdated == nil {
 			break
 		}
 
-		args, err := ec.field_Subscription_route_args(context.TODO(), rawArgs)
+		args, err := ec.field_Subscription_mapStopUpdated_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Subscription.Route(childComplexity, args["id"].(string)), true
+		return e.complexity.Subscription.MapStopUpdated(childComplexity, args["minLat"].(float64), args["minLng"].(float64), args["maxLat"].(float64), args["maxLng"].(float64)), true
 
-	case "Subscription.stop":
-		if e.complexity.Subscription.Stop == nil {
+	case "Subscription.mapVehicleDeleted":
+		if e.complexity.Subscription.MapVehicleDeleted == nil {
 			break
 		}
 
-		args, err := ec.field_Subscription_stop_args(context.TODO(), rawArgs)
+		args, err := ec.field_Subscription_mapVehicleDeleted_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Subscription.Stop(childComplexity, args["id"].(string)), true
+		return e.complexity.Subscription.MapVehicleDeleted(childComplexity, args["minLat"].(float64), args["minLng"].(float64), args["maxLat"].(float64), args["maxLng"].(float64)), true
 
-	case "Subscription.trip":
-		if e.complexity.Subscription.Trip == nil {
+	case "Subscription.mapVehicleUpdated":
+		if e.complexity.Subscription.MapVehicleUpdated == nil {
 			break
 		}
 
-		args, err := ec.field_Subscription_trip_args(context.TODO(), rawArgs)
+		args, err := ec.field_Subscription_mapVehicleUpdated_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Subscription.Trip(childComplexity, args["id"].(string)), true
+		return e.complexity.Subscription.MapVehicleUpdated(childComplexity, args["minLat"].(float64), args["minLng"].(float64), args["maxLat"].(float64), args["maxLng"].(float64)), true
 
-	case "Subscription.vehicle":
-		if e.complexity.Subscription.Vehicle == nil {
+	case "Subscription.routeDeleted":
+		if e.complexity.Subscription.RouteDeleted == nil {
 			break
 		}
 
-		args, err := ec.field_Subscription_vehicle_args(context.TODO(), rawArgs)
+		args, err := ec.field_Subscription_routeDeleted_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Subscription.Vehicle(childComplexity, args["id"].(string)), true
+		return e.complexity.Subscription.RouteDeleted(childComplexity, args["id"].(string)), true
+
+	case "Subscription.routeUpdated":
+		if e.complexity.Subscription.RouteUpdated == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_routeUpdated_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.RouteUpdated(childComplexity, args["id"].(string)), true
+
+	case "Subscription.stopDeleted":
+		if e.complexity.Subscription.StopDeleted == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_stopDeleted_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.StopDeleted(childComplexity, args["id"].(string)), true
+
+	case "Subscription.stopUpdated":
+		if e.complexity.Subscription.StopUpdated == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_stopUpdated_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.StopUpdated(childComplexity, args["id"].(string)), true
+
+	case "Subscription.tripDeleted":
+		if e.complexity.Subscription.TripDeleted == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_tripDeleted_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.TripDeleted(childComplexity, args["id"].(string)), true
+
+	case "Subscription.tripUpdated":
+		if e.complexity.Subscription.TripUpdated == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_tripUpdated_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.TripUpdated(childComplexity, args["id"].(string)), true
+
+	case "Subscription.vehicleDeleted":
+		if e.complexity.Subscription.VehicleDeleted == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_vehicleDeleted_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.VehicleDeleted(childComplexity, args["id"].(string)), true
+
+	case "Subscription.vehicleUpdated":
+		if e.complexity.Subscription.VehicleUpdated == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_vehicleUpdated_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.VehicleUpdated(childComplexity, args["id"].(string)), true
 
 	case "Trip.arrivals":
 		if e.complexity.Trip.Arrivals == nil {
@@ -1041,6 +1153,48 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_map_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 float64
+	if tmp, ok := rawArgs["minLat"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minLat"))
+		arg0, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["minLat"] = arg0
+	var arg1 float64
+	if tmp, ok := rawArgs["minLng"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minLng"))
+		arg1, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["minLng"] = arg1
+	var arg2 float64
+	if tmp, ok := rawArgs["maxLat"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLat"))
+		arg2, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["maxLat"] = arg2
+	var arg3 float64
+	if tmp, ok := rawArgs["maxLng"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLng"))
+		arg3, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["maxLng"] = arg3
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_route_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1101,7 +1255,7 @@ func (ec *executionContext) field_Query_vehicle_args(ctx context.Context, rawArg
 	return args, nil
 }
 
-func (ec *executionContext) field_Subscription_map_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Subscription_mapStopDeleted_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 float64
@@ -1143,7 +1297,133 @@ func (ec *executionContext) field_Subscription_map_args(ctx context.Context, raw
 	return args, nil
 }
 
-func (ec *executionContext) field_Subscription_route_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Subscription_mapStopUpdated_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 float64
+	if tmp, ok := rawArgs["minLat"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minLat"))
+		arg0, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["minLat"] = arg0
+	var arg1 float64
+	if tmp, ok := rawArgs["minLng"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minLng"))
+		arg1, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["minLng"] = arg1
+	var arg2 float64
+	if tmp, ok := rawArgs["maxLat"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLat"))
+		arg2, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["maxLat"] = arg2
+	var arg3 float64
+	if tmp, ok := rawArgs["maxLng"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLng"))
+		arg3, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["maxLng"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_mapVehicleDeleted_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 float64
+	if tmp, ok := rawArgs["minLat"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minLat"))
+		arg0, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["minLat"] = arg0
+	var arg1 float64
+	if tmp, ok := rawArgs["minLng"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minLng"))
+		arg1, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["minLng"] = arg1
+	var arg2 float64
+	if tmp, ok := rawArgs["maxLat"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLat"))
+		arg2, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["maxLat"] = arg2
+	var arg3 float64
+	if tmp, ok := rawArgs["maxLng"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLng"))
+		arg3, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["maxLng"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_mapVehicleUpdated_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 float64
+	if tmp, ok := rawArgs["minLat"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minLat"))
+		arg0, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["minLat"] = arg0
+	var arg1 float64
+	if tmp, ok := rawArgs["minLng"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minLng"))
+		arg1, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["minLng"] = arg1
+	var arg2 float64
+	if tmp, ok := rawArgs["maxLat"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLat"))
+		arg2, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["maxLat"] = arg2
+	var arg3 float64
+	if tmp, ok := rawArgs["maxLng"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLng"))
+		arg3, err = ec.unmarshalNFloat2float64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["maxLng"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_routeDeleted_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -1158,7 +1438,7 @@ func (ec *executionContext) field_Subscription_route_args(ctx context.Context, r
 	return args, nil
 }
 
-func (ec *executionContext) field_Subscription_stop_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Subscription_routeUpdated_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -1173,7 +1453,7 @@ func (ec *executionContext) field_Subscription_stop_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_Subscription_trip_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Subscription_stopDeleted_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -1188,7 +1468,67 @@ func (ec *executionContext) field_Subscription_trip_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_Subscription_vehicle_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Subscription_stopUpdated_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_tripDeleted_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_tripUpdated_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_vehicleDeleted_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_vehicleUpdated_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -1999,6 +2339,67 @@ func (ec *executionContext) fieldContext_Mutation_removeTrip(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_removeTrip_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_map(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_map(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Map(rctx, fc.Args["minLat"].(float64), fc.Args["minLng"].(float64), fc.Args["maxLat"].(float64), fc.Args["maxLng"].(float64))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Map)
+	fc.Result = res
+	return ec.marshalNMap2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐMap(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_map(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "stops":
+				return ec.fieldContext_Map_stops(ctx, field)
+			case "vehicles":
+				return ec.fieldContext_Map_vehicles(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Map", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_map_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3684,8 +4085,8 @@ func (ec *executionContext) fieldContext_StopArrival_platform(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Subscription_map(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
-	fc, err := ec.fieldContext_Subscription_map(ctx, field)
+func (ec *executionContext) _Subscription_mapStopUpdated(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_mapStopUpdated(ctx, field)
 	if err != nil {
 		return nil
 	}
@@ -3698,91 +4099,13 @@ func (ec *executionContext) _Subscription_map(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().Map(rctx, fc.Args["minLat"].(float64), fc.Args["minLng"].(float64), fc.Args["maxLat"].(float64), fc.Args["maxLng"].(float64))
+		return ec.resolvers.Subscription().MapStopUpdated(rctx, fc.Args["minLat"].(float64), fc.Args["minLng"].(float64), fc.Args["maxLat"].(float64), fc.Args["maxLng"].(float64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return nil
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return nil
-	}
-	return func(ctx context.Context) graphql.Marshaler {
-		select {
-		case res, ok := <-resTmp.(<-chan *model.Map):
-			if !ok {
-				return nil
-			}
-			return graphql.WriterFunc(func(w io.Writer) {
-				w.Write([]byte{'{'})
-				graphql.MarshalString(field.Alias).MarshalGQL(w)
-				w.Write([]byte{':'})
-				ec.marshalNMap2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐMap(ctx, field.Selections, res).MarshalGQL(w)
-				w.Write([]byte{'}'})
-			})
-		case <-ctx.Done():
-			return nil
-		}
-	}
-}
-
-func (ec *executionContext) fieldContext_Subscription_map(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Subscription",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "stops":
-				return ec.fieldContext_Map_stops(ctx, field)
-			case "vehicles":
-				return ec.fieldContext_Map_vehicles(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Map", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Subscription_map_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Subscription_stop(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
-	fc, err := ec.fieldContext_Subscription_stop(ctx, field)
-	if err != nil {
-		return nil
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = nil
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().Stop(rctx, fc.Args["id"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return nil
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return nil
 	}
 	return func(ctx context.Context) graphql.Marshaler {
@@ -3795,7 +4118,7 @@ func (ec *executionContext) _Subscription_stop(ctx context.Context, field graphq
 				w.Write([]byte{'{'})
 				graphql.MarshalString(field.Alias).MarshalGQL(w)
 				w.Write([]byte{':'})
-				ec.marshalNStop2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐStop(ctx, field.Selections, res).MarshalGQL(w)
+				ec.marshalOStop2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐStop(ctx, field.Selections, res).MarshalGQL(w)
 				w.Write([]byte{'}'})
 			})
 		case <-ctx.Done():
@@ -3804,7 +4127,7 @@ func (ec *executionContext) _Subscription_stop(ctx context.Context, field graphq
 	}
 }
 
-func (ec *executionContext) fieldContext_Subscription_stop(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Subscription_mapStopUpdated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Subscription",
 		Field:      field,
@@ -3841,15 +4164,15 @@ func (ec *executionContext) fieldContext_Subscription_stop(ctx context.Context, 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Subscription_stop_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Subscription_mapStopUpdated_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Subscription_vehicle(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
-	fc, err := ec.fieldContext_Subscription_vehicle(ctx, field)
+func (ec *executionContext) _Subscription_mapStopDeleted(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_mapStopDeleted(ctx, field)
 	if err != nil {
 		return nil
 	}
@@ -3862,16 +4185,99 @@ func (ec *executionContext) _Subscription_vehicle(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().Vehicle(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Subscription().MapStopDeleted(rctx, fc.Args["minLat"].(float64), fc.Args["minLng"].(float64), fc.Args["maxLat"].(float64), fc.Args["maxLng"].(float64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return nil
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.Stop):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalOStop2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐStop(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
 		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_mapStopDeleted(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Stop_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Stop_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Stop_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Stop_type(ctx, field)
+			case "routes":
+				return ec.fieldContext_Stop_routes(ctx, field)
+			case "alerts":
+				return ec.fieldContext_Stop_alerts(ctx, field)
+			case "arrivals":
+				return ec.fieldContext_Stop_arrivals(ctx, field)
+			case "vehicles":
+				return ec.fieldContext_Stop_vehicles(ctx, field)
+			case "location":
+				return ec.fieldContext_Stop_location(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Stop", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_mapStopDeleted_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_mapVehicleUpdated(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_mapVehicleUpdated(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().MapVehicleUpdated(rctx, fc.Args["minLat"].(float64), fc.Args["minLng"].(float64), fc.Args["maxLat"].(float64), fc.Args["maxLng"].(float64))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
 		return nil
 	}
 	return func(ctx context.Context) graphql.Marshaler {
@@ -3884,7 +4290,7 @@ func (ec *executionContext) _Subscription_vehicle(ctx context.Context, field gra
 				w.Write([]byte{'{'})
 				graphql.MarshalString(field.Alias).MarshalGQL(w)
 				w.Write([]byte{':'})
-				ec.marshalNVehicle2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicle(ctx, field.Selections, res).MarshalGQL(w)
+				ec.marshalOVehicle2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicle(ctx, field.Selections, res).MarshalGQL(w)
 				w.Write([]byte{'}'})
 			})
 		case <-ctx.Done():
@@ -3893,7 +4299,7 @@ func (ec *executionContext) _Subscription_vehicle(ctx context.Context, field gra
 	}
 }
 
-func (ec *executionContext) fieldContext_Subscription_vehicle(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Subscription_mapVehicleUpdated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Subscription",
 		Field:      field,
@@ -3928,15 +4334,15 @@ func (ec *executionContext) fieldContext_Subscription_vehicle(ctx context.Contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Subscription_vehicle_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Subscription_mapVehicleUpdated_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Subscription_trip(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
-	fc, err := ec.fieldContext_Subscription_trip(ctx, field)
+func (ec *executionContext) _Subscription_mapVehicleDeleted(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_mapVehicleDeleted(ctx, field)
 	if err != nil {
 		return nil
 	}
@@ -3949,7 +4355,91 @@ func (ec *executionContext) _Subscription_trip(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().Trip(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Subscription().MapVehicleDeleted(rctx, fc.Args["minLat"].(float64), fc.Args["minLng"].(float64), fc.Args["maxLat"].(float64), fc.Args["maxLng"].(float64))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.Vehicle):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalOVehicle2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicle(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_mapVehicleDeleted(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Vehicle_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Vehicle_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Vehicle_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Vehicle_type(ctx, field)
+			case "state":
+				return ec.fieldContext_Vehicle_state(ctx, field)
+			case "battery":
+				return ec.fieldContext_Vehicle_battery(ctx, field)
+			case "location":
+				return ec.fieldContext_Vehicle_location(ctx, field)
+			case "tripId":
+				return ec.fieldContext_Vehicle_tripId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Vehicle", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_mapVehicleDeleted_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_stopUpdated(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_stopUpdated(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().StopUpdated(rctx, fc.Args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3963,7 +4453,7 @@ func (ec *executionContext) _Subscription_trip(ctx context.Context, field graphq
 	}
 	return func(ctx context.Context) graphql.Marshaler {
 		select {
-		case res, ok := <-resTmp.(<-chan *model.Trip):
+		case res, ok := <-resTmp.(<-chan *model.Stop):
 			if !ok {
 				return nil
 			}
@@ -3971,7 +4461,7 @@ func (ec *executionContext) _Subscription_trip(ctx context.Context, field graphq
 				w.Write([]byte{'{'})
 				graphql.MarshalString(field.Alias).MarshalGQL(w)
 				w.Write([]byte{':'})
-				ec.marshalNTrip2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTrip(ctx, field.Selections, res).MarshalGQL(w)
+				ec.marshalNStop2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐStop(ctx, field.Selections, res).MarshalGQL(w)
 				w.Write([]byte{'}'})
 			})
 		case <-ctx.Done():
@@ -3980,7 +4470,7 @@ func (ec *executionContext) _Subscription_trip(ctx context.Context, field graphq
 	}
 }
 
-func (ec *executionContext) fieldContext_Subscription_trip(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Subscription_stopUpdated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Subscription",
 		Field:      field,
@@ -3989,19 +4479,25 @@ func (ec *executionContext) fieldContext_Subscription_trip(ctx context.Context, 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Trip_id(ctx, field)
+				return ec.fieldContext_Stop_id(ctx, field)
 			case "provider":
-				return ec.fieldContext_Trip_provider(ctx, field)
-			case "vehicleId":
-				return ec.fieldContext_Trip_vehicleId(ctx, field)
-			case "direction":
-				return ec.fieldContext_Trip_direction(ctx, field)
+				return ec.fieldContext_Stop_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Stop_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Stop_type(ctx, field)
+			case "routes":
+				return ec.fieldContext_Stop_routes(ctx, field)
+			case "alerts":
+				return ec.fieldContext_Stop_alerts(ctx, field)
 			case "arrivals":
-				return ec.fieldContext_Trip_arrivals(ctx, field)
-			case "path":
-				return ec.fieldContext_Trip_path(ctx, field)
+				return ec.fieldContext_Stop_arrivals(ctx, field)
+			case "vehicles":
+				return ec.fieldContext_Stop_vehicles(ctx, field)
+			case "location":
+				return ec.fieldContext_Stop_location(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Trip", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Stop", field.Name)
 		},
 	}
 	defer func() {
@@ -4011,15 +4507,15 @@ func (ec *executionContext) fieldContext_Subscription_trip(ctx context.Context, 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Subscription_trip_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Subscription_stopUpdated_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Subscription_route(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
-	fc, err := ec.fieldContext_Subscription_route(ctx, field)
+func (ec *executionContext) _Subscription_stopDeleted(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_stopDeleted(ctx, field)
 	if err != nil {
 		return nil
 	}
@@ -4032,7 +4528,270 @@ func (ec *executionContext) _Subscription_route(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().Route(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Subscription().StopDeleted(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.Stop):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNStop2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐStop(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_stopDeleted(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Stop_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Stop_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Stop_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Stop_type(ctx, field)
+			case "routes":
+				return ec.fieldContext_Stop_routes(ctx, field)
+			case "alerts":
+				return ec.fieldContext_Stop_alerts(ctx, field)
+			case "arrivals":
+				return ec.fieldContext_Stop_arrivals(ctx, field)
+			case "vehicles":
+				return ec.fieldContext_Stop_vehicles(ctx, field)
+			case "location":
+				return ec.fieldContext_Stop_location(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Stop", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_stopDeleted_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_vehicleUpdated(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_vehicleUpdated(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().VehicleUpdated(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.Vehicle):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNVehicle2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicle(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_vehicleUpdated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Vehicle_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Vehicle_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Vehicle_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Vehicle_type(ctx, field)
+			case "state":
+				return ec.fieldContext_Vehicle_state(ctx, field)
+			case "battery":
+				return ec.fieldContext_Vehicle_battery(ctx, field)
+			case "location":
+				return ec.fieldContext_Vehicle_location(ctx, field)
+			case "tripId":
+				return ec.fieldContext_Vehicle_tripId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Vehicle", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_vehicleUpdated_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_vehicleDeleted(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_vehicleDeleted(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().VehicleDeleted(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.Vehicle):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNVehicle2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicle(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_vehicleDeleted(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Vehicle_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Vehicle_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Vehicle_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Vehicle_type(ctx, field)
+			case "state":
+				return ec.fieldContext_Vehicle_state(ctx, field)
+			case "battery":
+				return ec.fieldContext_Vehicle_battery(ctx, field)
+			case "location":
+				return ec.fieldContext_Vehicle_location(ctx, field)
+			case "tripId":
+				return ec.fieldContext_Vehicle_tripId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Vehicle", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_vehicleDeleted_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_routeUpdated(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_routeUpdated(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().RouteUpdated(rctx, fc.Args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4063,7 +4822,7 @@ func (ec *executionContext) _Subscription_route(ctx context.Context, field graph
 	}
 }
 
-func (ec *executionContext) fieldContext_Subscription_route(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Subscription_routeUpdated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Subscription",
 		Field:      field,
@@ -4094,7 +4853,256 @@ func (ec *executionContext) fieldContext_Subscription_route(ctx context.Context,
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Subscription_route_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Subscription_routeUpdated_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_routeDeleted(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_routeDeleted(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().RouteDeleted(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.Route):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNRoute2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐRoute(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_routeDeleted(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Route_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Route_provider(ctx, field)
+			case "name":
+				return ec.fieldContext_Route_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Route_type(ctx, field)
+			case "isActive":
+				return ec.fieldContext_Route_isActive(ctx, field)
+			case "stops":
+				return ec.fieldContext_Route_stops(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Route", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_routeDeleted_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_tripUpdated(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_tripUpdated(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().TripUpdated(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.Trip):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNTrip2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTrip(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_tripUpdated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Trip_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Trip_provider(ctx, field)
+			case "vehicleId":
+				return ec.fieldContext_Trip_vehicleId(ctx, field)
+			case "direction":
+				return ec.fieldContext_Trip_direction(ctx, field)
+			case "arrivals":
+				return ec.fieldContext_Trip_arrivals(ctx, field)
+			case "path":
+				return ec.fieldContext_Trip_path(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Trip", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_tripUpdated_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_tripDeleted(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_tripDeleted(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().TripDeleted(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.Trip):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNTrip2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐTrip(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_tripDeleted(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Trip_id(ctx, field)
+			case "provider":
+				return ec.fieldContext_Trip_provider(ctx, field)
+			case "vehicleId":
+				return ec.fieldContext_Trip_vehicleId(ctx, field)
+			case "direction":
+				return ec.fieldContext_Trip_direction(ctx, field)
+			case "arrivals":
+				return ec.fieldContext_Trip_arrivals(ctx, field)
+			case "path":
+				return ec.fieldContext_Trip_path(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Trip", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_tripDeleted_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -7406,6 +8414,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "map":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_map(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "stop":
 			field := field
 
@@ -7809,16 +8839,30 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	}
 
 	switch fields[0].Name {
-	case "map":
-		return ec._Subscription_map(ctx, fields[0])
-	case "stop":
-		return ec._Subscription_stop(ctx, fields[0])
-	case "vehicle":
-		return ec._Subscription_vehicle(ctx, fields[0])
-	case "trip":
-		return ec._Subscription_trip(ctx, fields[0])
-	case "route":
-		return ec._Subscription_route(ctx, fields[0])
+	case "mapStopUpdated":
+		return ec._Subscription_mapStopUpdated(ctx, fields[0])
+	case "mapStopDeleted":
+		return ec._Subscription_mapStopDeleted(ctx, fields[0])
+	case "mapVehicleUpdated":
+		return ec._Subscription_mapVehicleUpdated(ctx, fields[0])
+	case "mapVehicleDeleted":
+		return ec._Subscription_mapVehicleDeleted(ctx, fields[0])
+	case "stopUpdated":
+		return ec._Subscription_stopUpdated(ctx, fields[0])
+	case "stopDeleted":
+		return ec._Subscription_stopDeleted(ctx, fields[0])
+	case "vehicleUpdated":
+		return ec._Subscription_vehicleUpdated(ctx, fields[0])
+	case "vehicleDeleted":
+		return ec._Subscription_vehicleDeleted(ctx, fields[0])
+	case "routeUpdated":
+		return ec._Subscription_routeUpdated(ctx, fields[0])
+	case "routeDeleted":
+		return ec._Subscription_routeDeleted(ctx, fields[0])
+	case "tripUpdated":
+		return ec._Subscription_tripUpdated(ctx, fields[0])
+	case "tripDeleted":
+		return ec._Subscription_tripDeleted(ctx, fields[0])
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}
@@ -9276,6 +10320,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) marshalOStop2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐStop(ctx context.Context, sel ast.SelectionSet, v *model.Stop) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Stop(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -9290,6 +10341,13 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOVehicle2ᚖgithubᚗcomᚋkielᚑliveᚋkielᚑliveᚋhubᚋgraphᚋmodelᚐVehicle(ctx context.Context, sel ast.SelectionSet, v *model.Vehicle) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Vehicle(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

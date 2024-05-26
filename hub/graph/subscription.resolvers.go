@@ -6,55 +6,175 @@ package graph
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/kiel-live/kiel-live/hub/graph/model"
-	"github.com/tidwall/buntdb"
+	"github.com/kiel-live/kiel-live/hub/pubsub"
 )
 
-// Map is the resolver for the map field.
-func (r *subscriptionResolver) Map(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (<-chan *model.Map, error) {
-	channelID := "123" // TODO
-	dbID := "subscription:map:" + channelID
-	ch := r.OpenMapChannel(channelID)
+// MapStopUpdated is the resolver for the mapStopUpdated field.
+func (r *subscriptionResolver) MapStopUpdated(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (<-chan *model.Stop, error) {
+	ch := make(chan *model.Stop)
 
-	r.DB.Update(func(tx *buntdb.Tx) error {
-		pos := fmt.Sprintf("[%f %f],[%f %f]", minLat, minLat, maxLat, maxLng)
-		tx.Set(dbID, pos, nil)
-		return nil
+	r.subscribeBoundingBox(ctx, minLat, minLng, maxLat, maxLng, "map-stop-updated", func(message pubsub.Message) {
+		var stop *model.Stop
+		err := json.Unmarshal(message, stop)
+		if err != nil {
+			return
+		}
+		ch <- stop
 	})
-
-	go func() {
-		<-ctx.Done()
-		r.DB.Update(func(tx *buntdb.Tx) error {
-			tx.Delete(dbID)
-			return nil
-		})
-	}()
-
-	// TODO: send initial data (all matching vehicles & stops)
 
 	return ch, nil
 }
 
-// Stop is the resolver for the stop field.
-func (r *subscriptionResolver) Stop(ctx context.Context, id string) (<-chan *model.Stop, error) {
-	panic(fmt.Errorf("not implemented: Stop - stop"))
+// MapStopDeleted is the resolver for the mapStopDeleted field.
+func (r *subscriptionResolver) MapStopDeleted(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (<-chan *model.Stop, error) {
+	ch := make(chan *model.Stop)
+
+	r.subscribeBoundingBox(ctx, minLat, minLng, maxLat, maxLng, "map-stop-deleted", func(message pubsub.Message) {
+		var stop *model.Stop
+		err := json.Unmarshal(message, stop)
+		if err != nil {
+			return
+		}
+		ch <- stop
+	})
+
+	return ch, nil
 }
 
-// Vehicle is the resolver for the vehicle field.
-func (r *subscriptionResolver) Vehicle(ctx context.Context, id string) (<-chan *model.Vehicle, error) {
-	panic(fmt.Errorf("not implemented: Vehicle - vehicle"))
+// MapVehicleUpdated is the resolver for the mapVehicleUpdated field.
+func (r *subscriptionResolver) MapVehicleUpdated(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (<-chan *model.Vehicle, error) {
+	ch := make(chan *model.Vehicle)
+
+	r.subscribeBoundingBox(ctx, minLat, minLng, maxLat, maxLng, "map-vehicle-updated", func(message pubsub.Message) {
+		var vehicle *model.Vehicle
+		err := json.Unmarshal(message, vehicle)
+		if err != nil {
+			return
+		}
+		ch <- vehicle
+	})
+
+	return ch, nil
 }
 
-// Trip is the resolver for the trip field.
-func (r *subscriptionResolver) Trip(ctx context.Context, id string) (<-chan *model.Trip, error) {
-	panic(fmt.Errorf("not implemented: Trip - trip"))
+// MapVehicleDeleted is the resolver for the mapVehicleDeleted field.
+func (r *subscriptionResolver) MapVehicleDeleted(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64) (<-chan *model.Vehicle, error) {
+	ch := make(chan *model.Vehicle)
+
+	r.subscribeBoundingBox(ctx, minLat, minLng, maxLat, maxLng, "map-vehicle-deleted", func(message pubsub.Message) {
+		var vehicle *model.Vehicle
+		err := json.Unmarshal(message, vehicle)
+		if err != nil {
+			return
+		}
+		ch <- vehicle
+	})
+
+	return ch, nil
 }
 
-// Route is the resolver for the route field.
-func (r *subscriptionResolver) Route(ctx context.Context, id string) (<-chan *model.Route, error) {
-	panic(fmt.Errorf("not implemented: Route - route"))
+// StopUpdated is the resolver for the stopUpdated field.
+func (r *subscriptionResolver) StopUpdated(ctx context.Context, id string) (<-chan *model.Stop, error) {
+	ch := make(chan *model.Stop)
+
+	err := r.PubSub.Subscribe(ctx, fmt.Sprintf("stop-updated:%s", id), func(message pubsub.Message) {
+		var stop *model.Stop
+		err := json.Unmarshal(message, stop)
+		if err != nil {
+			return
+		}
+		ch <- stop
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ch, err
+}
+
+// StopDeleted is the resolver for the stopDeleted field.
+func (r *subscriptionResolver) StopDeleted(ctx context.Context, id string) (<-chan *model.Stop, error) {
+	ch := make(chan *model.Stop)
+
+	err := r.PubSub.Subscribe(ctx, fmt.Sprintf("stop-deleted:%s", id), func(message pubsub.Message) {
+		var stop *model.Stop
+		err := json.Unmarshal(message, stop)
+		if err != nil {
+			return
+		}
+		ch <- stop
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ch, err
+}
+
+// VehicleUpdated is the resolver for the vehicleUpdated field.
+func (r *subscriptionResolver) VehicleUpdated(ctx context.Context, id string) (<-chan *model.Vehicle, error) {
+	ch := make(chan *model.Vehicle)
+
+	err := r.PubSub.Subscribe(ctx, fmt.Sprintf("vehicle-updated:%s", id), func(message pubsub.Message) {
+		var vehicle *model.Vehicle
+		err := json.Unmarshal(message, vehicle)
+		if err != nil {
+			return
+		}
+		ch <- vehicle
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ch, err
+}
+
+// VehicleDeleted is the resolver for the vehicleDeleted field.
+func (r *subscriptionResolver) VehicleDeleted(ctx context.Context, id string) (<-chan *model.Vehicle, error) {
+	ch := make(chan *model.Vehicle)
+
+	err := r.PubSub.Subscribe(ctx, fmt.Sprintf("vehicle-deleted:%s", id), func(message pubsub.Message) {
+		var vehicle *model.Vehicle
+		err := json.Unmarshal(message, vehicle)
+		if err != nil {
+			return
+		}
+		ch <- vehicle
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ch, err
+}
+
+// RouteUpdated is the resolver for the routeUpdated field.
+func (r *subscriptionResolver) RouteUpdated(ctx context.Context, id string) (<-chan *model.Route, error) {
+	panic(fmt.Errorf("not implemented: RouteUpdated - routeUpdated"))
+}
+
+// RouteDeleted is the resolver for the routeDeleted field.
+func (r *subscriptionResolver) RouteDeleted(ctx context.Context, id string) (<-chan *model.Route, error) {
+	panic(fmt.Errorf("not implemented: RouteDeleted - routeDeleted"))
+}
+
+// TripUpdated is the resolver for the tripUpdated field.
+func (r *subscriptionResolver) TripUpdated(ctx context.Context, id string) (<-chan *model.Trip, error) {
+	panic(fmt.Errorf("not implemented: TripUpdated - tripUpdated"))
+}
+
+// TripDeleted is the resolver for the tripDeleted field.
+func (r *subscriptionResolver) TripDeleted(ctx context.Context, id string) (<-chan *model.Trip, error) {
+	panic(fmt.Errorf("not implemented: TripDeleted - tripDeleted"))
 }
 
 // Subscription returns SubscriptionResolver implementation.

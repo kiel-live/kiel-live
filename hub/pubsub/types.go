@@ -9,6 +9,6 @@ type Message []byte
 type Subscriber func(Message)
 
 type Broker interface {
-	Publish(c context.Context, topic string, message Message)
-	Subscribe(c context.Context, topic string, subscriber Subscriber)
+	Publish(c context.Context, topic string, message Message) error
+	Subscribe(c context.Context, topic string, subscriber Subscriber) error
 }

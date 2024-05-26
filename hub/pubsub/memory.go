@@ -2,6 +2,7 @@ package pubsub
 
 import (
 	"context"
+	"errors"
 	"sync"
 )
 
@@ -18,22 +19,23 @@ func NewMemory() Broker {
 	}
 }
 
-func (p *Memory) Publish(_ context.Context, _topic string, message Message) {
+func (p *Memory) Publish(_ context.Context, _topic string, message Message) error {
 	p.Lock()
 
 	topic, ok := p.topics[_topic]
 	if !ok {
 		p.Unlock()
-		return
+		return errors.New("topic not found")
 	}
 
 	for s := range topic {
 		go (*s)(message)
 	}
 	p.Unlock()
+	return nil
 }
 
-func (p *Memory) Subscribe(c context.Context, topic string, subscriber Subscriber) {
+func (p *Memory) Subscribe(c context.Context, topic string, subscriber Subscriber) error {
 	// Subscribe
 	p.Lock()
 	_, ok := p.topics[topic]
@@ -53,4 +55,6 @@ func (p *Memory) Subscribe(c context.Context, topic string, subscriber Subscribe
 		delete(p.topics, topic)
 	}
 	p.Unlock()
+
+	return nil
 }
