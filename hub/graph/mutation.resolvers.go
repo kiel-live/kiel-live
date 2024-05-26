@@ -25,7 +25,7 @@ func (r *mutationResolver) SetVehicle(ctx context.Context, _vehicle model.Vehicl
 		return nil, err
 	}
 
-	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-vehicle-updated:%s", vehicle.Location.GetCellID()), vehicle.ToJSON())
+	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-vehicle-updated:%d", vehicle.Location.GetCellID()), vehicle.ToJSON())
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (r *mutationResolver) RemoveVehicle(ctx context.Context, id string) (bool, 
 		return false, err
 	}
 
-	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-vehicle-deleted:%s", vehicle.Location.GetCellID()), vehicle.ToJSON())
+	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-vehicle-deleted:%d", vehicle.Location.GetCellID()), vehicle.ToJSON())
 	if err != nil {
 		return false, err
 	}
@@ -72,7 +72,7 @@ func (r *mutationResolver) SetStop(ctx context.Context, _stop model.StopInput) (
 		return nil, err
 	}
 
-	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-stop-updated:%s", stop.Location.GetCellID()), stop.ToJSON())
+	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-stop-updated:%d", stop.Location.GetCellID()), stop.ToJSON())
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (r *mutationResolver) RemoveStop(ctx context.Context, id string) (bool, err
 		return false, err
 	}
 
-	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-stop-deleted:%s", stop.Location.GetCellID()), stop.ToJSON())
+	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-stop-deleted:%d", stop.Location.GetCellID()), stop.ToJSON())
 	if err != nil {
 		return false, err
 	}
