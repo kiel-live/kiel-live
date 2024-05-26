@@ -89,7 +89,6 @@ func (r *subscriptionResolver) StopUpdated(ctx context.Context, id string) (<-ch
 		}
 		ch <- stop
 	})
-
 	if err != nil {
 		return nil, err
 	}
