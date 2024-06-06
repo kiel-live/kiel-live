@@ -2,36 +2,16 @@
 
 package model
 
-type Location struct {
-	Latitude  float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
-	Heading   int     `json:"heading"`
-}
-
 type LocationInput struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
 	Heading   int     `json:"heading"`
 }
 
-type Map struct {
-	Stops    []*Stop    `json:"stops"`
-	Vehicles []*Vehicle `json:"vehicles"`
-}
-
 type Mutation struct {
 }
 
 type Query struct {
-}
-
-type Route struct {
-	ID       string       `json:"id"`
-	Provider string       `json:"provider"`
-	Name     string       `json:"name"`
-	Type     string       `json:"type"`
-	IsActive bool         `json:"isActive"`
-	Stops    []*RouteStop `json:"stops"`
 }
 
 type RouteInput struct {
@@ -43,39 +23,9 @@ type RouteInput struct {
 	Stops    []*RouteStopInput `json:"stops"`
 }
 
-type RouteStop struct {
-	ID       string    `json:"id"`
-	Location *Location `json:"location"`
-}
-
 type RouteStopInput struct {
 	ID       string         `json:"id"`
 	Location *LocationInput `json:"location"`
-}
-
-type Stop struct {
-	ID       string         `json:"id"`
-	Provider string         `json:"provider"`
-	Name     string         `json:"name"`
-	Type     string         `json:"type"`
-	Routes   []*Route       `json:"routes"`
-	Alerts   []string       `json:"alerts"`
-	Arrivals []*StopArrival `json:"arrivals"`
-	Vehicles []*Vehicle     `json:"vehicles"`
-	Location *Location      `json:"location"`
-}
-
-type StopArrival struct {
-	Name      string `json:"name"`
-	VehicleID string `json:"vehicleId"`
-	TripID    string `json:"tripId"`
-	RouteID   string `json:"routeId"`
-	RouteName string `json:"routeName"`
-	Direction string `json:"direction"`
-	State     string `json:"state"`
-	Planned   string `json:"planned"`
-	Eta       int    `json:"eta"`
-	Platform  string `json:"platform"`
 }
 
 type StopArrivalInput struct {
@@ -96,30 +46,14 @@ type StopInput struct {
 	Provider string              `json:"provider"`
 	Name     string              `json:"name"`
 	Type     string              `json:"type"`
-	Routes   []string            `json:"routes"`
-	Alerts   []string            `json:"alerts"`
-	Arrivals []*StopArrivalInput `json:"arrivals"`
-	Vehicles []*VehicleInput     `json:"vehicles"`
 	Location *LocationInput      `json:"location"`
+	Routes   []string            `json:"routes,omitempty"`
+	Alerts   []string            `json:"alerts,omitempty"`
+	Arrivals []*StopArrivalInput `json:"arrivals,omitempty"`
+	Vehicles []*VehicleInput     `json:"vehicles,omitempty"`
 }
 
 type Subscription struct {
-}
-
-type Trip struct {
-	ID        string         `json:"id"`
-	Provider  string         `json:"provider"`
-	VehicleID string         `json:"vehicleId"`
-	Direction string         `json:"direction"`
-	Arrivals  []*TripArrival `json:"arrivals"`
-	Path      []*Location    `json:"path"`
-}
-
-type TripArrival struct {
-	ID      string `json:"id"`
-	Name    string `json:"name"`
-	State   string `json:"state"`
-	Planned string `json:"planned"`
 }
 
 type TripArrivalInput struct {
@@ -136,17 +70,6 @@ type TripInput struct {
 	Direction string              `json:"direction"`
 	Arrivals  []*TripArrivalInput `json:"arrivals"`
 	Path      []*LocationInput    `json:"path"`
-}
-
-type Vehicle struct {
-	ID       string    `json:"id"`
-	Provider string    `json:"provider"`
-	Name     string    `json:"name"`
-	Type     string    `json:"type"`
-	State    string    `json:"state"`
-	Battery  string    `json:"battery"`
-	Location *Location `json:"location"`
-	TripID   string    `json:"tripId"`
 }
 
 type VehicleInput struct {

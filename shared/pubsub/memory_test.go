@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kiel-live/kiel-live/hub/pubsub"
+	"github.com/kiel-live/kiel-live/shared/pubsub"
 	"github.com/stretchr/testify/assert"
 )
 

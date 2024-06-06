@@ -1,26 +1,19 @@
 package model
 
 import (
-	"encoding/json"
-
-	"github.com/golang/geo/s2"
+	"github.com/kiel-live/kiel-live/shared/models"
 )
 
-func (l *Location) GetCellID() s2.CellID {
-	p := s2.LatLngFromDegrees(l.Latitude, l.Longitude)
-	return s2.CellIDFromLatLng(p).Parent(10)
-}
-
-func (l *LocationInput) ToLocation() *Location {
-	return &Location{
+func (l *LocationInput) ToLocation() *models.Location {
+	return &models.Location{
 		Latitude:  l.Latitude,
 		Longitude: l.Longitude,
 		Heading:   l.Heading,
 	}
 }
 
-func (v *VehicleInput) ToVehicle() *Vehicle {
-	return &Vehicle{
+func (v *VehicleInput) ToVehicle() *models.Vehicle {
+	return &models.Vehicle{
 		ID:       v.ID,
 		Provider: v.Provider,
 		Name:     v.Name,
@@ -32,8 +25,8 @@ func (v *VehicleInput) ToVehicle() *Vehicle {
 	}
 }
 
-func (s *StopInput) ToStop() *Stop {
-	return &Stop{
+func (s *StopInput) ToStop() *models.Stop {
+	return &models.Stop{
 		ID:       s.ID,
 		Provider: s.Provider,
 		Name:     s.Name,
@@ -44,20 +37,4 @@ func (s *StopInput) ToStop() *Stop {
 		// Alerts: ,
 		// Vehicles: ,
 	}
-}
-
-func (v *Vehicle) ToJSON() []byte {
-	bytes, err := json.Marshal(v)
-	if err != nil {
-		return nil
-	}
-	return bytes
-}
-
-func (s *Stop) ToJSON() []byte {
-	bytes, err := json.Marshal(s)
-	if err != nil {
-		return nil
-	}
-	return bytes
 }

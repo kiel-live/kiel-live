@@ -13,11 +13,11 @@ resolver:
   layout: follow-schema
   dir: graph
   package: graph
-  filename_template: "{name}.resolvers.go"
+  filename_template: '{name}.resolvers.go'
 
 # TODO: reuse types
-# autobind:
-#   - "github.com/kiel-live/kiel-live/protocol"
+autobind:
+  - 'github.com/kiel-live/kiel-live/shared/models'
 
 models:
   ID:

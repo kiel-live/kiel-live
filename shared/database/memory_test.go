@@ -3,7 +3,7 @@ package database
 import (
 	"testing"
 
-	"github.com/kiel-live/kiel-live/hub/graph/model"
+	"github.com/kiel-live/kiel-live/shared/models"
 )
 
 func TestMemoryDatabase(t *testing.T) {
@@ -13,9 +13,9 @@ func TestMemoryDatabase(t *testing.T) {
 	}
 	defer db.Close()
 
-	err := db.SetStop(&model.Stop{
+	err := db.SetStop(&models.Stop{
 		ID: "1",
-		Location: &model.Location{
+		Location: &models.Location{
 			Latitude:  54.31981897337084,
 			Longitude: 10.182968719044112,
 			Heading:   32,
@@ -36,7 +36,7 @@ func TestMemoryDatabase(t *testing.T) {
 	}
 
 	stops, err := db.GetStops(&ListOptions{
-		Location: &BoundingBox{
+		Location: &models.BoundingBox{
 			MinLat: 54.526130648172995,
 			MinLng: 9.876994965672509,
 			MaxLat: 53.95617973610979,
@@ -67,14 +67,14 @@ func TestMemoryDatabase(t *testing.T) {
 }
 
 func TestGetCellIDs(t *testing.T) {
-	ids := (&BoundingBox{
+	ids := (&models.BoundingBox{
 		MinLat: 54.526130648172995,
 		MinLng: 9.876994965672509,
 		MaxLat: 53.95617973610979,
 		MaxLng: 10.709999024470449,
 	}).GetCellIDs()
 
-	poiID := (&model.Location{
+	poiID := (&models.Location{
 		Latitude:  54.31981897337084,
 		Longitude: 10.182968719044112,
 		Heading:   32,

@@ -3,11 +3,11 @@ type Stop {
   provider: String!
   name: String!
   type: String!
-  routes: [Route!]!
-  alerts: [String!]!
-  arrivals: [StopArrival!]!
-  vehicles: [Vehicle!]!
   location: Location!
+  routes: [Route!]
+  alerts: [String!]
+  arrivals: [StopArrival!]
+  vehicles: [Vehicle!]
 }
 
 input StopInput {
@@ -15,11 +15,11 @@ input StopInput {
   provider: String!
   name: String!
   type: String!
-  routes: [String!]!
-  alerts: [String!]!
-  arrivals: [StopArrivalInput!]!
-  vehicles: [VehicleInput!]!
   location: LocationInput!
+  routes: [String!]
+  alerts: [String!]
+  arrivals: [StopArrivalInput!]
+  vehicles: [VehicleInput!]
 }
 
 type StopArrival {

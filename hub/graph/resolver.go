@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/kiel-live/kiel-live/hub/database"
-	"github.com/kiel-live/kiel-live/hub/pubsub"
+	"github.com/kiel-live/kiel-live/shared/database"
+	"github.com/kiel-live/kiel-live/shared/models"
+	"github.com/kiel-live/kiel-live/shared/pubsub"
 )
 
 //go:generate go run github.com/99designs/gqlgen generate
@@ -20,7 +21,7 @@ type Resolver struct {
 }
 
 func (r *Resolver) subscribeBoundingBox(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64, topicPrefix string, subscriber func(pubsub.Message)) error {
-	cellIDs := (&database.BoundingBox{
+	cellIDs := (&models.BoundingBox{
 		MinLat: minLat,
 		MinLng: minLng,
 		MaxLat: maxLat,

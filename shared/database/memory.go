@@ -4,7 +4,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/kiel-live/kiel-live/hub/graph/model"
+	"github.com/kiel-live/kiel-live/shared/models"
 
 	"github.com/golang/geo/s2"
 )
@@ -12,18 +12,18 @@ import (
 type MemoryDatabase struct {
 	sync.RWMutex
 
-	stops           map[string]*model.Stop
+	stops           map[string]*models.Stop
 	stopsCellsIndex map[s2.CellID]map[string]struct{}
 
-	vehicles           map[string]*model.Vehicle
+	vehicles           map[string]*models.Vehicle
 	vehiclesCellsIndex map[s2.CellID]map[string]struct{}
 }
 
 func NewMemoryDatabase() Database {
 	return &MemoryDatabase{
-		stops:              make(map[string]*model.Stop),
+		stops:              make(map[string]*models.Stop),
 		stopsCellsIndex:    make(map[s2.CellID]map[string]struct{}),
-		vehicles:           make(map[string]*model.Vehicle),
+		vehicles:           make(map[string]*models.Vehicle),
 		vehiclesCellsIndex: make(map[s2.CellID]map[string]struct{}),
 	}
 }
@@ -36,11 +36,11 @@ func (b *MemoryDatabase) Close() error {
 	return nil
 }
 
-func (b *MemoryDatabase) GetStops(opts *ListOptions) ([]*model.Stop, error) {
+func (b *MemoryDatabase) GetStops(opts *ListOptions) ([]*models.Stop, error) {
 	b.RLock()
 	defer b.RUnlock()
 
-	var stops []*model.Stop
+	var stops []*models.Stop
 	for _, cellID := range opts.Location.GetCellIDs() {
 		if stopsInCell, ok := b.stopsCellsIndex[cellID]; ok {
 			for stopID := range stopsInCell {
@@ -54,7 +54,7 @@ func (b *MemoryDatabase) GetStops(opts *ListOptions) ([]*model.Stop, error) {
 	return stops, nil
 }
 
-func (b *MemoryDatabase) GetStop(id string) (*model.Stop, error) {
+func (b *MemoryDatabase) GetStop(id string) (*models.Stop, error) {
 	b.RLock()
 	defer b.RUnlock()
 
@@ -65,7 +65,7 @@ func (b *MemoryDatabase) GetStop(id string) (*model.Stop, error) {
 	return nil, errors.New("stop not found")
 }
 
-func (b *MemoryDatabase) SetStop(stop *model.Stop) error {
+func (b *MemoryDatabase) SetStop(stop *models.Stop) error {
 	b.Lock()
 	defer b.Unlock()
 
@@ -107,11 +107,11 @@ func (b *MemoryDatabase) DeleteStop(id string) error {
 	return nil
 }
 
-func (b *MemoryDatabase) GetVehicles(opts *ListOptions) ([]*model.Vehicle, error) {
+func (b *MemoryDatabase) GetVehicles(opts *ListOptions) ([]*models.Vehicle, error) {
 	b.RLock()
 	defer b.RUnlock()
 
-	var vehicles []*model.Vehicle
+	var vehicles []*models.Vehicle
 	for _, cellID := range opts.Location.GetCellIDs() {
 		if vehiclesInCell, ok := b.vehiclesCellsIndex[cellID]; ok {
 			for vehicleID := range vehiclesInCell {
@@ -125,7 +125,7 @@ func (b *MemoryDatabase) GetVehicles(opts *ListOptions) ([]*model.Vehicle, error
 	return vehicles, nil
 }
 
-func (b *MemoryDatabase) GetVehicle(id string) (*model.Vehicle, error) {
+func (b *MemoryDatabase) GetVehicle(id string) (*models.Vehicle, error) {
 	b.RLock()
 	defer b.RUnlock()
 
@@ -136,7 +136,7 @@ func (b *MemoryDatabase) GetVehicle(id string) (*model.Vehicle, error) {
 	return nil, errors.New("vehicle not found")
 }
 
-func (b *MemoryDatabase) SetVehicle(vehicle *model.Vehicle) error {
+func (b *MemoryDatabase) SetVehicle(vehicle *models.Vehicle) error {
 	b.Lock()
 	defer b.Unlock()
 
