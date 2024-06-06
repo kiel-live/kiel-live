@@ -10,6 +10,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/kiel-live/kiel-live/hub/graph"
 	"github.com/kiel-live/kiel-live/shared/database"
+	"github.com/kiel-live/kiel-live/shared/hub"
 	"github.com/kiel-live/kiel-live/shared/pubsub"
 )
 
@@ -27,8 +28,10 @@ func main() {
 	}
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
-		DB:     db,
-		PubSub: pubsub.NewMemory(),
+		Hub: &hub.Hub{
+			DB:     db,
+			PubSub: pubsub.NewMemory(),
+		},
 	}}))
 	srv.AddTransport(&transport.Websocket{})
 

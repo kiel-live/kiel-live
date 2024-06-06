@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/kiel-live/kiel-live/shared/database"
+	"github.com/kiel-live/kiel-live/shared/hub"
 	"github.com/kiel-live/kiel-live/shared/models"
 	"github.com/kiel-live/kiel-live/shared/pubsub"
 )
@@ -16,8 +16,7 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	DB     database.Database
-	PubSub pubsub.Broker
+	Hub *hub.Hub
 }
 
 func (r *Resolver) subscribeBoundingBox(ctx context.Context, minLat float64, minLng float64, maxLat float64, maxLng float64, topicPrefix string, subscriber func(pubsub.Message)) error {
@@ -29,7 +28,7 @@ func (r *Resolver) subscribeBoundingBox(ctx context.Context, minLat float64, min
 	}).GetCellIDs()
 
 	for _, cellID := range cellIDs {
-		err := r.PubSub.Subscribe(ctx, fmt.Sprintf("%s:%d", topicPrefix, cellID), subscriber)
+		err := r.Hub.PubSub.Subscribe(ctx, fmt.Sprintf("%s:%d", topicPrefix, cellID), subscriber)
 		if err != nil {
 			return err
 		}

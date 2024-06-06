@@ -23,12 +23,12 @@ func (r *queryResolver) Map(ctx context.Context, minLat float64, minLng float64,
 		},
 	}
 
-	stops, err := r.DB.GetStops(opts)
+	stops, err := r.Hub.GetStops(ctx, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	vehicles, err := r.DB.GetVehicles(opts)
+	vehicles, err := r.Hub.GetVehicles(ctx, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -41,12 +41,12 @@ func (r *queryResolver) Map(ctx context.Context, minLat float64, minLng float64,
 
 // Stop is the resolver for the stop field.
 func (r *queryResolver) Stop(ctx context.Context, id string) (*models.Stop, error) {
-	return r.DB.GetStop(id)
+	return r.Hub.GetStop(ctx, id)
 }
 
 // Vehicle is the resolver for the vehicle field.
 func (r *queryResolver) Vehicle(ctx context.Context, id string) (*models.Vehicle, error) {
-	return r.DB.GetVehicle(id)
+	return r.Hub.GetVehicle(ctx, id)
 }
 
 // Trip is the resolver for the trip field.

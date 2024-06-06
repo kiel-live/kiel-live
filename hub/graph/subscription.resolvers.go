@@ -81,7 +81,7 @@ func (r *subscriptionResolver) MapVehicleDeleted(ctx context.Context, minLat flo
 func (r *subscriptionResolver) StopUpdated(ctx context.Context, id string) (<-chan *models.Stop, error) {
 	ch := make(chan *models.Stop)
 
-	err := r.PubSub.Subscribe(ctx, fmt.Sprintf("stop-updated:%s", id), func(message pubsub.Message) {
+	err := r.Hub.PubSub.Subscribe(ctx, fmt.Sprintf("stop-updated:%s", id), func(message pubsub.Message) {
 		stop := &models.Stop{}
 		err := json.Unmarshal(message, stop)
 		if err != nil {
@@ -100,7 +100,7 @@ func (r *subscriptionResolver) StopUpdated(ctx context.Context, id string) (<-ch
 func (r *subscriptionResolver) StopDeleted(ctx context.Context, id string) (<-chan *models.Stop, error) {
 	ch := make(chan *models.Stop)
 
-	err := r.PubSub.Subscribe(ctx, fmt.Sprintf("stop-deleted:%s", id), func(message pubsub.Message) {
+	err := r.Hub.PubSub.Subscribe(ctx, fmt.Sprintf("stop-deleted:%s", id), func(message pubsub.Message) {
 		stop := &models.Stop{}
 		err := json.Unmarshal(message, stop)
 		if err != nil {
@@ -120,7 +120,7 @@ func (r *subscriptionResolver) StopDeleted(ctx context.Context, id string) (<-ch
 func (r *subscriptionResolver) VehicleUpdated(ctx context.Context, id string) (<-chan *models.Vehicle, error) {
 	ch := make(chan *models.Vehicle)
 
-	err := r.PubSub.Subscribe(ctx, fmt.Sprintf("vehicle-updated:%s", id), func(message pubsub.Message) {
+	err := r.Hub.PubSub.Subscribe(ctx, fmt.Sprintf("vehicle-updated:%s", id), func(message pubsub.Message) {
 		vehicle := &models.Vehicle{}
 		err := json.Unmarshal(message, vehicle)
 		if err != nil {
@@ -140,7 +140,7 @@ func (r *subscriptionResolver) VehicleUpdated(ctx context.Context, id string) (<
 func (r *subscriptionResolver) VehicleDeleted(ctx context.Context, id string) (<-chan *models.Vehicle, error) {
 	ch := make(chan *models.Vehicle)
 
-	err := r.PubSub.Subscribe(ctx, fmt.Sprintf("vehicle-deleted:%s", id), func(message pubsub.Message) {
+	err := r.Hub.PubSub.Subscribe(ctx, fmt.Sprintf("vehicle-deleted:%s", id), func(message pubsub.Message) {
 		vehicle := &models.Vehicle{}
 		err := json.Unmarshal(message, vehicle)
 		if err != nil {

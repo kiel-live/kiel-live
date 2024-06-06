@@ -15,95 +15,23 @@ import (
 // SetVehicle is the resolver for the setVehicle field.
 func (r *mutationResolver) SetVehicle(ctx context.Context, vehicle model.VehicleInput) (*models.Vehicle, error) {
 	_vehicle := vehicle.ToVehicle()
-
-	err := r.DB.SetVehicle(_vehicle)
-	if err != nil {
-		return nil, err
-	}
-
-	err = r.PubSub.Publish(ctx, fmt.Sprintf("vehicle-updated:%s", vehicle.ID), _vehicle.ToJSON())
-	if err != nil {
-		return nil, err
-	}
-
-	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-vehicle-updated:%d", _vehicle.Location.GetCellID()), _vehicle.ToJSON())
-	if err != nil {
-		return nil, err
-	}
-
-	return _vehicle, nil
+	return _vehicle, r.Hub.SetVehicle(ctx, _vehicle)
 }
 
 // RemoveVehicle is the resolver for the removeVehicle field.
 func (r *mutationResolver) RemoveVehicle(ctx context.Context, id string) (bool, error) {
-	vehicle, err := r.DB.GetVehicle(id)
-	if err != nil {
-		return false, err
-	}
-
-	err = r.DB.DeleteVehicle(id)
-	if err != nil {
-		return false, err
-	}
-
-	err = r.PubSub.Publish(ctx, fmt.Sprintf("vehicle-deleted:%s", vehicle.ID), vehicle.ToJSON())
-	if err != nil {
-		return false, err
-	}
-
-	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-vehicle-deleted:%d", vehicle.Location.GetCellID()), vehicle.ToJSON())
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
+	return true, r.Hub.DeleteVehicle(ctx, id)
 }
 
 // SetStop is the resolver for the setStop field.
 func (r *mutationResolver) SetStop(ctx context.Context, stop model.StopInput) (*models.Stop, error) {
 	_stop := stop.ToStop()
-
-	err := r.DB.SetStop(_stop)
-	if err != nil {
-		return nil, err
-	}
-
-	err = r.PubSub.Publish(ctx, fmt.Sprintf("stop-updated:%s", stop.ID), _stop.ToJSON())
-	if err != nil {
-		return nil, err
-	}
-
-	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-stop-updated:%d", _stop.Location.GetCellID()), _stop.ToJSON())
-	if err != nil {
-		return nil, err
-	}
-
-	return _stop, nil
+	return _stop, r.Hub.SetStop(ctx, _stop)
 }
 
 // RemoveStop is the resolver for the removeStop field.
 func (r *mutationResolver) RemoveStop(ctx context.Context, id string) (bool, error) {
-	stop, err := r.DB.GetStop(id)
-	if err != nil {
-		return false, err
-	}
-
-	err = r.DB.DeleteStop(id)
-	if err != nil {
-		return false, err
-	}
-
-	err = r.PubSub.Publish(ctx, fmt.Sprintf("stop-deleted:%s", stop.ID), stop.ToJSON())
-	if err != nil {
-		return false, err
-	}
-
-	err = r.PubSub.Publish(ctx, fmt.Sprintf("map-stop-deleted:%d", stop.Location.GetCellID()), stop.ToJSON())
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
+	return true, r.Hub.DeleteStop(ctx, id)
 }
 
 // SetRoute is the resolver for the setRoute field.
