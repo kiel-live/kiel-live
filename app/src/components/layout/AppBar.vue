@@ -2,8 +2,9 @@
   <div
     class="absolute top-0 left-0 right-0 mx-2 mt-2 h-12 flex rounded-md py-1 pr-1 gap-x-1 items-center justify-between bg-white border-1 border-gray-200 shadow-xl z-20 md:transform md:-translate-x-1/2 md:right-auto md:left-1/2 md:w-96 dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
   >
-    <router-link :to="{ name: 'home' }" class="p-2">
-      <img :alt="t('logo_alt')" src="../../assets/logo.png" class="w-6 h-6" />
+    <router-link :to="{ name: 'home' }" class="p-2 flex items-center">
+      <i-ion-arrow-back-outline v-if="$route.name === 'search'" class="w-6 h-6" />
+      <img v-else :alt="t('logo_alt')" src="../../assets/logo.png" class="w-6 h-6" />
     </router-link>
     <div v-if="isConnected" class="flex flex-grow h-full">
       <input

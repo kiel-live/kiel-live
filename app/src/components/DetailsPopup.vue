@@ -5,7 +5,7 @@
     :class="{
       'overflow-hidden max-h-0': actualSize === 'closed',
       'h-full md:mx-auto md:w-200 md:shadow-none': actualSize === 'full',
-      'h-1/3': size === '1/4' && actualSize === 'default',
+      'h-1/4': size === '1/4' && actualSize === 'default',
       'h-1/2': size === '1/2' && actualSize === 'default',
       'h-2/3': size === '3/4' && actualSize === 'default',
       'p-4 pb-0 pt-2': actualSize !== 'closed' && actualSize !== 'full',
@@ -59,7 +59,7 @@ export default defineComponent({
     const disableResize = toRef(props, 'disableResize');
 
     const actualSize = computed(() => {
-      if (disableResize.value && size.value === '1') {
+      if (size.value === '1') {
         return 'full';
       }
 
