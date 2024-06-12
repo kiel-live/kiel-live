@@ -1,5 +1,5 @@
 <template>
-  <div class="app flex flex-col m-auto w-full h-full bg-white text-black dark:bg-dark-400 dark:text-gray-300">
+  <div class="flex flex-col m-auto w-full h-screen bg-white text-black dark:bg-dark-400 dark:text-gray-300">
     <main class="flex flex-grow min-h-0">
       <router-view />
     </main>
@@ -35,8 +35,9 @@ watch(
 html,
 body,
 #app {
-  width: 100%;
-  height: 100%;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -71,13 +72,5 @@ body {
 
 .prose a {
   @apply text-blue-500 dark:text-white;
-}
-</style>
-
-<style scoped>
-.app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 </style>
