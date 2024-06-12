@@ -80,14 +80,8 @@ const popupSize = computed(() => {
   if (liteMode.value) {
     return '1';
   }
-  if (route.name === 'search') {
-    return '1';
-  }
-  if (route.name === 'favorites') {
+  if (route.name === 'search' || route.name === 'favorites' || mapMovedManually.value) {
     return '1/2';
-  }
-  if (mapMovedManually.value) {
-    return '1/4';
   }
   return '3/4';
 });
