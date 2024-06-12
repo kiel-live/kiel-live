@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "engines": {
     "node": "18 || 20",
-    "pnpm": "8"
+    "pnpm": "9"
   },
   "scripts": {
     "start": "VITE_BUILD_DATE=$(date '+%d.%m.%Y %H:%M:%S') vite",
@@ -21,7 +21,7 @@
     "@vueuse/core": "10.7.2",
     "canvas-confetti": "1.9.2",
     "fuse.js": "7.0.0",
-    "maplibre-gl": "4.0.1",
+    "maplibre-gl": "4.3.2",
     "micromark": "4.0.0",
     "nats.ws": "1.19.1",
     "vue": "3.4.19",
