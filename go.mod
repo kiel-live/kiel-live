@@ -3,11 +3,10 @@ module github.com/kiel-live/kiel-live
 go 1.20
 
 require (
-	github.com/BertoldVdb/go-ais v0.1.0
+	github.com/BertoldVdb/go-ais v0.3.0
 	github.com/go-co-op/gocron v1.37.0
-	github.com/imdario/mergo v0.3.16
 	github.com/joho/godotenv v1.5.1
-	github.com/nats-io/nats.go v1.32.0
+	github.com/nats-io/nats.go v1.36.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/thoas/go-funk v0.9.3
 )
