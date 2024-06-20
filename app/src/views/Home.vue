@@ -3,7 +3,7 @@
     <AppBar v-model:search-input="searchInput" />
 
     <DetailsPopup
-      :is-open="!!selectedMarker"
+      :open="!!selectedMarker"
       :disable-resize="liteMode"
       :size="popupSize"
       @close="selectedMarker = undefined"
@@ -12,7 +12,7 @@
     </DetailsPopup>
 
     <DetailsPopup
-      :is-open="$route.name === 'search'"
+      :open="$route.name === 'search'"
       :disable-resize="liteMode"
       :size="popupSize"
       @close="$router.replace({ name: 'home' })"
@@ -21,7 +21,7 @@
     </DetailsPopup>
 
     <DetailsPopup
-      :is-open="$route.name === 'favorites'"
+      :open="$route.name === 'favorites'"
       :disable-resize="liteMode"
       :size="popupSize"
       @close="$router.replace({ name: 'home' })"
