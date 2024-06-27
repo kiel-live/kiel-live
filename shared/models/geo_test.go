@@ -11,7 +11,7 @@ func TestXxx1(t *testing.T) {
 	l := &models.Location{
 		Latitude:  54.31981897337084,
 		Longitude: 10.182968719044112,
-		Heading:   32,
+		Heading:   nil,
 	}
 
 	cells := l.GetCellIDs()

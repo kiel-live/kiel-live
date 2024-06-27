@@ -18,7 +18,7 @@ func TestMemoryDatabase(t *testing.T) {
 		Location: &models.Location{
 			Latitude:  54.31981897337084,
 			Longitude: 10.182968719044112,
-			Heading:   32,
+			Heading:   nil,
 		},
 		Name: "Central Station",
 	})
@@ -77,7 +77,7 @@ func TestGetCellIDs(t *testing.T) {
 	poiID := (&models.Location{
 		Latitude:  54.31981897337084,
 		Longitude: 10.182968719044112,
-		Heading:   32,
+		Heading:   nil,
 	}).GetCellID()
 
 	found := false

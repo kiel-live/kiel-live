@@ -28,7 +28,8 @@ func (r *Resolver) subscribeBoundingBox(ctx context.Context, minLat float64, min
 	}).GetCellIDs()
 
 	for _, cellID := range cellIDs {
-		err := r.Hub.PubSub.Subscribe(ctx, fmt.Sprintf("%s:%d", topicPrefix, cellID), subscriber)
+		topic := fmt.Sprintf("%s:%s", topicPrefix, cellID.ToToken())
+		err := r.Hub.PubSub.Subscribe(ctx, topic, subscriber)
 		if err != nil {
 			return err
 		}

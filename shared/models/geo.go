@@ -12,7 +12,7 @@ const (
 type Location struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
-	Heading   int     `json:"heading"`
+	Heading   *int    `json:"heading"`
 }
 
 func min(a, b int) int {

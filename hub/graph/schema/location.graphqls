@@ -1,11 +1,11 @@
 input LocationInput {
   latitude: Float!
   longitude: Float!
-  heading: Int!
+  heading: Int
 }
 
 type Location {
   latitude: Float!
   longitude: Float!
-  heading: Int!
+  heading: Int
 }

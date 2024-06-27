@@ -10,6 +10,7 @@ require (
 	github.com/go-co-op/gocron v1.37.0
 	github.com/golang/geo v0.0.0-20230421003525-6adc56603217
 	github.com/gorilla/websocket v1.5.0
+	github.com/hasura/go-graphql-client v0.12.2
 	github.com/joho/godotenv v1.5.1
 	github.com/nats-io/nats.go v1.32.0
 	github.com/sirupsen/logrus v1.9.3
@@ -53,4 +54,5 @@ require (
 	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/tools v0.21.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	nhooyr.io/websocket v1.8.11 // indirect
 )

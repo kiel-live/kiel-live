@@ -21,7 +21,7 @@ func TestXxx(t *testing.T) {
 		Location: &models.Location{
 			Latitude:  12.3,
 			Longitude: 54.7,
-			Heading:   0,
+			Heading:   nil,
 		},
 	}
 

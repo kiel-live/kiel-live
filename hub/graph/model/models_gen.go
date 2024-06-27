@@ -5,7 +5,7 @@ package model
 type LocationInput struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
-	Heading   int     `json:"heading"`
+	Heading   *int    `json:"heading,omitempty"`
 }
 
 type Mutation struct {
