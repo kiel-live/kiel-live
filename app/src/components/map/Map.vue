@@ -71,7 +71,7 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
     let iconNameFocused = `${v.type}-selected`;
 
     // TODO: remove custom bus icons at some point
-    if (v.type === 'bus') {
+    if (v.type === 'bus1') {
       const iconData = {
         kind: 'vehicle',
         type: v.type,
@@ -91,11 +91,11 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
         type: v.type,
         name: v.name,
         id: v.id,
-        number: v.name.split(' ')[0],
+        number: v.name,
         to: v.name.split(' ').slice(1).join(' '),
         iconName,
         iconNameFocused,
-        iconSize: v.type === 'bus' ? 1.2 : 0.8,
+        iconSize: v.type === 'bus1' ? 1.2 : 0.8,
       },
 
       geometry: {
@@ -166,17 +166,22 @@ const geojson = computed(
     }) satisfies FeatureCollection<Geometry, GeoJsonProperties>,
 );
 
+const minZoomDetail = 14;
+
 const stopsPointLayer = computed(
   () =>
     ({
       id: 'stops-circles',
       type: 'circle',
-      minzoom: 10,
-      maxzoom: 14,
+      minzoom: 11,
+      maxzoom: minZoomDetail,
       source: 'geojson',
       filter: ['==', 'kind', 'stop'],
       paint: {
-        'circle-color': 'rgba(250, 68, 68, 1)',
+        'circle-color': 'rgb(170, 0, 0)',
+        'circle-stroke-width': 1,
+        'circle-radius': 4,
+        'circle-stroke-color': 'rgb(255, 255, 255)',
       },
     }) satisfies CircleLayerSpecification,
 );
@@ -186,7 +191,7 @@ const stopsLayer = computed(
     ({
       id: 'stops',
       type: 'symbol',
-      minzoom: 14,
+      minzoom: minZoomDetail,
       source: 'geojson',
       filter: ['==', 'kind', 'stop'],
       paint: {
@@ -206,7 +211,7 @@ const stopsLayer = computed(
           ['get', 'iconNameFocused'],
           ['get', 'iconName'],
         ],
-        'icon-size': 0.4,
+        'icon-size': 0.25,
         'icon-rotation-alignment': 'map',
         'icon-allow-overlap': true,
         'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
@@ -219,7 +224,7 @@ const vehiclesLayer = computed(
     ({
       id: 'vehicles',
       type: 'symbol',
-      minzoom: 14,
+      minzoom: minZoomDetail,
       source: 'geojson',
       paint: {
         'icon-opacity': [
@@ -239,10 +244,13 @@ const vehiclesLayer = computed(
           ['get', 'iconNameFocused'],
           ['get', 'iconName'],
         ],
-        'icon-size': ['get', 'iconSize'],
+        'icon-size': 0.2,
         'icon-rotation-alignment': 'map',
         'icon-allow-overlap': true,
         'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
+        'text-field': ['get', 'number'],
+        'text-offset': [0, -1.2],
+        'text-size': 14,
       },
     }) satisfies SymbolLayerSpecification,
 );
@@ -335,11 +343,13 @@ onMounted(async () => {
 
   async function loadImage(name: string, url: string) {
     const image = await map.loadImage(url);
-    map.addImage(name, image.data, { pixelRatio: 2 });
+    map.addImage(name, image.data);
   }
 
   async function loadImages() {
     // bus stop
+    await loadImage('bus', '/icons/vehicle-escooter.png');
+    await loadImage('bus-selected', '/icons/vehicle-escooter-selected.png');
     await loadImage('bus-stop', '/icons/stop-bus.png');
     await loadImage('bus-stop-selected', '/icons/stop-bus-selected.png');
 
