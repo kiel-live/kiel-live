@@ -37,8 +37,8 @@ importers:
         version: 4.3.2(vue@3.4.26(typescript@5.4.5))
     devDependencies:
       '@iconify/json':
-        specifier: 2.2.206
-        version: 2.2.206
+        specifier: 2.2.224
+        version: 2.2.224
       '@intlify/unplugin-vue-i18n':
         specifier: 4.0.0
         version: 4.0.0(rollup@2.79.1)(vue-i18n@9.13.1(vue@3.4.26(typescript@5.4.5)))
@@ -893,8 +893,8 @@ packages:
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
     deprecated: Use @eslint/object-schema instead
 
-  '@iconify/json@2.2.206':
-    resolution: {integrity: sha512-Vbi8BTvbEKZtCQDJDqMRDZenU8HYMHFtMkEx92pvyQN/Il5OfGwCNaR+bf9Sv2TkotnoiyqqickeWpdo0hllGQ==}
+  '@iconify/json@2.2.224':
+    resolution: {integrity: sha512-VK7nFjtxUeyp+K311SbbeU8cxlZifiUWh0yYaXks4Sj0DTzubKTDMzRCuTcO/QdEQ/0qwDE8m2nn5+wQjS66gQ==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -4468,7 +4468,7 @@ snapshots:
 
   '@humanwhocodes/object-schema@2.0.3': {}
 
-  '@iconify/json@2.2.206':
+  '@iconify/json@2.2.224':
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.2
