@@ -325,6 +325,10 @@ onMounted(async () => {
     await loadImage('train-stop', '/icons/stop-train.png');
     await loadImage('train-stop-selected', '/icons/stop-train-selected.png');
 
+    // train stop
+    await loadImage('ferry-stop', '/icons/stop-train.png');
+    await loadImage('ferry-stop-selected', '/icons/stop-train-selected.png');
+
     // e-scooter
     await loadImage('escooter', '/icons/vehicle-escooter.png');
     await loadImage('escooter-selected', '/icons/vehicle-escooter-selected.png');
