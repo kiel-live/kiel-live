@@ -226,13 +226,7 @@ const vehiclesLayer = computed(
       minzoom: minZoomDetail,
       source: 'geojson',
       paint: {
-        'icon-opacity': [
-          'match',
-          ['get', 'number'],
-          selectedVehicle.value?.name.split(' ')[0] ?? '',
-          1,
-          selectedMarker.value.type === 'bus' ? 0.3 : 1,
-        ],
+        'icon-opacity': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 1, 1],
         'text-color': colorScheme.value === 'light' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)',
       },
       filter: ['==', 'kind', 'vehicle'],
@@ -249,8 +243,9 @@ const vehiclesLayer = computed(
         'icon-allow-overlap': true,
         'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
         'text-field': ['get', 'number'],
-        'text-offset': [0, 2],
+        'text-offset': [0, 1],
         'text-size': 12,
+        'text-anchor': 'top',
       },
     }) satisfies SymbolLayerSpecification,
 );
