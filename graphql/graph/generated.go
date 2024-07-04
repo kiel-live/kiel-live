@@ -15,7 +15,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/kiel-live/kiel-live/hub/graph/model"
+	"github.com/kiel-live/kiel-live/graphql/graph/model"
 	"github.com/kiel-live/kiel-live/shared/models"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"

@@ -8,7 +8,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/kiel-live/kiel-live/hub/graph/model"
+	"github.com/kiel-live/kiel-live/graphql/graph/model"
 	"github.com/kiel-live/kiel-live/shared/models"
 )
 

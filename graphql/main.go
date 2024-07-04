@@ -8,7 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/kiel-live/kiel-live/hub/graph"
+	"github.com/kiel-live/kiel-live/graphql/graph"
 	"github.com/kiel-live/kiel-live/shared/database"
 	"github.com/kiel-live/kiel-live/shared/hub"
 	"github.com/kiel-live/kiel-live/shared/pubsub"
