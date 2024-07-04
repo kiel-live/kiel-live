@@ -70,6 +70,7 @@ func main() {
 				Latitude:  int(gtfsStop.Latitude * 3600000),
 				Longitude: int(gtfsStop.Longitude * 3600000),
 			},
+			Alerts: []string{"Die Abfahrtszeiten können sich je nach Witterung oder Verkehrslage auf dem Nord-Ostsee-Kanal geringfügig verschieben. Die Verschiebung einer Fahrt dient der Sicherheit des Fahrbetriebes. Bei Ausfall der Fähre ist ein Busersatzverkehr eingerichtet."},
 		}
 		// iterate over stop times
 		for _, stopTime := range g.StopsTimes {
@@ -101,7 +102,7 @@ func main() {
 					continue
 				}
 				now := time.Now()
-				departureDate := departureTime.AddDate(now.Year(), int(now.Month()), now.Day()-1)
+				departureDate := time.Date(now.Year(), now.Month(), now.Day(), departureTime.Hour(), departureTime.Minute(), departureTime.Second(), 0, time.Local)
 				if departureDate.Before(now) || departureDate.After(now.Add(2*time.Hour)) {
 					continue
 				}
