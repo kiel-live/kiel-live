@@ -67,22 +67,21 @@ const colorScheme = useColorMode();
 
 const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
   Object.values(vehicles.value).map((v) => {
-    let iconName: string = v.type;
-    let iconNameFocused = `${v.type}-selected`;
+    const iconName: string = v.type;
+    const iconNameFocused = `${v.type}-selected`;
 
     // TODO: remove custom bus icons at some point
-    if (v.type === 'bus1') {
-      const iconData = {
-        kind: 'vehicle',
-        type: v.type,
-        name: v.name.split(' ')[0],
-        focused: false,
-        heading: v.location.heading,
-      };
-
-      iconName = JSON.stringify(iconData);
-      iconNameFocused = JSON.stringify({ ...iconData, focused: true });
-    }
+    // if (v.type === 'bus') {
+    //   const iconData = {
+    //     kind: 'vehicle',
+    //     type: v.type,
+    //     name: v.name.split(' ')[0],
+    //     focused: false,
+    //     heading: v.location.heading,
+    //   };
+    //   iconName = JSON.stringify(iconData);
+    //   iconNameFocused = JSON.stringify({ ...iconData, focused: true });
+    // }
 
     return {
       type: 'Feature',
@@ -95,7 +94,7 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
         to: v.name.split(' ').slice(1).join(' '),
         iconName,
         iconNameFocused,
-        iconSize: v.type === 'bus1' ? 1.2 : 0.8,
+        iconSize: 0.8,
       },
 
       geometry: {
