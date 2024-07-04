@@ -5,16 +5,19 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/kiel-live/kiel-live/hub/graph"
+	"github.com/google/uuid"
+	"github.com/olahol/melody"
+
 	"github.com/kiel-live/kiel-live/shared/database"
-	"github.com/kiel-live/kiel-live/shared/hub"
-	"github.com/kiel-live/kiel-live/shared/pubsub"
 )
 
 const defaultPort = "4567"
+
+type GopherInfo struct {
+	ID string
+	X  string
+	Y  string
+}
 
 func main() {
 	port := os.Getenv("PORT")
@@ -27,17 +30,67 @@ func main() {
 		log.Fatal(err)
 	}
 
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
-		Hub: &hub.Hub{
-			DB:     db,
-			PubSub: pubsub.NewMemory(),
-		},
-	}}))
-	srv.AddTransport(&transport.Websocket{})
+	m := melody.New()
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	// _rpc := rpc.RPC{
+	// 	// hub: &hub.Hub{
+	// 	// 	DB: db,
+	// 	// },
+	// }
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	m.HandleConnect(func(s *melody.Session) {
+		ss, _ := m.Sessions()
+
+		for _, o := range ss {
+			value, exists := o.Get("info")
+
+			if !exists {
+				continue
+			}
+
+			info := value.(*GopherInfo)
+
+			s.Write([]byte("set " + info.ID + " " + info.X + " " + info.Y))
+		}
+
+		id := uuid.NewString()
+		s.Set("info", &GopherInfo{id, "0", "0"})
+
+		s.Write([]byte("iam " + id))
+
+		// server, err := rpc.NewServer(_rpc, s)
+	})
+
+	m.HandleDisconnect(func(s *melody.Session) {
+		value, exists := s.Get("info")
+
+		if !exists {
+			return
+		}
+
+		info := value.(*GopherInfo)
+
+		m.BroadcastOthers([]byte("dis "+info.ID), s)
+	})
+
+	m.HandleMessage(func(s *melody.Session, msg []byte) {
+		err := m.Broadcast(msg)
+		if err != nil {
+			log.Println(err)
+		}
+	})
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "index.html")
+	})
+
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		err := m.HandleRequest(w, r)
+		if err != nil {
+			log.Println(err)
+		}
+	})
+
+	log.Printf("connect to http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

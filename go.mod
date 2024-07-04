@@ -13,6 +13,7 @@ require (
 	github.com/hasura/go-graphql-client v0.12.2
 	github.com/joho/godotenv v1.5.1
 	github.com/nats-io/nats.go v1.32.0
+	github.com/olahol/melody v1.2.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.9.0
 	github.com/thoas/go-funk v0.9.3
