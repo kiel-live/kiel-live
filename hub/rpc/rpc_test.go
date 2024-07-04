@@ -28,7 +28,7 @@ func BenchmarkPeer(b *testing.B) {
 
 	broker := pubsub.NewMemory()
 
-	_, err := rpc.NewServer(&SampleRPC{}, broker, serverPeer)
+	err := rpc.NewServer(&SampleRPC{}, broker, serverPeer)
 	assert.NoError(b, err)
 
 	client := rpc.NewClient(clientPeer)

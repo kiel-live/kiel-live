@@ -6,6 +6,12 @@ type RPC struct {
 	hub *hub.Hub
 }
 
+func NewRPC(hub *hub.Hub) *RPC {
+	return &RPC{
+		hub: hub,
+	}
+}
+
 type HelloArgs struct {
 	Name string `json:"name"`
 }

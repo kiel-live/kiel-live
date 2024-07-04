@@ -12,10 +12,6 @@ import (
 	"github.com/kiel-live/kiel-live/shared/pubsub"
 )
 
-type Server struct {
-	*rpc.Server
-}
-
 type SubscriptionsRPC struct {
 	sync.Mutex
 	client        io.ReadWriteCloser
@@ -88,14 +84,12 @@ func (s *SubscriptionsRPC) Publish(args *PublishRequest, reply *string) error {
 	return nil
 }
 
-func NewServer(rcvr any, pubsub pubsub.Broker, client io.ReadWriteCloser) (*Server, error) {
-	server := &Server{
-		rpc.NewServer(),
-	}
+func NewServer(rcvr any, pubsub pubsub.Broker, client io.ReadWriteCloser) error {
+	server := rpc.NewServer()
 
 	err := server.RegisterName(serviceName, rcvr)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	subscriptions := &SubscriptionsRPC{
@@ -106,10 +100,10 @@ func NewServer(rcvr any, pubsub pubsub.Broker, client io.ReadWriteCloser) (*Serv
 
 	err = server.RegisterName(internalServiceName, subscriptions)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	go server.ServeCodec(jsonrpc.NewServerCodec(client))
 
-	return server, nil
+	return nil
 }
