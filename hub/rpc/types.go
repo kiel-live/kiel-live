@@ -22,3 +22,8 @@ type SubscribeRequest struct {
 type UnsubscribeRequest struct {
 	Channel string `json:"c"`
 }
+
+type PublishRequest struct {
+	Channel string `json:"c"`
+	Data    []byte `json:"d"`
+}

@@ -45,6 +45,9 @@ func BenchmarkPeer(b *testing.B) {
 	err = broker.Publish(context.Background(), "test-channel", []byte("Hello, World"))
 	assert.NoError(b, err)
 
+	err = client.Publish("test-channel", []byte("Hello, World from the client"))
+	assert.NoError(b, err)
+
 	err = client.Unsubscribe("test-channel")
 	assert.NoError(b, err)
 }

@@ -16,28 +16,6 @@ type Server struct {
 	*rpc.Server
 }
 
-func (s *Server) Publish(channel string, _data any) error {
-	data, err := json.Marshal(_data)
-	if err != nil {
-		return err
-	}
-
-	_msg := &ChannelMessage{
-		Channel: channel,
-		Data:    data,
-	}
-	msg, err := json.Marshal(_msg)
-	if err != nil {
-		return err
-	}
-
-	// TODO: broadcast to all subscribers
-	fmt.Println("Publish", string(msg))
-	// return s.Broadcast("Publish", string(msg))
-
-	return nil
-}
-
 type SubscriptionsRPC struct {
 	sync.Mutex
 	client        io.ReadWriteCloser
@@ -50,8 +28,7 @@ func (s *SubscriptionsRPC) Subscribe(args *SubscribeRequest, reply *string) erro
 
 	s.Lock()
 	if _, exists := s.subscriptions[args.Channel]; exists {
-		*reply = "already subscribed"
-		return nil
+		return fmt.Errorf("already subscribed to channel: %s", args.Channel)
 	}
 	s.Unlock()
 
@@ -71,7 +48,6 @@ func (s *SubscriptionsRPC) Subscribe(args *SubscribeRequest, reply *string) erro
 		_, _ = s.client.Write(msg)
 	})
 	if err != nil {
-		*reply = err.Error()
 		return err
 	}
 
@@ -90,8 +66,21 @@ func (s *SubscriptionsRPC) Unsubscribe(args *UnsubscribeRequest, reply *string) 
 	fmt.Println("Unsubscribe", args.Channel)
 
 	if _, exists := s.subscriptions[args.Channel]; !exists {
-		*reply = "not subscribed"
 		return fmt.Errorf("not subscribed to channel: %s", args.Channel)
+	}
+
+	s.subscriptions[args.Channel].Done()
+	*reply = "ok"
+	return nil
+}
+
+func (s *SubscriptionsRPC) Publish(args *PublishRequest, reply *string) error {
+	fmt.Println("Publish", args.Channel)
+
+	ctx := context.Background()
+	err := s.pubsub.Publish(ctx, args.Channel, args.Data)
+	if err != nil {
+		return err
 	}
 
 	s.subscriptions[args.Channel].Done()

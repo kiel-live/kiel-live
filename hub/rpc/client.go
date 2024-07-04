@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/rpc"
@@ -74,6 +75,26 @@ func (p *Client) Unsubscribe(channel string) error {
 	p.subscriptions[channel]--
 	if p.subscriptions[channel] == 0 {
 		delete(p.subscriptions, channel)
+	}
+
+	return nil
+}
+
+func (p *Client) Publish(channel string, _data any) error {
+	data, err := json.Marshal(_data)
+	if err != nil {
+		return err
+	}
+
+	request := &PublishRequest{
+		Channel: channel,
+		Data:    data,
+	}
+
+	var response string
+	err = p.client.Call(fmt.Sprintf("%s.Publish", internalServiceName), request, &response)
+	if err != nil {
+		return err
 	}
 
 	return nil
