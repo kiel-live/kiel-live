@@ -178,7 +178,7 @@ const stopsPointLayer = computed(
       source: 'geojson',
       filter: ['==', 'kind', 'stop'],
       paint: {
-        'circle-color': 'rgb(170, 0, 0)',
+        'circle-color': '#b91919',
         'circle-stroke-width': 1,
         'circle-radius': 4,
         'circle-stroke-color': 'rgb(255, 255, 255)',
@@ -234,6 +234,7 @@ const vehiclesLayer = computed(
           1,
           selectedMarker.value.type === 'bus' ? 0.3 : 1,
         ],
+        'text-color': colorScheme.value === 'light' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)',
       },
       filter: ['==', 'kind', 'vehicle'],
       layout: {
@@ -249,8 +250,8 @@ const vehiclesLayer = computed(
         'icon-allow-overlap': true,
         'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
         'text-field': ['get', 'number'],
-        'text-offset': [0, -1.2],
-        'text-size': 14,
+        'text-offset': [0, 2],
+        'text-size': 12,
       },
     }) satisfies SymbolLayerSpecification,
 );
@@ -347,21 +348,21 @@ onMounted(async () => {
   }
 
   async function loadImages() {
-    // bus stop
-    await loadImage('bus', '/icons/vehicle-escooter.png');
-    await loadImage('bus-selected', '/icons/vehicle-escooter-selected.png');
+    // bus
+    await loadImage('bus', '/icons/vehicle-bus.png');
+    await loadImage('bus-selected', '/icons/vehicle-bus-selected.png');
     await loadImage('bus-stop', '/icons/stop-bus.png');
     await loadImage('bus-stop-selected', '/icons/stop-bus-selected.png');
 
-    // bike stop
+    // bike
     await loadImage('bike-stop', '/icons/stop-bike.png');
     await loadImage('bike-stop-selected', '/icons/stop-bike-selected.png');
 
-    // tram stop
+    // tram
     await loadImage('tram-stop', '/icons/stop-tram.png');
     await loadImage('tram-stop-selected', '/icons/stop-tram-selected.png');
 
-    // train stop
+    // train
     await loadImage('train-stop', '/icons/stop-train.png');
     await loadImage('train-stop-selected', '/icons/stop-train-selected.png');
 
