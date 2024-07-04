@@ -1,12 +1,14 @@
 package rpc_test
 
 import (
+	"context"
 	"net"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/kiel-live/kiel-live/hub/rpc"
+	"github.com/kiel-live/kiel-live/shared/pubsub"
 )
 
 type SampleRPC struct {
@@ -24,7 +26,9 @@ func (t *SampleRPC) Hello(args *HelloArgs, reply *string) error {
 func BenchmarkPeer(b *testing.B) {
 	serverPeer, clientPeer := net.Pipe()
 
-	_, err := rpc.NewServer(&SampleRPC{}, serverPeer)
+	broker := pubsub.NewMemory()
+
+	_, err := rpc.NewServer(&SampleRPC{}, broker, serverPeer)
 	assert.NoError(b, err)
 
 	client := rpc.NewClient(clientPeer)
@@ -36,6 +40,9 @@ func BenchmarkPeer(b *testing.B) {
 	assert.Equal(b, "Hello, Alice", response)
 
 	err = client.Subscribe("test-channel")
+	assert.NoError(b, err)
+
+	err = broker.Publish(context.Background(), "test-channel", []byte("Hello, World"))
 	assert.NoError(b, err)
 
 	err = client.Unsubscribe("test-channel")
