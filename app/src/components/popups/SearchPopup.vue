@@ -19,6 +19,7 @@
         @click="$emit('update:search-input', '')"
       >
         <i-mdi-sign-real-estate v-if="searchResult.item.type === 'bus-stop'" class="mr-2" />
+        <i-mdi-ferry v-else-if="searchResult.item.type === 'ferry-stop'" class="mr-2" />
         <!-- <i-fa-bus v-else-if="searchResult.item.type === 'bus'" class="mr-2" /> -->
         <div class="">
           {{ searchResult.item.name }}

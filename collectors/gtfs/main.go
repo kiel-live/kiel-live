@@ -72,8 +72,23 @@ func main() {
 			},
 			Alerts: []string{"Die Abfahrtszeiten können sich je nach Witterung oder Verkehrslage auf dem Nord-Ostsee-Kanal geringfügig verschieben. Die Verschiebung einer Fahrt dient der Sicherheit des Fahrbetriebes. Bei Ausfall der Fähre ist ein Busersatzverkehr eingerichtet."},
 		}
-		// iterate over stop times
+		// for each trip remove stop times with the highest stop_sequence (last stop)
+		filteredStopTimes := make([]gtfs.StopTime, 0)
 		for _, stopTime := range g.StopsTimes {
+			isLastStop := true
+			for _, stopTime2 := range g.StopsTimes {
+				if stopTime.TripID == stopTime2.TripID && stopTime.StopSeq < stopTime2.StopSeq {
+					isLastStop = false
+					break
+				}
+			}
+			if !isLastStop {
+				filteredStopTimes = append(filteredStopTimes, stopTime)
+			}
+		}
+
+		// iterate over stop times
+		for _, stopTime := range filteredStopTimes {
 			if stopTime.StopID == gtfsStop.ID {
 				index, found := findInObjArr(g.Trips, func(t gtfs.Trip) string { return t.ID }, stopTime.TripID)
 				if !found {
@@ -89,6 +104,13 @@ func main() {
 				}
 				calendar := g.Calendars[index]
 
+				index, found = findInObjArr(g.Routes, func(r gtfs.Route) string { return r.ID }, trip.RouteID)
+				if !found {
+					log.Warnf("Route %s not found", trip.RouteID)
+					continue
+				}
+				route := g.Routes[index]
+
 				// check if service is active
 				// get current weekday
 				if !weekdayIsActiveInCalendar(calendar) {
@@ -103,13 +125,16 @@ func main() {
 				}
 				now := time.Now()
 				departureDate := time.Date(now.Year(), now.Month(), now.Day(), departureTime.Hour(), departureTime.Minute(), departureTime.Second(), 0, time.Local)
-				if departureDate.Before(now) || departureDate.After(now.Add(2*time.Hour)) {
+				if departureDate.Before(now) || departureDate.After(now.Add(4*time.Hour)) {
 					continue
 				}
 
 				stop.Arrivals = append(stop.Arrivals, protocol.StopArrival{
-					TripID:  IDPrefix + stopTime.TripID,
-					Planned: stopTime.Departure,
+					TripID:    IDPrefix + stopTime.TripID,
+					Planned:   departureDate.Format("15:04"),
+					RouteName: route.ShortName,
+					Direction: trip.Headsign,
+					State:     protocol.Planned,
 				})
 			}
 		}
