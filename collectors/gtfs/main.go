@@ -51,8 +51,7 @@ func main() {
 		}
 	}()
 
-	// load gtfs files
-	g, err := gtfs.Load("collectors/gtfs/adler", nil)
+	g, err := loadRemoteGTFS("https://github.com/lukashass/nok-gtfs/raw/main/adler.zip")
 	if err != nil {
 		log.Error(err)
 		return
