@@ -74,6 +74,7 @@ func main() {
 					Latitude:  int(gtfsStop.Latitude * 3600000),
 					Longitude: int(gtfsStop.Longitude * 3600000),
 				},
+				// TODO: get alerts from gtfs feed
 				Alerts: []string{"Die Abfahrtszeiten können sich je nach Witterung oder Verkehrslage auf dem Nord-Ostsee-Kanal geringfügig verschieben. Die Verschiebung einer Fahrt dient der Sicherheit des Fahrbetriebes. Bei Ausfall der Fähre ist ein Busersatzverkehr eingerichtet."},
 			}
 			// for each trip remove stop times with the highest stop_sequence (last stop)
