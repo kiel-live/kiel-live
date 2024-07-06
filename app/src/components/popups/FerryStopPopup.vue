@@ -155,31 +155,6 @@ watch(
 
 const tripSubscriptions = new Set<string>();
 
-// watch arrivals and subscribe to trips
-// watch(
-//   stop,
-//   async (newStop, oldStop) => {
-//     if (!newStop || newStop.arrivals === null || newStop.arrivals === oldStop?.arrivals) {
-//       return;
-//     }
-
-//     oldStop?.arrivals?.forEach((arrival) => {
-//       if (!newStop.arrivals?.some((a) => a.tripId === arrival.tripId)) {
-//         tripSubscriptions.delete(arrival.tripId);
-//         void unsubscribe(`data.map.trip.${arrival.tripId}`);
-//       }
-//     });
-
-//     newStop.arrivals.forEach((arrival) => {
-//       if (!tripSubscriptions.has(arrival.tripId)) {
-//         tripSubscriptions.add(arrival.tripId);
-//         void subscribe(`data.map.trip.${arrival.tripId}`, trips);
-//       }
-//     });
-//   },
-//   { immediate: true },
-// );
-
 onUnmounted(() => {
   if (subject !== null) {
     void unsubscribe(subject);
