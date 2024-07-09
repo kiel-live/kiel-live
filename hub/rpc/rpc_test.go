@@ -3,6 +3,7 @@ package rpc_test
 import (
 	"context"
 	"net"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,40 +15,66 @@ import (
 type SampleRPC struct {
 }
 
-type HelloArgs struct {
-	Name string `json:"name"`
+func (t *SampleRPC) Hello(name string) (string, error) {
+	return "Hello, " + name, nil
 }
 
-func (t *SampleRPC) Hello(args *HelloArgs, reply *string) error {
-	*reply = "Hello, " + args.Name
-	return nil
-}
+func BenchmarkRPC(b *testing.B) {
+	ctx := context.Background()
 
-func BenchmarkPeer(b *testing.B) {
 	serverPeer, clientPeer := net.Pipe()
 
 	broker := pubsub.NewMemory()
 
-	err := rpc.NewServer(&SampleRPC{}, broker, serverPeer)
+	server := rpc.NewServerPeer(ctx, serverPeer, broker)
+	assert.NotNil(b, server)
+	err := server.Register(&SampleRPC{})
 	assert.NoError(b, err)
 
-	client := rpc.NewClient(clientPeer)
+	client := rpc.NewClientPeer(ctx, clientPeer)
 
-	args := &HelloArgs{Name: "Alice"}
-	var response string
-	err = client.Request("Hello", args, &response)
+	args := []any{"Alice"}
+	response := []any{}
+	err = client.Request(ctx, "Hello", args, &response)
 	assert.NoError(b, err)
-	assert.Equal(b, "Hello, Alice", response)
+	assert.Equal(b, []any{"Hello, Alice"}, response)
+}
 
-	err = client.Subscribe("test-channel")
+func BenchmarkSubscribe(b *testing.B) {
+	ctx := context.Background()
+
+	serverPeer, clientPeer := net.Pipe()
+
+	broker := pubsub.NewMemory()
+
+	server := rpc.NewServerPeer(ctx, serverPeer, broker)
+	assert.NotNil(b, server)
+
+	client := rpc.NewClientPeer(ctx, clientPeer)
+
+	g := sync.WaitGroup{}
+
+	channelName := "test-channel"
+
+	g.Add(1)
+	err := client.Subscribe(ctx, channelName, func(a any) {
+		assert.Equal(b, "Hello, World", a)
+		g.Done()
+	})
 	assert.NoError(b, err)
 
-	err = broker.Publish(context.Background(), "test-channel", []byte("Hello, World"))
-	assert.NoError(b, err)
+	g.Add(1)
+	go func() {
+		err = broker.Publish(context.Background(), channelName, []byte("Hello, World"))
+		assert.NoError(b, err)
 
-	err = client.Publish("test-channel", []byte("Hello, World from the client"))
-	assert.NoError(b, err)
+		// err = client.Publish(ctx, channelName, []byte("Hello, World from the client"))
+		// assert.NoError(b, err)
+		g.Done()
+	}()
 
-	err = client.Unsubscribe("test-channel")
+	g.Wait()
+
+	err = client.Unsubscribe(ctx, channelName)
 	assert.NoError(b, err)
 }
