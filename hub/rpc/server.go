@@ -14,7 +14,6 @@ import (
 	"github.com/sourcegraph/jsonrpc2"
 )
 
-type Subscription func(any)
 type Handler interface {
 	Handle(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request)
 }
@@ -58,6 +57,34 @@ func (p *ServerPeer) Register(s any) error {
 	return p.RegisterName(defaultServiceName, s)
 }
 
+// Handle implements the jsonrpc2.Handler interface.
+func (p *ServerPeer) Handle(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) {
+	if r.Notif {
+		err := p.handlePublish(ctx, conn, r)
+		if err != nil {
+			err := p.client.ReplyWithError(ctx, r.ID, &jsonrpc2.Error{
+				Code:    jsonrpc2.CodeInternalError,
+				Message: err.Error(),
+			})
+			if err != nil {
+				log.Println(err)
+			}
+		}
+		return
+	}
+
+	err := p.handleWithError(ctx, conn, r)
+	if err != nil {
+		err := p.client.ReplyWithError(ctx, r.ID, &jsonrpc2.Error{
+			Code:    jsonrpc2.CodeInternalError,
+			Message: err.Error(),
+		})
+		if err != nil {
+			log.Println(err)
+		}
+	}
+}
+
 func (p *ServerPeer) handleWithError(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) error {
 	switch r.Method {
 	case fmt.Sprintf("%s.Subscribe", internalServiceName):
@@ -65,9 +92,6 @@ func (p *ServerPeer) handleWithError(ctx context.Context, conn *jsonrpc2.Conn, r
 
 	case fmt.Sprintf("%s.Unsubscribe", internalServiceName):
 		return p.handleUnsubscribe(ctx, conn, r)
-
-	case fmt.Sprintf("%s.Publish", internalServiceName):
-		return p.handlePublish(ctx, conn, r)
 	}
 
 	// find service
@@ -90,31 +114,12 @@ func (p *ServerPeer) handleWithError(ctx context.Context, conn *jsonrpc2.Conn, r
 	return p.client.Reply(ctx, r.ID, results)
 }
 
-// Handle implements the jsonrpc2.Handler interface.
-func (p *ServerPeer) Handle(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) {
-	if r.Notif {
-		// As a server we don't care about notifications
-		return
-	}
-
-	err := p.handleWithError(ctx, conn, r)
-	if err != nil {
-		err := p.client.ReplyWithError(ctx, r.ID, &jsonrpc2.Error{
-			Code:    jsonrpc2.CodeInternalError,
-			Message: err.Error(),
-		})
-		if err != nil {
-			log.Println(err)
-		}
-	}
-}
-
-func (p *ServerPeer) handlePublish(ctx context.Context, _ *jsonrpc2.Conn, r *jsonrpc2.Request) error {
+func (p *ServerPeer) handlePublish(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) error {
 	// TODO: check auth
 
 	// forward message to broker
-	msg := []byte(*r.Params)
-	return p.broker.Publish(ctx, r.Method, msg)
+	d := []byte(*r.Params)
+	return p.broker.Publish(ctx, r.Method, d)
 }
 
 func (p *ServerPeer) handleSubscribe(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) error {
@@ -132,7 +137,7 @@ func (p *ServerPeer) handleSubscribe(ctx context.Context, conn *jsonrpc2.Conn, r
 	p.mutex.Unlock()
 
 	if _, exists := subs[args.Channel]; exists {
-		return conn.ReplyWithError(context.Background(), r.ID, &jsonrpc2.Error{
+		return conn.ReplyWithError(ctx, r.ID, &jsonrpc2.Error{
 			Code:    jsonrpc2.CodeInternalError,
 			Message: fmt.Sprintf("already subscribed to channel: %s", args.Channel),
 		})
@@ -140,7 +145,8 @@ func (p *ServerPeer) handleSubscribe(ctx context.Context, conn *jsonrpc2.Conn, r
 
 	subCtx := context.Background()
 
-	err := p.broker.Subscribe(subCtx, args.Channel, func(message pubsub.Message) {
+	err := p.broker.Subscribe(subCtx, args.Channel, func(_message pubsub.Message) {
+		message := json.RawMessage(_message)
 		if err := conn.Notify(ctx, args.Channel, message); err != nil {
 			log.Println(err)
 			return

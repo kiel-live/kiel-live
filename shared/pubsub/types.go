@@ -1,6 +1,8 @@
 package pubsub
 
-import "context"
+import (
+	"context"
+)
 
 // Message defines a published message.
 type Message []byte
