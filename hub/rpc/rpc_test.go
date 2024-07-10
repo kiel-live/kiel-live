@@ -66,6 +66,10 @@ func ProxyConnection(clientConn net.Conn, serverConn net.Conn) {
 func BenchmarkRPC(b *testing.B) {
 	ctx := context.Background()
 
+	// serverPeer, proxyPeerServer := net.Pipe()
+	// proxyPeerClient, clientPeer := net.Pipe()
+	// go ProxyConnection(proxyPeerClient, proxyPeerServer)
+
 	serverPeer, clientPeer := net.Pipe()
 
 	broker := pubsub.NewMemory()
@@ -84,18 +88,17 @@ func BenchmarkRPC(b *testing.B) {
 	assert.Equal(b, []any{"Hello, Alice"}, response)
 }
 
-func BenchmarkSubscribe(b *testing.B) {
+func TestSubscribe(t *testing.T) {
 	ctx := context.Background()
 
 	serverPeer, proxyPeerServer := net.Pipe()
 	proxyPeerClient, clientPeer := net.Pipe()
-
 	go ProxyConnection(proxyPeerClient, proxyPeerServer)
 
 	broker := pubsub.NewMemory()
 
 	server := rpc.NewServerPeer(ctx, serverPeer, broker)
-	assert.NotNil(b, server)
+	assert.NotNil(t, server)
 
 	client := rpc.NewClientPeer(ctx, clientPeer)
 
@@ -105,10 +108,10 @@ func BenchmarkSubscribe(b *testing.B) {
 
 	g.Add(1)
 	err := client.Subscribe(ctx, channelName, func(a *json.RawMessage) {
-		assert.JSONEq(b, `"Hello, World from the client"`, string(*a))
+		assert.JSONEq(t, `"Hello, World from the client"`, string(*a))
 		g.Done()
 	})
-	assert.NoError(b, err)
+	assert.NoError(t, err)
 
 	g.Add(1)
 	go func() {
@@ -116,14 +119,14 @@ func BenchmarkSubscribe(b *testing.B) {
 		// assert.NoError(b, err)
 
 		err = client.Publish(ctx, channelName, "Hello, World from the client")
-		assert.NoError(b, err)
+		assert.NoError(t, err)
 		g.Done()
 	}()
 
 	g.Wait()
 
 	err = client.Unsubscribe(ctx, channelName)
-	assert.NoError(b, err)
+	assert.NoError(t, err)
 }
 
 func TestLol(t *testing.T) {
