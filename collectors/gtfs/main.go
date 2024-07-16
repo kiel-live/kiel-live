@@ -10,6 +10,7 @@ import (
 	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
 	"github.com/kiel-live/kiel-live/client"
+	"github.com/kiel-live/kiel-live/collectors/gtfs/loader"
 	"github.com/kiel-live/kiel-live/protocol"
 	log "github.com/sirupsen/logrus"
 )
@@ -38,6 +39,12 @@ func main() {
 		log.Fatalln("Please provide a token for the collector with MANAGER_TOKEN")
 	}
 
+	// Example: https://github.com/lukashass/nok-gtfs/raw/main/adler.zip
+	gtfsPath := os.Getenv("GTFS_PATH")
+	if gtfsPath == "" {
+		log.Fatalln("Please provide a GTFS path with GTFS_PATH")
+	}
+
 	c := client.NewClient(server, client.WithAuth("collector", token))
 	err = c.Connect()
 	if err != nil {
@@ -51,7 +58,7 @@ func main() {
 		}
 	}()
 
-	g, err := loadRemoteGTFS("https://github.com/lukashass/nok-gtfs/raw/main/adler.zip")
+	g, err := loader.LoadGTFS(gtfsPath)
 	if err != nil {
 		log.Error(err)
 		return
@@ -64,12 +71,18 @@ func main() {
 			return
 		}
 
+		agency := g.Agency
+		if g.Agencies != nil && len(g.Agencies) > 1 {
+			log.Fatal("Multiple agencies are not supported")
+		}
+
 		for _, gtfsStop := range g.Stops {
 			// convert to protocol.Stop
 			stop := protocol.Stop{
-				ID:   IDPrefix + gtfsStop.ID,
-				Name: gtfsStop.Name,
-				Type: protocol.StopTypeFerryStop,
+				ID:       IDPrefix + gtfsStop.ID,
+				Provider: agency.Name,
+				Name:     gtfsStop.Name,
+				Type:     "",
 				Location: protocol.Location{
 					Latitude:  int(gtfsStop.Latitude * 3600000),
 					Longitude: int(gtfsStop.Longitude * 3600000),
@@ -77,7 +90,9 @@ func main() {
 				// TODO: get alerts from gtfs feed
 				Alerts: []string{"Die Abfahrtszeiten können sich je nach Witterung oder Verkehrslage auf dem Nord-Ostsee-Kanal geringfügig verschieben. Die Verschiebung einer Fahrt dient der Sicherheit des Fahrbetriebes. Bei Ausfall der Fähre ist ein Busersatzverkehr eingerichtet."},
 			}
+
 			// for each trip remove stop times with the highest stop_sequence (last stop)
+			// TODO: solve differently to avoid additional O(n^2)
 			filteredStopTimes := make([]gtfs.StopTime, 0)
 			for _, stopTime := range g.StopsTimes {
 				isLastStop := true
@@ -116,6 +131,9 @@ func main() {
 					}
 					route := g.Routes[index]
 
+					// TODO: consider all routes for stop type
+					stop.Type = gtfsRouteTypeToProtocolStopType(route.Type)
+
 					// check if service is active
 					// get current weekday
 					if !weekdayIsActiveInCalendar(calendar) {
@@ -143,15 +161,19 @@ func main() {
 					})
 				}
 			}
+			if stop.Type == "" {
+				log.Warnf("Stop %s has no type and is therefore skipped", stop.ID)
+				continue
+			}
+
 			jsonData, err := json.Marshal(stop)
 			if err != nil {
 				log.Error(err)
 				continue
 			}
 
-			subject := fmt.Sprintf(protocol.SubjectMapStop, stop.ID)
-
 			// publish stop
+			subject := fmt.Sprintf(protocol.SubjectMapStop, stop.ID)
 			err = c.Publish(subject, string(jsonData))
 			if err != nil {
 				log.Error(err)
@@ -167,34 +189,4 @@ func main() {
 	log.Infoln("⚡ GTFS collector started")
 
 	s.StartBlocking()
-}
-
-func findInObjArr[T any, K comparable](arr []T, keyFunc func(T) K, value K) (int, bool) {
-	for i, v := range arr {
-		if keyFunc(v) == value {
-			return i, true
-		}
-	}
-	return -1, false
-}
-
-func weekdayIsActiveInCalendar(calendar gtfs.Calendar) bool {
-	weekday := time.Now().Weekday()
-	switch weekday {
-	case time.Monday:
-		return calendar.Monday == 1
-	case time.Tuesday:
-		return calendar.Tuesday == 1
-	case time.Wednesday:
-		return calendar.Wednesday == 1
-	case time.Thursday:
-		return calendar.Thursday == 1
-	case time.Friday:
-		return calendar.Friday == 1
-	case time.Saturday:
-		return calendar.Saturday == 1
-	case time.Sunday:
-		return calendar.Sunday == 1
-	}
-	return false
 }
