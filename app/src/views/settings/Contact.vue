@@ -41,11 +41,11 @@ async function sendEmail() {
     version: buildDate,
   };
   const body = encodeURIComponent(
-    `${message.value}\n\n---\n${Object.entries(additionalData)
+    `${Object.entries(additionalData)
       .map(([key, value]) => `${key}: ${value}`)
-      .join('\n')}\n`,
+      .join('\n')}\n---\n\n${message.value}`,
   );
-  window.open(`mailto:${feedbackMail}?subject=${subject}'&body=${body}`);
+  window.open(`mailto:${feedbackMail}?subject=${subject}&body=${body}`);
   message.value = t('contact_email_body');
 }
 </script>
