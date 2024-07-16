@@ -29,6 +29,14 @@
       "cwd": "${workspaceRoot}"
     },
     {
+      "name": "GTFS collector",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceRoot}/collectors/gtfs/",
+      "cwd": "${workspaceRoot}"
+    },
+    {
       "name": "Nextbike collector",
       "type": "go",
       "request": "launch",

@@ -7,6 +7,7 @@ toolchain go1.22.1
 require (
 	github.com/99designs/gqlgen v0.17.47
 	github.com/BertoldVdb/go-ais v0.3.0
+	github.com/artonge/go-gtfs v1.3.4
 	github.com/go-co-op/gocron v1.37.0
 	github.com/golang/geo v0.0.0-20230421003525-6adc56603217
 	github.com/gorilla/websocket v1.5.0
@@ -25,6 +26,7 @@ require (
 require (
 	github.com/adrianmo/go-nmea v1.8.0 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
+	github.com/artonge/go-csv-tag/v2 v2.2.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
