@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/artonge/go-gtfs"
-	"github.com/kiel-live/kiel-live/protocol"
 )
 
 func findInObjArr[T any, K comparable](arr []T, keyFunc func(T) K, value K) (int, bool) {
@@ -47,7 +46,7 @@ func weekdayIsActiveInCalendar(calendar gtfs.Calendar) bool {
 // 7 - Funicular. Any rail system designed for steep inclines.
 // 11 - Trolleybus. Electric buses that draw power from overhead wires using poles.
 // 12 - Monorail. Railway in which the track consists of a single rail or a beam.
-func gtfsRouteTypeToProtocolStopType(stopType int) protocol.StopType {
+func gtfsRouteTypeToProtocolStopType(stopType int) string {
 	switch stopType {
 	case 0:
 		return "tram"

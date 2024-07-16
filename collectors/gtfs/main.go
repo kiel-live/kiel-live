@@ -132,7 +132,7 @@ func main() {
 					route := g.Routes[index]
 
 					// TODO: consider all routes for stop type
-					stop.Type = gtfsRouteTypeToProtocolStopType(route.Type)
+					stop.Type = protocol.StopType(gtfsRouteTypeToProtocolStopType(route.Type) + "-stop")
 
 					// check if service is active
 					// get current weekday
