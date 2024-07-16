@@ -88,8 +88,8 @@ func (c *TripCollector) publishRemoved(trip *protocol.Trip) error {
 func (c *TripCollector) SubjectsToIDs(subjects []string) []string {
 	ids := []string{}
 	for _, subject := range subjects {
-		if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, "")) && subject != fmt.Sprintf(protocol.SubjectDetailsTrip, ">") {
-			ids = append(ids, strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, "")+api.IDPrefix))
+		if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, api.IDPrefix)) && subject != fmt.Sprintf(protocol.SubjectDetailsTrip, ">") {
+			ids = append(ids, strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, api.IDPrefix)))
 		}
 	}
 	return ids

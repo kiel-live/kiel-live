@@ -3,6 +3,10 @@ github.com/BertoldVdb/go-ais v0.3.0/go.mod h1:V2+fRhMf6AWOIEGEjgGAImHm+D/gCe6iGT
 github.com/adrianmo/go-nmea v1.3.0/go.mod h1:u8bPnpKt/D/5rll/5l9f6iDfeq5WZW0+/SXdkwix6Tg=
 github.com/adrianmo/go-nmea v1.8.0 h1:KE6xDTMQNoKoyCb7IQRXGOIbn4WJlUKwIuRD4LbpKlM=
 github.com/adrianmo/go-nmea v1.8.0/go.mod h1:u8bPnpKt/D/5rll/5l9f6iDfeq5WZW0+/SXdkwix6Tg=
+github.com/artonge/go-csv-tag/v2 v2.2.0 h1:jdgQHHWm1xAqNXhHfoqgyAwah589xqmTFEC/QGKSJeA=
+github.com/artonge/go-csv-tag/v2 v2.2.0/go.mod h1:MhLKePA0uu/+2jUJ4IER31uhRV/0GsIKyrSqSRR7Mkc=
+github.com/artonge/go-gtfs v1.3.4 h1:oq2b+le5wZ1ObHNZj1foL4KfLymFCElKpFm5CwEWQq4=
+github.com/artonge/go-gtfs v1.3.4/go.mod h1:45z7Orxlb8DeaDf62oWYiQdm2U6mANlbBLK/ojTEyiY=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
