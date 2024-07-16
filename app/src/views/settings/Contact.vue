@@ -41,9 +41,9 @@ async function sendEmail() {
     version: buildDate,
   };
   const body = encodeURIComponent(
-    `${Object.entries(additionalData)
+    `${message.value}\n\n---\n${Object.entries(additionalData)
       .map(([key, value]) => `${key}: ${value}`)
-      .join('\n')}\n---\n\n${message.value}`,
+      .join('\n')}\n`,
   );
   window.open(`mailto:${feedbackMail}?subject=${subject}&body=${body}`);
   message.value = t('contact_email_body');
