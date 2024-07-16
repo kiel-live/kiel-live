@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/artonge/go-gtfs"
@@ -44,6 +45,8 @@ func main() {
 	if gtfsPath == "" {
 		log.Fatalln("Please provide a GTFS path with GTFS_PATH")
 	}
+
+	generalAlerts := os.Getenv("GENERAL_ALERTS")
 
 	c := client.NewClient(server, client.WithAuth("collector", token))
 	err = c.Connect()
@@ -87,28 +90,27 @@ func main() {
 					Latitude:  int(gtfsStop.Latitude * 3600000),
 					Longitude: int(gtfsStop.Longitude * 3600000),
 				},
-				// TODO: get alerts from gtfs feed
-				Alerts: []string{"Die Abfahrtszeiten können sich je nach Witterung oder Verkehrslage auf dem Nord-Ostsee-Kanal geringfügig verschieben. Die Verschiebung einer Fahrt dient der Sicherheit des Fahrbetriebes. Bei Ausfall der Fähre ist ein Busersatzverkehr eingerichtet."},
+				Alerts: strings.Split(generalAlerts, ";"), // TODO: get alerts from gtfs-rt feed
 			}
 
 			// for each trip remove stop times with the highest stop_sequence (last stop)
 			// TODO: solve differently to avoid additional O(n^2)
-			filteredStopTimes := make([]gtfs.StopTime, 0)
-			for _, stopTime := range g.StopsTimes {
-				isLastStop := true
-				for _, stopTime2 := range g.StopsTimes {
-					if stopTime.TripID == stopTime2.TripID && stopTime.StopSeq < stopTime2.StopSeq {
-						isLastStop = false
-						break
-					}
-				}
-				if !isLastStop {
-					filteredStopTimes = append(filteredStopTimes, stopTime)
-				}
-			}
+			// filteredStopTimes := make([]gtfs.StopTime, 0)
+			// for _, stopTime := range g.StopsTimes {
+			// 	isLastStop := true
+			// 	for _, stopTime2 := range g.StopsTimes {
+			// 		if stopTime.TripID == stopTime2.TripID && stopTime.StopSeq < stopTime2.StopSeq {
+			// 			isLastStop = false
+			// 			break
+			// 		}
+			// 	}
+			// 	if !isLastStop {
+			// 		filteredStopTimes = append(filteredStopTimes, stopTime)
+			// 	}
+			// }
 
 			// iterate over stop times
-			for _, stopTime := range filteredStopTimes {
+			for _, stopTime := range g.StopsTimes {
 				if stopTime.StopID == gtfsStop.ID {
 					index, found := findInObjArr(g.Trips, func(t gtfs.Trip) string { return t.ID }, stopTime.TripID)
 					if !found {
@@ -123,6 +125,10 @@ func main() {
 						continue
 					}
 					calendar := g.Calendars[index]
+					// check if service is active today
+					if !weekdayIsActiveInCalendar(calendar) {
+						continue
+					}
 
 					index, found = findInObjArr(g.Routes, func(r gtfs.Route) string { return r.ID }, trip.RouteID)
 					if !found {
@@ -134,16 +140,10 @@ func main() {
 					// TODO: consider all routes for stop type
 					stop.Type = protocol.StopType(gtfsRouteTypeToProtocolStopType(route.Type) + "-stop")
 
-					// check if service is active
-					// get current weekday
-					if !weekdayIsActiveInCalendar(calendar) {
-						continue
-					}
-
 					// convert departure time to unix timestamp
 					departureTime, err := time.Parse("15:04:05", stopTime.Departure)
 					if err != nil {
-						log.Error(err)
+						// log.Debug(err)
 						continue
 					}
 					now := time.Now()
@@ -153,16 +153,26 @@ func main() {
 					}
 
 					stop.Arrivals = append(stop.Arrivals, protocol.StopArrival{
+						Name:      stop.Name,
 						TripID:    IDPrefix + stopTime.TripID,
+						ETA:       0, // TODO: get from gtfs-rt
 						Planned:   departureDate.Format("15:04"),
 						RouteName: route.ShortName,
 						Direction: trip.Headsign,
 						State:     protocol.Planned,
+						RouteID:   IDPrefix + route.ID,
+						VehicleID: IDPrefix + trip.ID,
+						Platform:  "", // TODO
 					})
 				}
 			}
 			if stop.Type == "" {
-				log.Warnf("Stop %s has no type and is therefore skipped", stop.ID)
+				// log.Warnf("Stop %s has no type and is therefore skipped", stop.ID)
+				continue
+			}
+
+			if len(stop.Arrivals) == 0 {
+				// log.Warnf("Stop %s has no arrivals and is therefore skipped", stop.ID)
 				continue
 			}
 
