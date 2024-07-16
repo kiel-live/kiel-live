@@ -3,5 +3,7 @@ export const buildDate = import.meta.env.VITE_BUILD_DATE;
 export const analyticsUrl = 'https://boomerang.ju60.de/share/z8KAHmGY/Kiel%20Live';
 export const tileServer = 'https://tiles.ju60.de';
 export const darkMapStyle = `${tileServer}/styles/gray-matter/style.json`;
+// export const darkMapStyle = `https://sgx.geodatenzentrum.de/gdz_basemapde_vektor/styles/bm_web_col.json`;
+// export const darkMapStyle = `/style_dark.json`;
 export const brightMapStyle = `${tileServer}/styles/bright-matter/style.json`;
 export const natsServerUrl = import.meta.env.VITE_NATS_URL;
