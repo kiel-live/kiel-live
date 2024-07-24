@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kiel-live/kiel-live/hub/rpc/service"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/kiel-live/kiel-live/jsonrpc/rpc/service"
 )
 
 type SampleRPC struct{}

@@ -9,9 +9,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/kiel-live/kiel-live/hub/rpc/service"
-	"github.com/kiel-live/kiel-live/shared/pubsub"
 	"github.com/sourcegraph/jsonrpc2"
+
+	"github.com/kiel-live/kiel-live/jsonrpc/rpc/service"
+	"github.com/kiel-live/kiel-live/shared/pubsub"
 )
 
 type Handler interface {

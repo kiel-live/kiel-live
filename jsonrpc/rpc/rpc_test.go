@@ -12,12 +12,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/kiel-live/kiel-live/hub/rpc"
+	"github.com/kiel-live/kiel-live/jsonrpc/rpc"
 	"github.com/kiel-live/kiel-live/shared/pubsub"
 )
 
-type SampleRPC struct {
-}
+type SampleRPC struct{}
 
 func (t *SampleRPC) Hello(name string) (string, error) {
 	return "Hello, " + name, nil
