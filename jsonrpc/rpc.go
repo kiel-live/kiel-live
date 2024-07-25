@@ -1,6 +1,10 @@
 package main
 
-type KielLiveRPC struct{}
+import "github.com/kiel-live/kiel-live/shared/hub"
+
+type KielLiveRPC struct {
+	Hub *hub.Hub
+}
 
 func (t *KielLiveRPC) Hello(name string) (string, error) {
 	return "Hello, " + name, nil

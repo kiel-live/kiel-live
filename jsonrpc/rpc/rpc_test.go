@@ -10,6 +10,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/sourcegraph/jsonrpc2"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/kiel-live/kiel-live/jsonrpc/rpc"
@@ -73,16 +74,19 @@ func BenchmarkRPC(b *testing.B) {
 
 	broker := pubsub.NewMemory()
 
-	server := rpc.NewServerPeer(ctx, serverPeer, broker)
+	server := rpc.NewServer(broker)
 	assert.NotNil(b, server)
 	err := server.Register(&SampleRPC{})
-	assert.NoError(b, err)
 
-	client := rpc.NewClientPeer(ctx, clientPeer)
+	sP := server.NewPeer(ctx, jsonrpc2.NewPlainObjectStream(serverPeer))
+	defer sP.Close()
+	assert.NotNil(b, sP)
+
+	client := rpc.NewClientPeer(ctx, jsonrpc2.NewPlainObjectStream(clientPeer))
 
 	args := []any{"Alice"}
 	response := []any{}
-	err = client.Request(ctx, "Hello", args, &response)
+	err = client.Call(ctx, "Hello", args, &response)
 	assert.NoError(b, err)
 	assert.Equal(b, []any{"Hello, Alice"}, response)
 }
@@ -95,11 +99,14 @@ func TestSubscribe(t *testing.T) {
 	go ProxyConnection(proxyPeerClient, proxyPeerServer)
 
 	broker := pubsub.NewMemory()
-
-	server := rpc.NewServerPeer(ctx, serverPeer, broker)
+	server := rpc.NewServer(broker)
 	assert.NotNil(t, server)
 
-	client := rpc.NewClientPeer(ctx, clientPeer)
+	sP := server.NewPeer(ctx, jsonrpc2.NewPlainObjectStream(serverPeer))
+	defer sP.Close()
+	assert.NotNil(t, sP)
+
+	client := rpc.NewClientPeer(ctx, jsonrpc2.NewPlainObjectStream(clientPeer))
 
 	g := sync.WaitGroup{}
 

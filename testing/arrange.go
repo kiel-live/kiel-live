@@ -5,21 +5,19 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"testing"
 )
 
-func Arrange(t *testing.T, name string) {
-	testData := "data/test-1/"
+func Arrange(name string, u []int) error {
+	testData := "data/test-1"
 
-	files := []string{"1.csv", "10.csv", "100.csv", "1000.csv"}
-	output := fmt.Sprintf("data/test-1/%s.dat", name)
+	output := fmt.Sprintf("%s/%s.dat", testData, name)
 
 	lines := make([]string, 0)
 
-	for i, file := range files {
-		f, err := os.Open(testData + name + "-" + file)
+	for i, file := range u {
+		f, err := os.Open(fmt.Sprintf("%s/%s-%d.csv", testData, name, file))
 		if err != nil {
-			t.Fatal(err)
+			return err
 		}
 		defer f.Close()
 
@@ -29,7 +27,7 @@ func Arrange(t *testing.T, name string) {
 			l := scanner.Text()
 			p := strings.Split(l, ",")
 			if len(p) != 3 {
-				t.Fatalf("invalid line %d in %s", line, file)
+				return fmt.Errorf("invalid line: %s", l)
 			}
 			if len(lines) <= line {
 				prefix := ""
@@ -44,13 +42,13 @@ func Arrange(t *testing.T, name string) {
 		}
 
 		if err := scanner.Err(); err != nil {
-			t.Fatal(err)
+			return err
 		}
 	}
 
 	f, err := os.OpenFile(output, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
-		t.Fatal(err)
+		return err
 	}
 	defer f.Close()
 
@@ -61,5 +59,5 @@ func Arrange(t *testing.T, name string) {
 	}
 	w.Flush()
 
-	fmt.Println("Done")
+	return nil
 }

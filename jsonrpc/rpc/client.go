@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"sync"
 
@@ -20,13 +19,13 @@ type ClientPeer struct {
 	subscriptions      map[string]Subscription
 }
 
-func NewClientPeer(ctx context.Context, conn io.ReadWriteCloser) *ClientPeer {
+func NewClientPeer(ctx context.Context, conn jsonrpc2.ObjectStream) *ClientPeer {
 	peer := &ClientPeer{
 		defaultServiceName: "main",
 		subscriptions:      make(map[string]Subscription),
 	}
 
-	rpcConn := jsonrpc2.NewConn(ctx, jsonrpc2.NewPlainObjectStream(conn), peer)
+	rpcConn := jsonrpc2.NewConn(ctx, conn, peer)
 	peer.client = rpcConn
 
 	return peer
@@ -59,7 +58,7 @@ func (c *ClientPeer) Handle(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc
 	// we don't care about requests as we are only a client
 }
 
-func (c *ClientPeer) Request(ctx context.Context, method string, args any, reply any) error {
+func (c *ClientPeer) Call(ctx context.Context, method string, args any, reply any) error {
 	return c.client.Call(ctx, fmt.Sprintf("%s.%s", c.defaultServiceName, method), args, reply)
 }
 
@@ -125,4 +124,8 @@ func (c *ClientPeer) Unsubscribe(ctx context.Context, channel string) error {
 
 func (c *ClientPeer) Publish(ctx context.Context, channel string, _data any) error {
 	return c.client.Notify(ctx, channel, _data)
+}
+
+func (c *ClientPeer) Close() error {
+	return c.client.Close()
 }

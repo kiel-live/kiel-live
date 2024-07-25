@@ -13,7 +13,7 @@ import (
 type graph struct{}
 
 func (g *graph) Name() string {
-	return "graph"
+	return "graphql"
 }
 
 func (g *graph) SendData(testSet *TestSet) error {
@@ -42,7 +42,7 @@ func (g *graph) SendData(testSet *TestSet) error {
 	return client.Mutate(context.Background(), &m, vars)
 }
 
-func (g *graph) WaitForMessage(testSets []*TestSet, connectingWG *sync.WaitGroup, i int, id int, write func(s string)) error {
+func (g *graph) WaitForMessage(testSets []*TestSet, connectingWG *sync.WaitGroup, done func(s string)) error {
 	client := graphql.NewSubscriptionClient("ws://localhost:4567/query")
 	// WithLog(log.Println).
 	// WithoutLogTypes(graphql.GQLData, graphql.GQLConnectionKeepAlive).
@@ -78,10 +78,7 @@ func (g *graph) WaitForMessage(testSets []*TestSet, connectingWG *sync.WaitGroup
 				if testSet.Longitude != data.MapStopUpdated.Location.Longitude || testSet.Latitude != data.MapStopUpdated.Location.Latitude {
 					return fmt.Errorf("location mismatch: expected %f,%f, got %f,%f", testSet.Longitude, testSet.Latitude, data.MapStopUpdated.Location.Longitude, data.MapStopUpdated.Location.Latitude)
 				}
-				timeDiff := time.Since(testSet.StartTime)
-				// fmt.Printf("[%d:%d] %s: %s\n", i, id, data.MapStopUpdated.ID, timeDiff)
-				// fmt.Printf("%d,%d,%f\n", i, id, float64(timeDiff.Microseconds())/1000.0)
-				write(fmt.Sprintf("%d,%d,%f\n", i, id, float64(timeDiff.Microseconds())/1000.0))
+				done(testSet.ID)
 				break
 			}
 		}

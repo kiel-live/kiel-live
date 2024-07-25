@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/gorilla/websocket"
+	websocketjsonrpc2 "github.com/sourcegraph/jsonrpc2/websocket"
 
 	"github.com/kiel-live/kiel-live/jsonrpc/rpc"
 	"github.com/kiel-live/kiel-live/shared/database"
@@ -19,22 +20,6 @@ const defaultPort = "4568"
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-}
-
-func serveWs(ctx context.Context, pub pubsub.Broker, w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	peer := rpc.NewServerPeer(ctx, conn.UnderlyingConn(), pub)
-
-	err = peer.Register(&KielLiveRPC{})
-	if err != nil {
-		log.Println(err)
-		return
-	}
 }
 
 func main() {
@@ -52,15 +37,31 @@ func main() {
 		http.ServeFile(w, r, "index.html")
 	})
 
+	broker := pubsub.NewMemory()
 	hub := &hub.Hub{
 		DB:     db,
-		PubSub: pubsub.NewMemory(),
+		PubSub: broker,
 	}
 
 	ctx := context.Background()
 
+	server := rpc.NewServer(broker)
+	err := server.Register(&KielLiveRPC{
+		Hub: hub,
+	})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(ctx, hub.PubSub, w, r)
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		server.NewPeer(ctx, websocketjsonrpc2.NewObjectStream(conn))
 	})
 
 	log.Printf("connect to http://localhost:%s/", port)

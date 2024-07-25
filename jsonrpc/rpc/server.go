@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/sourcegraph/jsonrpc2"
 
@@ -19,51 +19,94 @@ type Handler interface {
 	Handle(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request)
 }
 
-type ServerPeer struct {
+type Server struct {
 	services      map[string]*service.Service
-	client        *jsonrpc2.Conn
-	mutex         sync.Mutex
 	broker        pubsub.Broker
+	mutex         sync.Mutex
 	subscriptions map[*jsonrpc2.Conn]map[string]context.Context
 }
 
-func NewServerPeer(ctx context.Context, conn io.ReadWriteCloser, broker pubsub.Broker) *ServerPeer {
-	peer := &ServerPeer{
+func NewServer(broker pubsub.Broker) *Server {
+	return &Server{
 		services:      make(map[string]*service.Service),
 		broker:        broker,
+		mutex:         sync.Mutex{},
 		subscriptions: make(map[*jsonrpc2.Conn]map[string]context.Context),
 	}
-
-	rpcConn := jsonrpc2.NewConn(ctx, jsonrpc2.NewPlainObjectStream(conn), peer)
-	peer.client = rpcConn
-
-	return peer
 }
 
-func (p *ServerPeer) RegisterName(name string, st any) error {
-	if _, exists := p.services[name]; exists {
+func (s *Server) RegisterName(name string, st any) error {
+	if _, exists := s.services[name]; exists {
 		return fmt.Errorf("service already registered: %s", name)
 	}
 
-	s, err := service.NewService(st)
+	srv, err := service.NewService(st)
 	if err != nil {
 		return err
 	}
 
-	p.services[name] = s
+	s.services[name] = srv
 	return nil
 }
 
-func (p *ServerPeer) Register(s any) error {
-	return p.RegisterName(defaultServiceName, s)
+func (s *Server) Register(srv any) error {
+	return s.RegisterName(defaultServiceName, srv)
+}
+
+func (s *Server) getSubscriptions(conn *jsonrpc2.Conn) map[string]context.Context {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	subs, exists := s.subscriptions[conn]
+	if !exists {
+		return nil
+	}
+
+	return subs
+}
+
+func (s *Server) addSubscription(conn *jsonrpc2.Conn, channel string, subCtx context.Context) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	subs, exists := s.subscriptions[conn]
+	if !exists {
+		subs = make(map[string]context.Context)
+		s.subscriptions[conn] = subs
+	}
+
+	subs[channel] = subCtx
+}
+
+func (s *Server) removeSubscription(conn *jsonrpc2.Conn, channel string) bool {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	subs, exists := s.subscriptions[conn]
+	if !exists {
+		return false
+	}
+
+	delete(subs, channel)
+
+	if len(subs) == 0 {
+		delete(s.subscriptions, conn)
+	}
+
+	return true
+}
+
+func (s *Server) NewPeer(ctx context.Context, conn jsonrpc2.ObjectStream) *jsonrpc2.Conn {
+	return jsonrpc2.NewConn(ctx, conn, s)
 }
 
 // Handle implements the jsonrpc2.Handler interface.
-func (p *ServerPeer) Handle(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) {
+func (s *Server) Handle(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) {
+	fmt.Printf("%s: %d\n", "handle", time.Now().UnixMicro())
+
 	if r.Notif {
-		err := p.handlePublish(ctx, conn, r)
+		err := s.handlePublish(ctx, conn, r)
 		if err != nil {
-			err := p.client.ReplyWithError(ctx, r.ID, &jsonrpc2.Error{
+			err := conn.ReplyWithError(ctx, r.ID, &jsonrpc2.Error{
 				Code:    jsonrpc2.CodeInternalError,
 				Message: err.Error(),
 			})
@@ -74,9 +117,9 @@ func (p *ServerPeer) Handle(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc
 		return
 	}
 
-	err := p.handleWithError(ctx, conn, r)
+	err := s.handleWithError(ctx, conn, r)
 	if err != nil {
-		err := p.client.ReplyWithError(ctx, r.ID, &jsonrpc2.Error{
+		err := conn.ReplyWithError(ctx, r.ID, &jsonrpc2.Error{
 			Code:    jsonrpc2.CodeInternalError,
 			Message: err.Error(),
 		})
@@ -86,13 +129,13 @@ func (p *ServerPeer) Handle(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc
 	}
 }
 
-func (p *ServerPeer) handleWithError(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) error {
+func (s *Server) handleWithError(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) error {
 	switch r.Method {
 	case fmt.Sprintf("%s.Subscribe", internalServiceName):
-		return p.handleSubscribe(ctx, conn, r)
+		return s.handleSubscribe(ctx, conn, r)
 
 	case fmt.Sprintf("%s.Unsubscribe", internalServiceName):
-		return p.handleUnsubscribe(ctx, conn, r)
+		return s.handleUnsubscribe(ctx, conn, r)
 	}
 
 	// find service
@@ -101,41 +144,39 @@ func (p *ServerPeer) handleWithError(ctx context.Context, conn *jsonrpc2.Conn, r
 		return fmt.Errorf("invalid method name")
 	}
 
-	s, exists := p.services[serviceName]
+	srv, exists := s.services[serviceName]
 	if !exists {
 		return fmt.Errorf("service not found")
 	}
 
 	// find method
-	results, err := s.Call(methodName, r.Params)
+	results, err := srv.Call(methodName, r.Params)
 	if err != nil {
 		return err
 	}
 
-	return p.client.Reply(ctx, r.ID, results)
+	return conn.Reply(ctx, r.ID, results)
 }
 
-func (p *ServerPeer) handlePublish(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) error {
+func (s *Server) handlePublish(ctx context.Context, _ *jsonrpc2.Conn, r *jsonrpc2.Request) error {
 	// TODO: check auth
 
 	// forward message to broker
+	fmt.Printf("%s: %d\n", "handle publish", time.Now().UnixMicro())
 	d := []byte(*r.Params)
-	return p.broker.Publish(ctx, r.Method, d)
+	return s.broker.Publish(ctx, r.Method, d)
 }
 
-func (p *ServerPeer) handleSubscribe(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) error {
+func (s *Server) handleSubscribe(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) error {
 	var args SubscribeRequest
 	if err := json.Unmarshal(*r.Params, &args); err != nil {
 		return err
 	}
 
-	p.mutex.Lock()
-	subs, exists := p.subscriptions[conn]
-	if !exists {
+	subs := s.getSubscriptions(conn)
+	if subs == nil {
 		subs = make(map[string]context.Context)
-		p.subscriptions[conn] = subs
 	}
-	p.mutex.Unlock()
 
 	if _, exists := subs[args.Channel]; exists {
 		return conn.ReplyWithError(ctx, r.ID, &jsonrpc2.Error{
@@ -146,7 +187,8 @@ func (p *ServerPeer) handleSubscribe(ctx context.Context, conn *jsonrpc2.Conn, r
 
 	subCtx := context.Background()
 
-	err := p.broker.Subscribe(subCtx, args.Channel, func(_message pubsub.Message) {
+	err := s.broker.Subscribe(subCtx, args.Channel, func(_message pubsub.Message) {
+		fmt.Printf("%s: %d\n", "forward msg", time.Now().UnixMicro())
 		message := json.RawMessage(_message)
 		if err := conn.Notify(ctx, args.Channel, message); err != nil {
 			log.Println(err)
@@ -161,25 +203,21 @@ func (p *ServerPeer) handleSubscribe(ctx context.Context, conn *jsonrpc2.Conn, r
 		})
 	}
 
-	p.mutex.Lock()
-	subs[args.Channel] = subCtx
-	p.subscriptions[conn] = subs
-	p.mutex.Unlock()
+	s.addSubscription(conn, args.Channel, subCtx)
+
+	fmt.Printf("%s: %d\n", "subscribed", time.Now().UnixMicro())
 
 	return conn.Reply(ctx, r.ID, "ok")
 }
 
-func (p *ServerPeer) handleUnsubscribe(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) error {
+func (s *Server) handleUnsubscribe(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) error {
 	var args UnsubscribeRequest
 	if err := json.Unmarshal(*r.Params, &args); err != nil {
 		return err
 	}
 
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
-	subs, exists := p.subscriptions[conn]
-
-	if !exists {
+	subs := s.getSubscriptions(conn)
+	if subs == nil {
 		return conn.ReplyWithError(ctx, r.ID, &jsonrpc2.Error{
 			Code:    jsonrpc2.CodeInternalError,
 			Message: fmt.Sprintf("not subscribed to channel: %s", args.Channel),
@@ -195,11 +233,19 @@ func (p *ServerPeer) handleUnsubscribe(ctx context.Context, conn *jsonrpc2.Conn,
 	}
 
 	subCtx.Done()
-	delete(subs, args.Channel)
 
-	if len(subs) == 0 {
-		delete(p.subscriptions, conn)
-	}
+	s.removeSubscription(conn, args.Channel)
+
+	fmt.Printf("%s: %d\n", "unsubscribed", time.Now().UnixMicro())
 
 	return conn.Reply(ctx, r.ID, "ok")
 }
+
+// func (p *ServerPeer) Close() error {
+// 	subs := p.server.GetSubscriptions(p.client)
+// 	for channel, ctx := range subs {
+// 		ctx.Done()
+// 		p.server.RemoveSubscription(p.client, channel)
+// 	}
+// 	return p.client.Close()
+// }

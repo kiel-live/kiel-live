@@ -14,14 +14,14 @@ import (
 type Poc interface {
 	Name() string
 	SendData(testSet *TestSet) error
-	WaitForMessage(testSets []*TestSet, connectingWG *sync.WaitGroup, i int, id int, write func(s string)) error
+	WaitForMessage(testSets []*TestSet, connectingWG *sync.WaitGroup, done func(s string)) error
 }
 
 func TestRoundTrip(t *testing.T) {
 	u := []int{1, 10, 100, 1000}
-	repeat := 10
+	// repeat := 10
 	var poc Poc
-	// poc = &graph{}
+	poc = &graph{}
 	poc = &jsonrpc{}
 
 	for _, amountClients := range u {
@@ -39,18 +39,28 @@ func TestRoundTrip(t *testing.T) {
 			{"last", 54.31981897337084, 10.182968719044112, time.Now()},
 		}
 
-		for i := 0; i < repeat; i++ {
+		for i := 0; i < 10000/amountClients; i++ {
 			fmt.Printf("# [%d:%d]\n", amountClients, i)
 
 			connectingWG := &sync.WaitGroup{}
 			doneWG := &sync.WaitGroup{}
 
 			connect := func(id int) {
-				err := poc.WaitForMessage(testSets, connectingWG, i, id, func(s string) {
-					m.Lock()
-					_, err := writer.WriteString(s)
-					require.NoError(t, err)
-					m.Unlock()
+				err := poc.WaitForMessage(testSets, connectingWG, func(testSetID string) {
+					for _, testSet := range testSets {
+						if testSet.ID == testSetID {
+							timeDiff := time.Since(testSet.StartTime)
+							// fmt.Printf("[%d:%d] %s: %s\n", i, id, data.MapStopUpdated.ID, timeDiff)
+							// fmt.Printf("%d,%d,%f\n", i, id, float64(timeDiff.Microseconds())/1000.0)
+
+							s := fmt.Sprintf("%d,%d,%f\n", i, id, float64(timeDiff.Microseconds())/1000.0)
+
+							m.Lock()
+							_, err := writer.WriteString(s)
+							require.NoError(t, err)
+							m.Unlock()
+						}
+					}
 				})
 				require.NoError(t, err)
 				doneWG.Done()
@@ -65,7 +75,9 @@ func TestRoundTrip(t *testing.T) {
 			go func() {
 				connectingWG.Wait()
 				// fmt.Println("all clients connected")
-				time.Sleep(10 * time.Duration(amountClients) * time.Millisecond) // wait some a bit longer to be really sure everyone is listening
+				if poc.Name() == "graphql" {
+					time.Sleep(10 * time.Duration(amountClients) * time.Millisecond) // wait some a bit longer to be really sure everyone is listening
+				}
 
 				for _, testSet := range testSets {
 					err := poc.SendData(testSet)
@@ -80,7 +92,8 @@ func TestRoundTrip(t *testing.T) {
 		writer.Flush()
 	}
 
-	Arrange(t, poc.Name())
+	err := Arrange(poc.Name(), u)
+	require.NoError(t, err)
 
 	fmt.Println("done")
 }
