@@ -20,6 +20,14 @@ const IDPrefix = "gtfs-"
 func main() {
 	log.Infof("Kiel-Live GTFS collector version %s", "1.0.0") // TODO use proper version
 
+	if tz := os.Getenv("TZ"); tz != "" {
+		var err error
+		time.Local, err = time.LoadLocation(tz)
+		if err != nil {
+			log.Fatalf("error loading location '%s': %v\n", tz, err)
+		}
+	}
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Debug("No .env file found")
