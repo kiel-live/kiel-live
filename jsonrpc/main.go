@@ -13,6 +13,7 @@ import (
 	"github.com/kiel-live/kiel-live/shared/database"
 	"github.com/kiel-live/kiel-live/shared/hub"
 	"github.com/kiel-live/kiel-live/shared/pubsub"
+	"github.com/kiel-live/kiel-live/testing/usage"
 )
 
 const defaultPort = "4568"
@@ -62,6 +63,17 @@ func main() {
 		}
 
 		server.NewPeer(ctx, websocketjsonrpc2.NewObjectStream(conn))
+	})
+
+	u := usage.NewUsage("jsonrpc")
+	http.HandleFunc("/perf", func(w http.ResponseWriter, r *http.Request) {
+		amountClients := r.URL.Query().Get("amountClients")
+		if amountClients == "" {
+			http.Error(w, "amountClients is required", http.StatusBadRequest)
+			return
+		}
+
+		go u.Collect(amountClients)
 	})
 
 	log.Printf("connect to http://localhost:%s/", port)

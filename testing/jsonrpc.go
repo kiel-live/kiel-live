@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 	"sync"
 	"time"
 
@@ -32,10 +34,22 @@ func (g *jsonrpc) SendData(testSet *TestSet) error {
 	defer rpc.Close()
 
 	testSet.StartTime = time.Now()
-	fmt.Printf("%s: %d\n", "sending", time.Now().UnixMicro())
+	// fmt.Printf("%s: %d\n", "sending", time.Now().UnixMicro())
 	return rpc.Publish(ctx, "Hello", testSet.ID)
 }
 
+func (g *jsonrpc) SendPerf(amountClients string) error {
+	u := fmt.Sprintf("http://localhost:4568/perf?amountClients=%s", amountClients)
+
+	resp, err := http.Get(u)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	return nil
+}
 func (g *jsonrpc) WaitForMessage(_ []*TestSet, connectingWG *sync.WaitGroup, done func(s string)) error {
 	url := "ws://localhost:4568/ws"
 	c, resp, err := websocket.DefaultDialer.Dial(url, nil)
@@ -61,6 +75,8 @@ func (g *jsonrpc) WaitForMessage(_ []*TestSet, connectingWG *sync.WaitGroup, don
 			return
 		}
 
+		log.Println("hello", len(*rm))
+
 		if reply == "last" {
 			wg.Done()
 		}
@@ -69,13 +85,13 @@ func (g *jsonrpc) WaitForMessage(_ []*TestSet, connectingWG *sync.WaitGroup, don
 		return err
 	}
 
-	fmt.Printf("%s: %d\n", "connected", time.Now().UnixMicro())
+	// fmt.Printf("%s: %d\n", "connected", time.Now().UnixMicro())
 
 	connectingWG.Done()
 
 	wg.Wait()
 
-	fmt.Printf("%s: %d\n", "client done", time.Now().UnixMicro())
+	// fmt.Printf("%s: %d\n", "client done", time.Now().UnixMicro())
 
 	return rpc.Unsubscribe(ctx, "Hello")
 }

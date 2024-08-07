@@ -11,21 +11,23 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type Poc interface {
-	Name() string
-	SendData(testSet *TestSet) error
-	WaitForMessage(testSets []*TestSet, connectingWG *sync.WaitGroup, done func(s string)) error
-}
-
 func TestRoundTrip(t *testing.T) {
-	u := []int{1, 10, 100, 1000}
-	// repeat := 10
+	// u := []int{1, 10, 100, 500, 1000}
+	u := []int{1}
+	repeat := 10
 	var poc Poc
 	poc = &graph{}
 	poc = &jsonrpc{}
 
+	// f := perf(poc.Name())
+	// defer f.Close()
+	// defer perfEnd(poc.Name())
+
 	for _, amountClients := range u {
-		f, err := os.OpenFile(fmt.Sprintf("./data/test-1/%s-%d.csv", poc.Name(), amountClients), os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0644)
+		err := poc.SendPerf(fmt.Sprintf("%d", amountClients))
+		require.NoError(t, err)
+
+		f, err := os.OpenFile(fmt.Sprintf("./data/%s-%d.csv", poc.Name(), amountClients), os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0644)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -39,7 +41,7 @@ func TestRoundTrip(t *testing.T) {
 			{"last", 54.31981897337084, 10.182968719044112, time.Now()},
 		}
 
-		for i := 0; i < 10000/amountClients; i++ {
+		for i := 0; i < repeat; i++ {
 			fmt.Printf("# [%d:%d]\n", amountClients, i)
 
 			connectingWG := &sync.WaitGroup{}
@@ -77,6 +79,8 @@ func TestRoundTrip(t *testing.T) {
 				// fmt.Println("all clients connected")
 				if poc.Name() == "graphql" {
 					time.Sleep(10 * time.Duration(amountClients) * time.Millisecond) // wait some a bit longer to be really sure everyone is listening
+				} else {
+					time.Sleep(10 * time.Millisecond)
 				}
 
 				for _, testSet := range testSets {
@@ -92,6 +96,9 @@ func TestRoundTrip(t *testing.T) {
 		writer.Flush()
 	}
 
+	poc.SendPerf("end")
+
+	u = []int{1, 10, 100, 500, 1000}
 	err := Arrange(poc.Name(), u)
 	require.NoError(t, err)
 

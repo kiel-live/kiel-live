@@ -3,6 +3,7 @@ package testing
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"sync"
 	"time"
 
@@ -40,6 +41,19 @@ func (g *graph) SendData(testSet *TestSet) error {
 	testSet.StartTime = time.Now()
 	// fmt.Println("sending", testSet.ID)
 	return client.Mutate(context.Background(), &m, vars)
+}
+
+func (g *graph) SendPerf(amountClients string) error {
+	u := fmt.Sprintf("http://localhost:4567/perf?amountClients=%s", amountClients)
+
+	resp, err := http.Get(u)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	return nil
 }
 
 func (g *graph) WaitForMessage(testSets []*TestSet, connectingWG *sync.WaitGroup, done func(s string)) error {

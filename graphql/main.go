@@ -12,6 +12,7 @@ import (
 	"github.com/kiel-live/kiel-live/shared/database"
 	"github.com/kiel-live/kiel-live/shared/hub"
 	"github.com/kiel-live/kiel-live/shared/pubsub"
+	"github.com/kiel-live/kiel-live/testing/usage"
 )
 
 const defaultPort = "4567"
@@ -37,6 +38,17 @@ func main() {
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
+
+	u := usage.NewUsage("graphql")
+	http.HandleFunc("/perf", func(w http.ResponseWriter, r *http.Request) {
+		amountClients := r.URL.Query().Get("amountClients")
+		if amountClients == "" {
+			http.Error(w, "amountClients is required", http.StatusBadRequest)
+			return
+		}
+
+		go u.Collect(amountClients)
+	})
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

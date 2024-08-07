@@ -1,6 +1,16 @@
 package testing
 
-import "time"
+import (
+	"sync"
+	"time"
+)
+
+type Poc interface {
+	Name() string
+	SendData(testSet *TestSet) error
+	WaitForMessage(testSets []*TestSet, connectingWG *sync.WaitGroup, done func(s string)) error
+	SendPerf(amountClients string) error
+}
 
 type Location struct {
 	Longitude float64 `json:"longitude"`

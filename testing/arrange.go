@@ -8,7 +8,7 @@ import (
 )
 
 func Arrange(name string, u []int) error {
-	testData := "data/test-1"
+	testData := "data"
 
 	output := fmt.Sprintf("%s/%s.dat", testData, name)
 

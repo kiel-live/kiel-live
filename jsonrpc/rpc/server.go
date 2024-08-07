@@ -7,7 +7,6 @@ import (
 	"log"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/sourcegraph/jsonrpc2"
 
@@ -23,7 +22,7 @@ type Server struct {
 	services      map[string]*service.Service
 	broker        pubsub.Broker
 	mutex         sync.Mutex
-	subscriptions map[*jsonrpc2.Conn]map[string]context.Context
+	subscriptions map[*jsonrpc2.Conn]map[string]context.CancelFunc
 }
 
 func NewServer(broker pubsub.Broker) *Server {
@@ -31,7 +30,7 @@ func NewServer(broker pubsub.Broker) *Server {
 		services:      make(map[string]*service.Service),
 		broker:        broker,
 		mutex:         sync.Mutex{},
-		subscriptions: make(map[*jsonrpc2.Conn]map[string]context.Context),
+		subscriptions: make(map[*jsonrpc2.Conn]map[string]context.CancelFunc),
 	}
 }
 
@@ -53,7 +52,7 @@ func (s *Server) Register(srv any) error {
 	return s.RegisterName(defaultServiceName, srv)
 }
 
-func (s *Server) getSubscriptions(conn *jsonrpc2.Conn) map[string]context.Context {
+func (s *Server) getSubscriptions(conn *jsonrpc2.Conn) map[string]context.CancelFunc {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	subs, exists := s.subscriptions[conn]
@@ -64,17 +63,17 @@ func (s *Server) getSubscriptions(conn *jsonrpc2.Conn) map[string]context.Contex
 	return subs
 }
 
-func (s *Server) addSubscription(conn *jsonrpc2.Conn, channel string, subCtx context.Context) {
+func (s *Server) addSubscription(conn *jsonrpc2.Conn, channel string, unsubscribe context.CancelFunc) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
 	subs, exists := s.subscriptions[conn]
 	if !exists {
-		subs = make(map[string]context.Context)
+		subs = make(map[string]context.CancelFunc)
 		s.subscriptions[conn] = subs
 	}
 
-	subs[channel] = subCtx
+	subs[channel] = unsubscribe
 }
 
 func (s *Server) removeSubscription(conn *jsonrpc2.Conn, channel string) bool {
@@ -101,7 +100,7 @@ func (s *Server) NewPeer(ctx context.Context, conn jsonrpc2.ObjectStream) *jsonr
 
 // Handle implements the jsonrpc2.Handler interface.
 func (s *Server) Handle(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) {
-	fmt.Printf("%s: %d\n", "handle", time.Now().UnixMicro())
+	// fmt.Printf("%s: %d\n", "handle", time.Now().UnixMicro())
 
 	if r.Notif {
 		err := s.handlePublish(ctx, conn, r)
@@ -162,7 +161,7 @@ func (s *Server) handlePublish(ctx context.Context, _ *jsonrpc2.Conn, r *jsonrpc
 	// TODO: check auth
 
 	// forward message to broker
-	fmt.Printf("%s: %d\n", "handle publish", time.Now().UnixMicro())
+	// fmt.Printf("%s: %d\n", "handle publish", time.Now().UnixMicro())
 	d := []byte(*r.Params)
 	return s.broker.Publish(ctx, r.Method, d)
 }
@@ -175,7 +174,7 @@ func (s *Server) handleSubscribe(ctx context.Context, conn *jsonrpc2.Conn, r *js
 
 	subs := s.getSubscriptions(conn)
 	if subs == nil {
-		subs = make(map[string]context.Context)
+		subs = make(map[string]context.CancelFunc)
 	}
 
 	if _, exists := subs[args.Channel]; exists {
@@ -185,10 +184,10 @@ func (s *Server) handleSubscribe(ctx context.Context, conn *jsonrpc2.Conn, r *js
 		})
 	}
 
-	subCtx := context.Background()
+	subCtx, unsubscribe := context.WithCancel(context.Background())
 
 	err := s.broker.Subscribe(subCtx, args.Channel, func(_message pubsub.Message) {
-		fmt.Printf("%s: %d\n", "forward msg", time.Now().UnixMicro())
+		// fmt.Printf("%s: %d\n", "forward msg", time.Now().UnixMicro())
 		message := json.RawMessage(_message)
 		if err := conn.Notify(ctx, args.Channel, message); err != nil {
 			log.Println(err)
@@ -203,9 +202,9 @@ func (s *Server) handleSubscribe(ctx context.Context, conn *jsonrpc2.Conn, r *js
 		})
 	}
 
-	s.addSubscription(conn, args.Channel, subCtx)
+	s.addSubscription(conn, args.Channel, unsubscribe)
 
-	fmt.Printf("%s: %d\n", "subscribed", time.Now().UnixMicro())
+	// fmt.Printf("%s: %d\n", "subscribed", time.Now().UnixMicro())
 
 	return conn.Reply(ctx, r.ID, "ok")
 }
@@ -224,28 +223,39 @@ func (s *Server) handleUnsubscribe(ctx context.Context, conn *jsonrpc2.Conn, r *
 		})
 	}
 
-	subCtx, exists := subs[args.Channel]
+	unsubscribe, exists := subs[args.Channel]
 	if !exists {
-		return conn.ReplyWithError(subCtx, r.ID, &jsonrpc2.Error{
+		return conn.ReplyWithError(ctx, r.ID, &jsonrpc2.Error{
 			Code:    jsonrpc2.CodeInternalError,
 			Message: fmt.Sprintf("not subscribed to channel: %s", args.Channel),
 		})
 	}
 
-	subCtx.Done()
+	unsubscribe()
 
 	s.removeSubscription(conn, args.Channel)
 
-	fmt.Printf("%s: %d\n", "unsubscribed", time.Now().UnixMicro())
+	// fmt.Printf("%s: %d\n", "unsubscribed", time.Now().UnixMicro())
 
 	return conn.Reply(ctx, r.ID, "ok")
 }
 
-// func (p *ServerPeer) Close() error {
-// 	subs := p.server.GetSubscriptions(p.client)
-// 	for channel, ctx := range subs {
-// 		ctx.Done()
-// 		p.server.RemoveSubscription(p.client, channel)
-// 	}
-// 	return p.client.Close()
-// }
+func (s *Server) ClosePeer(conn *jsonrpc2.Conn) error {
+	subs := s.getSubscriptions(conn)
+	for channel, unsubscribe := range subs {
+		unsubscribe()
+		s.removeSubscription(conn, channel)
+	}
+	return conn.Close()
+}
+
+func (s *Server) Close() error {
+	for conn := range s.subscriptions {
+		err := s.ClosePeer(conn)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

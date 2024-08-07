@@ -1,6 +1,8 @@
 package main
 
-import "github.com/kiel-live/kiel-live/shared/hub"
+import (
+	"github.com/kiel-live/kiel-live/shared/hub"
+)
 
 type KielLiveRPC struct {
 	Hub *hub.Hub
