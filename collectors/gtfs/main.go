@@ -8,11 +8,13 @@ import (
 
 	"github.com/artonge/go-gtfs"
 	"github.com/go-co-op/gocron"
+	"github.com/hashicorp/go-memdb"
 	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/gtfs/loader"
 	"github.com/kiel-live/kiel-live/protocol"
-	log "github.com/sirupsen/logrus"
 )
 
 const IDPrefix = "gtfs-"
@@ -53,6 +55,77 @@ func main() {
 		log.Fatalln("Please provide a GTFS path with GTFS_PATH")
 	}
 
+	schema := &memdb.DBSchema{
+		Tables: map[string]*memdb.TableSchema{
+			"stop_times": {
+				Name: "stop_times",
+				Indexes: map[string]*memdb.IndexSchema{
+					"id": {
+						Name:   "id",
+						Unique: true,
+						Indexer: &memdb.CompoundIndex{
+							Indexes: []memdb.Indexer{
+								&memdb.StringFieldIndex{Field: "TripID"},
+								&memdb.StringFieldIndex{Field: "StopID"},
+							},
+						},
+					},
+					"stop_id": {
+						Name:    "stop_id",
+						Indexer: &memdb.StringFieldIndex{Field: "StopID"},
+					},
+					"trip_id": {
+						Name:    "trip_id",
+						Indexer: &memdb.StringFieldIndex{Field: "TripID"},
+					},
+				},
+			},
+			"trips": {
+				Name: "trips",
+				Indexes: map[string]*memdb.IndexSchema{
+					"id": {
+						Name:    "id",
+						Unique:  true,
+						Indexer: &memdb.StringFieldIndex{Field: "ID"},
+					},
+					"route_id": {
+						Name:    "route_id",
+						Indexer: &memdb.StringFieldIndex{Field: "RouteID"},
+					},
+					"service_id": {
+						Name:    "service_id",
+						Indexer: &memdb.StringFieldIndex{Field: "ServiceID"},
+					},
+				},
+			},
+			"routes": {
+				Name: "routes",
+				Indexes: map[string]*memdb.IndexSchema{
+					"id": {
+						Name:    "id",
+						Unique:  true,
+						Indexer: &memdb.StringFieldIndex{Field: "ID"},
+					},
+				},
+			},
+			"calendars": {
+				Name: "calendars",
+				Indexes: map[string]*memdb.IndexSchema{
+					"id": {
+						Name:    "id",
+						Unique:  true,
+						Indexer: &memdb.StringFieldIndex{Field: "ServiceID"},
+					},
+				},
+			},
+		},
+	}
+
+	db, err := memdb.NewMemDB(schema)
+	if err != nil {
+		log.Panic("Failed opening db", err)
+	}
+
 	c := client.NewClient(server, client.WithAuth("collector", token))
 	err = c.Connect()
 	if err != nil {
@@ -72,6 +145,48 @@ func main() {
 		return
 	}
 
+	agency := g.Agency
+	if g.Agencies != nil && len(g.Agencies) > 1 {
+		log.Fatal("Multiple agencies are not supported")
+	}
+
+	// create stop times table
+	txn := db.Txn(true)
+
+	for _, stopTime := range g.StopsTimes {
+		err = txn.Insert("stop_times", stopTime)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+	}
+
+	for _, trip := range g.Trips {
+		err = txn.Insert("trips", trip)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+	}
+
+	for _, route := range g.Routes {
+		err = txn.Insert("routes", route)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+	}
+
+	for _, calendar := range g.Calendars {
+		err = txn.Insert("calendars", calendar)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+	}
+
+	txn.Commit()
+
 	s := gocron.NewScheduler(time.UTC)
 	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
 	_, err = s.Every(1).Minute().Do(func() {
@@ -79,10 +194,8 @@ func main() {
 			return
 		}
 
-		agency := g.Agency
-		if g.Agencies != nil && len(g.Agencies) > 1 {
-			log.Fatal("Multiple agencies are not supported")
-		}
+		txn := db.Txn(false)
+		defer txn.Abort()
 
 		for _, gtfsStop := range g.Stops {
 			// convert to protocol.Stop
@@ -96,78 +209,93 @@ func main() {
 					Longitude: int(gtfsStop.Longitude * 3600000),
 				},
 				// TODO: get alerts from gtfs feed
-				Alerts: []string{"Die Abfahrtszeiten können sich je nach Witterung oder Verkehrslage auf dem Nord-Ostsee-Kanal geringfügig verschieben. Die Verschiebung einer Fahrt dient der Sicherheit des Fahrbetriebes. Bei Ausfall der Fähre ist ein Busersatzverkehr eingerichtet."},
+				// Alerts: []string{"Die Abfahrtszeiten können sich je nach Witterung oder Verkehrslage auf dem Nord-Ostsee-Kanal geringfügig verschieben. Die Verschiebung einer Fahrt dient der Sicherheit des Fahrbetriebes. Bei Ausfall der Fähre ist ein Busersatzverkehr eingerichtet."},
+				Alerts: nil,
 			}
 
-			// for each trip remove stop times with the highest stop_sequence (last stop)
-			// TODO: solve differently to avoid additional O(n^2)
-			filteredStopTimes := make([]gtfs.StopTime, 0)
-			for _, stopTime := range g.StopsTimes {
-				isLastStop := true
-				for _, stopTime2 := range g.StopsTimes {
-					if stopTime.TripID == stopTime2.TripID && stopTime.StopSeq < stopTime2.StopSeq {
-						isLastStop = false
-						break
-					}
-				}
-				if !isLastStop {
-					filteredStopTimes = append(filteredStopTimes, stopTime)
-				}
+			if stop.Name != "MA Hauptbahnhof Süd" {
+				continue
 			}
+
+			it, err := txn.Get("stop_times", "stop_id", gtfsStop.ID)
+			if err != nil {
+				log.Error(err)
+				continue
+			}
+
+			stopTimes := make([]gtfs.StopTime, 0)
+			for obj := it.Next(); obj != nil; obj = it.Next() {
+				stopTime := obj.(gtfs.StopTime)
+				stopTimes = append(stopTimes, stopTime)
+			}
+
+			// filteredStopTimes := make([]gtfs.StopTime, 0)
+			// // for each trip remove stop times with the highest stop_sequence (last stop)
+			// for _, stopTime := range stopTimes {
+			// 	isLastStop := true
+			// 	for _, stopTime2 := range stopTimes {
+			// 		if stopTime.TripID == stopTime2.TripID && stopTime.StopSeq < stopTime2.StopSeq {
+			// 			isLastStop = false
+			// 			break
+			// 		}
+			// 	}
+			// 	if !isLastStop {
+			// 		filteredStopTimes = append(filteredStopTimes, stopTime)
+			// 	}
+			// }
 
 			// iterate over stop times
-			for _, stopTime := range filteredStopTimes {
-				if stopTime.StopID == gtfsStop.ID {
-					index, found := findInObjArr(g.Trips, func(t gtfs.Trip) string { return t.ID }, stopTime.TripID)
-					if !found {
-						log.Warnf("Trip %s not found", stopTime.TripID)
-						continue
-					}
-					trip := g.Trips[index]
-
-					index, found = findInObjArr(g.Calendars, func(c gtfs.Calendar) string { return c.ServiceID }, trip.ServiceID)
-					if !found {
-						log.Warnf("Calendar %s not found", trip.ServiceID)
-						continue
-					}
-					calendar := g.Calendars[index]
-
-					index, found = findInObjArr(g.Routes, func(r gtfs.Route) string { return r.ID }, trip.RouteID)
-					if !found {
-						log.Warnf("Route %s not found", trip.RouteID)
-						continue
-					}
-					route := g.Routes[index]
-
-					// TODO: consider all routes for stop type
-					stop.Type = protocol.StopType(gtfsRouteTypeToProtocolStopType(route.Type) + "-stop")
-
-					// check if service is active
-					// get current weekday
-					if !weekdayIsActiveInCalendar(calendar) {
-						continue
-					}
-
-					// convert departure time to unix timestamp
-					departureTime, err := time.Parse("15:04:05", stopTime.Departure)
-					if err != nil {
-						log.Error(err)
-						continue
-					}
-					now := time.Now()
-					departureDate := time.Date(now.Year(), now.Month(), now.Day(), departureTime.Hour(), departureTime.Minute(), departureTime.Second(), 0, time.Local)
-					if departureDate.Before(now) || departureDate.After(now.Add(4*time.Hour)) {
-						continue
-					}
-
-					stop.Arrivals = append(stop.Arrivals, protocol.StopArrival{
-						TripID:    IDPrefix + stopTime.TripID,
-						Planned:   departureDate.Format("15:04"),
-						RouteName: route.ShortName,
-						Direction: trip.Headsign,
-						State:     protocol.Planned,
-					})
+			for _, stopTime := range stopTimes {
+				_trip, err := txn.First("trips", "id", stopTime.TripID)
+				if err != nil {
+					log.Error(err)
+					continue
 				}
+				trip := _trip.(gtfs.Trip)
+
+				_calendar, err := txn.First("calendars", "id", trip.ServiceID)
+				if err != nil {
+					log.Error(err)
+					continue
+				}
+				calendar := _calendar.(gtfs.Calendar)
+
+				_route, err := txn.First("routes", "id", trip.RouteID)
+				if err != nil {
+					log.Error(err)
+					continue
+				}
+				route := _route.(gtfs.Route)
+
+				// check if service is active
+				// get current weekday
+				if !weekdayIsActiveInCalendar(calendar) {
+					continue
+				}
+
+				// convert departure time to unix timestamp
+				departureTime, err := time.Parse("15:04:05", stopTime.Departure)
+				if err != nil {
+					log.Error(err)
+					continue
+				}
+
+				now := time.Now()
+				departureDate := time.Date(now.Year(), now.Month(), now.Day(), departureTime.Hour(), departureTime.Minute(), departureTime.Second(), 0, time.Local)
+				if departureDate.Before(now) || departureDate.After(now.Add(4*time.Hour)) {
+					continue
+				}
+
+				// TODO: consider all routes for stop type
+				stop.Type = protocol.StopType(gtfsRouteTypeToProtocolStopType(route.Type) + "-stop")
+
+				stop.Arrivals = append(stop.Arrivals, protocol.StopArrival{
+					TripID:    IDPrefix + stopTime.TripID,
+					Planned:   departureDate.Format("15:04"),
+					RouteName: route.ShortName,
+					Direction: trip.Headsign,
+					State:     protocol.Planned,
+				})
 			}
 			if stop.Type == "" {
 				log.Warnf("Stop %s has no type and is therefore skipped", stop.ID)
