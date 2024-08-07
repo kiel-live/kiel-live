@@ -21,4 +21,5 @@ type Stop struct {
 	Alerts   []string      `json:"alerts"` // general alerts for this stop
 	Arrivals []StopArrival `json:"arrivals"`
 	Location Location      `json:"location"`
+	Vehicles []Vehicle     `json:"vehicles"`
 }

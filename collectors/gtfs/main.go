@@ -214,10 +214,6 @@ func main() {
 				Alerts: strings.Split(generalAlerts, ";"), // TODO: get alerts from gtfs-rt feed
 			}
 
-			if stop.Name != "MA Hauptbahnhof Süd" {
-				continue
-			}
-
 			// TODO: remove empty alerts
 			if len(stop.Alerts) == 1 && stop.Alerts[0] == "" {
 				stop.Alerts = []string{}
