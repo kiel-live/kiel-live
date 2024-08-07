@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/artonge/go-gtfs"
@@ -54,6 +55,8 @@ func main() {
 	if gtfsPath == "" {
 		log.Fatalln("Please provide a GTFS path with GTFS_PATH")
 	}
+
+	generalAlerts := os.Getenv("GENERAL_ALERTS")
 
 	schema := &memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
@@ -208,9 +211,7 @@ func main() {
 					Latitude:  int(gtfsStop.Latitude * 3600000),
 					Longitude: int(gtfsStop.Longitude * 3600000),
 				},
-				// TODO: get alerts from gtfs feed
-				// Alerts: []string{"Die Abfahrtszeiten können sich je nach Witterung oder Verkehrslage auf dem Nord-Ostsee-Kanal geringfügig verschieben. Die Verschiebung einer Fahrt dient der Sicherheit des Fahrbetriebes. Bei Ausfall der Fähre ist ein Busersatzverkehr eingerichtet."},
-				Alerts: nil,
+				Alerts: strings.Split(generalAlerts, ";"), // TODO: get alerts from gtfs-rt feed
 			}
 
 			if stop.Name != "MA Hauptbahnhof Süd" {
@@ -260,18 +261,17 @@ func main() {
 				}
 				calendar := _calendar.(gtfs.Calendar)
 
+				// check if service is active today
+				if !weekdayIsActiveInCalendar(calendar) {
+					continue
+				}
+
 				_route, err := txn.First("routes", "id", trip.RouteID)
 				if err != nil {
 					log.Error(err)
 					continue
 				}
 				route := _route.(gtfs.Route)
-
-				// check if service is active
-				// get current weekday
-				if !weekdayIsActiveInCalendar(calendar) {
-					continue
-				}
 
 				// convert departure time to unix timestamp
 				departureTime, err := time.Parse("15:04:05", stopTime.Departure)
@@ -290,15 +290,25 @@ func main() {
 				stop.Type = protocol.StopType(gtfsRouteTypeToProtocolStopType(route.Type) + "-stop")
 
 				stop.Arrivals = append(stop.Arrivals, protocol.StopArrival{
+					Name:      stop.Name,
 					TripID:    IDPrefix + stopTime.TripID,
+					ETA:       0, // TODO: get from gtfs-rt
 					Planned:   departureDate.Format("15:04"),
 					RouteName: route.ShortName,
 					Direction: trip.Headsign,
 					State:     protocol.Planned,
+					RouteID:   IDPrefix + route.ID,
+					VehicleID: IDPrefix + trip.ID,
+					Platform:  "", // TODO
 				})
 			}
 			if stop.Type == "" {
-				log.Warnf("Stop %s has no type and is therefore skipped", stop.ID)
+				// log.Warnf("Stop %s has no type and is therefore skipped", stop.ID)
+				continue
+			}
+
+			if len(stop.Arrivals) == 0 {
+				// log.Warnf("Stop %s has no arrivals and is therefore skipped", stop.ID)
 				continue
 			}
 

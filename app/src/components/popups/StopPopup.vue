@@ -2,6 +2,7 @@
   <div v-if="stop" class="flex flex-col min-h-0 flex-grow">
     <div class="flex flex-row pb-2 mb-2 border-b-1 dark:border-dark-100 items-center">
       <i-mdi-sign-real-estate v-if="stop.type === 'bus-stop'" />
+      <i-mdi-ferry v-else-if="stop.type === 'ferry-stop'" />
       <h1 class="text-lg ml-2">{{ stop.name }}</h1>
       <Button
         v-if="isFavorite(stop)"
@@ -37,13 +38,20 @@
             v-for="arrival in augmentedArrivals"
             :key="arrival.tripId"
             class="flex flex-col py-2 w-full not-last:border-b-1 dark:border-dark-300"
-            :to="{ name: 'map-marker', params: { markerType: 'bus', markerId: arrival.vehicleId } }"
+            :to="{
+              name: 'map-marker',
+              params: { markerType: stop.type.replace('-stop', ''), markerId: arrival.vehicleId },
+            }"
           >
             <div class="flex flex-row">
-              <i-fa-bus class="mr-2" />
+              <i-fa-bus v-if="stop.type === 'bus-stop'" class="mr-2" />
+              <i-mdi-ferry v-else-if="stop.type === 'ferry-stop'" class="mr-2" />
+              <i-mdi-tram v-else-if="stop.type === 'tram-stop'" class="mr-2" />
+              <i-carbon-train-profile v-else-if="stop.type === 'train-stop'" class="mr-2" />
+
               <span class="mr-2">{{ arrival.routeName }}</span>
               <span class="flex-grow">{{ arrival.direction }}</span>
-              <span>{{ arrival.eta }}</span>
+              <span>{{ arrival.eta || arrival.planned }}</span>
               <div class="ml-2">
                 <i-fa-solid-clock v-if="arrival.state === 'planned'" />
                 <i-fa-solid-hand-paper v-if="arrival.state === 'stopping'" />
@@ -103,6 +111,10 @@ const marker = toRef(props, 'marker');
 const stop = computed(() => stops.value[props.marker.id]);
 let subject: string | null = null;
 const eta = (arrival: StopArrival) => {
+  if (arrival.eta === 0) {
+    return null;
+  }
+
   const minutes = Math.round(arrival.eta / 60);
 
   if (arrival.state === 'stopping') {
@@ -157,29 +169,29 @@ watch(
 const tripSubscriptions = new Set<string>();
 
 // watch arrivals and subscribe to trips
-// watch(
-//   stop,
-//   async (newStop, oldStop) => {
-//     if (!newStop || newStop.arrivals === null || newStop.arrivals === oldStop?.arrivals) {
-//       return;
-//     }
+watch(
+  stop,
+  async (newStop, oldStop) => {
+    if (!newStop || newStop.arrivals === null || newStop.arrivals === oldStop?.arrivals) {
+      return;
+    }
 
-//     oldStop?.arrivals?.forEach((arrival) => {
-//       if (!newStop.arrivals?.some((a) => a.tripId === arrival.tripId)) {
-//         tripSubscriptions.delete(arrival.tripId);
-//         void unsubscribe(`data.map.trip.${arrival.tripId}`);
-//       }
-//     });
+    oldStop?.arrivals?.forEach((arrival) => {
+      if (!newStop.arrivals?.some((a) => a.tripId === arrival.tripId)) {
+        tripSubscriptions.delete(arrival.tripId);
+        void unsubscribe(`data.map.trip.${arrival.tripId}`);
+      }
+    });
 
-//     newStop.arrivals.forEach((arrival) => {
-//       if (!tripSubscriptions.has(arrival.tripId)) {
-//         tripSubscriptions.add(arrival.tripId);
-//         void subscribe(`data.map.trip.${arrival.tripId}`, trips);
-//       }
-//     });
-//   },
-//   { immediate: true },
-// );
+    newStop.arrivals.forEach((arrival) => {
+      if (!tripSubscriptions.has(arrival.tripId)) {
+        tripSubscriptions.add(arrival.tripId);
+        void subscribe(`data.map.trip.${arrival.tripId}`, trips);
+      }
+    });
+  },
+  { immediate: true },
+);
 
 onUnmounted(() => {
   if (subject !== null) {
