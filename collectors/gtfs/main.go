@@ -218,6 +218,11 @@ func main() {
 				continue
 			}
 
+			// TODO: remove empty alerts
+			if len(stop.Alerts) == 1 && stop.Alerts[0] == "" {
+				stop.Alerts = []string{}
+			}
+
 			it, err := txn.Get("stop_times", "stop_id", gtfsStop.ID)
 			if err != nil {
 				log.Error(err)
