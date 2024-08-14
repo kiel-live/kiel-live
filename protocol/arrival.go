@@ -15,11 +15,11 @@ const (
 type ArrivalType string
 
 const (
-	StopTypeBusStop     ArrivalType = "bus-stop"
-	StopTypeParkingSpot ArrivalType = "parking-spot"
-	StopTypeFerryStop   ArrivalType = "ferry-stop"
-	StopTypeTrainStop   ArrivalType = "train-stop"
-	StopTypeSubwayStop  ArrivalType = "subway-stop"
+	ArrivalTypeBusStop     ArrivalType = "bus-stop"
+	ArrivalTypeParkingSpot ArrivalType = "parking-spot"
+	ArrivalTypeFerryStop   ArrivalType = "ferry-stop"
+	ArrivalTypeTrainStop   ArrivalType = "train-stop"
+	ArrivalTypeSubwayStop  ArrivalType = "subway-stop"
 )
 
 type StopArrival struct {

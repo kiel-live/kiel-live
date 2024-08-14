@@ -21,7 +21,7 @@ func (s *stop) parse() protocol.Stop {
 		ID:       IDPrefix + s.ShortName,
 		Provider: "kvg", // TODO
 		Name:     s.Name,
-		Type:     protocol.StopTypeBusStop,
+		Type:     protocol.ArrivalTypeBusStop,
 		Alerts:   s.Alerts,
 		Location: protocol.Location{
 			Longitude: s.Longitude,
