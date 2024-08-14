@@ -28,7 +28,7 @@ import {
 import { computed, onMounted, Ref, ref, toRef, watch } from 'vue';
 
 import { stops, subscribe, trips, vehicles } from '~/api';
-import { ArrivalType, Marker, VehicleType } from '~/api/types';
+import { Marker, StopType, VehicleType } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
 import { useUserSettings } from '~/compositions/useUserSettings';
@@ -53,7 +53,7 @@ let map: Map;
 let initial = true;
 
 type GeoJsonProperties = _GeoJsonProperties & {
-  type: ArrivalType | VehicleType | 'trip';
+  type: StopType | VehicleType | 'trip';
   id?: string;
 };
 

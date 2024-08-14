@@ -42,10 +42,10 @@
         }"
       >
         <div class="flex flex-row items-center">
-          <i-mdi-bus v-if="arrival.type === 'bus-stop'" class="mr-2 w-6 h-6" />
-          <i-mdi-ferry v-else-if="arrival.type === 'ferry-stop'" class="mr-2" />
-          <i-mdi-tram v-else-if="arrival.type === 'tram-stop'" class="mr-2 w-6 h-6" />
-          <i-carbon-train-profile v-else-if="arrival.type === 'train-stop'" class="mr-2" />
+          <i-mdi-bus v-if="arrival.type === 'bus'" class="mr-2 w-6 h-6" />
+          <i-mdi-ferry v-else-if="arrival.type === 'ferry'" class="mr-2" />
+          <i-mdi-tram v-else-if="arrival.type === 'tram'" class="mr-2 w-6 h-6" />
+          <i-carbon-train-profile v-else-if="arrival.type === 'train'" class="mr-2" />
 
           <span class="mr-2">{{ arrival.routeName }}</span>
           <span class="flex-grow">{{ arrival.direction }}</span>

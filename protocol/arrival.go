@@ -11,20 +11,9 @@ const (
 	Departed  ArrivalState = "departed"
 )
 
-// Type of a stop
-type ArrivalType string
-
-const (
-	ArrivalTypeBusStop     ArrivalType = "bus-stop"
-	ArrivalTypeParkingSpot ArrivalType = "parking-spot"
-	ArrivalTypeFerryStop   ArrivalType = "ferry-stop"
-	ArrivalTypeTrainStop   ArrivalType = "train-stop"
-	ArrivalTypeSubwayStop  ArrivalType = "subway-stop"
-)
-
 type StopArrival struct {
 	Name      string       `json:"name"`
-	Type      ArrivalType  `json:"type"`
+	Type      VehicleType  `json:"type"`
 	VehicleID string       `json:"vehicleId"`
 	TripID    string       `json:"tripId"`
 	RouteID   string       `json:"routeId"`

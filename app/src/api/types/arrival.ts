@@ -1,17 +1,10 @@
-export type ArrivalState = 'predicted' | 'stopping' | 'planned' | 'departed';
+import { VehicleType } from './vehicle';
 
-export type ArrivalType =
-  | 'bus-stop'
-  | 'parking-spot'
-  | 'ferry-stop'
-  | 'train-stop'
-  | 'subway-stop'
-  | 'bike-stop'
-  | 'tram-stop';
+export type ArrivalState = 'predicted' | 'stopping' | 'planned' | 'departed';
 
 export type StopArrival = {
   name: string;
-  type: ArrivalType;
+  type: VehicleType;
   vehicleId: string;
   tripId: string;
   routeId: string;

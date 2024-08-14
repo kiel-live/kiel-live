@@ -1,6 +1,6 @@
-import { ArrivalType, VehicleType } from '~/api/types';
+import { StopType, VehicleType } from '~/api/types';
 
 export type Marker = {
-  type: ArrivalType | VehicleType;
+  type: StopType | VehicleType;
   id: string;
 };
