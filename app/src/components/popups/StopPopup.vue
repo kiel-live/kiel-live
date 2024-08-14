@@ -1,7 +1,8 @@
 <template>
   <div v-if="stop" class="flex flex-col min-h-0 flex-grow">
     <div class="flex flex-row pb-2 mb-2 border-b-1 dark:border-dark-100 items-center">
-      <i-mdi-sign-real-estate v-if="stop.type === 'bus-stop'" />
+      <i-mdi-ferry v-if="stop.type === 'ferry-stop'" />
+      <i-mdi-sign-real-estate v-else />
       <h1 class="text-lg ml-2">{{ stop.name }}</h1>
       <Button
         v-if="isFavorite(stop)"
@@ -31,38 +32,62 @@
         </ul>
       </div>
 
-      <template v-if="augmentedArrivals">
-        <template v-if="augmentedArrivals.length > 0">
-          <router-link
-            v-for="arrival in augmentedArrivals"
-            :key="arrival.tripId"
-            class="flex flex-col py-2 w-full not-last:border-b-1 dark:border-dark-300"
-            :to="{ name: 'map-marker', params: { markerType: 'bus', markerId: arrival.vehicleId } }"
-          >
-            <div class="flex flex-row">
-              <i-fa-bus class="mr-2" />
-              <span class="mr-2">{{ arrival.routeName }}</span>
-              <span class="flex-grow">{{ arrival.direction }}</span>
-              <span>{{ arrival.eta }}</span>
-              <div class="ml-2">
-                <i-fa-solid-clock v-if="arrival.state === 'planned'" />
-                <i-fa-solid-hand-paper v-if="arrival.state === 'stopping'" />
-                <i-fa-solid-running v-if="arrival.state === 'predicted'" />
-              </div>
-            </div>
-            <div class="flex flex-row gap-1 text-gray-500 dark:text-gray-400 text-xs">
-              <template v-if="arrival.nextStopName">
-                <span>{{ t('next_stop') }}</span>
-                <span>{{ arrival.nextStopName }}</span>
-              </template>
-              <!-- <div v-else class="w-1/3 mb-1 bg-gray-500 dark:bg-gray-400 rounded-lg animate-pulse opacity-10" /> -->
-              <span class="ml-auto">{{ arrival.platform }}</span>
-            </div>
-          </router-link>
-        </template>
-        <NoData v-else>{{ t('no_bus_wants_to_stop_here_right_now') }}</NoData>
-      </template>
-      <i-fa-solid-circle-notch v-else class="m-auto text-3xl animate-spin" />
+      <router-link
+        v-for="arrival in augmentedArrivals"
+        :key="arrival.tripId"
+        class="flex flex-col py-2 w-full not-last:border-b-1 dark:border-dark-300"
+        :to="{
+          name: 'map-marker',
+          params: { markerType: stop.type.replace('-stop', ''), markerId: arrival.vehicleId },
+        }"
+      >
+        <div class="flex flex-row items-center">
+          <i-mdi-bus v-if="arrival.type === 'bus'" class="mr-2 w-6 h-6" />
+          <i-mdi-ferry v-else-if="arrival.type === 'ferry'" class="mr-2" />
+          <i-mdi-tram v-else-if="arrival.type === 'tram'" class="mr-2 w-6 h-6" />
+          <i-carbon-train-profile v-else-if="arrival.type === 'train'" class="mr-2" />
+
+          <span class="mr-2">{{ arrival.routeName }}</span>
+          <span class="flex-grow">{{ arrival.direction }}</span>
+          <span>{{ arrival.eta ?? arrival.planned }}</span>
+          <div class="ml-2 flex items-center">
+            <i-fa-solid-clock v-if="arrival.state === 'planned'" />
+            <i-fa-solid-hand-paper v-if="arrival.state === 'stopping'" />
+            <i-fa-solid-running v-if="arrival.state === 'predicted'" />
+          </div>
+        </div>
+        <div class="flex flex-row gap-1 text-gray-500 dark:text-gray-400 text-xs">
+          <template v-if="arrival.nextStopName">
+            <span>{{ t('next_stop') }}</span>
+            <span>{{ arrival.nextStopName }}</span>
+          </template>
+          <!-- <div v-else class="w-1/3 mb-1 bg-gray-500 dark:bg-gray-400 rounded-lg animate-pulse opacity-10" /> -->
+          <span class="ml-auto">{{ arrival.platform }}</span>
+        </div>
+      </router-link>
+      <router-link
+        v-for="vehicle in stop.vehicles"
+        :key="vehicle.id"
+        class="flex flex-col py-2 w-full not-last:border-b-1 dark:border-dark-300"
+        :to="{
+          name: 'map-marker',
+          params: { markerType: vehicle.type, markerId: vehicle.id },
+        }"
+      >
+        <div class="flex flex-row">
+          <i-ic-outline-pedal-bike v-if="vehicle.type === 'bike'" class="mr-2" />
+          <i-mdi-ferry v-else-if="vehicle.type === 'ferry'" class="mr-2" />
+
+          <span class="mr-2">{{ vehicle.name }}</span>
+        </div>
+      </router-link>
+      <NoData v-if="augmentedArrivals && augmentedArrivals.length === 0">{{
+        t('no_bus_wants_to_stop_here_right_now')
+      }}</NoData>
+      <i-fa-solid-circle-notch
+        v-if="augmentedArrivals === null && stop.vehicles === null"
+        class="m-auto text-3xl animate-spin"
+      />
     </div>
   </div>
   <NoData v-else>
@@ -103,6 +128,10 @@ const marker = toRef(props, 'marker');
 const stop = computed(() => stops.value[props.marker.id]);
 let subject: string | null = null;
 const eta = (arrival: StopArrival) => {
+  if (arrival.eta === 0) {
+    return null;
+  }
+
   const minutes = Math.round(arrival.eta / 60);
 
   if (arrival.state === 'stopping') {
@@ -115,29 +144,38 @@ const eta = (arrival: StopArrival) => {
   return t('minutes', { minutes });
 };
 
-const augmentedArrivals = computed<(Omit<StopArrival, 'eta'> & { nextStopName?: string; eta: string })[] | null>(() => {
-  if (stop.value === undefined || !stop.value.arrivals) {
-    return null;
-  }
-
-  return stop.value.arrivals.map((a) => {
-    const trip = trips.value[a.tripId];
-
-    let nextStopName: string | undefined;
-    if (trip !== undefined && trip.arrivals !== undefined) {
-      const nextStopIndex = trip.arrivals.findIndex((s) => s.id === props.marker.id);
-      if (nextStopIndex !== -1) {
-        nextStopName = trip.arrivals[nextStopIndex + 1]?.name;
-      }
+const augmentedArrivals = computed<(Omit<StopArrival, 'eta'> & { nextStopName?: string; eta: string | null })[] | null>(
+  () => {
+    if (!stop.value?.arrivals) {
+      return null;
     }
 
-    return {
-      ...a,
-      nextStopName,
-      eta: eta(a),
-    };
-  });
-});
+    return stop.value.arrivals
+      .toSorted((a, b) => {
+        if (a.eta === 0 || b.eta === 0) {
+          return a.planned.localeCompare(b.planned);
+        }
+        return a.eta - b.eta;
+      })
+      .map((a) => {
+        const trip = trips.value[a.tripId];
+
+        let nextStopName: string | undefined;
+        if (trip !== undefined && trip.arrivals !== undefined) {
+          const nextStopIndex = trip.arrivals.findIndex((s) => s.id === props.marker.id);
+          if (nextStopIndex !== -1) {
+            nextStopName = trip.arrivals[nextStopIndex + 1]?.name;
+          }
+        }
+
+        return {
+          ...a,
+          nextStopName,
+          eta: eta(a),
+        };
+      });
+  },
+);
 
 watch(
   marker,
@@ -171,7 +209,7 @@ const tripSubscriptions = new Set<string>();
 //       }
 //     });
 
-//     newStop.arrivals.forEach((arrival) => {
+//     newStop.arrivals?.forEach((arrival) => {
 //       if (!tripSubscriptions.has(arrival.tripId)) {
 //         tripSubscriptions.add(arrival.tripId);
 //         void subscribe(`data.map.trip.${arrival.tripId}`, trips);

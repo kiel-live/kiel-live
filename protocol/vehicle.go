@@ -12,6 +12,7 @@ const (
 	VehicleTypeFerry    VehicleType = "ferry"
 	VehicleTypeTrain    VehicleType = "train"
 	VehicleTypeSubway   VehicleType = "subway"
+	VehicleTypeTram     VehicleType = "tram"
 )
 
 // Vehicle can be of a specific type (exp. bus, bike).
