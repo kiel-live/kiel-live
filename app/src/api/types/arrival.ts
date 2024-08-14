@@ -2,15 +2,6 @@ import { VehicleType } from './vehicle';
 
 export type ArrivalState = 'predicted' | 'stopping' | 'planned' | 'departed';
 
-export type ArrivalType =
-  | 'bus-stop'
-  | 'parking-spot'
-  | 'ferry-stop'
-  | 'train-stop'
-  | 'subway-stop'
-  | 'bike-stop'
-  | 'tram-stop';
-
 export type StopArrival = {
   name: string;
   type: VehicleType;
