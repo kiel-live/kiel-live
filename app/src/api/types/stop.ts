@@ -1,15 +1,15 @@
-import { StopArrival } from './arrival';
+import { ArrivalType, StopArrival } from './arrival';
 import { GpsLocation } from './location';
-
-export type StopType = 'bus-stop' | 'parking-spot' | 'ferry-stop' | 'train-stop' | 'subway-stop' | 'bike-stop';
+import { Vehicle } from './vehicle';
 
 export type Stop = {
   id: string;
   provider: string;
   name: string;
-  type: StopType;
+  type: ArrivalType; // deprecated: use arrivals[].type instead
   routes: string[] | null; // list of routes using this stop
   alerts: string[] | null; // general alerts for this stop
   arrivals: StopArrival[] | null;
   location: GpsLocation;
+  vehicles: Vehicle[];
 };

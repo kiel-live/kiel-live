@@ -5,7 +5,7 @@ type Stop struct {
 	ID       string          `json:"id"`
 	Provider string          `json:"provider"`
 	Name     string          `json:"name"`
-	Type     StopArrivalType `json:"type"`
+	Type     StopArrivalType `json:"type"`   // TODO: deprecated, use arrivals[].type instead
 	Routes   []string        `json:"routes"` // list of routes using this stop
 	Alerts   []string        `json:"alerts"` // general alerts for this stop
 	Arrivals []StopArrival   `json:"arrivals"`
