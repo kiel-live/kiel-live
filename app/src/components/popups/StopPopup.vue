@@ -41,16 +41,16 @@
           params: { markerType: stop.type.replace('-stop', ''), markerId: arrival.vehicleId },
         }"
       >
-        <div class="flex flex-row">
-          <i-fa-bus v-if="stop.type === 'bus-stop'" class="mr-2" />
-          <i-mdi-ferry v-else-if="stop.type === 'ferry-stop'" class="mr-2" />
-          <i-mdi-tram v-else-if="stop.type === 'tram-stop'" class="mr-2" />
-          <i-carbon-train-profile v-else-if="stop.type === 'train-stop'" class="mr-2" />
+        <div class="flex flex-row items-center">
+          <i-mdi-bus v-if="arrival.type === 'bus-stop'" class="mr-2 w-6 h-6" />
+          <i-mdi-ferry v-else-if="arrival.type === 'ferry-stop'" class="mr-2" />
+          <i-mdi-tram v-else-if="arrival.type === 'tram-stop'" class="mr-2 w-6 h-6" />
+          <i-carbon-train-profile v-else-if="arrival.type === 'train-stop'" class="mr-2" />
 
           <span class="mr-2">{{ arrival.routeName }}</span>
           <span class="flex-grow">{{ arrival.direction }}</span>
           <span>{{ arrival.eta ?? arrival.planned }}</span>
-          <div class="ml-2">
+          <div class="ml-2 flex items-center">
             <i-fa-solid-clock v-if="arrival.state === 'planned'" />
             <i-fa-solid-hand-paper v-if="arrival.state === 'stopping'" />
             <i-fa-solid-running v-if="arrival.state === 'predicted'" />

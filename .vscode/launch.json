@@ -5,11 +5,19 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Hub",
+      "name": "JSON-RPC",
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceRoot}/hub/",
+      "program": "${workspaceRoot}/jsonrpc/",
+      "cwd": "${workspaceRoot}"
+    },
+    {
+      "name": "GraphQL",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceRoot}/graphql/",
       "cwd": "${workspaceRoot}"
     },
     {

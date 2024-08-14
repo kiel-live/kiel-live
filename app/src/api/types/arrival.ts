@@ -2,6 +2,7 @@ export type ArrivalState = 'predicted' | 'stopping' | 'planned' | 'departed';
 
 export type StopArrival = {
   name: string;
+  type: string;
   vehicleId: string;
   tripId: string;
   routeId: string;

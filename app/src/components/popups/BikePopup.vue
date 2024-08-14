@@ -6,14 +6,14 @@
         <h1 class="text-lg">{{ vehicle.name }}</h1>
       </div>
       <div class="flex mt-2 overflow-x-auto">
-        <div class="inline-flex w-min gap-2">
+        <div class="inline-flex w-min gap-2 pb-4">
           <a
-            :href="`https://tier.app/AF${vehicle.id.replace('nextbike-', '')}`"
+            :href="`https://nxtb.it/${vehicle.id.replace('nextbike-', '')}`"
             target="_blank"
             rel="noopener noreferrer"
             class="flex flex-shrink-0"
           >
-            <button type="button" class="border border-blue-600 bg-blue-600 rounded-full px-4 py-1 text-white">
+            <button type="button" class="border border-blue-400 bg-blue-300 rounded-full px-4 py-1 dark:text-white">
               Rent this bike
             </button>
           </a>
@@ -23,9 +23,14 @@
             rel="noopener noreferrer"
             class="flex flex-shrink-0"
           >
-            <button type="button" class="border border-gray-400 rounded-full px-4 py-1 text-white">Navigate to</button>
+            <button type="button" class="border border-gray-400 rounded-full px-4 py-1 dark:text-white">
+              Navigate to
+            </button>
           </a>
-          <button type="button" class="border border-gray-400 rounded-full px-4 py-1 text-white flex flex-shrink-0">
+          <button
+            type="button"
+            class="border border-gray-400 rounded-full px-4 py-1 dark:text-white flex flex-shrink-0"
+          >
             Reserve bike
           </button>
         </div>

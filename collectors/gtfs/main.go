@@ -288,10 +288,13 @@ func main() {
 				}
 
 				// TODO: consider all routes for stop type
-				stop.Type = protocol.StopType(gtfsRouteTypeToProtocolStopType(route.Type) + "-stop")
+				if stop.Type == "" {
+					stop.Type = protocol.StopType(gtfsRouteTypeToProtocolStopType(route.Type) + "-stop")
+				}
 
 				stop.Arrivals = append(stop.Arrivals, protocol.StopArrival{
 					Name:      stop.Name,
+					Type:      protocol.StopType(gtfsRouteTypeToProtocolStopType(route.Type) + "-stop"),
 					TripID:    IDPrefix + stopTime.TripID,
 					ETA:       0, // TODO: get from gtfs-rt
 					Planned:   departureDate.Format("15:04"),
