@@ -1,6 +1,16 @@
 import { GpsLocation } from './location';
 
-export type VehicleType = 'bus' | 'bike' | 'car' | 'e-scooter' | 'ferry' | 'train' | 'subway' | 'tram';
+export type VehicleType =
+  | 'bus'
+  | 'bike'
+  | 'car'
+  | 'e-scooter'
+  | 'ferry'
+  | 'train'
+  | 'subway'
+  | 'tram'
+  | 'moped'
+  | 'e-moped';
 
 export type Vehicle = {
   id: string;
@@ -8,7 +18,7 @@ export type Vehicle = {
   name: string;
   type: VehicleType;
   state: string;
-  battery: string; // in percent
+  battery?: string; // in percent
   location: GpsLocation;
-  tripId: string;
+  tripId?: string;
 };
