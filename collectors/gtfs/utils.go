@@ -6,15 +6,6 @@ import (
 	"github.com/artonge/go-gtfs"
 )
 
-func findInObjArr[T any, K comparable](arr []T, keyFunc func(T) K, value K) (int, bool) {
-	for i, v := range arr {
-		if keyFunc(v) == value {
-			return i, true
-		}
-	}
-	return -1, false
-}
-
 func weekdayIsActiveInCalendar(calendar gtfs.Calendar) bool {
 	weekday := time.Now().Weekday()
 	switch weekday {
