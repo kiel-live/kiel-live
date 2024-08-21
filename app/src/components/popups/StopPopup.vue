@@ -17,6 +17,8 @@
       </Button>
     </div>
 
+    <Actions :actions="stop.actions ?? []" />
+
     <div class="flex flex-col flex-grow overflow-y-auto">
       <div
         v-if="stop.alerts && stop.alerts.length >= 1"

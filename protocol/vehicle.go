@@ -13,6 +13,8 @@ const (
 	VehicleTypeTrain    VehicleType = "train"
 	VehicleTypeSubway   VehicleType = "subway"
 	VehicleTypeTram     VehicleType = "tram"
+	VehicleTypeMoped    VehicleType = "moped"
+	VehicleTypeEMoped   VehicleType = "e-moped"
 )
 
 // Vehicle can be of a specific type (exp. bus, bike).
@@ -25,4 +27,5 @@ type Vehicle struct {
 	Battery  string      `json:"battery"` // in percent
 	Location Location    `json:"location"`
 	TripID   string      `json:"tripId"`
+	Actions  []Action    `json:"action"`
 }

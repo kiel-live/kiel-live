@@ -2,8 +2,21 @@
   <div v-if="vehicle" class="flex flex-col min-h-0 flex-grow">
     <div class="flex pb-2 mb-2 border-b-1 dark:border-dark-100 space-x-2 items-center">
       <i-fa-bus v-if="vehicle.type === 'bus'" />
+      <i-ic-outline-pedal-bike v-else-if="vehicle.type === 'bike'" />
+      <i-ic-twotone-electric-scooter v-else-if="vehicle.type === 'e-scooter'" />
+      <i-ic-baseline-directions-car v-else-if="vehicle.type === 'car'" />
+      <i-ic-outline-subway v-else-if="vehicle.type === 'subway'" />
+      <i-ic-baseline-train v-else-if="vehicle.type === 'train'" />
+      <i-ic-baseline-tram v-else-if="vehicle.type === 'tram'" />
+      <i-ic-twotone-electric-scooter v-else-if="vehicle.type === 'ferry'" />
+      <i-ic-baseline-moped v-else-if="vehicle.type === 'moped'" />
+      <i-ic-baseline-electric-moped v-else-if="vehicle.type === 'e-moped'" />
+      <i-fa-bus v-else />
       <h1 class="text-lg">{{ vehicle.name }}</h1>
     </div>
+
+    <Actions :actions="vehicle.actions ?? []" />
+
     <template v-if="trip">
       <div v-if="trip.arrivals?.length" class="overflow-y-auto">
         <router-link
@@ -56,6 +69,7 @@ import { useI18n } from 'vue-i18n';
 import { subscribe, trips, unsubscribe, vehicles } from '~/api';
 import { Marker, Vehicle } from '~/api/types';
 import NoData from '~/components/NoData.vue';
+import Actions from '~/components/popups/Actions.vue';
 
 const props = defineProps<{
   marker: Marker;
