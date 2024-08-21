@@ -18,7 +18,7 @@
         <router-link
           v-for="(arrival, i) in trip.arrivals"
           :key="arrival.id"
-          :to="{ name: 'map-marker', params: { markerType: 'bus-stop', markerId: arrival.id } }"
+          :to="{ name: 'map-marker', params: { markerType: `${vehicle.type}-stop`, markerId: arrival.id } }"
           class="flex w-full items-center"
           :class="{
             'text-gray-500 dark:text-gray-400': arrival.state === 'departed',
