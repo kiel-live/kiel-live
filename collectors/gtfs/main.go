@@ -219,14 +219,14 @@ func main() {
 				stop.Alerts = []string{}
 			}
 
-			it, err := txn.Get("stop_times", "stop_id", gtfsStop.ID)
+			stopTimesIt, err := txn.Get("stop_times", "stop_id", gtfsStop.ID)
 			if err != nil {
 				log.Error(err)
 				continue
 			}
 
 			stopTimes := make([]gtfs.StopTime, 0)
-			for obj := it.Next(); obj != nil; obj = it.Next() {
+			for obj := stopTimesIt.Next(); obj != nil; obj = stopTimesIt.Next() {
 				stopTime := obj.(gtfs.StopTime)
 				stopTimes = append(stopTimes, stopTime)
 			}
