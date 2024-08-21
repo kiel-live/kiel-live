@@ -57,7 +57,7 @@
 
     <p v-if="buildDate" class="flex text-gray-500 dark:text-gray-400 text-sm gap-1">
       <span>{{ t('version_from') }}</span>
-      <span>{{ buildDate }}</span>
+      <router-link :to="{ name: 'dev' }">{{ buildDate }}</router-link>
     </p>
   </SettingsContainer>
 </template>

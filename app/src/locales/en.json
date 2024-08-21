@@ -57,5 +57,8 @@
   "feedback_subject": "Feedback to Kiel-Live",
   "send_email": "Send email",
   "contact_us": "Contact us",
-  "changelog_nok_ferry": "Added schedule of the canal ferry Adler 1"
+  "changelog_nok_ferry": "Added schedule of the canal ferry Adler 1",
+  "feature_flag_new_api": "Use new API",
+  "feature_flag_actions": "Enable actions",
+  "feature_flag_actions_description": "Enable actions like navigate to stop, rent vehicle, ..."
 }
