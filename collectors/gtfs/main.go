@@ -56,7 +56,8 @@ func main() {
 		log.Fatalln("Please provide a GTFS path with GTFS_PATH")
 	}
 
-	generalAlerts := os.Getenv("GENERAL_ALERTS")
+	// ; separated list of alerts
+	generalAlerts := os.Getenv("GTFS_GENERAL_ALERTS")
 
 	schema := &memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
@@ -170,6 +171,33 @@ func main() {
 			log.Error(err)
 			return
 		}
+
+		// delete the last stop time for each trip (highest stop_sequence),
+		// because the vehicle does not depart in this trip anymore, the trip is finished
+		stopTimesIt, err := txn.Get("stop_times", "trip_id", trip.ID)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		var lastStopTime *gtfs.StopTime
+		for obj := stopTimesIt.Next(); obj != nil; obj = stopTimesIt.Next() {
+			stopTime := obj.(gtfs.StopTime)
+
+			if lastStopTime == nil {
+				lastStopTime = &stopTime
+			} else if stopTime.StopSeq > lastStopTime.StopSeq {
+				lastStopTime = &stopTime
+			}
+		}
+
+		if lastStopTime != nil {
+			err = txn.Delete("stop_times", lastStopTime)
+			if err != nil {
+				log.Error(err)
+				return
+			}
+		}
 	}
 
 	for _, route := range g.Routes {
@@ -230,21 +258,6 @@ func main() {
 				stopTime := obj.(gtfs.StopTime)
 				stopTimes = append(stopTimes, stopTime)
 			}
-
-			// filteredStopTimes := make([]gtfs.StopTime, 0)
-			// // for each trip remove stop times with the highest stop_sequence (last stop)
-			// for _, stopTime := range stopTimes {
-			// 	isLastStop := true
-			// 	for _, stopTime2 := range stopTimes {
-			// 		if stopTime.TripID == stopTime2.TripID && stopTime.StopSeq < stopTime2.StopSeq {
-			// 			isLastStop = false
-			// 			break
-			// 		}
-			// 	}
-			// 	if !isLastStop {
-			// 		filteredStopTimes = append(filteredStopTimes, stopTime)
-			// 	}
-			// }
 
 			// iterate over stop times
 			for _, stopTime := range stopTimes {
