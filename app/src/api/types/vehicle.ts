@@ -1,6 +1,16 @@
 import { GpsLocation } from './location';
 
-export type VehicleType = 'bus' | 'bike' | 'car' | 'e-scooter' | 'ferry' | 'train' | 'subway';
+export type VehicleType =
+  | 'bus'
+  | 'bike'
+  | 'car'
+  | 'e-scooter'
+  | 'ferry'
+  | 'train'
+  | 'subway'
+  | 'tram'
+  | 'moped'
+  | 'e-moped';
 
 export type Vehicle = {
   id: string;

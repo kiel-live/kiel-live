@@ -2,6 +2,15 @@
   <div v-if="vehicle" class="flex flex-col min-h-0 flex-grow">
     <div class="flex pb-2 mb-2 border-b-1 dark:border-dark-100 space-x-2 items-center">
       <i-fa-bus v-if="vehicle.type === 'bus'" />
+      <i-ic-outline-pedal-bike v-else-if="vehicle.type === 'bike'" />
+      <i-ic-baseline-directions-car v-else-if="vehicle.type === 'car'" />
+      <i-ic-twotone-electric-scooter v-else-if="vehicle.type === 'e-scooter'" />
+      <i-ic-twotone-electric-scooter v-else-if="vehicle.type === 'ferry'" />
+      <i-ic-baseline-train v-else-if="vehicle.type === 'train'" />
+      <i-ic-outline-subway v-else-if="vehicle.type === 'subway'" />
+      <i-ic-baseline-tram v-else-if="vehicle.type === 'tram'" />
+      <i-ic-baseline-moped v-else-if="vehicle.type === 'moped'" />
+      <i-ic-baseline-electric-moped v-else-if="vehicle.type === 'e-moped'" />
       <h1 class="text-lg">{{ vehicle.name }}</h1>
     </div>
     <template v-if="trip">
@@ -9,7 +18,7 @@
         <router-link
           v-for="(arrival, i) in trip.arrivals"
           :key="arrival.id"
-          :to="{ name: 'map-marker', params: { markerType: 'bus-stop', markerId: arrival.id } }"
+          :to="{ name: 'map-marker', params: { markerType: `${vehicle.type}-stop`, markerId: arrival.id } }"
           class="flex w-full items-center"
           :class="{
             'text-gray-500 dark:text-gray-400': arrival.state === 'departed',
@@ -69,7 +78,7 @@ let subject: string | null = null;
 const vehicle = computed<Vehicle | undefined>(() => vehicles.value[marker.value.id]);
 
 const trip = computed(() => {
-  if (!trips.value || !vehicle.value) {
+  if (!trips.value || !vehicle.value || !vehicle.value.tripId) {
     return null;
   }
   return trips.value[vehicle.value.tripId];
@@ -84,7 +93,9 @@ watch(
     if (subject !== null) {
       void unsubscribe(subject);
     }
-    if (!newVehicle) {
+
+    // don't subscribe if no vehicle was selected or it doesn't have a trip
+    if (!newVehicle || !newVehicle.tripId) {
       return;
     }
     subject = `data.map.trip.${newVehicle.tripId}`;
