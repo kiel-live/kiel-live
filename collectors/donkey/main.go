@@ -93,8 +93,6 @@ func main() {
 		}
 
 		for _, hub := range donkeyResp.Hubs {
-			ID := fmt.Sprintf("donkey-%s", hub.ID)
-
 			latitude, err := strconv.ParseFloat(hub.Latitude, 32)
 			if err != nil {
 				return err
@@ -106,7 +104,7 @@ func main() {
 			}
 
 			stop := &protocol.Stop{
-				ID:       ID,
+				ID:       fmt.Sprintf("donkey-%s", hub.ID),
 				Provider: "donkey",
 				Name:     hub.Name,
 				Type:     "bike-stop",
@@ -121,7 +119,7 @@ func main() {
 				return err
 			}
 
-			subject := fmt.Sprintf(protocol.SubjectMapStop, ID)
+			subject := fmt.Sprintf(protocol.SubjectMapStop, stop.ID)
 			err = c.Publish(subject, string(d))
 			if err != nil {
 				return err
