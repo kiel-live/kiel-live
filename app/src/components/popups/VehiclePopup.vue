@@ -93,6 +93,8 @@ watch(
     if (subject !== null) {
       void unsubscribe(subject);
     }
+
+    // don't subscribe if no vehicle was selected or it doesn't have a trip
     if (!newVehicle || !newVehicle.tripId) {
       return;
     }
