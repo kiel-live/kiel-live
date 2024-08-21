@@ -3,7 +3,10 @@
     <div class="inline-flex w-min gap-2 pb-4">
       <template v-for="action in actions" :key="action.url">
         <a :href="action.url" target="_blank" rel="noopener noreferrer" class="flex flex-shrink-0">
-          <button type="button" class="border border-blue-400 bg-blue-300 rounded-full px-4 py-1 dark:text-white">
+          <button
+            type="button"
+            class="border border-gray-300 dark:border-dark-100 text-blue-600 rounded-full px-4 py-1 dark:text-white flex items-center gap-1"
+          >
             <template v-if="action.type === 'navigate-to'">
               <i-ic-baseline-directions />
               <span>{{ t('navigate_to') }}</span>

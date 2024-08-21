@@ -23,4 +23,5 @@ export type Vehicle = {
   location: GpsLocation;
   tripId: string;
   actions?: Action[];
+  description?: string;
 };
