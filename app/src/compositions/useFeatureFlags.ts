@@ -6,27 +6,27 @@ import { localStoragePrefix } from './useUserSettings';
 
 const enabledFeatureFlags = useStorage<string[]>(`${localStoragePrefix}.feature_flags`, []);
 
-const { t } = useI18n();
-
 type FeatureFlag = {
   id: string;
   name: string;
   description?: string;
 };
 
-const featureFlags = [
-  {
-    id: 'new_api',
-    name: t('feature_flag_new_api'),
-  },
-  {
-    id: 'vehicle_stop_actions',
-    name: t('feature_flag_actions'),
-    description: t('feature_flag_actions_description'),
-  },
-] satisfies FeatureFlag[];
-
 export function useFeatureFlags() {
+  const { t } = useI18n();
+
+  const featureFlags = [
+    {
+      id: 'new_api',
+      name: t('feature_flag_new_api'),
+    },
+    {
+      id: 'vehicle_stop_actions',
+      name: t('feature_flag_actions'),
+      description: t('feature_flag_actions_description'),
+    },
+  ] satisfies FeatureFlag[];
+
   return featureFlags.map((flag) => ({
     ...flag,
     enabled: computed({
