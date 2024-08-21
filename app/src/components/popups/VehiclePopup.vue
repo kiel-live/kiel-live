@@ -13,6 +13,9 @@
       <i-ic-baseline-electric-moped v-else-if="vehicle.type === 'e-moped'" />
       <h1 class="text-lg">{{ vehicle.name }}</h1>
     </div>
+
+    <Actions :actions="vehicle.actions ?? []" />
+
     <template v-if="trip">
       <div v-if="trip.arrivals?.length" class="overflow-y-auto">
         <router-link
@@ -65,6 +68,7 @@ import { useI18n } from 'vue-i18n';
 import { subscribe, trips, unsubscribe, vehicles } from '~/api';
 import { Marker, Vehicle } from '~/api/types';
 import NoData from '~/components/NoData.vue';
+import Actions from '~/components/popups/Actions.vue';
 
 const props = defineProps<{
   marker: Marker;

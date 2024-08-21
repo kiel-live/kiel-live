@@ -27,4 +27,5 @@ type Vehicle struct {
 	Battery  string      `json:"battery"` // in percent
 	Location Location    `json:"location"`
 	TripID   string      `json:"tripId"`
+	Actions  []Action    `json:"action"`
 }

@@ -1,3 +1,4 @@
+import { Action } from './action';
 import { GpsLocation } from './location';
 
 export type VehicleType =
@@ -21,4 +22,5 @@ export type Vehicle = {
   battery: string; // in percent
   location: GpsLocation;
   tripId: string;
+  actions?: Action[];
 };

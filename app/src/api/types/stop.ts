@@ -1,3 +1,4 @@
+import { Action } from './action';
 import { StopArrival } from './arrival';
 import { GpsLocation } from './location';
 import { Vehicle } from './vehicle';
@@ -24,4 +25,5 @@ export type Stop = {
   arrivals?: StopArrival[];
   location: GpsLocation;
   vehicles?: Vehicle[];
+  actions?: Action[];
 };
