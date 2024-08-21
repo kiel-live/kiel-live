@@ -13,6 +13,8 @@ const (
 	VehicleTypeTrain    VehicleType = "train"
 	VehicleTypeSubway   VehicleType = "subway"
 	VehicleTypeTram     VehicleType = "tram"
+	VehicleTypeMoped    VehicleType = "moped"
+	VehicleTypeEMoped   VehicleType = "e-moped"
 )
 
 // Vehicle can be of a specific type (exp. bus, bike).
