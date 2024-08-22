@@ -1,5 +1,5 @@
 <template>
-  <div v-if="actions.length > 0 && checkFeatureFlag('vehicle_stop_actions')" class="flex mt-2 overflow-x-auto">
+  <div v-if="actions.length > 0 && checkFeatureFlag('vehicle_stop_actions').value" class="flex mt-2 overflow-x-auto">
     <div class="inline-flex w-min gap-2 pb-4">
       <template v-for="action in actions" :key="action.url">
         <a :href="action.url" target="_blank" rel="noopener noreferrer" class="flex flex-shrink-0">
