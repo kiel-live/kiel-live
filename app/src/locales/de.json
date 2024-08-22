@@ -57,5 +57,12 @@
   "feedback_subject": "Feedback zu Kiel-Live",
   "send_email": "E-Mail senden",
   "contact_us": "Kontaktiere uns",
-  "changelog_nok_ferry": "Fahrplan der Kanal-Fähre Adler 1 hinzugefügt"
+  "changelog_nok_ferry": "Fahrplan der Kanal-Fähre Adler 1 hinzugefügt",
+  "feature_flag_new_api": "Neue API verwenden",
+  "feature_flag_actions": "Aktionen aktivieren",
+  "feature_flag_actions_description": "Aktionen wie das Navigieren zu Fahrzeugen oder Buchen von Tickets aktivieren.",
+  "feature_flags": "Feature flags",
+  "feature_flags_description": "Aktiviere oder deaktiviere Funktionen, die sich noch in der Entwicklung befinden.",
+  "navigate_to": "Navigieren",
+  "rent_vehicle": "Fahrt beginnen"
 }
