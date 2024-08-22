@@ -40,5 +40,5 @@ import { buildDate } from '~/config';
 
 const { t } = useI18n();
 
-const featureFlags = useFeatureFlags();
+const { featureFlags } = useFeatureFlags();
 </script>
