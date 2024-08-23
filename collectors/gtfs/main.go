@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -8,13 +9,14 @@ import (
 	"time"
 
 	"github.com/artonge/go-gtfs"
-	"github.com/go-co-op/gocron"
+	"github.com/go-co-op/gocron/v2"
 	"github.com/hashicorp/go-memdb"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/gtfs/loader"
+	"github.com/kiel-live/kiel-live/collectors/gtfs/rt"
 	"github.com/kiel-live/kiel-live/protocol"
 )
 
@@ -56,8 +58,33 @@ func main() {
 		log.Fatalln("Please provide a GTFS path with GTFS_PATH")
 	}
 
+	gtfsRT, err := rt.NewGTFSRTCollector(context.Background())
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
 	// ; separated list of alerts
 	generalAlerts := os.Getenv("GTFS_GENERAL_ALERTS")
+
+	c := client.NewClient(server, client.WithAuth("collector", token))
+	err = c.Connect()
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+	defer func() {
+		err := c.Disconnect()
+		if err != nil {
+			log.Error(err)
+		}
+	}()
+
+	g, err := loader.LoadGTFS(gtfsPath)
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
 	schema := &memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
@@ -130,97 +157,94 @@ func main() {
 		log.Panic("Failed opening db", err)
 	}
 
-	c := client.NewClient(server, client.WithAuth("collector", token))
-	err = c.Connect()
-	if err != nil {
-		log.Fatalln(err)
-		return
-	}
-	defer func() {
-		err := c.Disconnect()
-		if err != nil {
-			log.Error(err)
-		}
-	}()
-
-	g, err := loader.LoadGTFS(gtfsPath)
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
 	agency := g.Agency
 	if g.Agencies != nil && len(g.Agencies) > 1 {
 		log.Fatal("Multiple agencies are not supported")
 	}
 
-	// create stop times table
-	txn := db.Txn(true)
-
-	for _, stopTime := range g.StopsTimes {
-		err = txn.Insert("stop_times", stopTime)
-		if err != nil {
-			log.Error(err)
-			return
-		}
+	s, err := gocron.NewScheduler()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	for _, trip := range g.Trips {
-		err = txn.Insert("trips", trip)
+	// update gtfs feed
+	_, err = s.NewJob(gocron.DurationJob(time.Hour*24), gocron.NewTask(func() {
+		g, err := loader.LoadGTFS(gtfsPath)
 		if err != nil {
 			log.Error(err)
 			return
 		}
 
-		// delete the last stop time for each trip (highest stop_sequence),
-		// because the vehicle does not depart in this trip anymore, the trip is finished
-		stopTimesIt, err := txn.Get("stop_times", "trip_id", trip.ID)
+		err = importGTFS(db, g)
 		if err != nil {
 			log.Error(err)
 			return
 		}
+	}), gocron.WithLimitedRuns(1), gocron.JobOption(gocron.WithStartImmediately()))
+	if err != nil {
+		log.Fatal(err)
+	}
 
-		var lastStopTime *gtfs.StopTime
-		for obj := stopTimesIt.Next(); obj != nil; obj = stopTimesIt.Next() {
-			stopTime := obj.(gtfs.StopTime)
-
-			if lastStopTime == nil {
-				lastStopTime = &stopTime
-			} else if stopTime.StopSeq > lastStopTime.StopSeq {
-				lastStopTime = &stopTime
-			}
+	// update gtfs-rt feed
+	_, err = s.NewJob(gocron.DurationJob(time.Minute*1), gocron.NewTask(func() {
+		if gtfsRT == nil {
+			return
 		}
 
-		if lastStopTime != nil {
-			err = txn.Delete("stop_times", lastStopTime)
+		txn := db.Txn(false)
+		defer txn.Abort()
+
+		feed, err := gtfsRT.FetchTripUpdates()
+		if err != nil {
+			log.Error(err)
+		}
+
+		if feed == nil {
+			return
+		}
+
+		// TODO: nil check
+		for _, entity := range feed.Entity {
+			tripUpdate := entity.GetTripUpdate()
+
+			stopTimesIt, err := txn.Get("stop_times", "trip_id", tripUpdate.Trip.TripId)
 			if err != nil {
 				log.Error(err)
 				return
 			}
+
+			stopTimes := make(map[uint32]*gtfs.StopTime)
+			for obj := stopTimesIt.Next(); obj != nil; obj = stopTimesIt.Next() {
+				stopTime := obj.(gtfs.StopTime)
+				stopTimes[stopTime.StopSeq] = &stopTime
+			}
+
+			// todo add to db or update somehow
+			for _, u := range tripUpdate.StopTimeUpdate {
+				stopTime, ok := stopTimes[u.GetStopSequence()]
+				if !ok {
+					log.Warnf("Stop time %d not found for trip %s", u.GetStopSequence(), *tripUpdate.Trip.TripId)
+					continue
+				}
+
+				// update stop time
+				// stopTime.Arrival = time.Unix(int64(u.Arrival.Time), 0).Format("15:04:05")
+				// stopTime.Departure = u.Departure.GetTime()
+
+				err := txn.Insert("stop_times", stopTime)
+				if err != nil {
+					log.Error(err)
+					return
+				}
+			}
 		}
+	}), gocron.WithLimitedRuns(1), gocron.JobOption(gocron.WithStartImmediately()))
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	for _, route := range g.Routes {
-		err = txn.Insert("routes", route)
-		if err != nil {
-			log.Error(err)
-			return
-		}
-	}
-
-	for _, calendar := range g.Calendars {
-		err = txn.Insert("calendars", calendar)
-		if err != nil {
-			log.Error(err)
-			return
-		}
-	}
-
-	txn.Commit()
-
-	s := gocron.NewScheduler(time.UTC)
-	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
-	_, err = s.Every(1).Minute().Do(func() {
+	// publish stops and arrivals
+	_, err = s.NewJob(gocron.DurationJob(time.Minute*1), gocron.NewTask(func() {
 		if !c.IsConnected() {
 			return
 		}
@@ -228,7 +252,15 @@ func main() {
 		txn := db.Txn(false)
 		defer txn.Abort()
 
-		for _, gtfsStop := range g.Stops {
+		stopIt, err := txn.Get("stops", "")
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		for obj := stopIt.Next(); obj != nil; obj = stopIt.Next() {
+			gtfsStop := obj.(gtfs.Stop)
+
 			// convert to protocol.Stop
 			stop := protocol.Stop{
 				ID:       IDPrefix + gtfsStop.ID,
@@ -343,13 +375,15 @@ func main() {
 				continue
 			}
 		}
-	})
+	}), gocron.WithLimitedRuns(1), gocron.JobOption(gocron.WithStartImmediately()))
 	if err != nil {
-		log.Errorln(err)
-		return
+		log.Fatal(err)
 	}
 
 	log.Infoln("⚡ GTFS collector started")
 
-	s.StartBlocking()
+	s.Start()
+
+	// block forever
+	select {}
 }
