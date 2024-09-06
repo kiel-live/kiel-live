@@ -54,6 +54,10 @@ export class NatsApi implements Api {
     await this.processSubscriptionsQueue();
 
     void (async () => {
+      if (!this.nc) {
+        throw new Error('NATS connection is not initialized');
+      }
+
       // eslint-disable-next-line no-restricted-syntax
       for await (const s of this.nc.status()) {
         if (s.type === Events.Disconnect) {
