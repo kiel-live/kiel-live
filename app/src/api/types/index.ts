@@ -2,6 +2,7 @@ import { Stop } from './stop';
 import { Trip } from './trip';
 import { Vehicle } from './vehicle';
 
+export * from './api';
 export * from './arrival';
 export * from './location';
 export * from './marker';

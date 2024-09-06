@@ -35,7 +35,7 @@ import { computed, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
-import { isConnected } from '~/api';
+import { api } from '~/api';
 import Button from '~/components/atomic/Button.vue';
 
 const props = defineProps<{
@@ -45,6 +45,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:search-input', searchInput: string): void;
 }>();
+
+const { isConnected } = api;
 
 const { t } = useI18n();
 const route = useRoute();
