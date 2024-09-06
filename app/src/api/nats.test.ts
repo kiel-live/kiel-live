@@ -22,7 +22,7 @@ describe('api', () => {
 
   it('should only subscribe once when called multiple times', async () => {
     const { NatsApi } = await import('./nats');
-    const api = new NatsApi();
+    const api = new NatsApi(false);
     const state = ref({});
     const subscribeMock = vi.fn(() => []);
     api.js.value = { subscribe: subscribeMock } as unknown as JetStreamClient;
@@ -35,7 +35,7 @@ describe('api', () => {
 
   it('should unsubscribe immediately after subscribing', async () => {
     const { NatsApi } = await import('./nats');
-    const api = new NatsApi();
+    const api = new NatsApi(false);
     const unsubscribeMock = vi.fn();
     const subscribeMock = vi.fn(() => ({
       unsubscribe: unsubscribeMock,
@@ -62,7 +62,7 @@ describe('api', () => {
 
   it('should subscribe after unsubscribing', async () => {
     const { NatsApi } = await import('./nats');
-    const api = new NatsApi();
+    const api = new NatsApi(false);
     const unsubscribeMock = vi.fn();
     const subscribeMock = vi.fn(() => ({
       unsubscribe: unsubscribeMock,

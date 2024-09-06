@@ -18,31 +18,33 @@ const sc = StringCodec();
 export const DeletePayload = '---';
 
 export class NatsApi implements Api {
-  vehicles = ref<Record<string, Vehicle>>({});
-
-  stops = ref<Record<string, Stop>>({});
-
-  trips = ref<Record<string, Trip>>({});
-
   isConnected = ref(false);
 
-  subscriptions = ref<Record<string, { subscription?: JetStreamSubscription; pending?: Promise<void> }>>({});
+  private vehicles = ref<Record<string, Vehicle>>({});
 
-  subscriptionsQueue: Record<string, Ref<Record<string, Models>>> = {};
+  private stops = ref<Record<string, Stop>>({});
 
-  nc: NatsConnection | undefined;
+  private trips = ref<Record<string, Trip>>({});
+
+  private subscriptions = ref<Record<string, { subscription?: JetStreamSubscription; pending?: Promise<void> }>>({});
+
+  private subscriptionsQueue: Record<string, Ref<Record<string, Models>>> = {};
+
+  private nc: NatsConnection | undefined;
 
   js: Ref<JetStreamClient | undefined> = ref();
 
-  constructor() {
+  constructor(autoLoad = true) {
+    if (autoLoad) {
+      void this.load();
+    }
+  }
+
+  async load() {
     if (!natsServerUrl || typeof natsServerUrl !== 'string') {
       throw new Error('NATS_URL is invalid!');
     }
 
-    void this.load();
-  }
-
-  private async load() {
     this.nc = await connect({
       servers: [natsServerUrl],
       waitOnFirstConnect: true,
@@ -134,7 +136,7 @@ export class NatsApi implements Api {
     }
   }
 
-  async processSubscriptionsQueue() {
+  private async processSubscriptionsQueue() {
     await Promise.all(
       Object.keys(this.subscriptionsQueue).map(async (subject) => {
         await this.subscribe(subject, this.subscriptionsQueue[subject]);
