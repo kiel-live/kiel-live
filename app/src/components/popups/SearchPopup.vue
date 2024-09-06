@@ -45,10 +45,10 @@ const { t } = useI18n();
 
 // TODO: use proper bounds / server search
 const bounds = ref<Bounds>({
-  maxLat: 0,
-  maxLng: 0,
-  minLat: 0,
-  minLng: 0,
+  east: 0,
+  west: 0,
+  north: 0,
+  south: 0,
 });
 const { stops } = api.useStops(bounds);
 

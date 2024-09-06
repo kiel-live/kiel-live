@@ -1,8 +1,8 @@
 export type Bounds = {
-  minLat: number;
-  minLng: number;
-  maxLat: number;
-  maxLng: number;
+  north: number;
+  south: number;
+  east: number;
+  west: number;
 };
 
 export type GpsLocation = {

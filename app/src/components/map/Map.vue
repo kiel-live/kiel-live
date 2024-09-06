@@ -65,10 +65,10 @@ const mapMovedManually = computed({
 const colorScheme = useColorMode();
 
 const bounds = ref<Bounds>({
-  maxLat: 0,
-  maxLng: 0,
-  minLat: 0,
-  minLng: 0,
+  east: 0,
+  west: 0,
+  north: 0,
+  south: 0,
 });
 const { stops, unsubscribe: unsubscribeStops } = api.useStops(bounds);
 const { vehicles, unsubscribe: unsubscribeVehicles } = api.useVehicles(bounds);
@@ -402,6 +402,12 @@ onMounted(async () => {
       zoom: map.getZoom(),
       pitch: map.getPitch(),
       bearing: map.getBearing(),
+    };
+    bounds.value = {
+      north: map.getBounds().getNorth(),
+      east: map.getBounds().getEast(),
+      south: map.getBounds().getSouth(),
+      west: map.getBounds().getWest(),
     };
   });
 });
