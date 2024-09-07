@@ -96,8 +96,8 @@ func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
 func (c *StopCollector) SubjectsToIDs(subjects []string) []string {
 	var ids []string
 	for _, subject := range subjects {
-		if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")) && subject != fmt.Sprintf(protocol.SubjectMapStop, ">") {
-			ids = append(ids, strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")+api.IDPrefix))
+		if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, api.IDPrefix)) && subject != fmt.Sprintf(protocol.SubjectMapStop, ">") {
+			ids = append(ids, strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, api.IDPrefix)))
 		}
 	}
 	return ids

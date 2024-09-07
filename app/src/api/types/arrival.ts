@@ -1,7 +1,10 @@
+import { VehicleType } from './vehicle';
+
 export type ArrivalState = 'predicted' | 'stopping' | 'planned' | 'departed';
 
 export type StopArrival = {
   name: string;
+  type: VehicleType;
   vehicleId: string;
   tripId: string;
   routeId: string;

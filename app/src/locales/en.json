@@ -54,6 +54,15 @@
   "ok": "Ok",
   "contact_title": "Would you like to share feedback, propose an idea, report an issue, or simply express gratitude? Your email would be greatly appreciated!",
   "contact_email_body": "Hi Kiel-Live Team 👋,\n\n",
+  "feedback_subject": "Feedback to Kiel-Live",
   "send_email": "Send email",
-  "contact_us": "Contact us"
+  "contact_us": "Contact us",
+  "changelog_nok_ferry": "Added schedule of the canal ferry Adler 1",
+  "feature_flag_new_api": "Use new API",
+  "feature_flag_actions": "Enable actions",
+  "feature_flag_actions_description": "Enable actions like navigate to stop, rent vehicle, ...",
+  "feature_flags": "Feature flags",
+  "feature_flags_description": "Enable or disable features that are still in development.",
+  "navigate_to": "Navigate to",
+  "rent_vehicle": "Start ride"
 }
