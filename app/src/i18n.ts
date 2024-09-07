@@ -12,7 +12,6 @@ const i18n = createI18n({
 });
 
 export const loadLocaleMessages = async (locale: string) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { default: messages } = await import(`./locales/${locale}.json`);
 
   i18n.global.setLocaleMessage(locale, messages);

@@ -83,9 +83,9 @@
           <span class="mr-2">{{ vehicle.name }}</span>
         </div>
       </router-link>
-      <NoData v-if="augmentedArrivals && augmentedArrivals.length === 0">{{
-        t('no_bus_wants_to_stop_here_right_now')
-      }}</NoData>
+      <NoData v-if="augmentedArrivals && augmentedArrivals.length === 0">
+        {{ t('no_bus_wants_to_stop_here_right_now') }}
+      </NoData>
       <i-fa-solid-circle-notch
         v-if="augmentedArrivals === null && stop.vehicles === null"
         class="m-auto text-3xl animate-spin"
@@ -114,7 +114,7 @@ import { computed, onUnmounted, toRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { stops, subscribe, trips, unsubscribe } from '~/api';
-import { Marker, StopArrival } from '~/api/types';
+import type { Marker, StopArrival } from '~/api/types';
 import Button from '~/components/atomic/Button.vue';
 import NoData from '~/components/NoData.vue';
 import { useFavorites } from '~/compositions/useFavorites';

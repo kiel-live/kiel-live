@@ -1,6 +1,6 @@
-import { JetStreamClient } from 'nats.ws';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
+import type { JetStreamClient } from 'nats.ws';
 
 vi.mock('nats.ws', async () => {
   const original = await vi.importActual<typeof import('nats.ws')>('nats.ws');

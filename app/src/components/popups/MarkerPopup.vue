@@ -4,7 +4,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Marker } from '~/api/types';
+import type { Marker } from '~/api/types';
 import StopPopup from '~/components/popups/StopPopup.vue';
 import VehiclePopup from '~/components/popups/VehiclePopup.vue';
 

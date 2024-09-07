@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, ref, toRef } from 'vue';
+import { computed, defineComponent, type PropType, ref, toRef } from 'vue';
 
 export default defineComponent({
   name: 'DetailsPopup',

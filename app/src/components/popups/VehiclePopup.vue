@@ -38,7 +38,7 @@
             <div
               v-if="
                 arrival.state !== 'departed' &&
-                (trip.arrivals[i - 1] === undefined || trip.arrivals[i - 1].state === 'departed')
+                  (trip.arrivals[i - 1] === undefined || trip.arrivals[i - 1].state === 'departed')
               "
               class="vehicle before:(h-4 w-4 bg-red-700 rounded-full)"
               :class="{ driving: arrival.state === 'predicted' }"
@@ -48,7 +48,7 @@
             <div
               v-if="
                 (arrival.state !== 'departed' && trip.arrivals[i - 1]?.state !== 'departed') ||
-                arrival.state === 'predicted'
+                  arrival.state === 'predicted'
               "
               class="rounded-full h-4 w-4 flex items-center justify-center bg-gray-800 dark:bg-gray-300"
             />
@@ -71,7 +71,7 @@ import { computed, onUnmounted, toRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { subscribe, trips, unsubscribe, vehicles } from '~/api';
-import { Marker, Vehicle } from '~/api/types';
+import type { Marker, Vehicle } from '~/api/types';
 import NoData from '~/components/NoData.vue';
 import Actions from '~/components/popups/Actions.vue';
 
