@@ -36,7 +36,7 @@ import { brightMapStyle, darkMapStyle } from '~/config';
 
 const props = withDefaults(
   defineProps<{
-    selectedMarker: Partial<Marker>;
+    selectedMarker?: Partial<Marker>;
     mapMovedManually: boolean;
   }>(),
   {
