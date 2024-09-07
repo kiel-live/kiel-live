@@ -22,4 +22,5 @@ type Stop struct {
 	Arrivals []StopArrival `json:"arrivals"`
 	Location Location      `json:"location"`
 	Vehicles []Vehicle     `json:"vehicles"`
+	Actions  []Action      `json:"actions"`
 }

@@ -1,5 +1,5 @@
 import { useStorage } from '@vueuse/core';
-import { computed } from 'vue';
+import { computed, Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { localStoragePrefix } from './useUserSettings';
@@ -27,7 +27,7 @@ export function useFeatureFlags() {
     },
   ] satisfies FeatureFlag[];
 
-  return featureFlags.map((flag) => ({
+  const featureFlagWithEnabled = featureFlags.map((flag) => ({
     ...flag,
     enabled: computed({
       get: () => enabledFeatureFlags.value.includes(flag.name),
@@ -40,4 +40,19 @@ export function useFeatureFlags() {
       },
     }),
   }));
+
+  function checkFeatureFlag(flagId: string): Ref<boolean> {
+    const featureFlag = featureFlagWithEnabled.find((flag) => flag.id === flagId);
+
+    if (!featureFlag) {
+      throw new Error(`Unknown feature flag: ${flagId}`);
+    }
+
+    return featureFlag.enabled;
+  }
+
+  return {
+    featureFlags: featureFlagWithEnabled,
+    checkFeatureFlag,
+  };
 }

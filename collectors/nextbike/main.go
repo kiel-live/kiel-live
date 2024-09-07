@@ -94,6 +94,47 @@ func main() {
 							Latitude:  int(place.Lat * 3600000),
 							Longitude: int(place.Lng * 3600000),
 						},
+						Vehicles: []protocol.Vehicle{},
+					}
+
+					for _, bike := range place.BikeList {
+						vehicle := protocol.Vehicle{
+							ID:       fmt.Sprintf("nextbike-%s", bike.Number),
+							Provider: "nextbike",
+							Name:     fmt.Sprintf("Nextbike %s", bike.Number),
+							Type:     "bike",
+							Location: protocol.Location{
+								Latitude:  int(place.Lat * 3600000),
+								Longitude: int(place.Lng * 3600000),
+							},
+							State: bike.State,
+							Actions: []protocol.Action{
+								{
+									Name: "",
+									Type: "rent",
+									URL:  fmt.Sprintf("https://nxtb.it/%s", bike.Number),
+								},
+								{
+									Name: "",
+									Type: "navigate-to",
+									URL:  fmt.Sprintf("https://www.google.com/maps/place/%f,%f", place.Lat, place.Lng),
+								},
+							},
+							Description: "", // TODO: add pricing data
+						}
+
+						stop.Vehicles = append(stop.Vehicles, vehicle)
+
+						d, err := json.Marshal(vehicle)
+						if err != nil {
+							return err
+						}
+
+						subject := fmt.Sprintf(protocol.SubjectMapVehicle, vehicle.ID)
+						err = c.Publish(subject, string(d))
+						if err != nil {
+							return err
+						}
 					}
 
 					d, err := json.Marshal(stop)
