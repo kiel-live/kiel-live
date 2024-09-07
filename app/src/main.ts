@@ -6,7 +6,7 @@ import i18n from '~/i18n';
 import router from '~/router';
 import { loadApi } from './api';
 
-import 'windi.css';
+import 'virtual:windi.css';
 
 const app = createApp(App);
 

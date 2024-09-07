@@ -21,7 +21,7 @@ let nc: NatsConnection | undefined;
 export const js: Ref<JetStreamClient | undefined> = ref();
 
 export const subscribe = async (subject: string, state: Ref<Record<string, Models>>) => {
-  if (subscriptions.value[subject]) {
+  if (subscriptions.value[subject] !== undefined) {
     return;
   }
 
@@ -67,7 +67,7 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
 };
 
 export const unsubscribe = async (subject: string) => {
-  if (subscriptions.value[subject]) {
+  if (subscriptions.value[subject] !== undefined) {
     const { pending } = subscriptions.value[subject];
     if (pending) {
       await pending;
@@ -75,7 +75,7 @@ export const unsubscribe = async (subject: string) => {
     subscriptions.value[subject]?.subscription?.unsubscribe();
     delete subscriptions.value[subject];
   }
-  if (subscriptionsQueue[subject]) {
+  if (subscriptionsQueue[subject] !== undefined) {
     delete subscriptionsQueue[subject];
   }
 };

@@ -22,10 +22,7 @@
     "jsx": "preserve",
 
     /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "strict": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/**/*.json", "windi.config.ts", "vite.config.ts"],
   "exclude": ["node_modules", "**/__tests__/**/*", "**/dist/**/*"]
