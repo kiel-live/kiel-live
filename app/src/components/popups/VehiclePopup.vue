@@ -1,18 +1,23 @@
 <template>
   <div v-if="vehicle" class="flex flex-col min-h-0 flex-grow">
-    <div class="flex pb-2 mb-2 border-b-1 dark:border-dark-100 space-x-2 items-center">
-      <i-fa-bus v-if="vehicle.type === 'bus'" />
-      <i-ic-outline-pedal-bike v-else-if="vehicle.type === 'bike'" />
-      <i-ic-baseline-directions-car v-else-if="vehicle.type === 'car'" />
-      <i-ic-twotone-electric-scooter v-else-if="vehicle.type === 'e-scooter'" />
-      <i-ic-twotone-electric-scooter v-else-if="vehicle.type === 'ferry'" />
-      <i-ic-baseline-train v-else-if="vehicle.type === 'train'" />
-      <i-ic-outline-subway v-else-if="vehicle.type === 'subway'" />
-      <i-ic-baseline-tram v-else-if="vehicle.type === 'tram'" />
-      <i-ic-baseline-moped v-else-if="vehicle.type === 'moped'" />
-      <i-ic-baseline-electric-moped v-else-if="vehicle.type === 'e-moped'" />
-      <h1 class="text-lg">{{ vehicle.name }}</h1>
-    </div>
+    <header class="border-b-1 dark:border-dark-100 mb-2">
+      <div class="flex pb-2 space-x-2 items-center">
+        <i-fa-bus v-if="vehicle.type === 'bus'" />
+        <i-ic-outline-pedal-bike v-else-if="vehicle.type === 'bike'" />
+        <i-ic-baseline-directions-car v-else-if="vehicle.type === 'car'" />
+        <i-ic-twotone-electric-scooter v-else-if="vehicle.type === 'e-scooter'" />
+        <i-ic-twotone-electric-scooter v-else-if="vehicle.type === 'ferry'" />
+        <i-ic-baseline-train v-else-if="vehicle.type === 'train'" />
+        <i-ic-outline-subway v-else-if="vehicle.type === 'subway'" />
+        <i-ic-baseline-tram v-else-if="vehicle.type === 'tram'" />
+        <i-ic-baseline-moped v-else-if="vehicle.type === 'moped'" />
+        <i-ic-baseline-electric-moped v-else-if="vehicle.type === 'e-moped'" />
+        <h1 class="text-lg">{{ vehicle.name }}</h1>
+      </div>
+
+      <Actions :actions="vehicle.actions ?? []" />
+    </header>
+
     <template v-if="trip">
       <div v-if="trip.arrivals?.length" class="overflow-y-auto">
         <router-link
@@ -53,18 +58,22 @@
       </div>
       <NoData v-else>{{ t('trip_expired') }}</NoData>
     </template>
-    <i-fa-solid-circle-notch v-else class="mx-auto mt-4 text-3xl animate-spin" />
+    <i-fa-solid-circle-notch v-else-if="vehicle.tripId !== ''" class="mx-auto mt-4 text-3xl animate-spin" />
+    <!-- eslint-disable-next-line vue/no-v-html -->
+    <span v-if="vehicleDescription" class="prose" v-html="vehicleDescription" />
   </div>
   <NoData v-else>{{ t('trip_does_not_exist') }}</NoData>
 </template>
 
 <script lang="ts" setup>
+import { micromark } from 'micromark';
 import { computed, onUnmounted, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { api } from '~/api';
 import { Marker } from '~/api/types';
 import NoData from '~/components/NoData.vue';
+import Actions from '~/components/popups/Actions.vue';
 
 const props = defineProps<{
   marker: Marker;
@@ -76,6 +85,10 @@ const marker = toRef(props, 'marker');
 
 const { vehicle, unsubscribe: unsubscribeVehicle } = api.useVehicle(computed(() => marker.value.id));
 const { trip, unsubscribe: unsubscribeTrip } = api.useTrip(computed(() => vehicle.value?.tripId));
+
+const vehicleDescription = computed(() =>
+  vehicle.value?.description ? micromark(vehicle.value.description.trim()) : null,
+);
 
 onUnmounted(async () => {
   await unsubscribeVehicle();
