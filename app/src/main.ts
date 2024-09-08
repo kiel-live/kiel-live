@@ -1,5 +1,3 @@
-import 'windi.css';
-
 import { createApp } from 'vue';
 
 import App from '~/App.vue';
@@ -7,6 +5,8 @@ import i18n from '~/i18n';
 import router from '~/router';
 
 import { loadApi } from './api';
+
+import 'virtual:windi.css';
 
 const app = createApp(App);
 

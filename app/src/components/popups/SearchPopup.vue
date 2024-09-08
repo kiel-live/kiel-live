@@ -47,7 +47,6 @@ export default defineComponent({
   },
 
   emits: {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     'update:search-input': (_searchInput: string) => true,
   },
 

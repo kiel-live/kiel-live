@@ -71,7 +71,7 @@ import { computed, onUnmounted, toRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { subscribe, trips, unsubscribe, vehicles } from '~/api';
-import { Marker, Vehicle } from '~/api/types';
+import type { Marker, Vehicle } from '~/api/types';
 import NoData from '~/components/NoData.vue';
 import Actions from '~/components/popups/Actions.vue';
 

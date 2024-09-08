@@ -3,36 +3,35 @@
 </template>
 
 <script lang="ts" setup>
-// eslint-disable-next-line no-restricted-imports
-import 'maplibre-gl/dist/maplibre-gl.css';
-
 import { useElementSize } from '@vueuse/core';
+import {
+  AttributionControl,
+  type GeoJSONSource,
+  GeolocateControl,
+  type LineLayerSpecification,
+  Map,
+  NavigationControl,
+  type Source,
+  type SymbolLayerSpecification,
+} from 'maplibre-gl';
+import { computed, onMounted, ref, type Ref, toRef, watch } from 'vue';
 import type {
+  GeoJsonProperties as _GeoJsonProperties,
   Feature,
   FeatureCollection,
-  GeoJsonProperties as _GeoJsonProperties,
   Geometry,
   LineString,
   Point,
 } from 'geojson';
-import {
-  AttributionControl,
-  GeoJSONSource,
-  GeolocateControl,
-  LineLayerSpecification,
-  Map,
-  NavigationControl,
-  Source,
-  SymbolLayerSpecification,
-} from 'maplibre-gl';
-import { computed, onMounted, Ref, ref, toRef, watch } from 'vue';
 
 import { stops, subscribe, trips, vehicles } from '~/api';
-import { Marker, StopType, VehicleType } from '~/api/types';
+import type { Marker, StopType, VehicleType } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
 import { useUserSettings } from '~/compositions/useUserSettings';
 import { brightMapStyle, darkMapStyle } from '~/config';
+
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 const props = withDefaults(
   defineProps<{

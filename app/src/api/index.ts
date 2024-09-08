@@ -1,16 +1,8 @@
-import {
-  connect,
-  consumerOpts,
-  createInbox,
-  Events,
-  JetStreamClient,
-  JetStreamSubscription,
-  NatsConnection,
-  StringCodec,
-} from 'nats.ws';
-import { Ref, ref } from 'vue';
+import { connect, consumerOpts, createInbox, Events, StringCodec } from 'nats.ws';
+import { ref, type Ref } from 'vue';
+import type { JetStreamClient, JetStreamSubscription, NatsConnection } from 'nats.ws';
 
-import { Models, Stop, Trip, Vehicle } from '~/api/types';
+import type { Models, Stop, Trip, Vehicle } from '~/api/types';
 import { natsServerUrl } from '~/config';
 
 const sc = StringCodec();
@@ -29,7 +21,7 @@ let nc: NatsConnection | undefined;
 export const js: Ref<JetStreamClient | undefined> = ref();
 
 export const subscribe = async (subject: string, state: Ref<Record<string, Models>>) => {
-  if (subscriptions.value[subject]) {
+  if (subscriptions.value[subject] !== undefined) {
     return;
   }
 
@@ -56,7 +48,6 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
   resolvePendingSubscription();
 
   void (async () => {
-    // eslint-disable-next-line no-restricted-syntax
     for await (const m of sub) {
       const raw = sc.decode(m.data);
       if (raw === DeletePayload) {
@@ -65,7 +56,6 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
       } else {
         const newModel = JSON.parse(raw) as Models;
         if (raw !== JSON.stringify(state.value[newModel.id])) {
-          // eslint-disable-next-line no-param-reassign
           state.value = Object.freeze({
             ...state.value,
             [newModel.id]: Object.freeze(newModel),
@@ -77,7 +67,7 @@ export const subscribe = async (subject: string, state: Ref<Record<string, Model
 };
 
 export const unsubscribe = async (subject: string) => {
-  if (subscriptions.value[subject]) {
+  if (subscriptions.value[subject] !== undefined) {
     const { pending } = subscriptions.value[subject];
     if (pending) {
       await pending;
@@ -85,7 +75,7 @@ export const unsubscribe = async (subject: string) => {
     subscriptions.value[subject]?.subscription?.unsubscribe();
     delete subscriptions.value[subject];
   }
-  if (subscriptionsQueue[subject]) {
+  if (subscriptionsQueue[subject] !== undefined) {
     delete subscriptionsQueue[subject];
   }
 };
@@ -115,7 +105,6 @@ export const loadApi = async () => {
   await processSubscriptionsQueue();
 
   void (async () => {
-    // eslint-disable-next-line no-restricted-syntax
     for await (const s of nc.status()) {
       if (s.type === Events.Disconnect) {
         isConnected.value = false;

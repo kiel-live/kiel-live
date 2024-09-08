@@ -1,5 +1,4 @@
 {
-  "language": "Language",
   "search": "Search",
   "trip_expired": "This tour is probably already over.",
   "trip_does_not_exist": "This tour probably does not exist (anymore).",
@@ -16,8 +15,8 @@
   "feedback": "Feel free to send feedback to {email} and follow us on {instagram}",
   "nice": "Nice!",
   "instagram": "Instagram",
-  "404_error": "Whoa 404, either we broke something or you had a typing mishap :-/",
-  "404_back_to": "Back to {link}",
+  "not_found_error": "Whoa 404, either we broke something or you had a typing mishap :-/",
+  "not_found_back_to": "Back to {link}",
   "home": "Home",
   "update": "Update",
   "close": "Close",

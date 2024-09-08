@@ -20,10 +20,10 @@ import SettingsContainer from '~/components/layout/SettingsContainer.vue';
 
 const { t } = useI18n();
 
-type ChangelogEntry = {
+interface ChangelogEntry {
   date: Date;
   text: string;
-};
+}
 
 const changelog: ChangelogEntry[] = [
   {
