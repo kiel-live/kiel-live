@@ -1,5 +1,5 @@
-import { Action } from './action';
-import { GpsLocation } from './location';
+import type { Action } from './action';
+import type { GpsLocation } from './location';
 
 export type VehicleType =
   | 'bus'
@@ -13,7 +13,7 @@ export type VehicleType =
   | 'moped'
   | 'e-moped';
 
-export type Vehicle = {
+export interface Vehicle {
   id: string;
   provider: string;
   name: string;
@@ -24,4 +24,4 @@ export type Vehicle = {
   tripId?: string;
   actions?: Action[];
   description?: string;
-};
+}

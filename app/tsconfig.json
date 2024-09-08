@@ -1,21 +1,29 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
-    "strict": true,
-    "jsx": "preserve",
+    "types": ["vite/client", "unplugin-icons/types/vue", "vite-plugin-pwa/client"],
     "sourceMap": true,
-    "resolveJsonModule": true,
+    "useDefineForClassFields": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "lib": ["esnext", "dom"],
     "paths": {
       "~/*": ["./src/*"]
     },
-    "types": ["vite/client", "unplugin-icons/types/vue", "vite-plugin-pwa/client"],
-    "isolatedModules": true
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+
+    /* Linting */
+    "strict": true
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "components.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/**/*.json", "windi.config.ts", "vite.config.ts"],
+  "exclude": ["node_modules", "**/__tests__/**/*", "**/dist/**/*"]
 }

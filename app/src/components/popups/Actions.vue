@@ -23,7 +23,7 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
 
-import { Action } from '~/api/types/action';
+import type { Action } from '~/api/types/action';
 import Button from '~/components/atomic/Button.vue';
 import { useFeatureFlags } from '~/compositions/useFeatureFlags';
 

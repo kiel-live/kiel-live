@@ -1,16 +1,16 @@
 import { useStorage } from '@vueuse/core';
-import { computed, Ref } from 'vue';
+import { computed, type Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { localStoragePrefix } from './useUserSettings';
 
 const enabledFeatureFlags = useStorage<string[]>(`${localStoragePrefix}.feature_flags`, []);
 
-type FeatureFlag = {
+interface FeatureFlag {
   id: string;
   name: string;
   description?: string;
-};
+}
 
 export function useFeatureFlags() {
   const { t } = useI18n();

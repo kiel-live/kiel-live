@@ -1,8 +1,8 @@
-import { VehicleType } from './vehicle';
+import type { VehicleType } from './vehicle';
 
 export type ArrivalState = 'predicted' | 'stopping' | 'planned' | 'departed';
 
-export type StopArrival = {
+export interface StopArrival {
   name: string;
   type: VehicleType;
   vehicleId: string;
@@ -14,11 +14,11 @@ export type StopArrival = {
   planned: string;
   eta: number; // in seconds
   platform: string;
-};
+}
 
-export type TripArrival = {
+export interface TripArrival {
   id: string;
   name: string;
   state: ArrivalState;
   planned: string;
-};
+}

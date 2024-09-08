@@ -17,9 +17,9 @@ const props = defineProps({
   },
 });
 
-const modelValue = toRef(props, 'modelValue');
-
 defineEmits<{
   (e: 'update:modelValue', v: boolean): void;
 }>();
+
+const modelValue = toRef(props, 'modelValue');
 </script>

@@ -42,7 +42,7 @@
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { Marker } from '~/api/types';
+import type { Marker } from '~/api/types';
 import DetailsPopup from '~/components/DetailsPopup.vue';
 import AppBar from '~/components/layout/AppBar.vue';
 import Map from '~/components/map/Map.vue';

@@ -1,4 +1,4 @@
 import { NatsApi } from './nats';
-import { Api } from './types';
+import type { Api } from './types';
 
 export const api: Api = new NatsApi();

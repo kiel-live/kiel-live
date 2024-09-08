@@ -83,9 +83,9 @@
           <span class="mr-2">{{ vehicle.name }}</span>
         </div>
       </router-link>
-      <NoData v-if="augmentedArrivals && augmentedArrivals.length === 0">{{
-        t('no_bus_wants_to_stop_here_right_now')
-      }}</NoData>
+      <NoData v-if="augmentedArrivals && augmentedArrivals.length === 0">
+        {{ t('no_bus_wants_to_stop_here_right_now') }}
+      </NoData>
       <i-fa-solid-circle-notch
         v-if="augmentedArrivals === null && stop.vehicles === null"
         class="m-auto text-3xl animate-spin"

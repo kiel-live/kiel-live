@@ -29,7 +29,7 @@ import { useI18n } from 'vue-i18n';
 import Checkbox from '~/components/atomic/Checkbox.vue';
 import Select from '~/components/atomic/Select.vue';
 import SettingsContainer from '~/components/layout/SettingsContainer.vue';
-import { Theme, useColorMode } from '~/compositions/useColorMode';
+import { type Theme, useColorMode } from '~/compositions/useColorMode';
 import { useUserSettings } from '~/compositions/useUserSettings';
 
 const { liteMode } = useUserSettings();
