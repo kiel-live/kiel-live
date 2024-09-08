@@ -35,7 +35,7 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { api } from '~/api';
-import { Bounds } from '~/api/types';
+import type { Bounds } from '~/api/types';
 
 const searchInput = defineModel<string>('searchInput', {
   default: '',

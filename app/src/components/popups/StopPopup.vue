@@ -114,7 +114,7 @@ import { computed, onBeforeUnmount, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { api } from '~/api';
-import { Marker, StopArrival } from '~/api/types';
+import type { Marker, StopArrival } from '~/api/types';
 import Button from '~/components/atomic/Button.vue';
 import NoData from '~/components/NoData.vue';
 import { useFavorites } from '~/compositions/useFavorites';
@@ -161,7 +161,7 @@ const augmentedArrivals = computed<(Omit<StopArrival, 'eta'> & { nextStopName?: 
           }
           return a.eta - b.eta;
         })
-        // eslint-disable-next-line arrow-body-style
+         
         .map((a) => {
           // const trip = trips.value[a.tripId];
 

@@ -14,7 +14,7 @@ import {
   type Source,
   type SymbolLayerSpecification,
 } from 'maplibre-gl';
-import { computed, onMounted, ref, type Ref, toRef, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, type Ref, toRef, watch } from 'vue';
 import type {
   GeoJsonProperties as _GeoJsonProperties,
   Feature,
@@ -23,20 +23,9 @@ import type {
   LineString,
   Point,
 } from 'geojson';
-import {
-  AttributionControl,
-  GeoJSONSource,
-  GeolocateControl,
-  LineLayerSpecification,
-  Map,
-  NavigationControl,
-  Source,
-  SymbolLayerSpecification,
-} from 'maplibre-gl';
-import { computed, onBeforeUnmount, onMounted, Ref, ref, toRef, watch } from 'vue';
 
 import { api } from '~/api';
-import { Bounds, Marker, StopType, VehicleType } from '~/api/types';
+import type { Bounds, Marker, StopType, VehicleType } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
 import { useUserSettings } from '~/compositions/useUserSettings';

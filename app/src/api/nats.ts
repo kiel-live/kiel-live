@@ -1,16 +1,9 @@
-import {
-  connect,
-  consumerOpts,
-  createInbox,
-  Events,
-  JetStreamClient,
-  JetStreamSubscription,
-  NatsConnection,
-  StringCodec,
-} from 'nats.ws';
-import { computed, Ref, ref, watch } from 'vue';
+import { connect, consumerOpts, createInbox, Events, StringCodec } from 'nats.ws';
+import { computed, ref, watch } from 'vue';
+import type { JetStreamClient, JetStreamSubscription, NatsConnection } from 'nats.ws';
+import type { Ref } from 'vue';
 
-import { Api, Models, Stop, Trip, Vehicle } from '~/api/types';
+import type { Api, Models, Stop, Trip, Vehicle } from '~/api/types';
 import { natsServerUrl } from '~/config';
 
 const sc = StringCodec();
@@ -60,7 +53,6 @@ export class NatsApi implements Api {
         throw new Error('NATS connection is not initialized');
       }
 
-      // eslint-disable-next-line no-restricted-syntax
       for await (const s of this.nc.status()) {
         if (s.type === Events.Disconnect) {
           this.isConnected.value = false;
@@ -102,7 +94,6 @@ export class NatsApi implements Api {
     resolvePendingSubscription();
 
     void (async () => {
-      // eslint-disable-next-line no-restricted-syntax
       for await (const m of sub) {
         const raw = sc.decode(m.data);
         if (raw === DeletePayload) {
@@ -111,7 +102,6 @@ export class NatsApi implements Api {
         } else {
           const newModel = JSON.parse(raw) as Models;
           if (raw !== JSON.stringify(state.value[newModel.id])) {
-            // eslint-disable-next-line no-param-reassign
             state.value = Object.freeze({
               ...state.value,
               [newModel.id]: Object.freeze(newModel),
