@@ -174,7 +174,7 @@ export class NatsApi implements Api {
     });
 
     return {
-      stop: computed(() => (stopId.value ? this.stops.value[stopId.value] ?? null : null)),
+      stop: computed(() => (stopId.value ? (this.stops.value[stopId.value] ?? null) : null)),
       loading: ref(false),
       unsubscribe: async () => {
         await this.unsubscribe(`data.map.stop.${stopId.value}`);
@@ -197,7 +197,7 @@ export class NatsApi implements Api {
     });
 
     return {
-      vehicle: computed(() => (vehicleId.value ? this.vehicles.value[vehicleId.value] ?? null : null)),
+      vehicle: computed(() => (vehicleId.value ? (this.vehicles.value[vehicleId.value] ?? null) : null)),
       loading: ref(false),
       unsubscribe: async () => {
         await this.unsubscribe(`data.map.vehicle.${vehicleId.value}`);
@@ -220,7 +220,7 @@ export class NatsApi implements Api {
     });
 
     return {
-      trip: computed(() => (tripId.value ? this.trips.value[tripId.value] ?? null : null)),
+      trip: computed(() => (tripId.value ? (this.trips.value[tripId.value] ?? null) : null)),
       loading: ref(false),
       unsubscribe: async () => {
         await this.unsubscribe(`data.map.trip.${tripId.value}`);

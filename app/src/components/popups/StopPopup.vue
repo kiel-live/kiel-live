@@ -153,33 +153,31 @@ const augmentedArrivals = computed<(Omit<StopArrival, 'eta'> & { nextStopName?: 
       return null;
     }
 
-    return (
-      stop.value.arrivals
-        .toSorted((a, b) => {
-          if (a.eta === 0 || b.eta === 0) {
-            return a.planned.localeCompare(b.planned);
-          }
-          return a.eta - b.eta;
-        })
-         
-        .map((a) => {
-          // const trip = trips.value[a.tripId];
+    return stop.value.arrivals
+      .toSorted((a, b) => {
+        if (a.eta === 0 || b.eta === 0) {
+          return a.planned.localeCompare(b.planned);
+        }
+        return a.eta - b.eta;
+      })
 
-          // let nextStopName: string | undefined;
-          // if (trip !== undefined && trip.arrivals !== undefined) {
-          //   const nextStopIndex = trip.arrivals.findIndex((s) => s.id === props.marker.id);
-          //   if (nextStopIndex !== -1) {
-          //     nextStopName = trip.arrivals[nextStopIndex + 1]?.name;
-          //   }
-          // }
+      .map((a) => {
+        // const trip = trips.value[a.tripId];
 
-          return {
-            ...a,
-            nextStopName: undefined,
-            eta: eta(a),
-          };
-        })
-    );
+        // let nextStopName: string | undefined;
+        // if (trip !== undefined && trip.arrivals !== undefined) {
+        //   const nextStopIndex = trip.arrivals.findIndex((s) => s.id === props.marker.id);
+        //   if (nextStopIndex !== -1) {
+        //     nextStopName = trip.arrivals[nextStopIndex + 1]?.name;
+        //   }
+        // }
+
+        return {
+          ...a,
+          nextStopName: undefined,
+          eta: eta(a),
+        };
+      });
   },
 );
 

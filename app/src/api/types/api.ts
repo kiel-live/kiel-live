@@ -6,7 +6,11 @@ import type { Trip } from './trip';
 import type { Vehicle } from './vehicle';
 
 export interface Api {
-  useStops: (bounds: Ref<Bounds>) => { stops: Ref<Stop[]>; loading: Ref<boolean>; unsubscribe: () => void | Promise<void> };
+  useStops: (bounds: Ref<Bounds>) => {
+    stops: Ref<Stop[]>;
+    loading: Ref<boolean>;
+    unsubscribe: () => void | Promise<void>;
+  };
 
   useVehicles: (bounds: Ref<Bounds>) => {
     vehicles: Ref<Vehicle[]>;
