@@ -9,9 +9,7 @@ import eslintPluginVueScopedCSS from 'eslint-plugin-vue-scoped-css';
 export default antfu(
   {
     stylistic: false,
-    typescript: {
-      tsconfigPath: './tsconfig.json',
-    },
+    typescript: true,
     vue: true,
 
     // Disable jsonc and yaml support
@@ -21,12 +19,6 @@ export default antfu(
 
   js.configs.recommended,
   // eslintPromise.configs.recommended,
-
-  // TypeScript
-  //...tseslint.configs.recommended,
-  //...tseslint.configs.recommendedTypeChecked,
-  //...tseslint.configs.strictTypeChecked,
-  //...tseslint.configs.stylisticTypeChecked,
 
   {
     rules: {
@@ -61,6 +53,7 @@ export default antfu(
         },
       ],
       'vue/singleline-html-element-content-newline': ['off'],
+      'vue/html-indent': 'off',
     },
   },
 
