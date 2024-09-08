@@ -4,7 +4,6 @@
 
 <script lang="ts" setup>
 import { useElementSize } from '@vueuse/core';
-
 import {
   AttributionControl,
   type GeoJSONSource,
@@ -24,12 +23,14 @@ import type {
   LineString,
   Point,
 } from 'geojson';
+
 import { stops, subscribe, trips, vehicles } from '~/api';
 import type { Marker, StopType, VehicleType } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
 import { useUserSettings } from '~/compositions/useUserSettings';
 import { brightMapStyle, darkMapStyle } from '~/config';
+
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const props = withDefaults(

@@ -1,4 +1,3 @@
- 
 import path from 'node:path';
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 import vue from '@vitejs/plugin-vue';
