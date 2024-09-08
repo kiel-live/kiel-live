@@ -16,7 +16,7 @@
         :key="searchResult.refIndex"
         :to="{ name: 'map-marker', params: { markerType: searchResult.item.type, markerId: searchResult.item.id } }"
         class="flex py-2 not-last:border-b-1 dark:border-dark-300 max-w-full"
-        @click="$emit('update:search-input', '')"
+        @click="searchInput = ''"
       >
         <i-mdi-sign-real-estate v-if="searchResult.item.type === 'bus-stop'" class="mr-2" />
         <i-mdi-ferry v-else-if="searchResult.item.type === 'ferry-stop'" class="mr-2" />
@@ -29,55 +29,44 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import Fuse from 'fuse.js';
-import { computed, defineComponent, onMounted, toRef } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { stops, subscribe, vehicles } from '~/api';
+import { api } from '~/api';
+import type { Bounds } from '~/api/types';
 
-export default defineComponent({
-  name: 'SearchPopup',
+const searchInput = defineModel<string>('searchInput', {
+  default: '',
+});
 
-  props: {
-    searchInput: {
-      type: String,
-      default: '',
-    },
-  },
+const { t } = useI18n();
 
-  emits: {
-    'update:search-input': (_searchInput: string) => true,
-  },
+// TODO: use proper bounds / server search
+const bounds = ref<Bounds>({
+  east: 0,
+  west: 0,
+  north: 0,
+  south: 0,
+});
+const { stops } = api.useStops(bounds);
 
-  setup(props) {
-    const { t } = useI18n();
+const searchData = computed(() => [...Object.values(stops.value)]);
+const searchIndex = computed(
+  () =>
+    new Fuse(searchData.value, {
+      includeScore: true,
+      keys: ['name'],
+      threshold: 0.4,
+    }),
+);
 
-    const searchInput = toRef(props, 'searchInput');
-    const searchData = computed(() => [...Object.values(stops.value)]);
-    const searchIndex = computed(
-      () =>
-        new Fuse(searchData.value, {
-          includeScore: true,
-          keys: ['name'],
-          threshold: 0.4,
-        }),
-    );
-
-    const searchResults = computed(() => {
-      if (searchInput.value === '' || searchInput.value.length < 3) {
-        return [];
-      }
-      // limit to max 20 results
-      return searchIndex.value.search(searchInput.value).slice(0, 20);
-    });
-
-    onMounted(async () => {
-      void subscribe('data.map.vehicle.>', vehicles);
-      void subscribe('data.map.stop.>', stops);
-    });
-
-    return { t, searchResults };
-  },
+const searchResults = computed(() => {
+  if (searchInput.value === '' || searchInput.value.length < 3) {
+    return [];
+  }
+  // limit to max 20 results
+  return searchIndex.value.search(searchInput.value).slice(0, 20);
 });
 </script>

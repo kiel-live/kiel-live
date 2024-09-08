@@ -110,10 +110,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted, toRef, watch } from 'vue';
+import { computed, onBeforeUnmount, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { stops, subscribe, trips, unsubscribe } from '~/api';
+import { api } from '~/api';
 import type { Marker, StopArrival } from '~/api/types';
 import Button from '~/components/atomic/Button.vue';
 import NoData from '~/components/NoData.vue';
@@ -127,8 +127,9 @@ const { addFavorite, removeFavorite, isFavorite } = useFavorites();
 const { t } = useI18n();
 
 const marker = toRef(props, 'marker');
-const stop = computed(() => stops.value[props.marker.id]);
-let subject: string | null = null;
+
+const { stop, unsubscribe: unsubscribeStop } = api.useStop(computed(() => props.marker.id));
+
 const eta = (arrival: StopArrival) => {
   if (arrival.eta === 0) {
     return null;
@@ -159,42 +160,28 @@ const augmentedArrivals = computed<(Omit<StopArrival, 'eta'> & { nextStopName?: 
         }
         return a.eta - b.eta;
       })
-      .map((a) => {
-        const trip = trips.value[a.tripId];
 
-        let nextStopName: string | undefined;
-        if (trip !== undefined && trip.arrivals !== undefined) {
-          const nextStopIndex = trip.arrivals.findIndex((s) => s.id === props.marker.id);
-          if (nextStopIndex !== -1) {
-            nextStopName = trip.arrivals[nextStopIndex + 1]?.name;
-          }
-        }
+      .map((a) => {
+        // const trip = trips.value[a.tripId];
+
+        // let nextStopName: string | undefined;
+        // if (trip !== undefined && trip.arrivals !== undefined) {
+        //   const nextStopIndex = trip.arrivals.findIndex((s) => s.id === props.marker.id);
+        //   if (nextStopIndex !== -1) {
+        //     nextStopName = trip.arrivals[nextStopIndex + 1]?.name;
+        //   }
+        // }
 
         return {
           ...a,
-          nextStopName,
+          nextStopName: undefined,
           eta: eta(a),
         };
       });
   },
 );
 
-watch(
-  marker,
-  async (newMarker, oldMarker) => {
-    if (newMarker.id === oldMarker?.id) {
-      return;
-    }
-    if (subject !== null) {
-      void unsubscribe(subject);
-    }
-    subject = `data.map.stop.${newMarker.id}`;
-    await subscribe(subject, stops);
-  },
-  { immediate: true },
-);
-
-const tripSubscriptions = new Set<string>();
+// const tripSubscriptions = new Set<string>();
 
 // watch arrivals and subscribe to trips
 // watch(
@@ -221,12 +208,7 @@ const tripSubscriptions = new Set<string>();
 //   { immediate: true },
 // );
 
-onUnmounted(() => {
-  if (subject !== null) {
-    void unsubscribe(subject);
-  }
-  tripSubscriptions.forEach((tripId) => {
-    void unsubscribe(`data.map.trip.${tripId}`);
-  });
+onBeforeUnmount(async () => {
+  await unsubscribeStop();
 });
 </script>

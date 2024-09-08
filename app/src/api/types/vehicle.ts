@@ -19,9 +19,9 @@ export interface Vehicle {
   name: string;
   type: VehicleType;
   state: string;
-  battery: string; // in percent
+  battery?: string; // in percent
   location: GpsLocation;
-  tripId: string;
+  tripId?: string;
   actions?: Action[];
   description?: string;
 }

@@ -67,11 +67,11 @@
 
 <script lang="ts" setup>
 import { micromark } from 'micromark';
-import { computed, onUnmounted, toRef, watch } from 'vue';
+import { computed, onUnmounted, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { subscribe, trips, unsubscribe, vehicles } from '~/api';
-import type { Marker, Vehicle } from '~/api/types';
+import { api } from '~/api';
+import type { Marker } from '~/api/types';
 import NoData from '~/components/NoData.vue';
 import Actions from '~/components/popups/Actions.vue';
 
@@ -82,45 +82,17 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const marker = toRef(props, 'marker');
-let subject: string | null = null;
 
-const vehicle = computed<Vehicle | undefined>(() => vehicles.value[marker.value.id]);
-
-const trip = computed(() => {
-  if (!trips.value || !vehicle.value || !vehicle.value.tripId) {
-    return null;
-  }
-  return trips.value[vehicle.value.tripId];
-});
-
-watch(
-  vehicle,
-  async (newVehicle, oldVehicle) => {
-    if (newVehicle?.tripId === oldVehicle?.tripId) {
-      return;
-    }
-    if (subject !== null) {
-      void unsubscribe(subject);
-    }
-
-    // don't subscribe if no vehicle was selected or it doesn't have a trip
-    if (!newVehicle || !newVehicle.tripId) {
-      return;
-    }
-    subject = `data.map.trip.${newVehicle.tripId}`;
-    await subscribe(subject, trips);
-  },
-  { immediate: true },
-);
+const { vehicle, unsubscribe: unsubscribeVehicle } = api.useVehicle(computed(() => marker.value.id));
+const { trip, unsubscribe: unsubscribeTrip } = api.useTrip(computed(() => vehicle.value?.tripId));
 
 const vehicleDescription = computed(() =>
   vehicle.value?.description ? micromark(vehicle.value.description.trim()) : null,
 );
 
-onUnmounted(() => {
-  if (subject !== null) {
-    void unsubscribe(subject);
-  }
+onUnmounted(async () => {
+  await unsubscribeVehicle();
+  await unsubscribeTrip();
 });
 </script>
 
