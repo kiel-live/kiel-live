@@ -3,40 +3,39 @@
 </template>
 
 <script lang="ts" setup>
-// eslint-disable-next-line no-restricted-imports
-import 'maplibre-gl/dist/maplibre-gl.css';
-
 import { useElementSize } from '@vueuse/core';
+import {
+  AttributionControl,
+  type GeoJSONSource,
+  GeolocateControl,
+  type LineLayerSpecification,
+  Map,
+  NavigationControl,
+  type Source,
+  type SymbolLayerSpecification,
+} from 'maplibre-gl';
+import { computed, onBeforeUnmount, onMounted, ref, type Ref, toRef, watch } from 'vue';
 import type {
+  GeoJsonProperties as _GeoJsonProperties,
   Feature,
   FeatureCollection,
-  GeoJsonProperties as _GeoJsonProperties,
   Geometry,
   LineString,
   Point,
 } from 'geojson';
-import {
-  AttributionControl,
-  GeoJSONSource,
-  GeolocateControl,
-  LineLayerSpecification,
-  Map,
-  NavigationControl,
-  Source,
-  SymbolLayerSpecification,
-} from 'maplibre-gl';
-import { computed, onMounted, Ref, ref, toRef, watch } from 'vue';
 
-import { stops, subscribe, trips, vehicles } from '~/api';
-import { Marker, StopType, VehicleType } from '~/api/types';
+import { api } from '~/api';
+import type { Bounds, Marker, StopType, VehicleType } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
 import { useUserSettings } from '~/compositions/useUserSettings';
 import { brightMapStyle, darkMapStyle } from '~/config';
 
+import 'maplibre-gl/dist/maplibre-gl.css';
+
 const props = withDefaults(
   defineProps<{
-    selectedMarker: Partial<Marker>;
+    selectedMarker?: Partial<Marker>;
     mapMovedManually: boolean;
   }>(),
   {
@@ -63,6 +62,15 @@ const mapMovedManually = computed({
 });
 
 const colorScheme = useColorMode();
+
+const bounds = ref<Bounds>({
+  east: 0,
+  west: 0,
+  north: 0,
+  south: 0,
+});
+const { stops, unsubscribe: unsubscribeStops } = api.useStops(bounds);
+const { vehicles, unsubscribe: unsubscribeVehicles } = api.useVehicles(bounds);
 
 const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
   Object.values(vehicles.value).map((v) => {
@@ -125,19 +133,11 @@ const stopsGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
 
 const selectedMarker = toRef(props, 'selectedMarker');
 
-const selectedVehicle = computed(() => {
-  if (!selectedMarker.value.id) {
-    return null;
-  }
-  return vehicles.value[selectedMarker.value.id];
-});
+const { vehicle: selectedVehicle, unsubscribe: unsubscribeSelectedVehicle } = api.useVehicle(
+  computed(() => selectedMarker.value.id),
+);
 
-const trip = computed(() => {
-  if (!trips.value || !selectedVehicle.value) {
-    return null;
-  }
-  return trips.value[selectedVehicle.value.tripId];
-});
+const { trip, unsubscribe: unsubscribeTrip } = api.useTrip(computed(() => selectedVehicle.value?.tripId));
 
 const tripsGeoJson = computed<Feature<LineString, GeoJsonProperties>[]>(() => {
   if (selectedVehicle.value?.type === 'bus' && trip.value?.path) {
@@ -251,9 +251,6 @@ function flyTo(center: [number, number]) {
 }
 
 onMounted(async () => {
-  void subscribe('data.map.vehicle.>', vehicles);
-  void subscribe('data.map.stop.>', stops);
-
   const { lastLocation } = useUserSettings();
 
   map = new Map({
@@ -324,6 +321,10 @@ onMounted(async () => {
     // train stop
     await loadImage('train-stop', '/icons/stop-train.png');
     await loadImage('train-stop-selected', '/icons/stop-train-selected.png');
+
+    // ferry stop
+    await loadImage('ferry-stop', '/icons/stop-ferry.png');
+    await loadImage('ferry-stop-selected', '/icons/stop-ferry-selected.png');
 
     // e-scooter
     await loadImage('escooter', '/icons/vehicle-escooter.png');
@@ -401,7 +402,20 @@ onMounted(async () => {
       pitch: map.getPitch(),
       bearing: map.getBearing(),
     };
+    bounds.value = {
+      north: map.getBounds().getNorth(),
+      east: map.getBounds().getEast(),
+      south: map.getBounds().getSouth(),
+      west: map.getBounds().getWest(),
+    };
   });
+});
+
+onBeforeUnmount(async () => {
+  await unsubscribeStops();
+  await unsubscribeVehicles();
+  await unsubscribeSelectedVehicle();
+  await unsubscribeTrip();
 });
 
 watch(colorScheme, () => {

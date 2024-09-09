@@ -13,6 +13,7 @@ const (
 
 type StopArrival struct {
 	Name      string       `json:"name"`
+	Type      VehicleType  `json:"type"`
 	VehicleID string       `json:"vehicleId"`
 	TripID    string       `json:"tripId"`
 	RouteID   string       `json:"routeId"`

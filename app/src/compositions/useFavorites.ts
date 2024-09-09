@@ -1,18 +1,18 @@
 import { computed, ref } from 'vue';
 
-type Favorite = {
+interface Favorite {
   id: string;
   type: string;
   name: string;
-};
+}
 const LS_FAVORITES_KEY = 'kiel-live-favorites-v1';
 
 // migrate legacy favorites
-type LegacyFavorite = {
+interface LegacyFavorite {
   id: string;
   name: string;
   favorite: true;
-};
+}
 const LS_LEGACY_FAVORITES_KEY = 'favoriteStops';
 const legacyLocalStorageItem = localStorage.getItem(LS_LEGACY_FAVORITES_KEY);
 if (legacyLocalStorageItem !== null) {
@@ -24,7 +24,7 @@ if (legacyLocalStorageItem !== null) {
   localStorage.removeItem(LS_LEGACY_FAVORITES_KEY);
 }
 
-const favoritesRaw = ref<Favorite[]>(JSON.parse(localStorage.getItem(LS_FAVORITES_KEY) || '[]') as Favorite[]);
+const favoritesRaw = ref<Favorite[]>(JSON.parse(localStorage.getItem(LS_FAVORITES_KEY) ?? '[]') as Favorite[]);
 
 const favorites = computed({
   get() {

@@ -45,7 +45,7 @@ async function sendEmail() {
       .map(([key, value]) => `${key}: ${value}`)
       .join('\n')}\n`,
   );
-  window.open(`mailto:${feedbackMail}?subject=${subject}'&body=${body}`);
+  window.open(`mailto:${feedbackMail}?subject=${subject}&body=${body}`);
   message.value = t('contact_email_body');
 }
 </script>

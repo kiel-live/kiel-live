@@ -11,13 +11,25 @@
 </template>
 
 <script setup lang="ts">
-import { RouteLocationRaw } from 'vue-router';
+import { computed } from 'vue';
+import type { RouteLocationRaw } from 'vue-router';
 
-defineProps<{
+const props = defineProps<{
   to?: RouteLocationRaw;
   href?: string;
+  rounded?: boolean;
 }>();
 
-const classes =
-  'border-1 hover:border-gray-300 dark:border-gray-400 dark:hover:border-gray-500 rounded p-2 flex items-center justify-center cursor-pointer';
+const classes = computed(() => [
+  'border-2',
+  'hover:border-gray-300',
+  'dark:border-gray-400',
+  'dark:hover:border-gray-500',
+  'p-2',
+  'flex',
+  'items-center',
+  'justify-center',
+  'cursor-pointer',
+  props.rounded ? 'rounded-full' : 'rounded',
+]);
 </script>

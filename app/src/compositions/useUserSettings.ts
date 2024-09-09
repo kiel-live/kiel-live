@@ -1,5 +1,5 @@
 import { useStorage } from '@vueuse/core';
-import { LngLatLike } from 'maplibre-gl';
+import type { LngLatLike } from 'maplibre-gl';
 
 export const localStoragePrefix = 'kiel_live';
 

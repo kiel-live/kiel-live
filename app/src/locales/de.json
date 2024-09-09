@@ -1,5 +1,4 @@
 {
-  "language": "Language",
   "search": "Suchen",
   "trip_expired": "Diese Tour ist wohl schon zu Ende.",
   "trip_does_not_exist": "Diese Tour gibt es wohl nicht (mehr).",
@@ -16,8 +15,8 @@
   "feedback": "Schick uns gerne Feedback an {email} und folge uns auf {instagram}",
   "nice": "Nice!",
   "instagram": "Instagram",
-  "404_error": "Whoa 404, entweder es ist etwas kaputt gegangen oder du hast dich vertippt :-/",
-  "404_back_to": "Zurück zur {link}",
+  "not_found_error": "Whoa 404, entweder es ist etwas kaputt gegangen oder du hast dich vertippt :-/",
+  "not_found_back_to": "Zurück zur {link}",
   "home": "Startseite",
   "update": "Aktualisieren",
   "close": "Schließen",
@@ -53,6 +52,16 @@
   "next_stop": "Nächster Stop:",
   "ok": "Ok",
   "contact_title": "Möchtest du Feedback geben, eine Idee vorschlagen, ein Problem melden oder einfach nur Danke sagen? Wir freuen uns über deine E-Mail!",
+  "contact_email_body": "Moin Kiel-Live Team 👋,\n\n",
+  "feedback_subject": "Feedback zu Kiel-Live",
   "send_email": "E-Mail senden",
-  "contact_us": "Kontaktiere uns"
+  "contact_us": "Kontaktiere uns",
+  "changelog_nok_ferry": "Fahrplan der Kanal-Fähre Adler 1 hinzugefügt",
+  "feature_flag_new_api": "Neue API verwenden",
+  "feature_flag_actions": "Aktionen aktivieren",
+  "feature_flag_actions_description": "Aktionen wie das Navigieren zu Fahrzeugen oder Buchen von Tickets aktivieren.",
+  "feature_flags": "Feature flags",
+  "feature_flags_description": "Aktiviere oder deaktiviere Funktionen, die sich noch in der Entwicklung befinden.",
+  "navigate_to": "Navigieren",
+  "rent_vehicle": "Fahrt beginnen"
 }

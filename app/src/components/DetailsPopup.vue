@@ -29,17 +29,17 @@
 import { DrawerContent, DrawerPortal, DrawerRoot } from 'vaul-vue';
 import { ref } from 'vue';
 
-const open = defineModel<boolean>('open', { required: true });
-
 defineProps<{
   size: '1/4' | '1/2' | '3/4' | '1';
   disableResize?: boolean;
 }>();
 
-const snapPoints = [0, 0.2, 0.5, 0.75, 1];
-const snap = ref<number | string | null>(snapPoints[1]);
-
 defineEmits<{
   (event: 'close'): void;
 }>();
+
+const open = defineModel<boolean>('open', { required: true });
+
+const snapPoints = [0, 0.2, 0.5, 0.75, 1];
+const snap = ref<number | string | null>(snapPoints[1]);
 </script>
