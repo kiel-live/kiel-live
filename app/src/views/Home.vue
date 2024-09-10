@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-full w-full items-center justify-center overflow-hidden">
+  <div class="relative h-full w-full items-center justify-center">
     <AppBar v-model:search-input="searchInput" />
 
     <DetailsPopup
