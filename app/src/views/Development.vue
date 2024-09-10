@@ -23,7 +23,10 @@
           <Checkbox
             id="lite-mode"
             :model-value="featureFlag.enabled.value"
-            @update:model-value="featureFlag.enabled.value = $event"
+            @update:model-value="
+              featureFlag.enabled.value = $event;
+              track('feature-flag', { enabled: $event, id: featureFlag.id });
+            "
           />
         </div>
       </div>
@@ -36,9 +39,11 @@ import { useI18n } from 'vue-i18n';
 
 import SettingsContainer from '~/components/layout/SettingsContainer.vue';
 import { useFeatureFlags } from '~/compositions/useFeatureFlags';
+import { useTrack } from '~/compositions/useTrack';
 import { buildDate } from '~/config';
 
 const { t } = useI18n();
+const { track } = useTrack();
 
 const { featureFlags } = useFeatureFlags();
 </script>

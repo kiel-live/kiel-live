@@ -8,7 +8,11 @@
           <span>{{ t('lite_mode') }}</span>
           <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('lite_mode_description') }}</span>
         </label>
-        <Checkbox id="lite-mode" v-model="liteMode" />
+        <Checkbox
+          id="lite-mode"
+          v-model="liteMode"
+          @update:model-value="track('setting:lite-mode', { enabled: $event })"
+        />
       </div>
 
       <div class="flex gap-4 items-center justify-between">
@@ -30,10 +34,12 @@ import Checkbox from '~/components/atomic/Checkbox.vue';
 import Select from '~/components/atomic/Select.vue';
 import SettingsContainer from '~/components/layout/SettingsContainer.vue';
 import { type Theme, useColorMode } from '~/compositions/useColorMode';
+import { useTrack } from '~/compositions/useTrack';
 import { useUserSettings } from '~/compositions/useUserSettings';
 
 const { liteMode } = useUserSettings();
 const { t } = useI18n();
+const { track } = useTrack();
 
 const theme = useColorMode({ emitAuto: true });
 
