@@ -32,7 +32,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "3.4.1",
     "@eslint/js": "9.10.0",
-    "@iconify/json": "2.2.245",
+    "@iconify/json": "2.2.246",
     "@intlify/eslint-plugin-vue-i18n": "3.0.0",
     "@intlify/unplugin-vue-i18n": "4.0.0",
     "@types/canvas-confetti": "1.6.4",
