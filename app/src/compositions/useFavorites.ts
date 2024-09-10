@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue';
+import { useTrack } from './useTrack';
 
 interface Favorite {
   id: string;
@@ -36,12 +37,16 @@ const favorites = computed({
   },
 });
 
+const { track } = useTrack();
+
 function addFavorite({ id, name, type }: Favorite) {
   favorites.value = [...favorites.value, { id, name, type }];
+  track('favorite:add', { favorites: favorites.value.length });
 }
 
 function removeFavorite(favorite: Pick<Favorite, 'id'>) {
   favorites.value = favorites.value.filter((f) => f.id !== favorite.id);
+  track('favorite:remove', { favorites: favorites.value.length });
 }
 
 function isFavorite(favorite: Pick<Favorite, 'id'>) {

@@ -28,10 +28,12 @@ import { useI18n } from 'vue-i18n';
 
 import Button from '~/components/atomic/Button.vue';
 import SettingsContainer from '~/components/layout/SettingsContainer.vue';
+import { useTrack } from '~/compositions/useTrack';
 import { localStoragePrefix } from '~/compositions/useUserSettings';
 import { buildDate, feedbackMail } from '~/config';
 
 const { t } = useI18n();
+const { track } = useTrack();
 
 const message = useStorage(`${localStoragePrefix}.contact_message`, t('contact_email_body'));
 
@@ -45,6 +47,7 @@ async function sendEmail() {
       .map(([key, value]) => `${key}: ${value}`)
       .join('\n')}\n`,
   );
+  track('contact:send-email');
   window.open(`mailto:${feedbackMail}?subject=${subject}&body=${body}`);
   message.value = t('contact_email_body');
 }
