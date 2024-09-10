@@ -1,5 +1,8 @@
 <template>
-  <div class="flex flex-col m-auto w-full h-screen bg-white text-black dark:bg-dark-400 dark:text-gray-300">
+  <div
+    class="flex flex-col m-auto w-full h-screen bg-white text-black dark:bg-dark-400 dark:text-gray-300"
+    vaul-drawer-wrapper=""
+  >
     <main class="flex flex-grow min-h-0">
       <router-view />
     </main>
