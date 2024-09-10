@@ -86,9 +86,9 @@ const popupSize = computed(() => {
   if (route.name === 'favorites') {
     return '1/2';
   }
-  if (mapMovedManually.value) {
-    return '1/4';
-  }
-  return '3/4';
+  // if (mapMovedManually.value) {
+  //   return '1/4';
+  // }
+  return '1';
 });
 </script>
