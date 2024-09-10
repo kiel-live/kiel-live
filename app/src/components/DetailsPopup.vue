@@ -12,7 +12,7 @@
       <DrawerContent
         class="fixed flex flex-col bg-gray-100 dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800 rounded-t-[10px] max-h-[97%] bottom-0 left-0 right-0 h-full mx-[-1px] z-10"
       >
-        <div class="p-4 pb-0 pt-2">
+        <div class="p-4 pb-0 pt-2" :class="snap === 1 ? 'overflow-y-auto' : 'overflow-hidden'">
           <div v-if="!disableResize" class="w-full -mt-4 pt-4 pb-4 md:hidden">
             <div class="flex-shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
           </div>
