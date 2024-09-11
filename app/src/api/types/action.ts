@@ -4,4 +4,4 @@ export interface Action {
   url: string;
 }
 
-export type ActionType = 'navigate-to' | 'rent';
+export type ActionType = 'navigate-to' | 'rent' | 'share';

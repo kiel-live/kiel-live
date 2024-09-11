@@ -15,7 +15,7 @@
         <h1 class="text-lg">{{ vehicle.name }}</h1>
       </div>
 
-      <Actions :actions="vehicle.actions ?? []" />
+      <Actions :actions="(vehicle.actions ?? []).concat(defaultVehicleActions)" />
     </header>
 
     <template v-if="trip">
@@ -72,6 +72,7 @@ import { useI18n } from 'vue-i18n';
 
 import { api } from '~/api';
 import type { Marker } from '~/api/types';
+import type { Action } from '~/api/types/action';
 import NoData from '~/components/NoData.vue';
 import Actions from '~/components/popups/Actions.vue';
 
@@ -94,6 +95,18 @@ onUnmounted(async () => {
   await unsubscribeVehicle();
   await unsubscribeTrip();
 });
+
+const defaultVehicleActions = (
+  typeof navigator?.canShare === 'function' && navigator?.canShare()
+    ? [
+        {
+          type: 'share',
+          name: 'Teile mich mit deinen Freunden',
+          url: '',
+        },
+      ]
+    : []
+) satisfies Action[];
 </script>
 
 <style scoped>
