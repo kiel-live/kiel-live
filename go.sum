@@ -1,5 +1,5 @@
-github.com/BertoldVdb/go-ais v0.3.0 h1:W7riqLdbP/np4bfkezCgKK6KUEi3oNnsMdSVU7rt4LA=
-github.com/BertoldVdb/go-ais v0.3.0/go.mod h1:V2+fRhMf6AWOIEGEjgGAImHm+D/gCe6iGTUHvDEZf3U=
+github.com/BertoldVdb/go-ais v0.4.0 h1:bsORFIzgLW4H/pI9xQ+FMT/e0O0jT+Bhfw5O67IpKTk=
+github.com/BertoldVdb/go-ais v0.4.0/go.mod h1:V2+fRhMf6AWOIEGEjgGAImHm+D/gCe6iGTUHvDEZf3U=
 github.com/adrianmo/go-nmea v1.3.0/go.mod h1:u8bPnpKt/D/5rll/5l9f6iDfeq5WZW0+/SXdkwix6Tg=
 github.com/adrianmo/go-nmea v1.8.0 h1:KE6xDTMQNoKoyCb7IQRXGOIbn4WJlUKwIuRD4LbpKlM=
 github.com/adrianmo/go-nmea v1.8.0/go.mod h1:u8bPnpKt/D/5rll/5l9f6iDfeq5WZW0+/SXdkwix6Tg=
@@ -35,8 +35,8 @@ github.com/kr/pretty v0.3.0/go.mod h1:640gp4NfQd8pI5XOwp5fnNeVWj67G7CFk/SaSQn7NB
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/kr/text v0.2.0/go.mod h1:eLer722TekiGuMkidMxC/pM04lWEeraHUUmBw8l2grE=
-github.com/nats-io/nats.go v1.36.0 h1:suEUPuWzTSse/XhESwqLxXGuj8vGRuPRoG7MoRN/qyU=
-github.com/nats-io/nats.go v1.36.0/go.mod h1:Ubdu4Nh9exXdSz0RVWRFBbRfrbSxOYd26oF0wkWclB8=
+github.com/nats-io/nats.go v1.37.0 h1:07rauXbVnnJvv1gfIyghFEo6lUcYRY0WXc3x7x0vUxE=
+github.com/nats-io/nats.go v1.37.0/go.mod h1:Ubdu4Nh9exXdSz0RVWRFBbRfrbSxOYd26oF0wkWclB8=
 github.com/nats-io/nkeys v0.4.7 h1:RwNJbbIdYCoClSDNY7QVKZlyb/wfT6ugvFCiKy6vDvI=
 github.com/nats-io/nkeys v0.4.7/go.mod h1:kqXRgRDPlGy7nGaEDMuYzmiJCIAAWDK0IMBtDmGD0nc=
 github.com/nats-io/nuid v1.0.1 h1:5iA8DT8V7q8WK2EScv2padNa/rTESc1KdnPw4TC2paw=
