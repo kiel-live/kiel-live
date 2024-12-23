@@ -1,4 +1,7 @@
-import { NatsApi } from './nats';
+import { useFeatureFlags } from '~/compositions/useFeatureFlags';
+import { RPCApi } from './nats';
 import type { Api } from './types';
 
-export const api: Api = new NatsApi();
+const { checkFeatureFlag } = useFeatureFlags();
+
+export const api: Api = checkFeatureFlag('new_api') ? new RPCApi() : new RPCApi();

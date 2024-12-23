@@ -26,6 +26,9 @@ importers:
       nats.ws:
         specifier: 1.29.2
         version: 1.29.2
+      typed-rpc:
+        specifier: ^6.0.0
+        version: 6.0.0
       vue:
         specifier: 3.5.3
         version: 3.5.3(typescript@5.5.4)
@@ -3587,6 +3590,9 @@ packages:
   typed-array-length@1.0.6:
     resolution: {integrity: sha512-/OxDN6OtAk5KBpGb28T+HZc2M+ADtvRxXrKKbUwtsLgdoxgX13hyy7ek6bFRl5+aBs2yZzB0c4CnQfAtVypW/g==}
     engines: {node: '>= 0.4'}
+
+  typed-rpc@6.0.0:
+    resolution: {integrity: sha512-72gpDWNCi5fLpINFa0OAdrYAjrWjfjxy6y2ch+IAxd/dQQvsStELve33u8vTitQdP0STQqR2Yt+06ZI5sLAyoQ==}
 
   typescript@5.5.4:
     resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
@@ -7995,6 +8001,8 @@ snapshots:
       has-proto: 1.0.3
       is-typed-array: 1.1.13
       possible-typed-array-names: 1.0.0
+
+  typed-rpc@6.0.0: {}
 
   typescript@5.5.4: {}
 

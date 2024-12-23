@@ -25,6 +25,7 @@
     "maplibre-gl": "4.7.0",
     "micromark": "4.0.0",
     "nats.ws": "1.29.2",
+    "typed-rpc": "^6.0.0",
     "vue": "3.5.3",
     "vue-i18n": "9.14.0",
     "vue-router": "4.4.3"
