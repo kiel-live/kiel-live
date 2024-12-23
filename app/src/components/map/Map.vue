@@ -271,17 +271,24 @@ onMounted(async () => {
   const attributionControl = new AttributionControl({ compact: true });
   map.addControl(attributionControl, 'bottom-left');
 
-  map.addControl(
-    new GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true,
-      },
-      trackUserLocation: true,
-    }),
-    'bottom-right',
-  );
+  const geolocateControl = new GeolocateControl({
+    positionOptions: {
+      enableHighAccuracy: true,
+    },
+    trackUserLocation: true,
+  });
+
+  map.addControl(geolocateControl, 'bottom-right');
 
   map.addControl(new NavigationControl({}), 'bottom-right');
+
+  // Trigger geolocation if permission has been granted
+  if (navigator.permissions) {
+    const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+    if (permissionStatus.state === 'granted') {
+      geolocateControl.trigger();
+    }
+  }
 
   type IconData =
     | { kind: 'vehicle'; type: string; name: string; focused: boolean; heading: number }
