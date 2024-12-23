@@ -21,9 +21,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n';
-
 import type { Action } from '~/api/types/action';
+
+import { useI18n } from 'vue-i18n';
 import Button from '~/components/atomic/Button.vue';
 import { useFeatureFlags } from '~/compositions/useFeatureFlags';
 
