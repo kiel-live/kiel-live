@@ -3,6 +3,15 @@
 </template>
 
 <script lang="ts" setup>
+import type {
+  GeoJsonProperties as _GeoJsonProperties,
+  Feature,
+  FeatureCollection,
+  Geometry,
+  LineString,
+  Point,
+} from 'geojson';
+import type { Bounds, Marker, StopType, VehicleType } from '~/api/types';
 import { useElementSize } from '@vueuse/core';
 import {
   AttributionControl,
@@ -14,18 +23,9 @@ import {
   type Source,
   type SymbolLayerSpecification,
 } from 'maplibre-gl';
-import { computed, onBeforeUnmount, onMounted, ref, type Ref, toRef, watch } from 'vue';
-import type {
-  GeoJsonProperties as _GeoJsonProperties,
-  Feature,
-  FeatureCollection,
-  Geometry,
-  LineString,
-  Point,
-} from 'geojson';
 
+import { computed, onBeforeUnmount, onMounted, ref, type Ref, toRef, watch } from 'vue';
 import { api } from '~/api';
-import type { Bounds, Marker, StopType, VehicleType } from '~/api/types';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
 import { useUserSettings } from '~/compositions/useUserSettings';
@@ -271,17 +271,24 @@ onMounted(async () => {
   const attributionControl = new AttributionControl({ compact: true });
   map.addControl(attributionControl, 'bottom-left');
 
-  map.addControl(
-    new GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true,
-      },
-      trackUserLocation: true,
-    }),
-    'bottom-right',
-  );
+  const geolocateControl = new GeolocateControl({
+    positionOptions: {
+      enableHighAccuracy: true,
+    },
+    trackUserLocation: true,
+  });
+
+  map.addControl(geolocateControl, 'bottom-right');
 
   map.addControl(new NavigationControl({}), 'bottom-right');
+
+  // Trigger geolocation if permission has been granted
+  if (navigator.permissions) {
+    const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+    if (permissionStatus.state === 'granted') {
+      geolocateControl.trigger();
+    }
+  }
 
   type IconData =
     | { kind: 'vehicle'; type: string; name: string; focused: boolean; heading: number }

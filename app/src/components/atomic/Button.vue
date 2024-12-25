@@ -11,8 +11,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
+import { computed } from 'vue';
 
 const props = defineProps<{
   to?: RouteLocationRaw;

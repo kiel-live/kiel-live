@@ -66,12 +66,12 @@
 </template>
 
 <script lang="ts" setup>
+import type { Marker } from '~/api/types';
 import { micromark } from 'micromark';
 import { computed, onUnmounted, toRef } from 'vue';
-import { useI18n } from 'vue-i18n';
 
+import { useI18n } from 'vue-i18n';
 import { api } from '~/api';
-import type { Marker } from '~/api/types';
 import NoData from '~/components/NoData.vue';
 import Actions from '~/components/popups/Actions.vue';
 
