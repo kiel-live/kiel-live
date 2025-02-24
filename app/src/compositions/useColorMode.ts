@@ -1,4 +1,5 @@
-import { type BasicColorSchema, type UseColorModeOptions, useColorMode as useColorModeVueUse } from '@vueuse/core';
+import type { BasicColorSchema, UseColorModeOptions } from '@vueuse/core';
+import { useColorMode as useColorModeVueUse } from '@vueuse/core';
 
 import { localStoragePrefix } from '~/compositions/useUserSettings';
 
