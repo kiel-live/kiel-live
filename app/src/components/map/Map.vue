@@ -11,20 +11,13 @@ import type {
   LineString,
   Point,
 } from 'geojson';
+import type { GeoJSONSource, LineLayerSpecification, Source, SymbolLayerSpecification } from 'maplibre-gl';
+import type { Ref } from 'vue';
 import type { Bounds, Marker, StopType, VehicleType } from '~/api/types';
 import { useElementSize } from '@vueuse/core';
-import {
-  AttributionControl,
-  type GeoJSONSource,
-  GeolocateControl,
-  type LineLayerSpecification,
-  Map,
-  NavigationControl,
-  type Source,
-  type SymbolLayerSpecification,
-} from 'maplibre-gl';
 
-import { computed, onBeforeUnmount, onMounted, ref, type Ref, toRef, watch } from 'vue';
+import { AttributionControl, GeolocateControl, Map, NavigationControl } from 'maplibre-gl';
+import { computed, onBeforeUnmount, onMounted, ref, toRef, watch } from 'vue';
 import { api } from '~/api';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';

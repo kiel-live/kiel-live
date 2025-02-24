@@ -1,5 +1,6 @@
+import type { Ref } from 'vue';
 import { useStorage } from '@vueuse/core';
-import { computed, type Ref } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { localStoragePrefix } from './useUserSettings';
