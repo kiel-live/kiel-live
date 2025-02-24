@@ -39,7 +39,7 @@ func main() {
 		log.Fatalln("Please provide a token for the collector with COLLECTOR_TOKEN")
 	}
 
-	cityIds := os.Getenv("NEXT_BIKE_CITY_IDS")
+	cityIDs := os.Getenv("NEXT_BIKE_CITY_IDS")
 	if token == "" {
 		log.Fatalln("Please provide a comma separated list of next-bike city ids with NEXT_BIKE_CITY_IDS (exp: '613,195' for Kiel & Mannheim)")
 	}
@@ -64,7 +64,7 @@ func main() {
 			return nil
 		}
 
-		resp, err := http.Get("https://api.nextbike.net/maps/nextbike-live.json?city=" + cityIds)
+		resp, err := http.Get("https://api.nextbike.net/maps/nextbike-live.json?city=" + cityIDs)
 		if err != nil {
 			return err
 		}
