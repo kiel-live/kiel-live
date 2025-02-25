@@ -1,4 +1,4 @@
-class ReconnectingWebSocket {
+export class ReconnectingWebSocket {
   ws?: WebSocket;
   url: string;
   eventListeners: Record<string, ((e: Event) => void)[]> = {};

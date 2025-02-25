@@ -1,27 +1,34 @@
 import { rpcClient } from 'typed-rpc';
+import { websocketTransport } from 'typed-rpc/ws';
 import { computed, ref, watch } from 'vue';
 import type { Ref } from 'vue';
 
 import type { Api, Models, Stop, Trip, Vehicle } from '~/api/types';
+import { ReconnectingWebSocket } from './ws';
 
 type Client = ReturnType<typeof rpcClient>;
 
-class RPCClient<T extends RpcService<T, V>, V = JsonValue> {
+class RPCClient {
   client: Client;
 
-  constructor(client: Client) {
-    this.client = client;
+  constructor(url: string) {
+    this.client = rpcClient<{
+      subscribe: (topic: string) => void;
+      unsubscribe: (topic: string) => void;
+    }>({
+      transport: websocketTransport({
+        url,
+      }),
+    });
   }
 
   async subscribe(topic: string, cb: (data: T) => void) {
-    return this.send('subscribe', { topic });
+    return this.subscribe(topic);
   }
 
   async unsubscribe(topic: string) {
     return this.send('unsubscribe', { topic });
   }
-
-  async receive(data: T) {}
 }
 
 export class RPCApi implements Api {
@@ -46,6 +53,12 @@ export class RPCApi implements Api {
     });
     this.socket.on('close', (event) => {
       this.client.rejectAllPendingRequests(`Connection is closed (${event.reason}).`);
+    });
+
+    const c = rpcClient({
+      transport: websocketTransport({
+        url,
+      }),
     });
   }
 
