@@ -1,32 +1,21 @@
 <template>
-  <div class="relative h-full w-full items-center justify-center overflow-hidden">
+  <div class="relative h-full w-full items-center justify-center">
     <AppBar v-model:search-input="searchInput" />
 
     <DetailsPopup
-      :is-open="!!selectedMarker"
-      :disable-resize="liteMode"
+      :open="!!selectedMarker || $route.name === 'search' || $route.name === 'favorites'"
+      :is-drawer="!liteMode"
       :size="popupSize"
-      @close="selectedMarker = undefined"
+      @close="
+        () => {
+          selectedMarker = undefined;
+          $router.replace({ name: 'home' });
+        }
+      "
     >
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
-    </DetailsPopup>
-
-    <DetailsPopup
-      :is-open="$route.name === 'search'"
-      :disable-resize="liteMode"
-      :size="popupSize"
-      @close="$router.replace({ name: 'home' })"
-    >
-      <SearchPopup v-model:search-input="searchInput" />
-    </DetailsPopup>
-
-    <DetailsPopup
-      :is-open="$route.name === 'favorites'"
-      :disable-resize="liteMode"
-      :size="popupSize"
-      @close="$router.replace({ name: 'home' })"
-    >
-      <FavoritesPopup />
+      <SearchPopup v-if="$route.name === 'search'" v-model:search-input="searchInput" />
+      <FavoritesPopup v-if="$route.name === 'favorites'" />
     </DetailsPopup>
 
     <Map
@@ -80,9 +69,15 @@ const popupSize = computed(() => {
   if (liteMode.value) {
     return '1';
   }
-  if (route.name === 'search' || route.name === 'favorites' || mapMovedManually.value) {
+  if (route.name === 'search') {
+    return '1';
+  }
+  if (route.name === 'favorites') {
     return '1/2';
   }
-  return '3/4';
+  // if (mapMovedManually.value) {
+  //   return '1/4';
+  // }
+  return '1';
 });
 </script>

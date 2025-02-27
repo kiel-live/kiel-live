@@ -507,7 +507,7 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 
 <style scoped>
 #map :deep(.maplibregl-ctrl-attrib) {
-  @apply dark:bg-dark-400;
+  @apply dark:bg-dark-400 dark:text-gray-300;
 }
 
 #map :deep(.maplibregl-ctrl-attrib a) {
