@@ -67,8 +67,3 @@ func GetVehicles() (res map[string]*protocol.Vehicle, err error) {
 
 	return res, nil
 }
-
-func GetVehicle(vehicleID string) protocol.Vehicle {
-	// TODO
-	return protocol.Vehicle{}
-}

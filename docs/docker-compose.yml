@@ -1,10 +1,8 @@
 # use this compose file for production
 
-version: '3'
-
 services:
   nats:
-    image: nats:2.9.14-scratch
+    image: nats:2.10.25-scratch
     ports:
       - 4222:4222
       - 4223:4223
@@ -21,7 +19,7 @@ services:
       - web
       - default
   setup:
-    image: natsio/nats-box:0.13.4
+    image: natsio/nats-box:0.16.0
     environment:
       - NATS_URL=nats:4222
       - NATS_USER=admin

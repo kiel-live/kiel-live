@@ -1,9 +1,9 @@
-import { connect, consumerOpts, createInbox, Events, StringCodec } from 'nats.ws';
-import { computed, ref, watch } from 'vue';
 import type { JetStreamClient, JetStreamSubscription, NatsConnection } from 'nats.ws';
 import type { Ref } from 'vue';
-
 import type { Api, Models, Stop, Trip, Vehicle } from '~/api/types';
+import { connect, consumerOpts, createInbox, Events, StringCodec } from 'nats.ws';
+
+import { computed, ref, watch } from 'vue';
 import { natsServerUrl } from '~/config';
 
 const sc = StringCodec();

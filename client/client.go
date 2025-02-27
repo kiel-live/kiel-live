@@ -112,7 +112,7 @@ func (c *Client) Subscribe(subject string, cb SubscribeCallback, opts ...Subscri
 }
 
 func (c *Client) WithAck() SubscribeOption {
-	return func(subject string, cb SubscribeCallback) error {
+	return func(subject string, _ SubscribeCallback) error {
 		msg, err := c.nc.Request(protocol.SubjectRequestSubscribe, []byte(subject), 1*time.Second)
 		if err != nil {
 			if err.Error() == "nats: timeout" {

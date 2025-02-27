@@ -27,13 +27,14 @@
 </template>
 
 <script lang="ts" setup>
+import type { Theme } from '~/compositions/useColorMode';
 import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
 
+import { useI18n } from 'vue-i18n';
 import Checkbox from '~/components/atomic/Checkbox.vue';
 import Select from '~/components/atomic/Select.vue';
 import SettingsContainer from '~/components/layout/SettingsContainer.vue';
-import { type Theme, useColorMode } from '~/compositions/useColorMode';
+import { useColorMode } from '~/compositions/useColorMode';
 import { useTrack } from '~/compositions/useTrack';
 import { useUserSettings } from '~/compositions/useUserSettings';
 

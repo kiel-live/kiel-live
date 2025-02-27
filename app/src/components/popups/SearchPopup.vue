@@ -30,12 +30,12 @@
 </template>
 
 <script lang="ts" setup>
+import type { Bounds } from '~/api/types';
 import Fuse from 'fuse.js';
 import { computed, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
 
+import { useI18n } from 'vue-i18n';
 import { api } from '~/api';
-import type { Bounds } from '~/api/types';
 
 const searchInput = defineModel<string>('searchInput', {
   default: '',
