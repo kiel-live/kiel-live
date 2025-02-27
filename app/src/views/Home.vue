@@ -3,30 +3,19 @@
     <AppBar v-model:search-input="searchInput" />
 
     <DetailsPopup
-      :open="!!selectedMarker"
-      :disable-resize="liteMode"
+      :open="!!selectedMarker || $route.name === 'search' || $route.name === 'favorites'"
+      :is-drawer="!liteMode"
       :size="popupSize"
-      @close="selectedMarker = undefined"
+      @close="
+        () => {
+          selectedMarker = undefined;
+          $router.replace({ name: 'home' });
+        }
+      "
     >
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
-    </DetailsPopup>
-
-    <DetailsPopup
-      :open="$route.name === 'search'"
-      :disable-resize="liteMode"
-      :size="popupSize"
-      @close="$router.replace({ name: 'home' })"
-    >
-      <SearchPopup v-model:search-input="searchInput" />
-    </DetailsPopup>
-
-    <DetailsPopup
-      :open="$route.name === 'favorites'"
-      :disable-resize="liteMode"
-      :size="popupSize"
-      @close="$router.replace({ name: 'home' })"
-    >
-      <FavoritesPopup />
+      <SearchPopup v-if="$route.name === 'search'" v-model:search-input="searchInput" />
+      <FavoritesPopup v-if="$route.name === 'favorites'" />
     </DetailsPopup>
 
     <Map
