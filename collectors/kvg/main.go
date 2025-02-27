@@ -90,18 +90,11 @@ func main() {
 			return
 		}
 
-		subjects := subscriptions.GetSubscriptions()
 		for name, c := range collectors {
 			// TODO maybe run in go routine
 			log.Debugln("Collector for", name, "running ...")
-			var ids []string
-			for _, subject := range subjects {
-				id := c.SubjectToID(subject)
-				if id != "" {
-					ids = append(ids, id)
-				}
-			}
-			c.Run(ids)
+
+			c.Run()
 		}
 	})
 	if err != nil {

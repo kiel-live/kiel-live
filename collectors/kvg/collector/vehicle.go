@@ -83,7 +83,7 @@ func (c *VehicleCollector) SubjectToID(string) string {
 	return ""
 }
 
-func (c *VehicleCollector) Run(_ []string) {
+func (c *VehicleCollector) Run() {
 	log := logrus.WithField("collector", "vehicle")
 	vehicles, err := api.GetVehicles()
 	if err != nil {

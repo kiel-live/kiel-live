@@ -94,12 +94,21 @@ func (c *TripCollector) SubjectToID(subject string) string {
 	return ""
 }
 
-func (c *TripCollector) Run(tripIDs []string) {
+func (c *TripCollector) Run() {
 	log := logrus.WithField("collector", "trip")
 	trips := map[string]*protocol.Trip{}
 
 	c.Lock()
 	defer c.Unlock()
+
+	subjects := c.subscriptions.GetSubscriptions()
+	tripIDs := []string{}
+	for _, subject := range subjects {
+		tripID := c.SubjectToID(subject)
+		if tripID != "" {
+			tripIDs = append(tripIDs, tripID)
+		}
+	}
 
 	for _, tripID := range tripIDs {
 		trip, err := api.GetTrip(tripID)
