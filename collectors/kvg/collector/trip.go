@@ -85,17 +85,14 @@ func (c *TripCollector) publishRemoved(trip *protocol.Trip) error {
 	return nil
 }
 
-func (c *TripCollector) SubjectsToIDs(subjects []string) []string {
-	ids := []string{}
-	for _, subject := range subjects {
-		if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, api.IDPrefix)) && subject != fmt.Sprintf(protocol.SubjectDetailsTrip, ">") {
-			ids = append(ids, strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, api.IDPrefix)))
-		}
+func (c *TripCollector) SubjectToID(subject string) string {
+	if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, api.IDPrefix)) && subject != fmt.Sprintf(protocol.SubjectDetailsTrip, ">") {
+		return strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, api.IDPrefix))
 	}
-	return ids
+	return ""
 }
 
-func (c *TripCollector) Run(tripIDs []string, runRemoved bool) {
+func (c *TripCollector) Run(tripIDs []string) {
 	log := logrus.WithField("collector", "trip")
 	trips := map[string]*protocol.Trip{}
 	for _, tripID := range tripIDs {
@@ -117,20 +114,37 @@ func (c *TripCollector) Run(tripIDs []string, runRemoved bool) {
 		}
 	}
 
-	var removed []*protocol.Trip
-	if runRemoved {
-		// publish all removed trips
-		removed = c.getRemovedTrips(trips)
-		for _, trip := range removed {
-			log.Debugf("publish removed trip: %v", trip)
-			err := c.publishRemoved(trip)
-			if err != nil {
-				log.Error(err)
-			}
+	removed := c.getRemovedTrips(trips)
+	for _, trip := range removed {
+		log.Debugf("publish removed trip: %v", trip)
+		err := c.publishRemoved(trip)
+		if err != nil {
+			log.Error(err)
 		}
 	}
 
 	log.Debugf("changed %d trips and removed %d", len(changed), len(removed))
 	// update list of trips
 	c.trips = trips
+}
+
+func (c *TripCollector) RunSingle(tripID string) {
+	log := logrus.WithField("collector", "trip").WithField("trip-id", tripID)
+
+	trip, err := api.GetTrip(tripID)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	// publish changed trip
+	err = c.publish(trip)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	log.Debugf("published single trip: %v", trip)
+	// update cache
+	c.trips[trip.ID] = trip
 }
