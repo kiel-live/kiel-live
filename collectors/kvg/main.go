@@ -71,14 +71,14 @@ func main() {
 	}
 
 	subscriptions.Subscribe(func(subject string) {
-		tripIDs := collectors["trips"].SubjectsToIDs([]string{subject})
-		if len(tripIDs) > 0 {
-			collectors["trips"].Run(tripIDs, false)
+		tripID := collectors["trips"].SubjectToID(subject)
+		if tripID != "" {
+			collectors["trips"].RunSingle(tripID)
 			return
 		}
-		stopIDs := collectors["map-stops"].SubjectsToIDs([]string{subject})
-		if len(stopIDs) > 0 {
-			collectors["map-stops"].Run(stopIDs, false)
+		stopID := collectors["map-stops"].SubjectToID(subject)
+		if stopID != "" {
+			collectors["map-stops"].RunSingle(stopID)
 			return
 		}
 	})
@@ -94,7 +94,7 @@ func main() {
 		for name, c := range collectors {
 			// TODO maybe run in go routine
 			log.Debugln("Collector for", name, "running ...")
-			c.Run(c.SubjectsToIDs(subjects), true)
+			c.Run(c.SubjectsToIDs(subjects))
 		}
 	})
 	if err != nil {

@@ -93,17 +93,25 @@ func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
 	return nil
 }
 
+func (c *StopCollector) SubjectToID(subject string) string {
+	if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, api.IDPrefix)) && subject != fmt.Sprintf(protocol.SubjectMapStop, ">") {
+		return strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, api.IDPrefix))
+	}
+	return ""
+}
+
 func (c *StopCollector) SubjectsToIDs(subjects []string) []string {
 	var ids []string
 	for _, subject := range subjects {
-		if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, api.IDPrefix)) && subject != fmt.Sprintf(protocol.SubjectMapStop, ">") {
-			ids = append(ids, strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, api.IDPrefix)))
+		id := c.SubjectToID(subject)
+		if id != "" {
+			ids = append(ids, id)
 		}
 	}
 	return ids
 }
 
-func (c *StopCollector) Run(stopIDs []string, _ bool) {
+func (c *StopCollector) Run(stopIDs []string) {
 	log := logrus.WithField("collector", "stop")
 	stops, err := api.GetStops()
 	if err != nil {
@@ -154,4 +162,30 @@ func (c *StopCollector) Run(stopIDs []string, _ bool) {
 
 	// update list of stops
 	c.stops = stops
+}
+
+func (c *StopCollector) RunSingle(stopID string) {
+	log := logrus.WithField("collector", "stop")
+
+	// get stop from cache
+	stop := c.stops[api.IDPrefix+stopID]
+
+	// get stop details
+	details, err := api.GetStopDetails(stopID)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	stop.Arrivals = details.Departures
+	stop.Alerts = details.Alerts
+
+	// publish stop
+	err = c.publish(stop)
+	if err != nil {
+		log.Error(err)
+	}
+
+	log.Debugf("published single stop: %v", stop)
+	// update cache
+	c.stops[api.IDPrefix+stopID] = stop
 }

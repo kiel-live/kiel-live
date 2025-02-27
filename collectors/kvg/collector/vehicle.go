@@ -79,11 +79,15 @@ func (c *VehicleCollector) publishRemoved(vehicle *protocol.Vehicle) error {
 	return nil
 }
 
-func (c *VehicleCollector) SubjectsToIDs(_ []string) []string {
+func (c *VehicleCollector) SubjectToID(string) string {
+	return ""
+}
+
+func (c *VehicleCollector) SubjectsToIDs([]string) []string {
 	return []string{}
 }
 
-func (c *VehicleCollector) Run(_ []string, _ bool) {
+func (c *VehicleCollector) Run(_ []string) {
 	log := logrus.WithField("collector", "vehicle")
 	vehicles, err := api.GetVehicles()
 	if err != nil {
@@ -114,3 +118,5 @@ func (c *VehicleCollector) Run(_ []string, _ bool) {
 	// update list of vehicles
 	c.vehicles = vehicles
 }
+
+func (c *VehicleCollector) RunSingle(string) {}
