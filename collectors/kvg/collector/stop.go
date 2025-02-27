@@ -100,17 +100,6 @@ func (c *StopCollector) SubjectToID(subject string) string {
 	return ""
 }
 
-func (c *StopCollector) SubjectsToIDs(subjects []string) []string {
-	var ids []string
-	for _, subject := range subjects {
-		id := c.SubjectToID(subject)
-		if id != "" {
-			ids = append(ids, id)
-		}
-	}
-	return ids
-}
-
 func (c *StopCollector) Run(stopIDs []string) {
 	log := logrus.WithField("collector", "stop")
 	stops, err := api.GetStops()

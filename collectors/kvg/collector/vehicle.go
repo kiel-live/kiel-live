@@ -83,10 +83,6 @@ func (c *VehicleCollector) SubjectToID(string) string {
 	return ""
 }
 
-func (c *VehicleCollector) SubjectsToIDs([]string) []string {
-	return []string{}
-}
-
 func (c *VehicleCollector) Run(_ []string) {
 	log := logrus.WithField("collector", "vehicle")
 	vehicles, err := api.GetVehicles()

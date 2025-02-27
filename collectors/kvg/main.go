@@ -94,7 +94,14 @@ func main() {
 		for name, c := range collectors {
 			// TODO maybe run in go routine
 			log.Debugln("Collector for", name, "running ...")
-			c.Run(c.SubjectsToIDs(subjects))
+			var ids []string
+			for _, subject := range subjects {
+				id := c.SubjectToID(subject)
+				if id != "" {
+					ids = append(ids, id)
+				}
+			}
+			c.Run(ids)
 		}
 	})
 	if err != nil {

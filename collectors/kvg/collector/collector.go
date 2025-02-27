@@ -11,7 +11,6 @@ type Collector interface {
 	Run(IDs []string)
 	RunSingle(ID string)
 	SubjectToID(subject string) string
-	SubjectsToIDs(subjects []string) []string
 }
 
 func NewCollector(client *client.Client, collectorType string, subscriptions *subscriptions.Subscriptions) (Collector, error) {
