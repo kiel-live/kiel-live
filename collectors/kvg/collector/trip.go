@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
@@ -16,6 +17,7 @@ type TripCollector struct {
 	client        *client.Client
 	trips         map[string]*protocol.Trip
 	subscriptions *subscriptions.Subscriptions
+	sync.Mutex
 }
 
 func isSameTripArrivals(a1, a2 []protocol.TripArrival) bool {
@@ -95,6 +97,10 @@ func (c *TripCollector) SubjectToID(subject string) string {
 func (c *TripCollector) Run(tripIDs []string) {
 	log := logrus.WithField("collector", "trip")
 	trips := map[string]*protocol.Trip{}
+
+	c.Lock()
+	defer c.Unlock()
+
 	for _, tripID := range tripIDs {
 		trip, err := api.GetTrip(tripID)
 		if err != nil {
@@ -130,6 +136,9 @@ func (c *TripCollector) Run(tripIDs []string) {
 
 func (c *TripCollector) RunSingle(tripID string) {
 	log := logrus.WithField("collector", "trip").WithField("trip-id", tripID)
+
+	c.Lock()
+	defer c.Unlock()
 
 	trip, err := api.GetTrip(tripID)
 	if err != nil {
