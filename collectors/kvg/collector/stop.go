@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/kiel-live/kiel-live/client"
@@ -18,6 +19,7 @@ type StopCollector struct {
 	stops          map[string]*protocol.Stop
 	subscriptions  *subscriptions.Subscriptions
 	lastFullUpdate int64
+	sync.Mutex
 }
 
 func isSameArrivals(a, b []protocol.StopArrival) bool {
@@ -102,6 +104,10 @@ func (c *StopCollector) SubjectToID(subject string) string {
 
 func (c *StopCollector) Run(stopIDs []string) {
 	log := logrus.WithField("collector", "stop")
+
+	c.Lock()
+	defer c.Unlock()
+
 	stops, err := api.GetStops()
 	if err != nil {
 		log.Error(err)
@@ -155,6 +161,9 @@ func (c *StopCollector) Run(stopIDs []string) {
 
 func (c *StopCollector) RunSingle(stopID string) {
 	log := logrus.WithField("collector", "stop").WithField("stop-id", stopID)
+
+	c.Lock()
+	defer c.Unlock()
 
 	// get stop from cache
 	stop := c.stops[api.IDPrefix+stopID]
