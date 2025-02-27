@@ -102,11 +102,20 @@ func (c *StopCollector) SubjectToID(subject string) string {
 	return ""
 }
 
-func (c *StopCollector) Run(stopIDs []string) {
+func (c *StopCollector) Run() {
 	log := logrus.WithField("collector", "stop")
 
 	c.Lock()
 	defer c.Unlock()
+
+	subjects := c.subscriptions.GetSubscriptions()
+	var stopIDs []string
+	for _, subject := range subjects {
+		id := c.SubjectToID(subject)
+		if id != "" {
+			stopIDs = append(stopIDs, id)
+		}
+	}
 
 	stops, err := api.GetStops()
 	if err != nil {
