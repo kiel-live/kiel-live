@@ -129,7 +129,7 @@ func (c *TripCollector) Run(tripIDs []string) {
 }
 
 func (c *TripCollector) RunSingle(tripID string) {
-	log := logrus.WithField("collector", "trip")
+	log := logrus.WithField("collector", "trip").WithField("trip-id", tripID)
 
 	trip, err := api.GetTrip(tripID)
 	if err != nil {

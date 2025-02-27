@@ -154,7 +154,7 @@ func (c *StopCollector) Run(stopIDs []string) {
 }
 
 func (c *StopCollector) RunSingle(stopID string) {
-	log := logrus.WithField("collector", "stop")
+	log := logrus.WithField("collector", "stop").WithField("stop-id", stopID)
 
 	// get stop from cache
 	stop := c.stops[api.IDPrefix+stopID]
