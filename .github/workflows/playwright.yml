@@ -1,0 +1,33 @@
+name: Playwright Tests
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - app/**
+      - .github/workflows/playwright.yml
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 10
+        run_install: true
+    - name: Install Playwright Browsers
+      run: pnpm exec playwright install --with-deps
+    - name: Run Playwright tests
+      run: pnpm exec playwright test
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
