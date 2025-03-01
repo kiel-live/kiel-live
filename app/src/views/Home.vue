@@ -3,27 +3,27 @@
     <AppBar v-model:search-input="searchInput" />
 
     <DetailsPopup
+      v-model:size="actualPopupSize"
       :is-open="!!selectedMarker"
       :disable-resize="liteMode"
-      :size="popupSize"
       @close="selectedMarker = undefined"
     >
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
     </DetailsPopup>
 
     <DetailsPopup
+      v-model:size="actualPopupSize"
       :is-open="$route.name === 'search'"
       :disable-resize="liteMode"
-      :size="popupSize"
       @close="$router.replace({ name: 'home' })"
     >
       <SearchPopup v-model:search-input="searchInput" />
     </DetailsPopup>
 
     <DetailsPopup
+      v-model:size="actualPopupSize"
       :is-open="$route.name === 'favorites'"
       :disable-resize="liteMode"
-      :size="popupSize"
       @close="$router.replace({ name: 'home' })"
     >
       <FavoritesPopup />
@@ -31,16 +31,16 @@
 
     <Map
       v-if="!liteMode"
-      v-model:map-moved-manually="mapMovedManually"
       :selected-marker="selectedMarker"
       @marker-click="selectedMarker = $event"
+      @map-moved="popupSize = 'minimized'"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
 import type { Marker } from '~/api/types';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { useRoute, useRouter } from 'vue-router';
 import DetailsPopup from '~/components/DetailsPopup.vue';
@@ -69,20 +69,41 @@ const selectedMarker = computed<Marker | undefined>({
       void router.replace({ name: 'home' });
       return;
     }
-    void router.replace({ name: 'map-marker', params: { markerType: marker.type, markerId: marker.id } });
+    if (route.name === 'map-marker') {
+      void router.replace({ name: 'map-marker', params: { markerType: marker.type, markerId: marker.id } });
+    } else {
+      void router.push({ name: 'map-marker', params: { markerType: marker.type, markerId: marker.id } });
+    }
   },
 });
 
 const searchInput = ref('');
 
-const mapMovedManually = ref(false);
-const popupSize = computed(() => {
-  if (liteMode.value) {
-    return '1';
+type PopupSize = 'full' | 'half' | 'minimized';
+
+const popupSize = ref<PopupSize>('half');
+
+const actualPopupSize = computed<PopupSize>({
+  get() {
+    if (liteMode.value) {
+      return 'full';
+    }
+    return popupSize.value;
+  },
+  set(size) {
+    popupSize.value = size;
+  },
+});
+
+watch(selectedMarker, (marker) => {
+  if (marker) {
+    popupSize.value = 'half';
   }
-  if (route.name === 'search' || route.name === 'favorites' || mapMovedManually.value) {
-    return '1/2';
+});
+
+watch(route, () => {
+  if ((route.name === 'search' || route.name === 'favorites') && popupSize.value === 'minimized') {
+    popupSize.value = 'half';
   }
-  return '3/4';
 });
 </script>
