@@ -21,13 +21,16 @@ jobs:
       with:
         version: 10
         run_install: true
+        run_install.cwd: app
     - name: Install Playwright Browsers
       run: pnpm exec playwright install --with-deps
+      working-directory: app
     - name: Run Playwright tests
       run: pnpm exec playwright test
+      working-directory: app
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
         name: playwright-report
-        path: playwright-report/
+        path: app/playwright-report/
         retention-days: 30
