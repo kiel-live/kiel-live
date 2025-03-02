@@ -1,8 +1,6 @@
-import type { Ref } from 'vue';
-import type { Api, Stop, Trip, Vehicle } from '~/api/types';
-import { computed, ref } from 'vue';
+import type { Stop, Trip, Vehicle } from '../types';
 
-const DUMMY_VEHICLES: Vehicle[] = [
+export const DUMMY_VEHICLES: Vehicle[] = [
   {
     id: 'bus-1',
     provider: 'dummy',
@@ -36,9 +34,39 @@ const DUMMY_VEHICLES: Vehicle[] = [
     tripId: 'trip-3',
     description: '',
   },
+  {
+    id: 'kvg--7638104967632549039',
+    provider: 'kvg',
+    name: '12 Strande via Hohenleuchte',
+    type: 'bus',
+    state: 'onfire',
+    battery: '',
+    location: {
+      longitude: 36472522,
+      latitude: 195534934,
+      heading: 0,
+    },
+    tripId: 'kvg-1610077840790697737',
+    description: '',
+  },
+  {
+    id: 'kvg--7638104967632549161',
+    provider: 'kvg',
+    name: '11 Wik Kanal',
+    type: 'bus',
+    state: 'onfire',
+    battery: '',
+    location: {
+      longitude: 36513870,
+      latitude: 195519676,
+      heading: 270,
+    },
+    tripId: 'kvg-1610077840790681351',
+    description: '',
+  },
 ];
 
-const DUMMY_STOPS: Stop[] = [
+export const DUMMY_STOPS: Stop[] = [
   {
     id: 'stop-1',
     provider: 'dummy',
@@ -130,9 +158,91 @@ const DUMMY_STOPS: Stop[] = [
       heading: 0,
     },
   },
+  {
+    id: 'kvg-2387',
+    provider: 'kvg',
+    name: 'Hauptbahnhof',
+    type: 'bus-stop',
+    routes: null,
+    alerts: [],
+    arrivals: [
+      {
+        name: 'Strande',
+        type: 'bus',
+        vehicleId: 'kvg--7638104967632549039',
+        tripId: 'kvg-1610077840790697737',
+        routeId: '1610073983892324353',
+        routeName: '12',
+        direction: 'Strande',
+        state: 'predicted',
+        planned: '11:52',
+        eta: 9,
+        platform: '',
+      },
+      {
+        name: 'Wik Kanal',
+        type: 'bus',
+        vehicleId: 'kvg--7638104967632549161',
+        tripId: 'kvg-1610077840790681351',
+        routeId: '1610073983892324359',
+        routeName: '11',
+        direction: 'Wik Kanal',
+        state: 'predicted',
+        planned: '12:05',
+        eta: 789,
+        platform: '',
+      },
+    ],
+    location: {
+      longitude: 36472006,
+      latitude: 195536026,
+      heading: 0,
+    },
+  },
+  {
+    id: 'kvg-1256',
+    provider: 'kvg',
+    name: 'Andreas-Gayk-Straße',
+    type: 'bus-stop',
+    routes: null,
+    alerts: [],
+    arrivals: [
+      {
+        name: 'Strande',
+        type: 'bus',
+        vehicleId: 'kvg--7638104967632549039',
+        tripId: 'kvg-1610077840790697737',
+        routeId: '1610073983892324353',
+        routeName: '12',
+        direction: 'Strande',
+        state: 'predicted',
+        planned: '11:54',
+        eta: 90,
+        platform: '',
+      },
+      {
+        name: 'Wik Kanal',
+        type: 'bus',
+        vehicleId: 'kvg--7638104967632549161',
+        tripId: 'kvg-1610077840790681351',
+        routeId: '1610073983892324359',
+        routeName: '11',
+        direction: 'Wik Kanal',
+        state: 'predicted',
+        planned: '12:07',
+        eta: 870,
+        platform: '',
+      },
+    ],
+    location: {
+      longitude: 36482329,
+      latitude: 195548642,
+      heading: 0,
+    },
+  },
 ];
 
-const DUMMY_TRIPS: Trip[] = [
+export const DUMMY_TRIPS: Trip[] = [
   {
     id: 'trip-1',
     provider: 'dummy',
@@ -167,13 +277,13 @@ const DUMMY_TRIPS: Trip[] = [
     direction: 'Uni/Botan. Garten',
     arrivals: [
       {
-        id: 'stop-1',
+        id: 'kvg-1256',
         name: 'Andreas-Gayk-Straße',
         state: 'departed',
         planned: '19:23',
       },
       {
-        id: 'stop-2',
+        id: 'kvg-2387',
         name: 'Hauptbahnhof',
         state: 'predicted',
         planned: '19:26',
@@ -187,60 +297,44 @@ const DUMMY_TRIPS: Trip[] = [
     ],
     path: [],
   },
+  {
+    id: 'kvg-1610077840790697737',
+    provider: 'kvg',
+    direction: 'Strande',
+    arrivals: [
+      {
+        id: 'kvg-2387',
+        name: 'Hauptbahnhof',
+        state: 'departed',
+        planned: '11:53',
+      },
+      {
+        id: 'kvg-1256',
+        name: 'Andreas-Gayk-Straße',
+        state: 'stopping',
+        planned: '11:55',
+      },
+    ],
+    path: [],
+  },
+  {
+    id: 'kvg-1610077840790681351',
+    provider: 'kvg',
+    direction: 'Wik Kanal',
+    arrivals: [
+      {
+        id: 'kvg-2387',
+        name: 'Hauptbahnhof',
+        state: 'predicted',
+        planned: '12:05',
+      },
+      {
+        id: 'kvg-1256',
+        name: 'Andreas-Gayk-Straße',
+        state: 'predicted',
+        planned: '12:07',
+      },
+    ],
+    path: [],
+  },
 ];
-
-export class DummyApi implements Api {
-  isConnected = ref(true);
-
-  useStops() {
-    const stops = ref<Stop[]>(DUMMY_STOPS);
-
-    return {
-      stops,
-      loading: ref(false),
-      unsubscribe: async () => {},
-    };
-  }
-
-  useVehicles() {
-    const vehicles = ref<Vehicle[]>(DUMMY_VEHICLES);
-
-    return {
-      vehicles,
-      loading: ref(false),
-      unsubscribe: async () => {},
-    };
-  }
-
-  useStop(stopId: Ref<string | undefined>) {
-    const stop = computed(() => DUMMY_STOPS.find((s) => s.id === stopId.value) || null);
-
-    return {
-      stop,
-      loading: ref(false),
-      unsubscribe: async () => {},
-    };
-  }
-
-  useVehicle(vehicleId: Ref<string | undefined>) {
-    const vehicle = computed(() => DUMMY_VEHICLES.find((v) => v.id === vehicleId.value) || null);
-
-    return {
-      vehicle,
-      loading: ref(false),
-      unsubscribe: async () => {},
-    };
-  }
-
-  useTrip(tripId: Ref<string | undefined>) {
-    const trip = computed(() => {
-      return DUMMY_TRIPS.find((t) => t.id === tripId.value) || null;
-    });
-
-    return {
-      trip,
-      loading: ref(false),
-      unsubscribe: async () => {},
-    };
-  }
-}
