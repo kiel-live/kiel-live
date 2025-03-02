@@ -8,10 +8,9 @@
 </template>
 
 <script lang="ts" setup generic="T extends string | number">
-
 defineProps<{
   options: { value: T; label: string }[];
 }>();
 
-const model = defineModel<T>({required: true});
+const model = defineModel<T>({ required: true });
 </script>
