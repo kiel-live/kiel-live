@@ -45,8 +45,10 @@ test('Contact Us', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Settings' }).click();
   await page.getByRole('link', { name: 'Contact us' }).click();
+
   await expect(page.getByRole('textbox')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Send email' })).toBeVisible();
+  await page.getByRole('textbox').fill('GaLiGrü');
 
   await expect(page).toHaveScreenshot();
 });
