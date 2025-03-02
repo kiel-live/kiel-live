@@ -1,17 +1,24 @@
 import { expect, test } from '@playwright/test';
 
-test('has title', async ({ page }) => {
+test('Clicking the search field opens the search popup', async ({ page }) => {
   await page.goto('/');
+  await page.getByRole('textbox', { name: 'Search' }).click();
+  await expect(page.getByRole('heading', { name: 'Search result' })).toBeVisible();
+  await expect(page.getByText('Search for a stop or a vehicle')).toBeVisible();
+});
 
-  // wait for the map to have loaded #map data-idle="true"
-  await page.waitForSelector('#map[data-idle="true"]');
+test('Searching displays stops', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('textbox', { name: 'Search' }).fill('stop');
+  await expect(page.getByRole('heading', { name: 'Search result' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Dummy Stop 1' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Dummy Stop 2' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Hauptbahnhof' })).not.toBeVisible();
+});
 
-  // input search query
-  await page.fill('input[title="Search"]', 'Stop');
-
-  // assert search results
-  await expect(page).toHaveURL('/search');
-
-  // assert screenshot
-  await expect(page).toHaveScreenshot('search-results.png');
+test('Clicking a stop in the search result opens the stop page', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('textbox', { name: 'Search' }).fill('stop');
+  await page.getByRole('link', { name: 'Dummy Stop 1' }).click();
+  await expect(page.getByRole('heading', { name: 'Dummy Stop 1' })).toBeVisible();
 });
