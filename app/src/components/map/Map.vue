@@ -224,7 +224,7 @@ const tripsLayer: Ref<LineLayerSpecification> = computed(() => ({
   },
 }));
 
-const mapElement = useTemplateRef('mapElement')
+const mapElement = useTemplateRef('mapElement');
 const { width, height } = useElementSize(mapElement);
 
 function flyTo(center: [number, number]) {
@@ -410,11 +410,11 @@ onMounted(async () => {
     };
   });
 
-  map.on('idle', () =>{
+  map.on('idle', () => {
     if (mapElement.value) {
       mapElement.value.setAttribute('data-idle', 'true');
     }
-  })
+  });
 });
 
 onBeforeUnmount(async () => {

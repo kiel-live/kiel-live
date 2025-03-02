@@ -65,5 +65,5 @@ export default defineConfig({
   },
   test: {
     dir: path.resolve(__dirname, 'src'),
-  }
+  },
 });
