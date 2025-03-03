@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:update": "docker run --rm -it -v $(pwd):/app --network=host mcr.microsoft.com/playwright:v1.50.1 bash -c \"npm i -g pnpm && cd /app && pnpm run test:e2e -u\" && sudo chown -R $USER:$USER tests test-results",
     "translate": "pnpx @geprog/translator translate ./src/locales"
   },
   "dependencies": {
