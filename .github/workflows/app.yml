@@ -33,6 +33,7 @@ jobs:
         with:
           node-version: "22"
           cache: "pnpm"
+          cache-dependency-path: app
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
