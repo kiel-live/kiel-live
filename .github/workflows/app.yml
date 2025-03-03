@@ -26,7 +26,7 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          package_json_file: app
+          package_json_file: app/package.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
