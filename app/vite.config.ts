@@ -12,7 +12,7 @@ import WindiCSS from 'vite-plugin-windicss';
 export default defineConfig({
   envDir: '../',
   build: {
-    sourcemap: false, // TODO
+    sourcemap: true,
   },
   plugins: [
     vue(),
