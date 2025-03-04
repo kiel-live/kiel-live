@@ -1,12 +1,11 @@
-import type { JetStreamClient, JetStreamSubscription, NatsConnection } from 'nats.ws';
+import type { JetStreamClient, JetStreamManager, JetStreamSubscription } from '@nats-io/jetstream';
+import type { NatsConnection } from '@nats-io/nats-core';
 import type { Ref } from 'vue';
 import type { Api, Models, Stop, Trip, Vehicle } from '~/api/types';
-import { connect, consumerOpts, createInbox, Events, StringCodec } from 'nats.ws';
-
+import { jetstream, jetstreamManager } from '@nats-io/jetstream';
+import { consumerOpts, createInbox, wsconnect } from '@nats-io/nats-core';
 import { computed, ref, watch } from 'vue';
 import { natsServerUrl } from '~/config';
-
-const sc = StringCodec();
 
 export const DeletePayload = '---';
 
@@ -26,6 +25,7 @@ export class NatsApi implements Api {
   private nc: NatsConnection | undefined;
 
   js: Ref<JetStreamClient | undefined> = ref();
+  jsm: Ref<JetStreamManager | undefined> = ref();
 
   constructor(autoLoad = true) {
     if (autoLoad) {
@@ -38,13 +38,14 @@ export class NatsApi implements Api {
       throw new Error('NATS_URL is invalid!');
     }
 
-    this.nc = await connect({
+    this.nc = await wsconnect({
       servers: [natsServerUrl],
       waitOnFirstConnect: true,
       maxReconnectAttempts: -1,
     });
     this.isConnected.value = true;
-    this.js.value = this.nc.jetstream();
+    this.js.value = jetstream(this.nc);
+    this.jsm.value = await jetstreamManager(this.nc);
 
     await this.processSubscriptionsQueue();
 
@@ -54,10 +55,10 @@ export class NatsApi implements Api {
       }
 
       for await (const s of this.nc.status()) {
-        if (s.type === Events.Disconnect) {
+        if (s.type === 'disconnect') {
           this.isConnected.value = false;
         }
-        if (s.type === Events.Reconnect) {
+        if (s.type === 'reconnect') {
           this.isConnected.value = true;
 
           await this.processSubscriptionsQueue();
@@ -88,14 +89,17 @@ export class NatsApi implements Api {
     opts.deliverAll();
     opts.ackNone();
     opts.replayInstantly();
-    const sub = await this.js.value.subscribe(subject, opts);
+    // const sub = await this.js.value.subscribe(subject, opts);
+    const consumer = await this.jsm.value?.consumers.add(subject, { ack_policy: 'none', durable_name: 'A' });
 
-    this.subscriptions.value[subject].subscription = sub;
+    const c2 = await this.js.value.consumers.get(subject, consumer?.name ?? '');
+    const iter = await c2.consume();
+    // this.subscriptions.value[subject].subscription = sub;
     resolvePendingSubscription();
 
     void (async () => {
-      for await (const m of sub) {
-        const raw = sc.decode(m.data);
+      for await (const m of iter) {
+        const raw = m.data.toString();
         if (raw === DeletePayload) {
           // TODO
           // delete vehicles.value[''];

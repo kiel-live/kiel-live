@@ -19,6 +19,8 @@
     "translate": "pnpx @geprog/translator translate ./src/locales"
   },
   "dependencies": {
+    "@nats-io/jetstream": "3.0.0-38",
+    "@nats-io/nats-core": "3.0.0-51",
     "@vueuse/core": "12.7.0",
     "canvas-confetti": "1.9.3",
     "fuse.js": "7.1.0",
