@@ -6,3 +6,9 @@ dist-ssr
 components.d.ts
 
 old/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

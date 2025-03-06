@@ -17,7 +17,7 @@ import type { Bounds, Marker, StopType, VehicleType } from '~/api/types';
 import { useElementSize } from '@vueuse/core';
 
 import { AttributionControl, GeolocateControl, Map, NavigationControl } from 'maplibre-gl';
-import { computed, onBeforeUnmount, onMounted, ref, toRef, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, toRef, useTemplateRef, watch } from 'vue';
 import { api } from '~/api';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
@@ -218,7 +218,7 @@ const tripsLayer: Ref<LineLayerSpecification> = computed(() => ({
   },
 }));
 
-const mapElement = ref(null);
+const mapElement = useTemplateRef('mapElement');
 const { width, height } = useElementSize(mapElement);
 
 function flyTo(center: [number, number]) {
@@ -401,6 +401,12 @@ onMounted(async () => {
       south: map.getBounds().getSouth(),
       west: map.getBounds().getWest(),
     };
+  });
+
+  map.on('idle', () => {
+    if (mapElement.value) {
+      mapElement.value.setAttribute('data-idle', 'true');
+    }
   });
 });
 
