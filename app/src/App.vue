@@ -28,6 +28,9 @@ watch(
   },
   { immediate: true },
 );
+
+// TODO: remove and set in mobile app
+window.topOffset = 150
 </script>
 
 <!-- eslint-disable-next-line vue-scoped-css/enforce-style-type -->
