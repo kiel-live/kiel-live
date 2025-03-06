@@ -63,4 +63,7 @@ export default defineConfig({
       '~/': `${path.resolve(__dirname, 'src')}/`,
     },
   },
+  test: {
+    dir: path.resolve(__dirname, 'src'),
+  },
 });
