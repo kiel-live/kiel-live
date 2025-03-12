@@ -6,7 +6,7 @@ require (
 	github.com/BertoldVdb/go-ais v0.4.0
 	github.com/artonge/go-gtfs v1.3.4
 	github.com/go-co-op/gocron v1.37.0
-	github.com/hashicorp/go-memdb v1.3.4
+	github.com/hashicorp/go-memdb v1.3.5
 	github.com/joho/godotenv v1.5.1
 	github.com/nats-io/nats.go v1.39.1
 	github.com/sirupsen/logrus v1.9.3
