@@ -11,11 +11,15 @@ import type {
   LineString,
   Point,
 } from 'geojson';
-import type { GeoJSONSource, LineLayerSpecification, Source, SymbolLayerSpecification } from 'maplibre-gl';
-import type { Ref } from 'vue';
+import type {
+  CircleLayerSpecification,
+  GeoJSONSource,
+  LineLayerSpecification,
+  Source,
+  SymbolLayerSpecification,
+} from 'maplibre-gl';
 import type { Bounds, Marker, StopType, VehicleType } from '~/api/types';
 import { useElementSize } from '@vueuse/core';
-
 import { AttributionControl, GeolocateControl, Map, NavigationControl } from 'maplibre-gl';
 import { computed, onBeforeUnmount, onMounted, ref, toRef, useTemplateRef, watch } from 'vue';
 import { api } from '~/api';
