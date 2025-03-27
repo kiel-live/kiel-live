@@ -1,7 +1,8 @@
-import { Stop } from './stop';
-import { Trip } from './trip';
-import { Vehicle } from './vehicle';
+import type { Stop } from './stop';
+import type { Trip } from './trip';
+import type { Vehicle } from './vehicle';
 
+export * from './api';
 export * from './arrival';
 export * from './location';
 export * from './marker';

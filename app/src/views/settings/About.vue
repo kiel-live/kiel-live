@@ -8,7 +8,11 @@
 
     <p class="mb-2 text-center">{{ t('support_us') }}</p>
 
-    <Button href="https://www.instagram.com/kiel.live/" class="mx-auto mb-auto w-8/10">
+    <Button
+      href="https://www.instagram.com/kiel.live/"
+      class="mx-auto mb-auto w-8/10"
+      @click="track('click:instagram')"
+    >
       <i-mdi-instagram class="mr-2" />
       <span>{{ t('follow_instagram', { account: '@kiel.live' }) }}</span>
     </Button>
@@ -33,6 +37,7 @@
         target="_blank"
         rel="noopener noreferrer"
         class="flex items-center border-b dark:border-gray-600 py-4 px-2 gap-2"
+        @click="track('click:analytics')"
       >
         <i-ion-md-analytics />
         <span>{{ t('analytics') }}</span>
@@ -49,6 +54,7 @@
         target="_blank"
         rel="noopener noreferrer"
         class="flex items-center py-4 px-2 gap-2"
+        @click="track('click:github')"
       >
         <i-mdi-github />
         <span>{{ t('develop_on_github') }}</span>
@@ -57,7 +63,7 @@
 
     <p v-if="buildDate" class="flex text-gray-500 dark:text-gray-400 text-sm gap-1">
       <span>{{ t('version_from') }}</span>
-      <span>{{ buildDate }}</span>
+      <router-link :to="{ name: 'dev' }">{{ buildDate }}</router-link>
     </p>
   </SettingsContainer>
 </template>
@@ -67,7 +73,9 @@ import { useI18n } from 'vue-i18n';
 
 import Button from '~/components/atomic/Button.vue';
 import SettingsContainer from '~/components/layout/SettingsContainer.vue';
+import { useTrack } from '~/compositions/useTrack';
 import { analyticsUrl, buildDate } from '~/config';
 
 const { t } = useI18n();
+const { track } = useTrack();
 </script>

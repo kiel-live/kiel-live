@@ -1,5 +1,6 @@
 <template>
   <div
+    id="app-bar"
     class="absolute top-0 left-0 right-0 mx-2 mt-2 h-12 flex rounded-md py-1 pr-1 gap-x-1 items-center justify-between bg-white border-1 border-gray-200 shadow-xl z-20 md:transform md:-translate-x-1/2 md:right-auto md:left-1/2 md:w-96 dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
   >
     <router-link :to="{ name: 'home' }" class="p-2">
@@ -35,7 +36,7 @@ import { computed, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
-import { isConnected } from '~/api';
+import { api } from '~/api';
 import Button from '~/components/atomic/Button.vue';
 
 const props = defineProps<{
@@ -45,6 +46,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:search-input', searchInput: string): void;
 }>();
+
+const { isConnected } = api;
 
 const { t } = useI18n();
 const route = useRoute();

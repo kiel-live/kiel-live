@@ -10,7 +10,7 @@
       <textarea
         v-model="message"
         rows="10"
-        class="w-full p-2 rounded-md border-gray-200 dark:border-dark-800"
+        class="w-full p-2 rounded-md border border-gray-300 bg-white dark:border-gray-400 dark:bg-dark-400"
         type="text"
       />
 
@@ -28,10 +28,12 @@ import { useI18n } from 'vue-i18n';
 
 import Button from '~/components/atomic/Button.vue';
 import SettingsContainer from '~/components/layout/SettingsContainer.vue';
+import { useTrack } from '~/compositions/useTrack';
 import { localStoragePrefix } from '~/compositions/useUserSettings';
 import { buildDate, feedbackMail } from '~/config';
 
 const { t } = useI18n();
+const { track } = useTrack();
 
 const message = useStorage(`${localStoragePrefix}.contact_message`, t('contact_email_body'));
 
@@ -45,7 +47,8 @@ async function sendEmail() {
       .map(([key, value]) => `${key}: ${value}`)
       .join('\n')}\n`,
   );
-  window.open(`mailto:${feedbackMail}?subject=${subject}'&body=${body}`);
+  track('contact:send-email');
+  window.open(`mailto:${feedbackMail}?subject=${subject}&body=${body}`);
   message.value = t('contact_email_body');
 }
 </script>

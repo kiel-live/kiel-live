@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/kiel-live/kiel-live/client"
@@ -18,6 +19,7 @@ type StopCollector struct {
 	stops          map[string]*protocol.Stop
 	subscriptions  *subscriptions.Subscriptions
 	lastFullUpdate int64
+	sync.Mutex
 }
 
 func isSameArrivals(a, b []protocol.StopArrival) bool {
@@ -93,18 +95,28 @@ func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
 	return nil
 }
 
-func (c *StopCollector) SubjectsToIDs(subjects []string) []string {
-	var ids []string
-	for _, subject := range subjects {
-		if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")) && subject != fmt.Sprintf(protocol.SubjectMapStop, ">") {
-			ids = append(ids, strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, "")+api.IDPrefix))
-		}
+func (c *StopCollector) SubjectToID(subject string) string {
+	if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, api.IDPrefix)) && subject != fmt.Sprintf(protocol.SubjectMapStop, ">") {
+		return strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, api.IDPrefix))
 	}
-	return ids
+	return ""
 }
 
-func (c *StopCollector) Run(stopIDs []string, _ bool) {
+func (c *StopCollector) Run() {
 	log := logrus.WithField("collector", "stop")
+
+	c.Lock()
+	defer c.Unlock()
+
+	subjects := c.subscriptions.GetSubscriptions()
+	var stopIDs []string
+	for _, subject := range subjects {
+		id := c.SubjectToID(subject)
+		if id != "" {
+			stopIDs = append(stopIDs, id)
+		}
+	}
+
 	stops, err := api.GetStops()
 	if err != nil {
 		log.Error(err)
@@ -154,4 +166,33 @@ func (c *StopCollector) Run(stopIDs []string, _ bool) {
 
 	// update list of stops
 	c.stops = stops
+}
+
+func (c *StopCollector) RunSingle(stopID string) {
+	log := logrus.WithField("collector", "stop").WithField("stop-id", stopID)
+
+	c.Lock()
+	defer c.Unlock()
+
+	// get stop from cache
+	stop := c.stops[api.IDPrefix+stopID]
+
+	// get stop details
+	details, err := api.GetStopDetails(stopID)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	stop.Arrivals = details.Departures
+	stop.Alerts = details.Alerts
+
+	// publish stop
+	err = c.publish(stop)
+	if err != nil {
+		log.Error(err)
+	}
+
+	log.Debugf("published single stop: %v", stop)
+	// update cache
+	c.stops[api.IDPrefix+stopID] = stop
 }

@@ -20,12 +20,16 @@ import SettingsContainer from '~/components/layout/SettingsContainer.vue';
 
 const { t } = useI18n();
 
-type ChangelogEntry = {
+interface ChangelogEntry {
   date: Date;
   text: string;
-};
+}
 
 const changelog: ChangelogEntry[] = [
+  {
+    date: new Date('2024-07-05'),
+    text: t('changelog_nok_ferry'),
+  },
   {
     date: new Date('2022-06-27'),
     text: t('changelog_trips_path_lite_mode'),

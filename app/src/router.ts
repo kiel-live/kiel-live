@@ -1,5 +1,6 @@
-import { Component } from 'vue';
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import type { Component } from 'vue';
+import type { RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 import { useUserSettings } from '~/compositions/useUserSettings';
 
@@ -55,6 +56,12 @@ const routes: RouteRecordRaw[] = [
     path: '/contact',
     name: 'contact',
     redirect: { name: 'settings-contact' },
+  },
+  {
+    path: '/dev',
+    name: 'dev',
+    component: (): Component => import('~/views/Development.vue'),
+    meta: { settings: true },
   },
   {
     path: '/:pathMatch(.*)*',

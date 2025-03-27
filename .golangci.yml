@@ -6,7 +6,6 @@ linters:
   disable-all: true
   enable:
     - bidichk
-    - deadcode
     - errcheck
     - gofmt
     - goimports
@@ -16,8 +15,6 @@ linters:
     - misspell
     - revive
     - staticcheck
-    - structcheck
     - typecheck
     - unused
-    - varcheck
     - whitespace

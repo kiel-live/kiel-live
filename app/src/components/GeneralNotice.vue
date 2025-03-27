@@ -24,13 +24,13 @@ import { localStoragePrefix } from '~/compositions/useUserSettings';
 
 const { t } = useI18n();
 
-type Alert = {
+interface Alert {
   id: string;
   title: string;
   start?: Date;
   end?: Date;
   msg: string;
-};
+}
 
 const alerts: Alert[] = [
   {

@@ -1,7 +1,6 @@
-/* eslint-disable import/no-extraneous-dependencies */
+import path from 'node:path';
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 import vue from '@vitejs/plugin-vue';
-import path from 'path';
 import IconsResolver from 'unplugin-icons/resolver';
 import Icons from 'unplugin-icons/vite';
 import Components from 'unplugin-vue-components/vite';
@@ -63,5 +62,8 @@ export default defineConfig({
     alias: {
       '~/': `${path.resolve(__dirname, 'src')}/`,
     },
+  },
+  test: {
+    dir: path.resolve(__dirname, 'src'),
   },
 });

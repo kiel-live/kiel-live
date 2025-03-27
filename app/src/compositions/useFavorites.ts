@@ -1,18 +1,19 @@
 import { computed, ref } from 'vue';
+import { useTrack } from './useTrack';
 
-type Favorite = {
+interface Favorite {
   id: string;
   type: string;
   name: string;
-};
+}
 const LS_FAVORITES_KEY = 'kiel-live-favorites-v1';
 
 // migrate legacy favorites
-type LegacyFavorite = {
+interface LegacyFavorite {
   id: string;
   name: string;
   favorite: true;
-};
+}
 const LS_LEGACY_FAVORITES_KEY = 'favoriteStops';
 const legacyLocalStorageItem = localStorage.getItem(LS_LEGACY_FAVORITES_KEY);
 if (legacyLocalStorageItem !== null) {
@@ -24,7 +25,7 @@ if (legacyLocalStorageItem !== null) {
   localStorage.removeItem(LS_LEGACY_FAVORITES_KEY);
 }
 
-const favoritesRaw = ref<Favorite[]>(JSON.parse(localStorage.getItem(LS_FAVORITES_KEY) || '[]') as Favorite[]);
+const favoritesRaw = ref<Favorite[]>(JSON.parse(localStorage.getItem(LS_FAVORITES_KEY) ?? '[]') as Favorite[]);
 
 const favorites = computed({
   get() {
@@ -36,12 +37,16 @@ const favorites = computed({
   },
 });
 
+const { track } = useTrack();
+
 function addFavorite({ id, name, type }: Favorite) {
   favorites.value = [...favorites.value, { id, name, type }];
+  track('favorite:add', { favorites: favorites.value.length });
 }
 
 function removeFavorite(favorite: Pick<Favorite, 'id'>) {
   favorites.value = favorites.value.filter((f) => f.id !== favorite.id);
+  track('favorite:remove', { favorites: favorites.value.length });
 }
 
 function isFavorite(favorite: Pick<Favorite, 'id'>) {
