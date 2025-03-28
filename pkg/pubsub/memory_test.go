@@ -18,16 +18,21 @@ func TestPubsub(t *testing.T) {
 		testMessage = pubsub.Message("hello")
 	)
 
-	ctx, cancel := context.WithCancelCause(
-		context.Background(),
-	)
+	ctx, cancel := context.WithCancelCause(t.Context())
 
 	broker := pubsub.NewMemory()
 	go func() {
-		broker.Subscribe(ctx, testTopic, func(message pubsub.Message) { assert.Equal(t, testMessage, message); wg.Done() })
+		err := broker.Subscribe(ctx, testTopic, func(message pubsub.Message) {
+			assert.Equal(t, testMessage, message)
+			wg.Done()
+		})
+		assert.NoError(t, err)
 	}()
 	go func() {
-		broker.Subscribe(ctx, testTopic, func(_ pubsub.Message) { wg.Done() })
+		err := broker.Subscribe(ctx, testTopic, func(_ pubsub.Message) {
+			wg.Done()
+		})
+		assert.NoError(t, err)
 	}()
 
 	// Wait a bit for the subscriptions to be registered
@@ -35,7 +40,8 @@ func TestPubsub(t *testing.T) {
 
 	wg.Add(2)
 	go func() {
-		broker.Publish(ctx, testTopic, testMessage)
+		err := broker.Publish(ctx, testTopic, testMessage)
+		assert.NoError(t, err)
 	}()
 
 	wg.Wait()

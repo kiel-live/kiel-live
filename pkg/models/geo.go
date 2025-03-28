@@ -15,13 +15,6 @@ type Location struct {
 	Heading   *int    `json:"heading"`
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 func (l *Location) GetCellID() s2.CellID {
 	p := s2.LatLngFromDegrees(l.Latitude, l.Longitude)
 	return s2.CellIDFromLatLng(p).Parent(10)

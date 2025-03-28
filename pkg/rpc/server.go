@@ -196,6 +196,7 @@ func (s *Server) handleSubscribe(ctx context.Context, conn *jsonrpc2.Conn, r *js
 	})
 
 	if err != nil {
+		unsubscribe()
 		return conn.ReplyWithError(ctx, r.ID, &jsonrpc2.Error{
 			Code:    jsonrpc2.CodeInternalError,
 			Message: err.Error(),

@@ -21,7 +21,7 @@ type ClientPeer struct {
 
 func NewClientPeer(ctx context.Context, conn jsonrpc2.ObjectStream) *ClientPeer {
 	peer := &ClientPeer{
-		defaultServiceName: "main",
+		defaultServiceName: defaultServiceName,
 		subscriptions:      make(map[string]Subscription),
 	}
 
@@ -31,7 +31,7 @@ func NewClientPeer(ctx context.Context, conn jsonrpc2.ObjectStream) *ClientPeer 
 	return peer
 }
 
-func (c *ClientPeer) handlePubsubMessage(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc2.Request) error {
+func (c *ClientPeer) handlePubsubMessage(_ context.Context, _ *jsonrpc2.Conn, r *jsonrpc2.Request) error {
 	c.mutex.Lock()
 	sub, exists := c.subscriptions[r.Method]
 	c.mutex.Unlock()
