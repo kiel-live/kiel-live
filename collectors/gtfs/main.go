@@ -150,7 +150,7 @@ func main() {
 	}
 
 	agency := g.Agency
-	if g.Agencies != nil && len(g.Agencies) > 1 {
+	if len(g.Agencies) > 1 {
 		log.Fatal("Multiple agencies are not supported")
 	}
 
