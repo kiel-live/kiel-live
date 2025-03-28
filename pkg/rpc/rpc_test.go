@@ -20,7 +20,7 @@ import (
 type SampleRPC struct{}
 
 func (t *SampleRPC) Hello(name string) (string, error) {
-	return "Hello, " + name, nil
+	return fmt.Sprintf("Hello, %s", name), nil
 }
 
 func ProxyConnection(clientConn net.Conn, serverConn net.Conn) {
@@ -77,6 +77,7 @@ func BenchmarkRPC(b *testing.B) {
 	server := rpc.NewServer(broker)
 	assert.NotNil(b, server)
 	err := server.Register(&SampleRPC{})
+	assert.NoError(b, err)
 
 	sP := server.NewPeer(ctx, jsonrpc2.NewPlainObjectStream(serverPeer))
 	defer sP.Close()
