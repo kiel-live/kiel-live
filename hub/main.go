@@ -10,7 +10,6 @@ import (
 	websocketjsonrpc2 "github.com/sourcegraph/jsonrpc2/websocket"
 
 	"github.com/kiel-live/kiel-live/pkg/database"
-	"github.com/kiel-live/kiel-live/pkg/hub"
 	"github.com/kiel-live/kiel-live/pkg/pubsub"
 	"github.com/kiel-live/kiel-live/pkg/rpc"
 )
@@ -38,16 +37,13 @@ func main() {
 	})
 
 	broker := pubsub.NewMemory()
-	hub := &hub.Hub{
-		DB:     db,
-		PubSub: broker,
-	}
 
 	ctx := context.Background()
 
 	server := rpc.NewServer(broker)
-	err := server.Register(&KielLiveRPC{
-		Hub: hub,
+	err := server.Register(&Hub{
+		DB:     db,
+		PubSub: broker,
 	})
 	if err != nil {
 		log.Println(err)
