@@ -9,7 +9,9 @@
   ],
   "prConcurrentLimit": 5,
   "automergeType": "branch",
-  "automergeMajor": false,
+  "major": {
+    "automerge": false
+  },
   "automerge": true,
   "customManagers": [
     {
