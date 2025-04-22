@@ -2,9 +2,6 @@ name: Playwright Tests
 on:
   pull_request:
     branches: [ main ]
-    paths:
-      - app/**
-      - .github/workflows/playwright.yml
   push:
     branches: [ main ]
 
