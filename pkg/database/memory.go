@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"errors"
 	"sync"
 
@@ -13,18 +14,18 @@ type MemoryDatabase struct {
 	sync.RWMutex
 
 	stops           map[string]*models.Stop
-	stopsCellsIndex map[s2.CellID]map[string]struct{}
+	stopsCellsIndex *CellIndex
 
 	vehicles           map[string]*models.Vehicle
-	vehiclesCellsIndex map[s2.CellID]map[string]struct{}
+	vehiclesCellsIndex *CellIndex
 }
 
 func NewMemoryDatabase() Database {
 	return &MemoryDatabase{
 		stops:              make(map[string]*models.Stop),
-		stopsCellsIndex:    make(map[s2.CellID]map[string]struct{}),
+		stopsCellsIndex:    NewCellIndex(),
 		vehicles:           make(map[string]*models.Vehicle),
-		vehiclesCellsIndex: make(map[s2.CellID]map[string]struct{}),
+		vehiclesCellsIndex: NewCellIndex(),
 	}
 }
 
@@ -36,17 +37,16 @@ func (b *MemoryDatabase) Close() error {
 	return nil
 }
 
-func (b *MemoryDatabase) GetStops(opts *ListOptions) ([]*models.Stop, error) {
+func (b *MemoryDatabase) GetStops(_ context.Context, opts *ListOptions) ([]*models.Stop, error) {
 	b.RLock()
 	defer b.RUnlock()
 
 	var stops []*models.Stop
 	for _, cellID := range opts.Location.GetCellIDs() {
-		if stopsInCell, ok := b.stopsCellsIndex[cellID]; ok {
-			for stopID := range stopsInCell {
-				if stop, ok := b.stops[stopID]; ok {
-					stops = append(stops, stop)
-				}
+		stopIDs := b.stopsCellsIndex.GetItemIDs(cellID)
+		for _, stopID := range stopIDs {
+			if stop, ok := b.stops[stopID]; ok {
+				stops = append(stops, stop)
 			}
 		}
 	}
@@ -54,7 +54,7 @@ func (b *MemoryDatabase) GetStops(opts *ListOptions) ([]*models.Stop, error) {
 	return stops, nil
 }
 
-func (b *MemoryDatabase) GetStop(id string) (*models.Stop, error) {
+func (b *MemoryDatabase) GetStop(_ context.Context, id string) (*models.Stop, error) {
 	b.RLock()
 	defer b.RUnlock()
 
@@ -65,59 +65,46 @@ func (b *MemoryDatabase) GetStop(id string) (*models.Stop, error) {
 	return nil, errors.New("stop not found")
 }
 
-func (b *MemoryDatabase) SetStop(stop *models.Stop) error {
+func (b *MemoryDatabase) SetStop(_ context.Context, stop *models.Stop) error {
 	b.Lock()
 	defer b.Unlock()
 
-	cid := stop.Location.GetCellID()
+	cids := stop.Location.GetCellIDs()
 
+	oldCids := []s2.CellID{}
 	if oldStop, ok := b.stops[stop.ID]; ok {
-		oldCid := oldStop.Location.GetCellID()
-		if oldCid != cid {
-			delete(b.stopsCellsIndex[oldCid], stop.ID)
-			if len(b.stopsCellsIndex[oldCid]) == 0 {
-				delete(b.stopsCellsIndex, oldCid)
-			}
-		}
+		oldCids = oldStop.Location.GetCellIDs()
 	}
 
 	b.stops[stop.ID] = stop
 
-	if _, ok := b.stopsCellsIndex[cid]; !ok {
-		b.stopsCellsIndex[cid] = make(map[string]struct{})
-	}
-	b.stopsCellsIndex[cid][stop.ID] = struct{}{}
+	b.stopsCellsIndex.UpdateItem(stop.ID, cids, oldCids)
 
 	return nil
 }
 
-func (b *MemoryDatabase) DeleteStop(id string) error {
+func (b *MemoryDatabase) DeleteStop(_ context.Context, id string) error {
 	b.Lock()
 	defer b.Unlock()
 
 	if stop, ok := b.stops[id]; ok {
-		cid := stop.Location.GetCellID()
-		delete(b.stopsCellsIndex[cid], id)
-		if len(b.stopsCellsIndex[cid]) == 0 {
-			delete(b.stopsCellsIndex, cid)
-		}
+		b.stopsCellsIndex.RemoveItem(id, stop.Location.GetCellIDs())
 		delete(b.stops, id)
 	}
 
 	return nil
 }
 
-func (b *MemoryDatabase) GetVehicles(opts *ListOptions) ([]*models.Vehicle, error) {
+func (b *MemoryDatabase) GetVehicles(_ context.Context, opts *ListOptions) ([]*models.Vehicle, error) {
 	b.RLock()
 	defer b.RUnlock()
 
 	var vehicles []*models.Vehicle
 	for _, cellID := range opts.Location.GetCellIDs() {
-		if vehiclesInCell, ok := b.vehiclesCellsIndex[cellID]; ok {
-			for vehicleID := range vehiclesInCell {
-				if vehicle, ok := b.vehicles[vehicleID]; ok {
-					vehicles = append(vehicles, vehicle)
-				}
+		vehicleIDs := b.vehiclesCellsIndex.GetItemIDs(cellID)
+		for _, vehicleID := range vehicleIDs {
+			if vehicle, ok := b.vehicles[vehicleID]; ok {
+				vehicles = append(vehicles, vehicle)
 			}
 		}
 	}
@@ -125,7 +112,7 @@ func (b *MemoryDatabase) GetVehicles(opts *ListOptions) ([]*models.Vehicle, erro
 	return vehicles, nil
 }
 
-func (b *MemoryDatabase) GetVehicle(id string) (*models.Vehicle, error) {
+func (b *MemoryDatabase) GetVehicle(_ context.Context, id string) (*models.Vehicle, error) {
 	b.RLock()
 	defer b.RUnlock()
 
@@ -136,44 +123,100 @@ func (b *MemoryDatabase) GetVehicle(id string) (*models.Vehicle, error) {
 	return nil, errors.New("vehicle not found")
 }
 
-func (b *MemoryDatabase) SetVehicle(vehicle *models.Vehicle) error {
+func (b *MemoryDatabase) SetVehicle(_ context.Context, vehicle *models.Vehicle) error {
 	b.Lock()
 	defer b.Unlock()
 
-	cid := vehicle.Location.GetCellID()
+	cids := vehicle.Location.GetCellIDs()
 
+	oldCids := []s2.CellID{}
 	if oldVehicle, ok := b.stops[vehicle.ID]; ok {
-		oldCid := oldVehicle.Location.GetCellID()
-		if oldCid != cid {
-			delete(b.stopsCellsIndex[oldCid], vehicle.ID)
-			if len(b.stopsCellsIndex[oldCid]) == 0 {
-				delete(b.stopsCellsIndex, oldCid)
-			}
-		}
+		oldCids = oldVehicle.Location.GetCellIDs()
 	}
 
 	b.vehicles[vehicle.ID] = vehicle
 
-	if _, ok := b.vehiclesCellsIndex[cid]; !ok {
-		b.vehiclesCellsIndex[cid] = make(map[string]struct{})
-	}
-	b.vehiclesCellsIndex[cid][vehicle.ID] = struct{}{}
+	b.vehiclesCellsIndex.UpdateItem(vehicle.ID, cids, oldCids)
 
 	return nil
 }
 
-func (b *MemoryDatabase) DeleteVehicle(id string) error {
+func (b *MemoryDatabase) DeleteVehicle(_ context.Context, id string) error {
 	b.Lock()
 	defer b.Unlock()
 
 	if vehicle, ok := b.vehicles[id]; ok {
-		cid := vehicle.Location.GetCellID()
-		delete(b.vehiclesCellsIndex[cid], id)
-		if len(b.vehiclesCellsIndex[cid]) == 0 {
-			delete(b.vehiclesCellsIndex, cid)
-		}
+		b.vehiclesCellsIndex.RemoveItem(id, vehicle.Location.GetCellIDs())
 		delete(b.vehicles, id)
 	}
 
 	return nil
+}
+
+type CellIndex struct {
+	index map[s2.CellID]map[string]struct{}
+}
+
+func NewCellIndex() *CellIndex {
+	return &CellIndex{
+		index: make(map[s2.CellID]map[string]struct{}),
+	}
+}
+
+func (c *CellIndex) UpdateItem(itemID string, newIDs []s2.CellID, oldIDs []s2.CellID) {
+	toDelete := make(map[s2.CellID]struct{})
+	for _, oldID := range oldIDs {
+		toDelete[oldID] = struct{}{}
+	}
+
+	toAdd := make(map[s2.CellID]struct{})
+	for _, newID := range newIDs {
+		if _, ok := toDelete[newID]; ok {
+			// keep item and therefore don't delete it
+			delete(toDelete, newID)
+		} else {
+			toAdd[newID] = struct{}{}
+		}
+	}
+
+	for id := range toDelete {
+		if _, ok := c.index[id]; ok {
+			delete(c.index[id], itemID)
+
+			// delete empty cell
+			if len(c.index[id]) == 0 {
+				delete(c.index, id)
+			}
+		}
+	}
+
+	for id := range toAdd {
+		// create new cell if it doesn't exist
+		if _, ok := c.index[id]; !ok {
+			c.index[id] = make(map[string]struct{})
+		}
+		c.index[id][itemID] = struct{}{}
+	}
+}
+
+func (c *CellIndex) AddItem(itemID string, cellIDs []s2.CellID) {
+	c.UpdateItem(itemID, cellIDs, nil)
+}
+
+func (c *CellIndex) RemoveItem(itemID string, cellIDs []s2.CellID) {
+	c.UpdateItem(itemID, nil, cellIDs)
+}
+
+func (c *CellIndex) GetItemIDs(cellID s2.CellID) []string {
+	itemIDs, ok := c.index[cellID]
+	if !ok {
+		return nil
+	}
+
+	ids := make([]string, 0, len(itemIDs))
+	for id := range itemIDs {
+		ids = append(ids, id)
+	}
+
+	return ids
 }

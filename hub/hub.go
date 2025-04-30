@@ -9,21 +9,22 @@ import (
 	"github.com/kiel-live/kiel-live/pkg/pubsub"
 )
 
+// TODO: use functions as interface for client as well
 type Hub struct {
 	DB     database.Database
 	PubSub pubsub.Broker
 }
 
-func (h *Hub) GetVehicle(_ context.Context, vehicleID string) (*models.Vehicle, error) {
-	return h.DB.GetVehicle(vehicleID)
+func (h *Hub) GetVehicle(ctx context.Context, vehicleID string) (*models.Vehicle, error) {
+	return h.DB.GetVehicle(ctx, vehicleID)
 }
 
-func (h *Hub) GetVehicles(_ context.Context, opts *database.ListOptions) ([]*models.Vehicle, error) {
-	return h.DB.GetVehicles(opts)
+func (h *Hub) GetVehicles(ctx context.Context, opts *database.ListOptions) ([]*models.Vehicle, error) {
+	return h.DB.GetVehicles(ctx, opts)
 }
 
 func (h *Hub) SetVehicle(ctx context.Context, vehicle *models.Vehicle) error {
-	err := h.DB.SetVehicle(vehicle)
+	err := h.DB.SetVehicle(ctx, vehicle)
 	if err != nil {
 		return err
 	}
@@ -44,12 +45,12 @@ func (h *Hub) SetVehicle(ctx context.Context, vehicle *models.Vehicle) error {
 }
 
 func (h *Hub) DeleteVehicle(ctx context.Context, vehicleID string) error {
-	vehicle, err := h.DB.GetVehicle(vehicleID)
+	vehicle, err := h.DB.GetVehicle(ctx, vehicleID)
 	if err != nil {
 		return err
 	}
 
-	err = h.DB.DeleteVehicle(vehicle.ID)
+	err = h.DB.DeleteVehicle(ctx, vehicle.ID)
 	if err != nil {
 		return err
 	}
@@ -69,16 +70,16 @@ func (h *Hub) DeleteVehicle(ctx context.Context, vehicleID string) error {
 	return nil
 }
 
-func (h *Hub) GetStop(_ context.Context, stopID string) (*models.Stop, error) {
-	return h.DB.GetStop(stopID)
+func (h *Hub) GetStop(ctx context.Context, stopID string) (*models.Stop, error) {
+	return h.DB.GetStop(ctx, stopID)
 }
 
-func (h *Hub) GetStops(_ context.Context, opts *database.ListOptions) ([]*models.Stop, error) {
-	return h.DB.GetStops(opts)
+func (h *Hub) GetStops(ctx context.Context, opts *database.ListOptions) ([]*models.Stop, error) {
+	return h.DB.GetStops(ctx, opts)
 }
 
 func (h *Hub) SetStop(ctx context.Context, stop *models.Stop) error {
-	err := h.DB.SetStop(stop)
+	err := h.DB.SetStop(ctx, stop)
 	if err != nil {
 		return err
 	}
@@ -99,12 +100,12 @@ func (h *Hub) SetStop(ctx context.Context, stop *models.Stop) error {
 }
 
 func (h *Hub) DeleteStop(ctx context.Context, stopID string) error {
-	stop, err := h.DB.GetStop(stopID)
+	stop, err := h.DB.GetStop(ctx, stopID)
 	if err != nil {
 		return err
 	}
 
-	err = h.DB.DeleteStop(stop.ID)
+	err = h.DB.DeleteStop(ctx, stop.ID)
 	if err != nil {
 		return err
 	}

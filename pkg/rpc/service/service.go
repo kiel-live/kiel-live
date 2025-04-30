@@ -28,7 +28,7 @@ func (s *Service) register(rcvr any) error {
 	v := reflect.ValueOf(rcvr)
 	t := v.Type()
 
-	for i := 0; i < t.NumMethod(); i++ {
+	for i := range t.NumMethod() {
 		m := t.Method(i)
 		if m.PkgPath != "" {
 			continue // method not exported
