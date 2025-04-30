@@ -154,6 +154,7 @@ func (b *MemoryDatabase) DeleteVehicle(_ context.Context, id string) error {
 }
 
 type CellIndex struct {
+	sync.RWMutex
 	index map[s2.CellID]map[string]struct{}
 }
 
@@ -164,6 +165,9 @@ func NewCellIndex() *CellIndex {
 }
 
 func (c *CellIndex) UpdateItem(itemID string, newIDs []s2.CellID, oldIDs []s2.CellID) {
+	c.Lock()
+	defer c.Unlock()
+
 	toDelete := make(map[s2.CellID]struct{})
 	for _, oldID := range oldIDs {
 		toDelete[oldID] = struct{}{}
@@ -208,6 +212,9 @@ func (c *CellIndex) RemoveItem(itemID string, cellIDs []s2.CellID) {
 }
 
 func (c *CellIndex) GetItemIDs(cellID s2.CellID) []string {
+	c.RLock()
+	defer c.RUnlock()
+
 	itemIDs, ok := c.index[cellID]
 	if !ok {
 		return nil
