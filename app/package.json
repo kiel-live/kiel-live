@@ -50,7 +50,7 @@
     "unplugin-icons": "22.1.0",
     "unplugin-vue-components": "28.4.1",
     "vite": "6.2.7",
-    "vite-plugin-pwa": "0.21.1",
+    "vite-plugin-pwa": "0.21.2",
     "vite-plugin-windicss": "1.9.4",
     "vitest": "3.0.8",
     "vue-tsc": "2.2.8",
