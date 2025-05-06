@@ -4,13 +4,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - client/**
-      - cmd/**
-      - collectors/**
-      - manager/**
-      - protocol/**
-      - .github/workflows/check-go.yml
   push:
     branches:
       - main
