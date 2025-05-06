@@ -2,8 +2,7 @@ package rpc
 
 import "encoding/json"
 
-const defaultServiceName = "main"
-const internalServiceName = "internal"
+const internalServiceName = "system"
 
 type SubscribeRequest struct {
 	Channel string `json:"c"`

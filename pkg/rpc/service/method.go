@@ -28,7 +28,7 @@ func NewMethod(name string, fn any) (*Method, error) {
 	}
 
 	returnsError := false
-	for i := 0; i < fnType.NumOut(); i++ {
+	for i := range fnType.NumOut() {
 		if fnType.Out(i).Implements(reflect.TypeOf((*error)(nil)).Elem()) {
 			if i != fnType.NumOut()-1 {
 				return nil, fmt.Errorf("the error must be the last return value")
@@ -47,11 +47,11 @@ func NewMethod(name string, fn any) (*Method, error) {
 		returnsError: returnsError,
 	}
 
-	for i := 0; i < fnType.NumIn(); i++ {
+	for i := range fnType.NumIn() {
 		method.argTypes[i] = fnType.In(i)
 	}
 
-	for i := 0; i < fnType.NumOut(); i++ {
+	for i := range fnType.NumOut() {
 		method.returnTypes[i] = fnType.Out(i)
 	}
 
@@ -97,7 +97,7 @@ func (m *Method) Call(args ...any) (results []any, err error) {
 	}
 
 	results = make([]any, l)
-	for i := 0; i < len(results); i++ {
+	for i := range results {
 		results[i] = out[i].Interface()
 	}
 

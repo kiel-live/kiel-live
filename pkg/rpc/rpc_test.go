@@ -76,7 +76,7 @@ func BenchmarkRPC(b *testing.B) {
 
 	server := rpc.NewServer(broker)
 	assert.NotNil(b, server)
-	err := server.Register(&SampleRPC{})
+	err := server.RegisterName("test", &SampleRPC{})
 	assert.NoError(b, err)
 
 	sP := server.NewPeer(ctx, jsonrpc2.NewPlainObjectStream(serverPeer))
@@ -87,7 +87,7 @@ func BenchmarkRPC(b *testing.B) {
 
 	args := []any{"Alice"}
 	response := []any{}
-	err = client.Call(ctx, "Hello", args, &response)
+	err = client.Call(ctx, "test.Hello", args, &response)
 	assert.NoError(b, err)
 	assert.Equal(b, []any{"Hello, Alice"}, response)
 }

@@ -13,16 +13,14 @@ import (
 type Subscription func(*json.RawMessage)
 
 type ClientPeer struct {
-	defaultServiceName string
-	client             *jsonrpc2.Conn
-	mutex              sync.Mutex
-	subscriptions      map[string]Subscription
+	client        *jsonrpc2.Conn
+	mutex         sync.Mutex
+	subscriptions map[string]Subscription
 }
 
 func NewClientPeer(ctx context.Context, conn jsonrpc2.ObjectStream) *ClientPeer {
 	peer := &ClientPeer{
-		defaultServiceName: defaultServiceName,
-		subscriptions:      make(map[string]Subscription),
+		subscriptions: make(map[string]Subscription),
 	}
 
 	rpcConn := jsonrpc2.NewConn(ctx, conn, peer)
@@ -59,7 +57,7 @@ func (c *ClientPeer) Handle(ctx context.Context, conn *jsonrpc2.Conn, r *jsonrpc
 }
 
 func (c *ClientPeer) Call(ctx context.Context, method string, args any, reply any) error {
-	return c.client.Call(ctx, fmt.Sprintf("%s.%s", c.defaultServiceName, method), args, reply)
+	return c.client.Call(ctx, method, args, reply)
 }
 
 func (c *ClientPeer) Subscribe(ctx context.Context, channel string, sub func(*json.RawMessage)) error {

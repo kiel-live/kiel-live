@@ -48,10 +48,6 @@ func (s *Server) RegisterName(name string, st any) error {
 	return nil
 }
 
-func (s *Server) Register(srv any) error {
-	return s.RegisterName(defaultServiceName, srv)
-}
-
 func (s *Server) getSubscriptions(conn *jsonrpc2.Conn) map[string]context.CancelFunc {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()

@@ -41,7 +41,7 @@ func main() {
 	ctx := context.Background()
 
 	server := rpc.NewServer(broker)
-	err := server.Register(&Hub{
+	err := server.RegisterName("hub", &Hub{
 		DB:     db,
 		PubSub: broker,
 	})
