@@ -37,9 +37,6 @@ func main() {
 	})
 
 	broker := pubsub.NewMemory()
-
-	ctx := context.Background()
-
 	server := rpc.NewServer(broker)
 	err := server.RegisterName("hub", &Hub{
 		DB:     db,
@@ -57,6 +54,7 @@ func main() {
 			return
 		}
 
+		ctx := context.Background()
 		server.NewPeer(ctx, websocketjsonrpc2.NewObjectStream(conn))
 	})
 

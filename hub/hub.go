@@ -24,6 +24,8 @@ func (h *Hub) GetVehicles(ctx context.Context, opts *database.ListOptions) ([]*m
 }
 
 func (h *Hub) SetVehicle(ctx context.Context, vehicle *models.Vehicle) error {
+	// TODO: test auth
+
 	err := h.DB.SetVehicle(ctx, vehicle)
 	if err != nil {
 		return err
@@ -45,6 +47,8 @@ func (h *Hub) SetVehicle(ctx context.Context, vehicle *models.Vehicle) error {
 }
 
 func (h *Hub) DeleteVehicle(ctx context.Context, vehicleID string) error {
+	// TODO: test auth
+
 	vehicle, err := h.DB.GetVehicle(ctx, vehicleID)
 	if err != nil {
 		return err
@@ -79,6 +83,8 @@ func (h *Hub) GetStops(ctx context.Context, opts *database.ListOptions) ([]*mode
 }
 
 func (h *Hub) SetStop(ctx context.Context, stop *models.Stop) error {
+	// TODO: test auth
+
 	err := h.DB.SetStop(ctx, stop)
 	if err != nil {
 		return err
@@ -100,6 +106,8 @@ func (h *Hub) SetStop(ctx context.Context, stop *models.Stop) error {
 }
 
 func (h *Hub) DeleteStop(ctx context.Context, stopID string) error {
+	// TODO: test auth
+
 	stop, err := h.DB.GetStop(ctx, stopID)
 	if err != nil {
 		return err
@@ -120,6 +128,65 @@ func (h *Hub) DeleteStop(ctx context.Context, stopID string) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (h *Hub) GetTrip(ctx context.Context, tripID string) (*models.Trip, error) {
+	return h.DB.GetTrip(ctx, tripID)
+}
+
+func (h *Hub) SetTrip(ctx context.Context, trip *models.Trip) error {
+	// TODO: require auth
+	err := h.DB.SetTrip(ctx, trip)
+	if err != nil {
+		return err
+	}
+
+	err = h.PubSub.Publish(ctx, fmt.Sprintf("trip-updated:%s", trip.ID), trip.ToJSON())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (h *Hub) GetRoute(ctx context.Context, tripID string) (*models.Route, error) {
+	return h.DB.GetRoute(ctx, tripID)
+}
+
+func (h *Hub) SetRoute(ctx context.Context, route *models.Route) error {
+	// TODO: require auth
+	err := h.DB.SetRoute(ctx, route)
+	if err != nil {
+		return err
+	}
+
+	err = h.PubSub.Publish(ctx, fmt.Sprintf("route-updated:%s", route.ID), route.ToJSON())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (h *Hub) DeleteRoute(ctx context.Context, routeID string) error {
+	// TODO: require auth
+
+	route, err := h.DB.GetRoute(ctx, routeID)
+	if err != nil {
+		return err
+	}
+
+	err = h.PubSub.Publish(ctx, fmt.Sprintf("route-deleted:%s", route.ID), route.ToJSON())
+	if err != nil {
+		return err
+	}
+
+	err = h.DB.DeleteRoute(ctx, routeID)
+	if err != nil {
+		return err
 	}
 
 	return nil

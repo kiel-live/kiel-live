@@ -18,6 +18,9 @@ type MemoryDatabase struct {
 
 	vehicles           map[string]*models.Vehicle
 	vehiclesCellsIndex *CellIndex
+
+	trips  map[string]*models.Trip
+	routes map[string]*models.Route
 }
 
 func NewMemoryDatabase() Database {
@@ -153,77 +156,64 @@ func (b *MemoryDatabase) DeleteVehicle(_ context.Context, id string) error {
 	return nil
 }
 
-type CellIndex struct {
-	sync.RWMutex
-	index map[s2.CellID]map[string]struct{}
+func (b *MemoryDatabase) GetTrip(ctx context.Context, id string) (*models.Trip, error) {
+	b.RLock()
+	defer b.RUnlock()
+
+	if trip, ok := b.trips[id]; ok {
+		return trip, nil
+	}
+
+	return nil, errors.New("trip not found")
 }
 
-func NewCellIndex() *CellIndex {
-	return &CellIndex{
-		index: make(map[s2.CellID]map[string]struct{}),
-	}
+func (b *MemoryDatabase) SetTrip(ctx context.Context, trip *models.Trip) error {
+	b.Lock()
+	defer b.Unlock()
+
+	b.trips[trip.ID] = trip
+
+	return nil
 }
 
-func (c *CellIndex) UpdateItem(itemID string, newIDs []s2.CellID, oldIDs []s2.CellID) {
-	c.Lock()
-	defer c.Unlock()
+func (b *MemoryDatabase) DeleteTrip(_ context.Context, id string) error {
+	b.Lock()
+	defer b.Unlock()
 
-	toDelete := make(map[s2.CellID]struct{})
-	for _, oldID := range oldIDs {
-		toDelete[oldID] = struct{}{}
+	if trip, ok := b.trips[id]; ok {
+		delete(b.trips, trip.ID)
 	}
 
-	toAdd := make(map[s2.CellID]struct{})
-	for _, newID := range newIDs {
-		if _, ok := toDelete[newID]; ok {
-			// keep item and therefore don't delete it
-			delete(toDelete, newID)
-		} else {
-			toAdd[newID] = struct{}{}
-		}
-	}
-
-	for id := range toDelete {
-		if _, ok := c.index[id]; ok {
-			delete(c.index[id], itemID)
-
-			// delete empty cell
-			if len(c.index[id]) == 0 {
-				delete(c.index, id)
-			}
-		}
-	}
-
-	for id := range toAdd {
-		// create new cell if it doesn't exist
-		if _, ok := c.index[id]; !ok {
-			c.index[id] = make(map[string]struct{})
-		}
-		c.index[id][itemID] = struct{}{}
-	}
+	return nil
 }
 
-func (c *CellIndex) AddItem(itemID string, cellIDs []s2.CellID) {
-	c.UpdateItem(itemID, cellIDs, nil)
-}
+func (b *MemoryDatabase) GetRoute(ctx context.Context, id string) (*models.Route, error) {
+	b.RLock()
+	defer b.RUnlock()
 
-func (c *CellIndex) RemoveItem(itemID string, cellIDs []s2.CellID) {
-	c.UpdateItem(itemID, nil, cellIDs)
-}
-
-func (c *CellIndex) GetItemIDs(cellID s2.CellID) []string {
-	c.RLock()
-	defer c.RUnlock()
-
-	itemIDs, ok := c.index[cellID]
-	if !ok {
-		return nil
+	if route, ok := b.routes[id]; ok {
+		return route, nil
 	}
 
-	ids := make([]string, 0, len(itemIDs))
-	for id := range itemIDs {
-		ids = append(ids, id)
+	return nil, errors.New("route not found")
+}
+
+func (b *MemoryDatabase) SetRoute(ctx context.Context, route *models.Route) error {
+	b.Lock()
+	defer b.Unlock()
+
+	b.routes[route.ID] = route
+
+	return nil
+}
+
+func (b *MemoryDatabase) DeleteRoute(_ context.Context, id string) error {
+	b.Lock()
+	defer b.Unlock()
+
+	if route, ok := b.routes[id]; ok {
+		delete(b.routes, route.ID)
 	}
 
-	return ids
+	return nil
 }
