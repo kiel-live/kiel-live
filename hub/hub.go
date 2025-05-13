@@ -24,20 +24,19 @@ func (h *Hub) GetVehicles(ctx context.Context, opts *database.ListOptions) ([]*m
 }
 
 func (h *Hub) SetVehicle(ctx context.Context, vehicle *models.Vehicle) error {
-	// TODO: test auth
-
+	// TODO: require auth
 	err := h.DB.SetVehicle(ctx, vehicle)
 	if err != nil {
 		return err
 	}
 
-	err = h.PubSub.Publish(ctx, fmt.Sprintf("vehicle-updated:%s", vehicle.ID), vehicle.ToJSON())
+	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemUpdatedTopic, "vehicle", vehicle.ID), vehicle.ToJSON())
 	if err != nil {
 		return err
 	}
 
 	for _, cellID := range vehicle.Location.GetCellIDs() {
-		err = h.PubSub.Publish(ctx, fmt.Sprintf("map-vehicle-updated:%s", cellID.ToToken()), vehicle.ToJSON())
+		err = h.PubSub.Publish(ctx, fmt.Sprintf(MapItemUpdatedTopic, "vehicle", cellID.ToToken()), vehicle.ToJSON())
 		if err != nil {
 			return err
 		}
@@ -47,8 +46,7 @@ func (h *Hub) SetVehicle(ctx context.Context, vehicle *models.Vehicle) error {
 }
 
 func (h *Hub) DeleteVehicle(ctx context.Context, vehicleID string) error {
-	// TODO: test auth
-
+	// TODO: require auth
 	vehicle, err := h.DB.GetVehicle(ctx, vehicleID)
 	if err != nil {
 		return err
@@ -59,13 +57,13 @@ func (h *Hub) DeleteVehicle(ctx context.Context, vehicleID string) error {
 		return err
 	}
 
-	err = h.PubSub.Publish(ctx, fmt.Sprintf("vehicle-deleted:%s", vehicle.ID), vehicle.ToJSON())
+	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemDeletedTopic, "vehicle", vehicle.ID), vehicle.ToJSON())
 	if err != nil {
 		return err
 	}
 
 	for _, cellID := range vehicle.Location.GetCellIDs() {
-		err = h.PubSub.Publish(ctx, fmt.Sprintf("map-vehicle-deleted:%s", cellID.ToToken()), vehicle.ToJSON())
+		err = h.PubSub.Publish(ctx, fmt.Sprintf(MapItemDeletedTopic, "vehicle", cellID.ToToken()), vehicle.ToJSON())
 		if err != nil {
 			return err
 		}
@@ -83,20 +81,19 @@ func (h *Hub) GetStops(ctx context.Context, opts *database.ListOptions) ([]*mode
 }
 
 func (h *Hub) SetStop(ctx context.Context, stop *models.Stop) error {
-	// TODO: test auth
-
+	// TODO: require auth
 	err := h.DB.SetStop(ctx, stop)
 	if err != nil {
 		return err
 	}
 
-	err = h.PubSub.Publish(ctx, fmt.Sprintf("stop-updated:%s", stop.ID), stop.ToJSON())
+	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemUpdatedTopic, "stop", stop.ID), stop.ToJSON())
 	if err != nil {
 		return err
 	}
 
 	for _, cellID := range stop.Location.GetCellIDs() {
-		err = h.PubSub.Publish(ctx, fmt.Sprintf("map-stop-updated:%s", cellID.ToToken()), stop.ToJSON())
+		err = h.PubSub.Publish(ctx, fmt.Sprintf(MapItemUpdatedTopic, "stop", cellID.ToToken()), stop.ToJSON())
 		if err != nil {
 			return err
 		}
@@ -106,8 +103,7 @@ func (h *Hub) SetStop(ctx context.Context, stop *models.Stop) error {
 }
 
 func (h *Hub) DeleteStop(ctx context.Context, stopID string) error {
-	// TODO: test auth
-
+	// TODO: require auth
 	stop, err := h.DB.GetStop(ctx, stopID)
 	if err != nil {
 		return err
@@ -118,13 +114,14 @@ func (h *Hub) DeleteStop(ctx context.Context, stopID string) error {
 		return err
 	}
 
-	err = h.PubSub.Publish(ctx, fmt.Sprintf("stop-deleted:%s", stop.ID), stop.ToJSON())
+	json := stop.ToJSON()
+	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemDeletedTopic, "stop", stop.ID), json)
 	if err != nil {
 		return err
 	}
 
 	for _, cellID := range stop.Location.GetCellIDs() {
-		err = h.PubSub.Publish(ctx, fmt.Sprintf("map-stop-deleted:%s", cellID.ToToken()), stop.ToJSON())
+		err = h.PubSub.Publish(ctx, fmt.Sprintf(MapItemDeletedTopic, "stop", cellID.ToToken()), json)
 		if err != nil {
 			return err
 		}
@@ -144,7 +141,22 @@ func (h *Hub) SetTrip(ctx context.Context, trip *models.Trip) error {
 		return err
 	}
 
-	err = h.PubSub.Publish(ctx, fmt.Sprintf("trip-updated:%s", trip.ID), trip.ToJSON())
+	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemUpdatedTopic, "trip", trip.ID), trip.ToJSON())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (h *Hub) DeleteTrip(ctx context.Context, trip *models.Trip) error {
+	// TODO: require auth
+	err := h.DB.DeleteTrip(ctx, trip.ID)
+	if err != nil {
+		return err
+	}
+
+	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemDeletedTopic, "trip", trip.ID), trip.ToJSON())
 	if err != nil {
 		return err
 	}
@@ -163,7 +175,7 @@ func (h *Hub) SetRoute(ctx context.Context, route *models.Route) error {
 		return err
 	}
 
-	err = h.PubSub.Publish(ctx, fmt.Sprintf("route-updated:%s", route.ID), route.ToJSON())
+	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemUpdatedTopic, "route", route.ID), route.ToJSON())
 	if err != nil {
 		return err
 	}
@@ -179,7 +191,7 @@ func (h *Hub) DeleteRoute(ctx context.Context, routeID string) error {
 		return err
 	}
 
-	err = h.PubSub.Publish(ctx, fmt.Sprintf("route-deleted:%s", route.ID), route.ToJSON())
+	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemDeletedTopic, "route", route.ID), route.ToJSON())
 	if err != nil {
 		return err
 	}
