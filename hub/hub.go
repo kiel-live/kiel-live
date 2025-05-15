@@ -1,205 +1,108 @@
 package main
 
 import (
-	"context"
-	"fmt"
+	"log"
+	"net/http"
+	"sync"
 
 	"github.com/kiel-live/kiel-live/pkg/database"
-	"github.com/kiel-live/kiel-live/pkg/models"
-	"github.com/kiel-live/kiel-live/pkg/pubsub"
+
+	"github.com/gorilla/websocket"
 )
 
-// TODO: use functions as interface for client as well
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool { // Allow all connections
+		return true
+	},
+}
+
+// WebsocketMessage defines the structure for messages sent over WebSocket.
+type WebsocketMessage struct {
+	Topic  string `json:"topic"`
+	Action string `json:"action"` // e.g., "created", "updated", "deleted"
+	Data   any    `json:"data"`
+}
+
+// ClientSubscriptionMessage defines the structure for client messages to subscribe/unsubscribe.
+type ClientSubscriptionMessage struct {
+	Action string `json:"action"` // "subscribe" or "unsubscribe"
+	Topic  string `json:"topic"`
+}
+
+// Hub maintains the set of active clients and broadcasts messages to the clients.
 type Hub struct {
-	DB     database.Database
-	PubSub pubsub.Broker
+	clients     map[*websocket.Conn]map[string]struct{} // client -> set of subscribed topics
+	broadcast   chan WebsocketMessage
+	register    chan *websocket.Conn
+	unregister  chan *websocket.Conn
+	subscribe   chan subscriptionRequest
+	unsubscribe chan subscriptionRequest
+	mu          sync.Mutex        // To protect clients map
+	db          database.Database // Changed from store to db to match main.go
 }
 
-func (h *Hub) GetVehicle(ctx context.Context, vehicleID string) (*models.Vehicle, error) {
-	return h.DB.GetVehicle(ctx, vehicleID)
+type subscriptionRequest struct {
+	client *websocket.Conn
+	topic  string
 }
 
-func (h *Hub) GetVehicles(ctx context.Context, opts *database.ListOptions) ([]*models.Vehicle, error) {
-	return h.DB.GetVehicles(ctx, opts)
-}
-
-func (h *Hub) SetVehicle(ctx context.Context, vehicle *models.Vehicle) error {
-	// TODO: require auth
-	err := h.DB.SetVehicle(ctx, vehicle)
-	if err != nil {
-		return err
+func newHub(db database.Database) *Hub {
+	return &Hub{
+		broadcast:   make(chan WebsocketMessage),
+		register:    make(chan *websocket.Conn),
+		unregister:  make(chan *websocket.Conn),
+		subscribe:   make(chan subscriptionRequest),
+		unsubscribe: make(chan subscriptionRequest),
+		clients:     make(map[*websocket.Conn]map[string]struct{}),
+		db:          db,
 	}
+}
 
-	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemUpdatedTopic, "vehicle", vehicle.ID), vehicle.ToJSON())
-	if err != nil {
-		return err
-	}
-
-	for _, cellID := range vehicle.Location.GetCellIDs() {
-		err = h.PubSub.Publish(ctx, fmt.Sprintf(MapItemUpdatedTopic, "vehicle", cellID.ToToken()), vehicle.ToJSON())
-		if err != nil {
-			return err
+func (h *Hub) run() {
+	for {
+		select {
+		case client := <-h.register:
+			h.mu.Lock()
+			h.clients[client] = make(map[string]struct{}) // Initialize empty set of topics
+			h.mu.Unlock()
+			log.Println("Client registered")
+		case client := <-h.unregister:
+			h.mu.Lock()
+			if _, ok := h.clients[client]; ok {
+				delete(h.clients, client)
+				log.Println("Client unregistered")
+			}
+			h.mu.Unlock()
+		case req := <-h.subscribe:
+			h.mu.Lock()
+			if clientTopics, ok := h.clients[req.client]; ok {
+				clientTopics[req.topic] = struct{}{}
+				log.Printf("Client subscribed to topic: %s", req.topic)
+			} else {
+				log.Printf("Failed to subscribe: client not registered: %v", req.client)
+			}
+			h.mu.Unlock()
+		case req := <-h.unsubscribe:
+			h.mu.Lock()
+			if clientTopics, ok := h.clients[req.client]; ok {
+				delete(clientTopics, req.topic)
+				log.Printf("Client unsubscribed from topic: %s", req.topic)
+			}
+			h.mu.Unlock()
+		case message := <-h.broadcast:
+			h.mu.Lock()
+			for client, topics := range h.clients {
+				if _, subscribed := topics[message.Topic]; subscribed {
+					err := client.WriteJSON(message)
+					if err != nil {
+						log.Printf("error writing json to client: %v", err)
+						// Don't delete here, let unregister handle it if conn breaks
+					}
+				}
+			}
+			h.mu.Unlock()
 		}
 	}
-
-	return nil
-}
-
-func (h *Hub) DeleteVehicle(ctx context.Context, vehicleID string) error {
-	// TODO: require auth
-	vehicle, err := h.DB.GetVehicle(ctx, vehicleID)
-	if err != nil {
-		return err
-	}
-
-	err = h.DB.DeleteVehicle(ctx, vehicle.ID)
-	if err != nil {
-		return err
-	}
-
-	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemDeletedTopic, "vehicle", vehicle.ID), vehicle.ToJSON())
-	if err != nil {
-		return err
-	}
-
-	for _, cellID := range vehicle.Location.GetCellIDs() {
-		err = h.PubSub.Publish(ctx, fmt.Sprintf(MapItemDeletedTopic, "vehicle", cellID.ToToken()), vehicle.ToJSON())
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (h *Hub) GetStop(ctx context.Context, stopID string) (*models.Stop, error) {
-	return h.DB.GetStop(ctx, stopID)
-}
-
-func (h *Hub) GetStops(ctx context.Context, opts *database.ListOptions) ([]*models.Stop, error) {
-	return h.DB.GetStops(ctx, opts)
-}
-
-func (h *Hub) SetStop(ctx context.Context, stop *models.Stop) error {
-	// TODO: require auth
-	err := h.DB.SetStop(ctx, stop)
-	if err != nil {
-		return err
-	}
-
-	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemUpdatedTopic, "stop", stop.ID), stop.ToJSON())
-	if err != nil {
-		return err
-	}
-
-	for _, cellID := range stop.Location.GetCellIDs() {
-		err = h.PubSub.Publish(ctx, fmt.Sprintf(MapItemUpdatedTopic, "stop", cellID.ToToken()), stop.ToJSON())
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (h *Hub) DeleteStop(ctx context.Context, stopID string) error {
-	// TODO: require auth
-	stop, err := h.DB.GetStop(ctx, stopID)
-	if err != nil {
-		return err
-	}
-
-	err = h.DB.DeleteStop(ctx, stop.ID)
-	if err != nil {
-		return err
-	}
-
-	json := stop.ToJSON()
-	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemDeletedTopic, "stop", stop.ID), json)
-	if err != nil {
-		return err
-	}
-
-	for _, cellID := range stop.Location.GetCellIDs() {
-		err = h.PubSub.Publish(ctx, fmt.Sprintf(MapItemDeletedTopic, "stop", cellID.ToToken()), json)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (h *Hub) GetTrip(ctx context.Context, tripID string) (*models.Trip, error) {
-	return h.DB.GetTrip(ctx, tripID)
-}
-
-func (h *Hub) SetTrip(ctx context.Context, trip *models.Trip) error {
-	// TODO: require auth
-	err := h.DB.SetTrip(ctx, trip)
-	if err != nil {
-		return err
-	}
-
-	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemUpdatedTopic, "trip", trip.ID), trip.ToJSON())
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (h *Hub) DeleteTrip(ctx context.Context, trip *models.Trip) error {
-	// TODO: require auth
-	err := h.DB.DeleteTrip(ctx, trip.ID)
-	if err != nil {
-		return err
-	}
-
-	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemDeletedTopic, "trip", trip.ID), trip.ToJSON())
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (h *Hub) GetRoute(ctx context.Context, tripID string) (*models.Route, error) {
-	return h.DB.GetRoute(ctx, tripID)
-}
-
-func (h *Hub) SetRoute(ctx context.Context, route *models.Route) error {
-	// TODO: require auth
-	err := h.DB.SetRoute(ctx, route)
-	if err != nil {
-		return err
-	}
-
-	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemUpdatedTopic, "route", route.ID), route.ToJSON())
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (h *Hub) DeleteRoute(ctx context.Context, routeID string) error {
-	// TODO: require auth
-
-	route, err := h.DB.GetRoute(ctx, routeID)
-	if err != nil {
-		return err
-	}
-
-	err = h.PubSub.Publish(ctx, fmt.Sprintf(ItemDeletedTopic, "route", route.ID), route.ToJSON())
-	if err != nil {
-		return err
-	}
-
-	err = h.DB.DeleteRoute(ctx, routeID)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
