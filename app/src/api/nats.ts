@@ -160,7 +160,7 @@ export class NatsApi implements Api {
   }
 
   useStop(stopId: Ref<string | undefined>) {
-    if (stopId) {
+    if (stopId.value) {
       void this.subscribe(`data.map.stop.${stopId.value}`, this.stops);
     }
 
@@ -183,7 +183,7 @@ export class NatsApi implements Api {
   }
 
   useVehicle(vehicleId: Ref<string | undefined>) {
-    if (vehicleId) {
+    if (vehicleId.value) {
       void this.subscribe(`data.map.vehicle.${vehicleId.value}`, this.vehicles);
     }
 

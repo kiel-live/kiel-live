@@ -1,14 +1,21 @@
 import type { Api } from './types';
 import { useFeatureFlags } from '~/compositions/useFeatureFlags';
 import { DummyApi } from './dummy/dummy';
+import { HttpApi } from './http';
 import { NatsApi } from './nats';
-import { RPCApi } from './rpc';
 
 const { checkFeatureFlag } = useFeatureFlags();
 
-export const api: Api =
-  import.meta.env.VITE_USE_DUMMY_API === 'true'
-    ? new DummyApi()
-    : checkFeatureFlag('new_api')
-      ? new RPCApi()
-      : new NatsApi();
+function getApi() {
+  if (import.meta.env.VITE_USE_DUMMY_API === 'true') {
+    return new DummyApi();
+  }
+
+  if (checkFeatureFlag('new_api')) {
+    return new HttpApi();
+  }
+
+  return new NatsApi();
+}
+
+export const api: Api = getApi();
