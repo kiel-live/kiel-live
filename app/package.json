@@ -46,7 +46,7 @@
     "eslint-plugin-promise": "7.2.1",
     "eslint-plugin-vue-scoped-css": "2.9.0",
     "prettier": "3.5.3",
-    "typescript": "5.8.2",
+    "typescript": "5.8.3",
     "unplugin-icons": "22.1.0",
     "unplugin-vue-components": "28.4.1",
     "vite": "6.2.7",
