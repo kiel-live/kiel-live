@@ -13,16 +13,16 @@
     <div class="flex flex-col overflow-y-auto">
       <router-link
         v-for="searchResult in searchResults"
-        :key="searchResult.refIndex"
-        :to="{ name: 'map-marker', params: { markerType: searchResult.item.type, markerId: searchResult.item.id } }"
+        :key="searchResult.id"
+        :to="{ name: 'map-marker', params: { markerType: searchResult.type, markerId: searchResult.id } }"
         class="flex py-2 not-last:border-b-1 dark:border-dark-300 max-w-full"
         @click="searchInput = ''"
       >
-        <i-mdi-sign-real-estate v-if="searchResult.item.type === 'bus-stop'" class="mr-2" />
-        <i-mdi-ferry v-else-if="searchResult.item.type === 'ferry-stop'" class="mr-2" />
-        <!-- <i-fa-bus v-else-if="searchResult.item.type === 'bus'" class="mr-2" /> -->
+        <i-mdi-sign-real-estate v-if="searchResult.type === 'bus-stop'" class="mr-2" />
+        <i-mdi-ferry v-else-if="searchResult.type === 'ferry-stop'" class="mr-2" />
+        <!-- <i-fa-bus v-else-if="searchResult.type === 'bus'" class="mr-2" /> -->
         <div class="">
-          {{ searchResult.item.name }}
+          {{ searchResult.name }}
         </div>
       </router-link>
     </div>
@@ -31,8 +31,7 @@
 
 <script lang="ts" setup>
 import type { Bounds } from '~/api/types';
-import Fuse from 'fuse.js';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 
 import { useI18n } from 'vue-i18n';
 import { api } from '~/api';
@@ -50,23 +49,6 @@ const bounds = ref<Bounds>({
   north: 0,
   south: 0,
 });
-const { stops } = api.useStops(bounds);
 
-const searchData = computed(() => [...Object.values(stops.value)]);
-const searchIndex = computed(
-  () =>
-    new Fuse(searchData.value, {
-      includeScore: true,
-      keys: ['name'],
-      threshold: 0.4,
-    }),
-);
-
-const searchResults = computed(() => {
-  if (searchInput.value === '' || searchInput.value.length < 3) {
-    return [];
-  }
-  // limit to max 20 results
-  return searchIndex.value.search(searchInput.value).slice(0, 20);
-});
+const { results: searchResults } = api.useSearch(searchInput, bounds);
 </script>

@@ -1,9 +1,10 @@
 import type { JetStreamClient, JetStreamSubscription, NatsConnection } from 'nats.ws';
 import type { Ref } from 'vue';
-import type { Api, Models, Stop, Trip, Vehicle } from '~/api/types';
+import type { Api, Bounds, Models, Stop, Trip, Vehicle } from '~/api/types';
+import Fuse from 'fuse.js';
 import { connect, consumerOpts, createInbox, Events, StringCodec } from 'nats.ws';
-
 import { computed, ref, watch } from 'vue';
+
 import { natsServerUrl } from '~/config';
 
 const sc = StringCodec();
@@ -226,5 +227,32 @@ export class NatsApi implements Api {
         await this.unsubscribe(`data.map.trip.${tripId.value}`);
       },
     };
+  }
+
+  useSearch(query: Ref<string>, _bounds: Ref<Bounds>) {
+    const { stops, loading } = this.useStops();
+
+    const searchData = computed(() => [...Object.values(stops.value)]);
+    const searchIndex = computed(
+      () =>
+        new Fuse(searchData.value, {
+          includeScore: true,
+          keys: ['name'],
+          threshold: 0.4,
+        }),
+    );
+
+    const results = computed(() => {
+      if (query.value === '' || query.value.length < 3) {
+        return [];
+      }
+      // limit to max 20 results
+      return searchIndex.value
+        .search(query.value)
+        .slice(0, 20)
+        .map((result) => result.item);
+    });
+
+    return { results, loading };
   }
 }
