@@ -36,5 +36,13 @@ export interface Api {
     unsubscribe: () => void | Promise<void>;
   };
 
+  useSearch: (
+    query: Ref<string>,
+    bounds: Ref<Bounds>,
+  ) => {
+    results: Ref<(Stop | Vehicle)[]>;
+    loading: Ref<boolean>;
+  };
+
   get isConnected(): Ref<boolean>;
 }
