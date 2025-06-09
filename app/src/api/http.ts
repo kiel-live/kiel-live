@@ -1,5 +1,5 @@
 import type { Ref } from 'vue';
-import type { Api, Models, Stop, Trip, Vehicle } from '~/api/types';
+import type { Api, Bounds, Models, Stop, Trip, Vehicle } from '~/api/types';
 
 import { computed, ref, watch } from 'vue';
 
@@ -203,6 +203,18 @@ export class HttpApi implements Api {
       unsubscribe: async () => {
         await this.unsubscribe(`data.map.trip.${tripId.value}`);
       },
+    };
+  }
+
+  useSearch(_query: Ref<string>, _bounds: Ref<Bounds>) {
+    const results = ref<(Stop | Vehicle)[]>([]);
+    const loading = ref(false);
+
+    // TODO: implement search logic
+
+    return {
+      results,
+      loading,
     };
   }
 }
