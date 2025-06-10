@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/kiel-live/kiel-live/hub/api"
+	"github.com/kiel-live/kiel-live/hub/hub"
 	"github.com/kiel-live/kiel-live/pkg/database"
 )
 
@@ -12,11 +14,11 @@ func main() {
 	port := "4568"
 
 	db := database.NewMemoryDatabase()
-	hub := newHub(db)
-	go hub.run()
+	hub := hub.NewHub(db)
+	go hub.Run()
 
 	apiRouter := http.NewServeMux()
-	NewAPIServer(db, hub, apiRouter)
+	api.NewAPIServer(db, hub, apiRouter)
 
 	router := http.NewServeMux()
 	router.Handle("/api/v1/", http.StripPrefix("/api/v1", apiRouter))

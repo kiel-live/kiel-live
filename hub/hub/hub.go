@@ -1,22 +1,13 @@
-package main
+package hub
 
 import (
 	"log"
-	"net/http"
 	"sync"
 
 	"github.com/kiel-live/kiel-live/pkg/database"
 
 	"github.com/gorilla/websocket"
 )
-
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool { // Allow all connections
-		return true
-	},
-}
 
 // WebsocketMessage defines the structure for messages sent over WebSocket.
 type WebsocketMessage struct {
@@ -31,67 +22,67 @@ type ClientSubscriptionMessage struct {
 	Topic  string `json:"topic"`
 }
 
+type SubscriptionRequest struct {
+	Client *websocket.Conn
+	Topic  string
+}
+
 // Hub maintains the set of active clients and broadcasts messages to the clients.
 type Hub struct {
 	clients     map[*websocket.Conn]map[string]struct{} // client -> set of subscribed topics
-	broadcast   chan WebsocketMessage
-	register    chan *websocket.Conn
-	unregister  chan *websocket.Conn
-	subscribe   chan subscriptionRequest
-	unsubscribe chan subscriptionRequest
-	mu          sync.Mutex        // To protect clients map
-	db          database.Database // Changed from store to db to match main.go
+	mu          sync.Mutex                              // To protect clients map
+	Broadcast   chan WebsocketMessage
+	Register    chan *websocket.Conn
+	Unregister  chan *websocket.Conn
+	Subscribe   chan SubscriptionRequest
+	Unsubscribe chan SubscriptionRequest
+	db          database.Database
 }
 
-type subscriptionRequest struct {
-	client *websocket.Conn
-	topic  string
-}
-
-func newHub(db database.Database) *Hub {
+func NewHub(db database.Database) *Hub {
 	return &Hub{
-		broadcast:   make(chan WebsocketMessage),
-		register:    make(chan *websocket.Conn),
-		unregister:  make(chan *websocket.Conn),
-		subscribe:   make(chan subscriptionRequest),
-		unsubscribe: make(chan subscriptionRequest),
+		Broadcast:   make(chan WebsocketMessage),
+		Register:    make(chan *websocket.Conn),
+		Unregister:  make(chan *websocket.Conn),
+		Subscribe:   make(chan SubscriptionRequest),
+		Unsubscribe: make(chan SubscriptionRequest),
 		clients:     make(map[*websocket.Conn]map[string]struct{}),
 		db:          db,
 	}
 }
 
-func (h *Hub) run() {
+func (h *Hub) Run() {
 	for {
 		select {
-		case client := <-h.register:
+		case client := <-h.Register:
 			h.mu.Lock()
 			h.clients[client] = make(map[string]struct{}) // Initialize empty set of topics
 			h.mu.Unlock()
 			log.Println("Client registered")
-		case client := <-h.unregister:
+		case client := <-h.Unregister:
 			h.mu.Lock()
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)
 				log.Println("Client unregistered")
 			}
 			h.mu.Unlock()
-		case req := <-h.subscribe:
+		case req := <-h.Subscribe:
 			h.mu.Lock()
-			if clientTopics, ok := h.clients[req.client]; ok {
-				clientTopics[req.topic] = struct{}{}
-				log.Printf("Client subscribed to topic: %s", req.topic)
+			if clientTopics, ok := h.clients[req.Client]; ok {
+				clientTopics[req.Topic] = struct{}{}
+				log.Printf("Client subscribed to topic: %s", req.Topic)
 			} else {
-				log.Printf("Failed to subscribe: client not registered: %v", req.client)
+				log.Printf("Failed to subscribe: client not registered: %v", req.Client)
 			}
 			h.mu.Unlock()
-		case req := <-h.unsubscribe:
+		case req := <-h.Unsubscribe:
 			h.mu.Lock()
-			if clientTopics, ok := h.clients[req.client]; ok {
-				delete(clientTopics, req.topic)
-				log.Printf("Client unsubscribed from topic: %s", req.topic)
+			if clientTopics, ok := h.clients[req.Client]; ok {
+				delete(clientTopics, req.Topic)
+				log.Printf("Client unsubscribed from topic: %s", req.Topic)
 			}
 			h.mu.Unlock()
-		case message := <-h.broadcast:
+		case message := <-h.Broadcast:
 			h.mu.Lock()
 			for client, topics := range h.clients {
 				if _, subscribed := topics[message.Topic]; subscribed {
