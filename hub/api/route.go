@@ -2,10 +2,8 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
-	"github.com/kiel-live/kiel-live/hub/hub"
 	"github.com/kiel-live/kiel-live/pkg/models"
 )
 
@@ -55,7 +53,7 @@ func (s *Server) handleUpdateRoute(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	s.hub.Broadcast <- hub.WebsocketMessage{Topic: fmt.Sprintf("routes/%s", route.ID), Action: "updated", Data: route}
+	s.broadcastItemUpdated("routes", id, route)
 	respondWithJSON(w, http.StatusOK, route)
 }
 
@@ -66,10 +64,19 @@ func (s *Server) handleDeleteRoute(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "Missing route ID")
 		return
 	}
+
+	route, err := s.db.GetRoute(ctx, id)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	if err := s.db.DeleteRoute(ctx, id); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	s.hub.Broadcast <- hub.WebsocketMessage{Topic: fmt.Sprintf("routes/%s", id), Action: "deleted", Data: map[string]string{"id": id}}
-	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+
+	s.broadcastItemDeleted("routes", id, route)
+
+	respondWithJSON(w, http.StatusOK, route)
 }

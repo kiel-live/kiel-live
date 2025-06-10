@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/golang/geo/s2"
@@ -35,4 +36,20 @@ func s2CellIDToBoundingBox(cellID s2.CellID) *models.BoundingBox {
 		MaxLat: rect.Lat.Hi,
 		MaxLng: rect.Lng.Hi,
 	}
+}
+
+func (s *Server) broadcastItemUpdated(type2 string, id string, data any) {
+	s.hub.BroadcastMessage(fmt.Sprintf(ItemTopic, type2, id), "update", data)
+}
+
+func (s *Server) broadcastMapItemUpdated(type2 string, id string, data any) {
+	s.hub.BroadcastMessage(fmt.Sprintf(MapItemTopic, type2, id), "update", data)
+}
+
+func (s *Server) broadcastItemDeleted(type2 string, id string, data any) {
+	s.hub.BroadcastMessage(fmt.Sprintf(ItemTopic, type2, id), "delete", data)
+}
+
+func (s *Server) broadcastMapItemDeleted(type2 string, id string, data any) {
+	s.hub.BroadcastMessage(fmt.Sprintf(MapItemTopic, type2, id), "delete", data)
 }

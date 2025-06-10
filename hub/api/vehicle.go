@@ -7,22 +7,20 @@ import (
 	"net/http"
 
 	"github.com/golang/geo/s2"
-	"github.com/kiel-live/kiel-live/hub/hub"
 	"github.com/kiel-live/kiel-live/pkg/database"
 	"github.com/kiel-live/kiel-live/pkg/models"
 )
 
-// --- Vehicle Handlers ---
 func (s *Server) handleGetVehicles(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	cellIDStr := r.URL.Query().Get("s2CellID")
+	cellIDStr := r.URL.Query().Get("cell")
 	if cellIDStr == "" {
-		respondWithError(w, http.StatusBadRequest, "s2CellID query parameter is required")
+		respondWithError(w, http.StatusBadRequest, "cell query parameter is required")
 		return
 	}
 	cellID := s2.CellIDFromString(cellIDStr)
 	if !cellID.IsValid() {
-		respondWithError(w, http.StatusBadRequest, "Invalid s2CellID")
+		respondWithError(w, http.StatusBadRequest, "Invalid cell")
 		return
 	}
 
@@ -64,20 +62,20 @@ func (s *Server) handleUpdateVehicle(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "Missing vehicle ID")
 		return
 	}
-	var v *models.Vehicle
-	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
+	var vehicle *models.Vehicle
+	if err := json.NewDecoder(r.Body).Decode(&vehicle); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 	defer r.Body.Close()
 
-	if v.Location == nil {
+	if vehicle.Location == nil {
 		respondWithError(w, http.StatusBadRequest, "Vehicle location is required for update")
 		return
 	}
-	if v.ID == "" {
-		v.ID = id
-	} else if v.ID != id {
+	if vehicle.ID == "" {
+		vehicle.ID = id
+	} else if vehicle.ID != id {
 		respondWithError(w, http.StatusBadRequest, "Vehicle ID in path and payload mismatch")
 		return
 	}
@@ -88,24 +86,23 @@ func (s *Server) handleUpdateVehicle(w http.ResponseWriter, r *http.Request) {
 		oldS2CellToken = oldVehicle.Location.GetCellID().ToToken()
 	}
 
-	err = s.db.SetVehicle(ctx, v)
+	err = s.db.SetVehicle(ctx, vehicle)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	// Broadcast WebSocket updates
-	s.hub.Broadcast <- hub.WebsocketMessage{Topic: fmt.Sprintf("vehicles/%s", v.ID), Action: "updated", Data: v}
-	if v.Location != nil {
-		newS2CellToken := v.Location.GetCellID().ToToken()
-		s.hub.Broadcast <- hub.WebsocketMessage{Topic: fmt.Sprintf("s2cells/%s/vehicles", newS2CellToken), Action: "updated", Data: v}
+	s.broadcastItemUpdated("vehicles", vehicle.ID, vehicle)
+	if vehicle.Location != nil {
+		newS2CellToken := vehicle.Location.GetCellID().ToToken()
+		s.broadcastMapItemUpdated("vehicles", newS2CellToken, vehicle)
 		if oldVehicle != nil && oldVehicle.Location != nil && oldS2CellToken != "" && oldS2CellToken != newS2CellToken {
-			log.Printf("Vehicle %s moved from S2 cell %s to %s", v.ID, oldS2CellToken, newS2CellToken)
-			s.hub.Broadcast <- hub.WebsocketMessage{Topic: fmt.Sprintf("s2cells/%s/vehicles", oldS2CellToken), Action: "deleted", Data: map[string]string{"id": v.ID}}
+			log.Printf("Vehicle %s moved from S2 cell %s to %s", vehicle.ID, oldS2CellToken, newS2CellToken)
+			s.broadcastMapItemDeleted("vehicles", oldS2CellToken, vehicle)
 		}
 	}
 
-	respondWithJSON(w, http.StatusOK, v)
+	respondWithJSON(w, http.StatusOK, vehicle)
 }
 
 func (s *Server) handleDeleteVehicle(w http.ResponseWriter, r *http.Request) {
@@ -131,11 +128,10 @@ func (s *Server) handleDeleteVehicle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Broadcast WebSocket updates
-	s.hub.Broadcast <- hub.WebsocketMessage{Topic: fmt.Sprintf("vehicles/%s", id), Action: "deleted", Data: map[string]string{"id": id}}
+	s.broadcastItemDeleted("vehicles", id, vehicle)
 	if vehicle.Location != nil {
-		s.hub.Broadcast <- hub.WebsocketMessage{Topic: fmt.Sprintf("s2cells/%s/vehicles", vehicle.Location.GetCellID().ToToken()), Action: "deleted", Data: map[string]string{"id": id}}
+		s.broadcastMapItemDeleted("vehicles", vehicle.Location.GetCellID().ToToken(), vehicle)
 	}
 
-	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+	respondWithJSON(w, http.StatusOK, vehicle)
 }

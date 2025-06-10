@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/gorilla/websocket"
-	"github.com/kiel-live/kiel-live/hub/hub"
 )
 
 var upgrader = websocket.Upgrader{
@@ -17,24 +16,30 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// clientSubscriptionMessage defines the structure for client messages to subscribe/unsubscribe.
+type clientSubscriptionMessage struct {
+	Action string `json:"action"` // "subscribe" or "unsubscribe"
+	Topic  string `json:"topic"`
+}
+
 func (s *Server) serveWs(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Printf("Failed to upgrade to websocket: %v", err)
 		return
 	}
-	s.hub.Register <- conn
+	s.hub.RegisterClient(conn)
 	log.Println("WebSocket client connected")
 
 	// Handle incoming messages from this client for subscriptions
 	go func(c *websocket.Conn) {
 		defer func() {
-			s.hub.Unregister <- c
+			s.hub.UnregisterClient(c)
 			c.Close()
 			log.Println("WebSocket client disconnected and unregistered")
 		}()
 		for {
-			var msg hub.ClientSubscriptionMessage
+			var msg clientSubscriptionMessage
 			if err := c.ReadJSON(&msg); err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 					log.Printf("error reading json from client: %v", err)
@@ -44,9 +49,9 @@ func (s *Server) serveWs(w http.ResponseWriter, r *http.Request) {
 
 			switch strings.ToLower(msg.Action) {
 			case "subscribe":
-				s.hub.Subscribe <- hub.SubscriptionRequest{Client: c, Topic: msg.Topic}
+				s.hub.SubscribeClient(c, msg.Topic)
 			case "unsubscribe":
-				s.hub.Unsubscribe <- hub.SubscriptionRequest{Client: c, Topic: msg.Topic}
+				s.hub.UnsubscribeClient(c, msg.Topic)
 			default:
 				log.Printf("Unknown action from client: %s", msg.Action)
 			}

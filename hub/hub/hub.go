@@ -9,43 +9,37 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// WebsocketMessage defines the structure for messages sent over WebSocket.
-type WebsocketMessage struct {
+// websocketMessage defines the structure for messages sent over WebSocket.
+type websocketMessage struct {
 	Topic  string `json:"topic"`
-	Action string `json:"action"` // e.g., "created", "updated", "deleted"
-	Data   any    `json:"data"`
+	Action string `json:"action,omitempty"`
+	Data   any    `json:"data,omitempty"`
 }
 
-// ClientSubscriptionMessage defines the structure for client messages to subscribe/unsubscribe.
-type ClientSubscriptionMessage struct {
-	Action string `json:"action"` // "subscribe" or "unsubscribe"
-	Topic  string `json:"topic"`
-}
-
-type SubscriptionRequest struct {
-	Client *websocket.Conn
-	Topic  string
+type subscriptionRequest struct {
+	client *websocket.Conn
+	topic  string
 }
 
 // Hub maintains the set of active clients and broadcasts messages to the clients.
 type Hub struct {
 	clients     map[*websocket.Conn]map[string]struct{} // client -> set of subscribed topics
 	mu          sync.Mutex                              // To protect clients map
-	Broadcast   chan WebsocketMessage
-	Register    chan *websocket.Conn
-	Unregister  chan *websocket.Conn
-	Subscribe   chan SubscriptionRequest
-	Unsubscribe chan SubscriptionRequest
+	broadcast   chan websocketMessage
+	register    chan *websocket.Conn
+	unregister  chan *websocket.Conn
+	subscribe   chan subscriptionRequest
+	unsubscribe chan subscriptionRequest
 	db          database.Database
 }
 
 func NewHub(db database.Database) *Hub {
 	return &Hub{
-		Broadcast:   make(chan WebsocketMessage),
-		Register:    make(chan *websocket.Conn),
-		Unregister:  make(chan *websocket.Conn),
-		Subscribe:   make(chan SubscriptionRequest),
-		Unsubscribe: make(chan SubscriptionRequest),
+		broadcast:   make(chan websocketMessage),
+		register:    make(chan *websocket.Conn),
+		unregister:  make(chan *websocket.Conn),
+		subscribe:   make(chan subscriptionRequest),
+		unsubscribe: make(chan subscriptionRequest),
 		clients:     make(map[*websocket.Conn]map[string]struct{}),
 		db:          db,
 	}
@@ -54,35 +48,35 @@ func NewHub(db database.Database) *Hub {
 func (h *Hub) Run() {
 	for {
 		select {
-		case client := <-h.Register:
+		case client := <-h.register:
 			h.mu.Lock()
 			h.clients[client] = make(map[string]struct{}) // Initialize empty set of topics
 			h.mu.Unlock()
 			log.Println("Client registered")
-		case client := <-h.Unregister:
+		case client := <-h.unregister:
 			h.mu.Lock()
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)
 				log.Println("Client unregistered")
 			}
 			h.mu.Unlock()
-		case req := <-h.Subscribe:
+		case req := <-h.subscribe:
 			h.mu.Lock()
-			if clientTopics, ok := h.clients[req.Client]; ok {
-				clientTopics[req.Topic] = struct{}{}
-				log.Printf("Client subscribed to topic: %s", req.Topic)
+			if clientTopics, ok := h.clients[req.client]; ok {
+				clientTopics[req.topic] = struct{}{}
+				log.Printf("Client subscribed to topic: %s", req.topic)
 			} else {
-				log.Printf("Failed to subscribe: client not registered: %v", req.Client)
+				log.Printf("Failed to subscribe: client not registered: %v", req.client)
 			}
 			h.mu.Unlock()
-		case req := <-h.Unsubscribe:
+		case req := <-h.unsubscribe:
 			h.mu.Lock()
-			if clientTopics, ok := h.clients[req.Client]; ok {
-				delete(clientTopics, req.Topic)
-				log.Printf("Client unsubscribed from topic: %s", req.Topic)
+			if clientTopics, ok := h.clients[req.client]; ok {
+				delete(clientTopics, req.topic)
+				log.Printf("Client unsubscribed from topic: %s", req.topic)
 			}
 			h.mu.Unlock()
-		case message := <-h.Broadcast:
+		case message := <-h.broadcast:
 			h.mu.Lock()
 			for client, topics := range h.clients {
 				if _, subscribed := topics[message.Topic]; subscribed {
@@ -95,5 +89,35 @@ func (h *Hub) Run() {
 			}
 			h.mu.Unlock()
 		}
+	}
+}
+
+func (h *Hub) RegisterClient(client *websocket.Conn) {
+	h.register <- client
+}
+
+func (h *Hub) UnregisterClient(client *websocket.Conn) {
+	h.unregister <- client
+}
+
+func (h *Hub) SubscribeClient(client *websocket.Conn, topic string) {
+	h.subscribe <- subscriptionRequest{
+		client: client,
+		topic:  topic,
+	}
+}
+
+func (h *Hub) UnsubscribeClient(client *websocket.Conn, topic string) {
+	h.unsubscribe <- subscriptionRequest{
+		client: client,
+		topic:  topic,
+	}
+}
+
+func (h *Hub) BroadcastMessage(topic string, action string, data any) {
+	h.broadcast <- websocketMessage{
+		Topic:  topic,
+		Action: action,
+		Data:   data,
 	}
 }

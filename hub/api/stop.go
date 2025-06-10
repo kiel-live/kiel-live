@@ -7,21 +7,20 @@ import (
 	"net/http"
 
 	"github.com/golang/geo/s2"
-	"github.com/kiel-live/kiel-live/hub/hub"
 	"github.com/kiel-live/kiel-live/pkg/database"
 	"github.com/kiel-live/kiel-live/pkg/models"
 )
 
 func (s *Server) handleGetStops(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	cellIDStr := r.URL.Query().Get("s2CellID")
+	cellIDStr := r.URL.Query().Get("cell")
 	if cellIDStr == "" {
-		respondWithError(w, http.StatusBadRequest, "s2CellID query parameter is required")
+		respondWithError(w, http.StatusBadRequest, "cell query parameter is required")
 		return
 	}
 	cellID := s2.CellIDFromString(cellIDStr)
 	if !cellID.IsValid() {
-		respondWithError(w, http.StatusBadRequest, "Invalid s2CellID")
+		respondWithError(w, http.StatusBadRequest, "Invalid cell")
 		return
 	}
 
@@ -93,13 +92,13 @@ func (s *Server) handleUpdateStop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.hub.Broadcast <- hub.WebsocketMessage{Topic: fmt.Sprintf("stops/%s", stop.ID), Action: "updated", Data: stop}
+	s.broadcastItemUpdated("stops", stop.ID, stop)
 	if stop.Location != nil {
 		newS2CellToken := stop.Location.GetCellID().ToToken()
-		s.hub.Broadcast <- hub.WebsocketMessage{Topic: fmt.Sprintf("s2cells/%s/stops", newS2CellToken), Action: "updated", Data: stop}
+		s.broadcastMapItemUpdated("stops", newS2CellToken, stop)
 		if oldStop != nil && oldStop.Location != nil && oldS2CellToken != "" && oldS2CellToken != newS2CellToken {
 			log.Printf("Stop %s S2 cell changed from %s to %s", stop.ID, oldS2CellToken, newS2CellToken)
-			s.hub.Broadcast <- hub.WebsocketMessage{Topic: fmt.Sprintf("s2cells/%s/stops", oldS2CellToken), Action: "deleted", Data: map[string]string{"id": stop.ID}}
+			s.broadcastMapItemDeleted("stops", oldS2CellToken, stop)
 		}
 	}
 
@@ -128,9 +127,11 @@ func (s *Server) handleDeleteStop(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	s.hub.Broadcast <- hub.WebsocketMessage{Topic: fmt.Sprintf("stops/%s", id), Action: "deleted", Data: map[string]string{"id": id}}
+
+	s.broadcastItemDeleted("stops", id, stop)
 	if stop.Location != nil {
-		s.hub.Broadcast <- hub.WebsocketMessage{Topic: fmt.Sprintf("s2cells/%s/stops", stop.Location.GetCellID().ToToken()), Action: "deleted", Data: map[string]string{"id": id}}
+		s.broadcastMapItemDeleted("stops", stop.Location.GetCellID().ToToken(), stop)
 	}
-	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+
+	respondWithJSON(w, http.StatusOK, stop)
 }
