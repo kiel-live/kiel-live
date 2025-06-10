@@ -38,18 +38,18 @@ func s2CellIDToBoundingBox(cellID s2.CellID) *models.BoundingBox {
 	}
 }
 
-func (s *Server) broadcastItemUpdated(type2 string, id string, data any) {
-	s.hub.BroadcastMessage(fmt.Sprintf(ItemTopic, type2, id), "update", data)
+func (s *Server) broadcastItemUpdated(itemType string, id string, data any) {
+	s.hub.BroadcastMessage(fmt.Sprintf(ItemTopic, itemType, id), "update", data)
 }
 
-func (s *Server) broadcastMapItemUpdated(type2 string, id string, data any) {
-	s.hub.BroadcastMessage(fmt.Sprintf(MapItemTopic, type2, id), "update", data)
+func (s *Server) broadcastMapItemUpdated(itemType string, cellID string, data any) {
+	s.hub.BroadcastMessage(fmt.Sprintf(MapItemTopic, itemType, cellID), "update", data)
 }
 
-func (s *Server) broadcastItemDeleted(type2 string, id string, data any) {
-	s.hub.BroadcastMessage(fmt.Sprintf(ItemTopic, type2, id), "delete", data)
+func (s *Server) broadcastItemDeleted(itemType string, id string, data any) {
+	s.hub.BroadcastMessage(fmt.Sprintf(ItemTopic, itemType, id), "delete", data)
 }
 
-func (s *Server) broadcastMapItemDeleted(type2 string, id string, data any) {
-	s.hub.BroadcastMessage(fmt.Sprintf(MapItemTopic, type2, id), "delete", data)
+func (s *Server) broadcastMapItemDeleted(itemType string, cellID string, data any) {
+	s.hub.BroadcastMessage(fmt.Sprintf(MapItemTopic, itemType, cellID), "delete", data)
 }

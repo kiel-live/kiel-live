@@ -96,7 +96,7 @@ func (s *Server) handleUpdateStop(w http.ResponseWriter, r *http.Request) {
 	if stop.Location != nil {
 		newS2CellToken := stop.Location.GetCellID().ToToken()
 		s.broadcastMapItemUpdated("stops", newS2CellToken, stop)
-		if oldStop != nil && oldStop.Location != nil && oldS2CellToken != "" && oldS2CellToken != newS2CellToken {
+		if oldS2CellToken != "" && oldS2CellToken != newS2CellToken {
 			log.Printf("Stop %s S2 cell changed from %s to %s", stop.ID, oldS2CellToken, newS2CellToken)
 			s.broadcastMapItemDeleted("stops", oldS2CellToken, stop)
 		}

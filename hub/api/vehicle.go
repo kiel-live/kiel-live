@@ -96,7 +96,7 @@ func (s *Server) handleUpdateVehicle(w http.ResponseWriter, r *http.Request) {
 	if vehicle.Location != nil {
 		newS2CellToken := vehicle.Location.GetCellID().ToToken()
 		s.broadcastMapItemUpdated("vehicles", newS2CellToken, vehicle)
-		if oldVehicle != nil && oldVehicle.Location != nil && oldS2CellToken != "" && oldS2CellToken != newS2CellToken {
+		if oldS2CellToken != "" && oldS2CellToken != newS2CellToken {
 			log.Printf("Vehicle %s moved from S2 cell %s to %s", vehicle.ID, oldS2CellToken, newS2CellToken)
 			s.broadcastMapItemDeleted("vehicles", oldS2CellToken, vehicle)
 		}
