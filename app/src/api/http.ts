@@ -42,7 +42,7 @@ export class HttpApi implements Api {
   private trips = ref<Map<string, Trip>>(new Map());
 
   constructor() {
-    this.ws = new WebSocket('ws://localhost:8080/ws'); // TODO: replace with proper reconnecting websocket
+    this.ws = new WebSocket('ws://localhost:4568/api/ws'); // TODO: replace with proper reconnecting websocket
 
     this.ws.addEventListener('message', (event) => {
       const message: WebsocketMessage = JSON.parse(event.data);
@@ -76,27 +76,27 @@ export class HttpApi implements Api {
   }
 
   private async subscribe<T extends Model>(topic: string, store: Ref<Map<string, T>>) {
-    this.ws.send(JSON.stringify({ action: 'subscribe', subject: topic }));
+    this.ws.send(JSON.stringify({ action: 'subscribe', topic }));
     this.topics.set(topic, store);
   }
 
   private async unsubscribe(topic: string) {
-    this.ws.send(JSON.stringify({ action: 'unsubscribe', subject: topic }));
+    this.ws.send(JSON.stringify({ action: 'unsubscribe', topic }));
     this.topics.delete(topic);
   }
 
-  private useItems<T extends Model>(itemType: string, bounds: Ref<Bounds>, store: Ref<Map<string, T>>) {
+  private useMapItems<T extends Model>(itemType: string, bounds: Ref<Bounds>, store: Ref<Map<string, T>>) {
     // TODO: in case we have the same item-type + id combination, we should proxy the existing query
     const loading = ref(false);
 
     async function loadItems(this: HttpApi, cellIds: string[]) {
-      // TODO: in case loadItem is called multiple times, only the last response should be used
       if (loading.value === true) {
         return;
       }
 
       loading.value = true;
       const items = await this.fetch<T[]>(`/api/${itemType}?cells=${cellIds.join(',')}`);
+      store.value.clear();
       items.forEach((item) => {
         store.value.set(item.id, item);
       });
@@ -142,8 +142,6 @@ export class HttpApi implements Api {
     const loading = ref(false);
 
     async function loadItem(this: HttpApi, itemId: string | undefined) {
-      // TODO: in case loadItem is called multiple times, only the last response should be used
-      // TODO: we could extend websocket message and models with a timestamp and only update using newer messages
       if (!itemId || loading.value === true) {
         return;
       }
@@ -179,7 +177,7 @@ export class HttpApi implements Api {
 
   useStops(bounds: Ref<Bounds>) {
     const store = ref<Map<string, Stop>>(new Map());
-    const { items, loading, unsubscribe } = this.useItems<Stop>('stops', bounds, store);
+    const { items, loading, unsubscribe } = this.useMapItems<Stop>('stops', bounds, store);
     return {
       stops: items,
       loading,
@@ -189,7 +187,7 @@ export class HttpApi implements Api {
 
   useVehicles(bounds: Ref<Bounds>) {
     const store = ref<Map<string, Vehicle>>(new Map());
-    const { items, loading, unsubscribe } = this.useItems<Vehicle>('vehicles', bounds, store);
+    const { items, loading, unsubscribe } = this.useMapItems<Vehicle>('vehicles', bounds, store);
     return {
       vehicles: items,
       loading,
