@@ -3,6 +3,7 @@ package hub
 import (
 	"log"
 	"sync"
+	"time"
 
 	"github.com/kiel-live/kiel-live/pkg/database"
 
@@ -11,9 +12,10 @@ import (
 
 // websocketMessage defines the structure for messages sent over WebSocket.
 type websocketMessage struct {
-	Topic  string `json:"topic"`
-	Action string `json:"action,omitempty"`
-	Data   any    `json:"data,omitempty"`
+	Topic  string    `json:"topic"`
+	Action string    `json:"action,omitempty"`
+	Data   any       `json:"data,omitempty"`
+	SentAt time.Time `json:"sent_at"`
 }
 
 type subscriptionRequest struct {
@@ -123,6 +125,7 @@ func (h *Hub) BroadcastMessage(topic string, action string, data any) {
 		Topic:  topic,
 		Action: action,
 		Data:   data,
+		SentAt: time.Now(),
 	}
 }
 
