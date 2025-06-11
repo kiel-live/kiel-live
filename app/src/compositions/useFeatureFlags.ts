@@ -1,6 +1,6 @@
 import type { Ref } from 'vue';
 import { useStorage } from '@vueuse/core';
-import { computed } from 'vue';
+import { computed, getCurrentInstance } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { localStoragePrefix } from './useUserSettings';
@@ -14,7 +14,11 @@ interface FeatureFlag {
 }
 
 export function useFeatureFlags() {
-  const { t } = useI18n();
+  // we can only use i18n inside components, as it is only needed for the settings mock i18n otherwise
+  let t: ReturnType<typeof useI18n>['t'] = (key) => key;
+  if (getCurrentInstance()) {
+    t = useI18n().t;
+  }
 
   const featureFlags = [
     {
