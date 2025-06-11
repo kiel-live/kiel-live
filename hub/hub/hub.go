@@ -145,7 +145,7 @@ func (h *Hub) sendTopicList() {
 		topicsList = append(topicsList, topic)
 	}
 
-	h.BroadcastMessage("system.topics", "update", topicsList)
+	h.BroadcastMessage("system.topics", "", topicsList)
 }
 
 func (h *Hub) sendStats() {
@@ -156,5 +156,5 @@ func (h *Hub) sendStats() {
 		"clients": len(h.clients),
 	}
 
-	h.BroadcastMessage("system.stats", "update", stats)
+	h.BroadcastMessage("system.stats", "", stats)
 }

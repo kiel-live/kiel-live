@@ -1,7 +1,5 @@
 package models
 
-import "encoding/json"
-
 type Stop struct {
 	ID       string         `json:"id"`
 	Provider string         `json:"provider"`
@@ -12,14 +10,6 @@ type Stop struct {
 	Arrivals []*StopArrival `json:"arrivals"`
 	Vehicles []*Vehicle     `json:"vehicles"`
 	Location *Location      `json:"location"`
-}
-
-func (s *Stop) ToJSON() []byte {
-	bytes, err := json.Marshal(s)
-	if err != nil {
-		return nil
-	}
-	return bytes
 }
 
 type StopArrival struct {

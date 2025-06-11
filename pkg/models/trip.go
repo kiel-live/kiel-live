@@ -1,7 +1,5 @@
 package models
 
-import "encoding/json"
-
 type Trip struct {
 	ID        string         `json:"id"`
 	Provider  string         `json:"provider"`
@@ -9,14 +7,6 @@ type Trip struct {
 	Direction string         `json:"direction"`
 	Arrivals  []*TripArrival `json:"arrivals"`
 	Path      []*Location    `json:"path"`
-}
-
-func (t *Trip) ToJSON() []byte {
-	bytes, err := json.Marshal(t)
-	if err != nil {
-		return nil
-	}
-	return bytes
 }
 
 type TripArrival struct {

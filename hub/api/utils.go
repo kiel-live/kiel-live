@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/golang/geo/s2"
 	"github.com/kiel-live/kiel-live/pkg/models"
 )
 
@@ -66,18 +65,6 @@ func boundsFromQuery(values url.Values) (*models.BoundingBox, error) {
 		South: south,
 		West:  west,
 	}, nil
-}
-
-// Helper to convert s2.CellID to models.BoundingBox
-// This is a simplified conversion; a more precise one might be needed depending on requirements.
-func s2CellIDToBoundingBox(cellID s2.CellID) *models.BoundingBox {
-	rect := s2.CellFromCellID(cellID).RectBound()
-	return &models.BoundingBox{
-		North: rect.Lat.Lo,
-		East:  rect.Lng.Lo,
-		South: rect.Lat.Hi,
-		West:  rect.Lng.Hi,
-	}
 }
 
 func (s *Server) broadcastItemUpdated(itemType string, id string, data any) {

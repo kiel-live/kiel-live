@@ -156,7 +156,7 @@ func (b *MemoryDatabase) DeleteVehicle(_ context.Context, id string) error {
 	return nil
 }
 
-func (b *MemoryDatabase) GetTrip(ctx context.Context, id string) (*models.Trip, error) {
+func (b *MemoryDatabase) GetTrip(_ context.Context, id string) (*models.Trip, error) {
 	b.RLock()
 	defer b.RUnlock()
 
@@ -167,7 +167,7 @@ func (b *MemoryDatabase) GetTrip(ctx context.Context, id string) (*models.Trip, 
 	return nil, errors.New("trip not found")
 }
 
-func (b *MemoryDatabase) SetTrip(ctx context.Context, trip *models.Trip) error {
+func (b *MemoryDatabase) SetTrip(_ context.Context, trip *models.Trip) error {
 	b.Lock()
 	defer b.Unlock()
 
@@ -187,7 +187,7 @@ func (b *MemoryDatabase) DeleteTrip(_ context.Context, id string) error {
 	return nil
 }
 
-func (b *MemoryDatabase) GetRoute(ctx context.Context, id string) (*models.Route, error) {
+func (b *MemoryDatabase) GetRoute(_ context.Context, id string) (*models.Route, error) {
 	b.RLock()
 	defer b.RUnlock()
 
@@ -198,7 +198,7 @@ func (b *MemoryDatabase) GetRoute(ctx context.Context, id string) (*models.Route
 	return nil, errors.New("route not found")
 }
 
-func (b *MemoryDatabase) SetRoute(ctx context.Context, route *models.Route) error {
+func (b *MemoryDatabase) SetRoute(_ context.Context, route *models.Route) error {
 	b.Lock()
 	defer b.Unlock()
 
