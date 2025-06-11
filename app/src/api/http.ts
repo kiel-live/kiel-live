@@ -93,13 +93,18 @@ export class HttpApi implements Api {
     // TODO: in case we have the same item-type + id combination, we should proxy the existing query
     const loading = ref(false);
 
-    async function loadItems(this: HttpApi, cellIds: bigint[]) {
+    async function loadItems(this: HttpApi, bounds: Bounds) {
       if (loading.value === true) {
         return;
       }
 
       loading.value = true;
-      const items = await this.fetch<T[]>(`/api/${itemType}?cells=${cellIds.join(',')}`);
+      const query = new URLSearchParams();
+      query.set('north', bounds.north.toString());
+      query.set('east', bounds.east.toString());
+      query.set('south', bounds.south.toString());
+      query.set('west', bounds.west.toString());
+      const items = await this.fetch<T[]>(`/api/${itemType}?${query.toString()}`);
       store.value.clear();
       items.forEach((item) => {
         store.value.set(item.id, item);
@@ -107,15 +112,14 @@ export class HttpApi implements Api {
       loading.value = false;
     }
 
-    const cellIds = computed(() => getBoundsCellIds(bounds.value));
-
     watch(
-      cellIds,
-      async (newCellIds, _oldCellIds) => {
-        const oldCellIds = _oldCellIds ?? [];
+      bounds,
+      async (newBounds, oldBounds) => {
+        const newCellIds = getBoundsCellIds(newBounds);
+        const oldCellIds = oldBounds ? getBoundsCellIds(oldBounds) : [];
 
         // Load the complete set of items for the new bounds
-        await loadItems.call(this, newCellIds);
+        await loadItems.call(this, newBounds);
 
         const addedCellIds = newCellIds.filter((id) => !oldCellIds.includes(id));
         for (const cellId of addedCellIds) {

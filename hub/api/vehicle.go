@@ -6,27 +6,21 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/golang/geo/s2"
 	"github.com/kiel-live/kiel-live/pkg/database"
 	"github.com/kiel-live/kiel-live/pkg/models"
 )
 
 func (s *Server) handleGetVehicles(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	cellIDStr := r.URL.Query().Get("cell")
-	if cellIDStr == "" {
-		respondWithError(w, http.StatusBadRequest, "cell query parameter is required")
-		return
-	}
-	cellID := s2.CellIDFromString(cellIDStr)
-	if !cellID.IsValid() {
-		respondWithError(w, http.StatusBadRequest, "Invalid cell")
+
+	bounds, err := boundsFromQuery(r.URL.Query())
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	bbox := s2CellIDToBoundingBox(cellID)
 	vehicles, err := s.db.GetVehicles(ctx, &database.ListOptions{
-		Location: bbox,
+		Bounds: bounds,
 	})
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())

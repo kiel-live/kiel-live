@@ -45,7 +45,7 @@ func (b *MemoryDatabase) GetStops(_ context.Context, opts *ListOptions) ([]*mode
 	defer b.RUnlock()
 
 	var stops []*models.Stop
-	for _, cellID := range opts.Location.GetCellIDs() {
+	for _, cellID := range opts.Bounds.GetCellIDs() {
 		stopIDs := b.stopsCellsIndex.GetItemIDs(cellID)
 		for _, stopID := range stopIDs {
 			if stop, ok := b.stops[stopID]; ok {
@@ -103,7 +103,7 @@ func (b *MemoryDatabase) GetVehicles(_ context.Context, opts *ListOptions) ([]*m
 	defer b.RUnlock()
 
 	var vehicles []*models.Vehicle
-	for _, cellID := range opts.Location.GetCellIDs() {
+	for _, cellID := range opts.Bounds.GetCellIDs() {
 		vehicleIDs := b.vehiclesCellsIndex.GetItemIDs(cellID)
 		for _, vehicleID := range vehicleIDs {
 			if vehicle, ok := b.vehicles[vehicleID]; ok {

@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	MinLevel = 1
-	MaxLevel = 15
+	MinLevel = 10
+	MaxLevel = 10
 )
 
 type Location struct {
@@ -20,6 +20,7 @@ func (l *Location) GetCellID() s2.CellID {
 	return s2.CellIDFromLatLng(p).Parent(10)
 }
 
+// TODO: deprecate in favor of GetCellID
 func (l *Location) GetCellIDs() []s2.CellID {
 	cells := make([]s2.CellID, 0)
 	p := s2.LatLngFromDegrees(l.Latitude, l.Longitude)
@@ -31,15 +32,15 @@ func (l *Location) GetCellIDs() []s2.CellID {
 }
 
 type BoundingBox struct {
-	MinLat float64
-	MinLng float64
-	MaxLat float64
-	MaxLng float64
+	North float64
+	East  float64
+	South float64
+	West  float64
 }
 
 func (b *BoundingBox) GetCellIDs() []s2.CellID {
-	p1 := s2.LatLngFromDegrees(b.MinLat, b.MinLng)
-	p2 := s2.LatLngFromDegrees(b.MaxLat, b.MaxLng)
+	p1 := s2.LatLngFromDegrees(b.North, b.East)
+	p2 := s2.LatLngFromDegrees(b.South, b.West)
 	r := s2.RectFromLatLng(p1).AddPoint(p2)
 	rc := s2.RegionCoverer{MinLevel: MinLevel, MaxLevel: MaxLevel, MaxCells: 10}
 	return rc.Covering(r)

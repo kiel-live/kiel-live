@@ -7,7 +7,7 @@ import (
 )
 
 type ListOptions struct {
-	Location *models.BoundingBox
+	Bounds *models.BoundingBox
 }
 
 type Database interface {
