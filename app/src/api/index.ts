@@ -11,7 +11,7 @@ function getApi() {
     return new DummyApi();
   }
 
-  if (checkFeatureFlag('new_api')) {
+  if (checkFeatureFlag('new_api').value) {
     return new HttpApi();
   }
 
