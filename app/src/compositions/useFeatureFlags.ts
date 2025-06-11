@@ -14,7 +14,8 @@ interface FeatureFlag {
 }
 
 export function useFeatureFlags() {
-  // we can only use i18n inside components, as it is only needed for the settings mock i18n otherwise
+  // as i18n can only be used inside components and translations
+  // are only needed for the settings we mock it otherwise
   let t: ReturnType<typeof useI18n>['t'] = (key) => key;
   if (getCurrentInstance()) {
     t = useI18n().t;
