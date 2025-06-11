@@ -1,3 +1,5 @@
+import { DEBUG } from '~/config';
+
 export class ReconnectingWebSocket {
   ws?: WebSocket;
   url: string;
@@ -54,7 +56,7 @@ export class ReconnectingWebSocket {
   /* eslint-enable no-dupe-class-members */
 
   private log(...args: unknown[]) {
-    if ((window as { DEBUG?: boolean })?.DEBUG || import.meta.env.DEV) {
+    if (DEBUG) {
       // eslint-disable-next-line no-console
       console.log('Reconnecting Websocket', ...args);
     }

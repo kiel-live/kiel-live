@@ -14,7 +14,7 @@ import type {
 import type { GeoJSONSource, LineLayerSpecification, Source, SymbolLayerSpecification } from 'maplibre-gl';
 import type { Ref } from 'vue';
 import type { Bounds, Marker, StopType, VehicleType } from '~/api/types';
-import { useElementSize } from '@vueuse/core';
+import { refDebounced, useElementSize } from '@vueuse/core';
 
 import { AttributionControl, GeolocateControl, Map, NavigationControl } from 'maplibre-gl';
 import { computed, onBeforeUnmount, onMounted, ref, toRef, useTemplateRef, watch } from 'vue';
@@ -62,8 +62,9 @@ const bounds = ref<Bounds>({
   north: 0,
   south: 0,
 });
-const { stops, unsubscribe: unsubscribeStops } = api.useStops(bounds);
-const { vehicles, unsubscribe: unsubscribeVehicles } = api.useVehicles(bounds);
+const debouncedBounds = refDebounced(bounds, 100); // TODO: is debounced correct here or do we want to throttle instead? :thinking:
+const { stops, unsubscribe: unsubscribeStops } = api.useStops(debouncedBounds);
+const { vehicles, unsubscribe: unsubscribeVehicles } = api.useVehicles(debouncedBounds);
 
 const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
   Object.values(vehicles.value).map((v) => {

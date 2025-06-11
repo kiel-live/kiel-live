@@ -1,8 +1,8 @@
 import type { Ref } from 'vue';
 import type { Api, Bounds, Models as Model, Stop, Trip, Vehicle } from '~/api/types';
 import { s2 } from 's2js';
-
 import { computed, ref, watch } from 'vue';
+import * as config from '~/config';
 import { ReconnectingWebSocket } from './ws';
 
 interface WebsocketMessage<T = unknown> {
@@ -18,23 +18,17 @@ function isModel<T extends Model>(data: unknown): data is T {
   return data !== null && typeof data === 'object' && 'id' in data;
 }
 
-function getBoundsCellIds(bounds: Bounds): string[] {
-  const cellIds: string[] = [];
-  // const swCell = s2.cellid.latLngToCellId(bounds.sw.lat, bounds.sw.lng, 15);
-  // const neCell = s2.latLngToCellId(bounds.ne.lat, bounds.ne.lng, 15);
-
-  // // Iterate over the cells in the bounding box
-  // for (let lat = swCell.lat; lat <= neCell.lat; lat++) {
-  //   for (let lng = swCell.lng; lng <= neCell.lng; lng++) {
-  //     cellIds.push(s2.cellIdToString(s2.latLngToCellId(lat, lng, 15)));
-  //   }
-  // }
-
-  return cellIds;
+function getBoundsCellIds(bounds: Bounds): bigint[] {
+  const rc = new s2.RegionCoverer({ minLevel: 10, maxLevel: 10 });
+  const p1 = s2.LatLng.fromDegrees(bounds.north, bounds.east);
+  const p2 = s2.LatLng.fromDegrees(bounds.south, bounds.west);
+  const rect = s2.Rect.fromLatLng(p1).addPoint(p2);
+  const cellIDs = rc.fastCovering(rect).map((a) => a);
+  return cellIDs;
 }
 
 export class HttpApi implements Api {
-  url = 'http://localhost:4568'; // TODO: set proper url
+  url = config.serverUrl;
   isConnected = ref(false);
   ws: ReconnectingWebSocket;
 
@@ -99,7 +93,7 @@ export class HttpApi implements Api {
     // TODO: in case we have the same item-type + id combination, we should proxy the existing query
     const loading = ref(false);
 
-    async function loadItems(this: HttpApi, cellIds: string[]) {
+    async function loadItems(this: HttpApi, cellIds: bigint[]) {
       if (loading.value === true) {
         return;
       }
@@ -113,11 +107,12 @@ export class HttpApi implements Api {
       loading.value = false;
     }
 
+    const cellIds = computed(() => getBoundsCellIds(bounds.value));
+
     watch(
-      bounds,
-      async (newBounds, oldBounds) => {
-        const newCellIds = getBoundsCellIds(newBounds);
-        const oldCellIds = oldBounds ? getBoundsCellIds(oldBounds) : [];
+      cellIds,
+      async (newCellIds, _oldCellIds) => {
+        const oldCellIds = _oldCellIds ?? [];
 
         // Load the complete set of items for the new bounds
         await loadItems.call(this, newCellIds);

@@ -5,3 +5,5 @@ export const tileServer = 'https://tiles.ju60.de';
 export const darkMapStyle = `${tileServer}/styles/gray-matter/style.json`;
 export const brightMapStyle = `${tileServer}/styles/bright-matter/style.json`;
 export const natsServerUrl = import.meta.env.VITE_NATS_URL;
+export const DEBUG = (window as { DEBUG?: boolean })?.DEBUG || import.meta.env.DEV;
+export const serverUrl = import.meta.env.VITE_SERVER_URL ?? 'http://localhost:4568';
