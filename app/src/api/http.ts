@@ -3,6 +3,7 @@ import type { Api, Bounds, Models as Model, Stop, Trip, Vehicle } from '~/api/ty
 import { s2 } from 's2js';
 
 import { computed, ref, watch } from 'vue';
+import { ReconnectingWebSocket } from './ws';
 
 interface WebsocketMessage<T = unknown> {
   topic: string;
@@ -33,8 +34,9 @@ function getBoundsCellIds(bounds: Bounds): string[] {
 }
 
 export class HttpApi implements Api {
+  url = 'http://localhost:4568'; // TODO: set proper url
   isConnected = ref(false);
-  ws: WebSocket;
+  ws: ReconnectingWebSocket;
 
   private topics = new Map<string, Store<Model>>();
   private vehicles = ref<Map<string, Vehicle>>(new Map());
@@ -42,9 +44,9 @@ export class HttpApi implements Api {
   private trips = ref<Map<string, Trip>>(new Map());
 
   constructor() {
-    this.ws = new WebSocket('ws://localhost:4568/api/ws'); // TODO: replace with proper reconnecting websocket
+    this.ws = new ReconnectingWebSocket(`${this.url}/api/ws`);
 
-    this.ws.addEventListener('message', (event) => {
+    this.ws.on('message', (event) => {
       const message: WebsocketMessage = JSON.parse(event.data);
       const topic = message.topic;
 
@@ -64,10 +66,18 @@ export class HttpApi implements Api {
         }
       }
     });
+
+    this.ws.on('open', () => {
+      this.isConnected.value = true;
+    });
+
+    this.ws.on('close', () => {
+      this.isConnected.value = false;
+    });
   }
 
   private async fetch<T>(url: string, options?: globalThis.RequestInit): Promise<T> {
-    const response = await fetch(url, options);
+    const response = await fetch(`${this.url}${url}`, options);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
