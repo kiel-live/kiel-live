@@ -35,12 +35,12 @@ export function useFeatureFlags() {
   const featureFlagWithEnabled = featureFlags.map((flag) => ({
     ...flag,
     enabled: computed({
-      get: () => enabledFeatureFlags.value.includes(flag.name),
+      get: () => enabledFeatureFlags.value.includes(flag.id),
       set: (value) => {
         if (value) {
-          enabledFeatureFlags.value = [...enabledFeatureFlags.value, flag.name];
+          enabledFeatureFlags.value = [...enabledFeatureFlags.value, flag.id];
         } else {
-          enabledFeatureFlags.value = enabledFeatureFlags.value.filter((f) => f !== flag.name);
+          enabledFeatureFlags.value = enabledFeatureFlags.value.filter((f) => f !== flag.id);
         }
       },
     }),
