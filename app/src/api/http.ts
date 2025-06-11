@@ -179,7 +179,7 @@ export class HttpApi implements Api {
       item: computed(() => (id.value ? (store.value.get(id.value) ?? null) : null)),
       loading,
       unsubscribe: async () => {
-        await this.unsubscribe(`${itemType}.${id.value}`);
+        await this.unsubscribe(`${itemType}:${id.value}`);
       },
     };
   }
