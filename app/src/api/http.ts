@@ -9,7 +9,7 @@ interface WebsocketMessage<T = unknown> {
   topic: string;
   action?: 'updated' | 'deleted';
   data?: T;
-  // TODO: we could extend websocket message and models with a timestamp and only update using newer messages
+  sent_at?: string;
 }
 
 type Store<T extends Model> = Ref<Map<string, T>>;
