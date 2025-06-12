@@ -89,7 +89,7 @@ export class HttpApi implements Api {
     this.topics.delete(topic);
   }
 
-  private useMapItems<T extends Model>(itemType: string, bounds: Ref<Bounds>, store: Ref<Map<string, T>>) {
+  private useMapItems<T extends Model>(itemType: string, bounds: Ref<Bounds | undefined>, store: Ref<Map<string, T>>) {
     // TODO: in case we have the same item-type + id combination, we should proxy the existing query
     const loading = ref(false);
 
@@ -118,11 +118,13 @@ export class HttpApi implements Api {
     watch(
       bounds,
       async (newBounds, oldBounds) => {
-        const newCellIds = getBoundsCellIds(newBounds);
+        const newCellIds = newBounds ? getBoundsCellIds(newBounds) : [];
         const oldCellIds = oldBounds ? getBoundsCellIds(oldBounds) : [];
 
         // Load the complete set of items for the new bounds
-        await loadItems.call(this, newBounds);
+        if (newBounds) {
+          await loadItems.call(this, newBounds);
+        }
 
         const addedCellIds = newCellIds.filter((id) => !oldCellIds.includes(id));
         for (const cellId of addedCellIds) {
@@ -187,7 +189,7 @@ export class HttpApi implements Api {
     };
   }
 
-  useStops(bounds: Ref<Bounds>) {
+  useStops(bounds: Ref<Bounds | undefined>) {
     const store = ref<Map<string, Stop>>(new Map());
     const { items, loading, unsubscribe } = this.useMapItems<Stop>('stops', bounds, store);
     return {
@@ -197,7 +199,7 @@ export class HttpApi implements Api {
     };
   }
 
-  useVehicles(bounds: Ref<Bounds>) {
+  useVehicles(bounds: Ref<Bounds | undefined>) {
     const store = ref<Map<string, Vehicle>>(new Map());
     const { items, loading, unsubscribe } = this.useMapItems<Vehicle>('vehicles', bounds, store);
     return {

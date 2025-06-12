@@ -56,13 +56,8 @@ const mapMovedManually = computed({
 
 const colorScheme = useColorMode();
 
-const bounds = ref<Bounds>({
-  east: 0,
-  west: 0,
-  north: 0,
-  south: 0,
-});
-const throttledBounds = refThrottled(bounds, 200);
+const bounds = ref<Bounds>();
+const throttledBounds = refThrottled(bounds, 500);
 const { stops, unsubscribe: unsubscribeStops } = api.useStops(throttledBounds);
 const { vehicles, unsubscribe: unsubscribeVehicles } = api.useVehicles(throttledBounds);
 
@@ -344,6 +339,13 @@ onMounted(async () => {
     map.addLayer(tripsLayer.value);
     map.addLayer(vehiclesLayer.value);
 
+    bounds.value = {
+      north: map.getBounds().getNorth(),
+      east: map.getBounds().getEast(),
+      south: map.getBounds().getSouth(),
+      west: map.getBounds().getWest(),
+    };
+
     initial = false;
   });
 
@@ -403,12 +405,11 @@ onMounted(async () => {
       pitch: map.getPitch(),
       bearing: map.getBearing(),
     };
-    const mapBounds = map.getBounds();
     bounds.value = {
-      north: mapBounds.getNorth(),
-      east: mapBounds.getEast(),
-      south: mapBounds.getSouth(),
-      west: mapBounds.getWest(),
+      north: map.getBounds().getNorth(),
+      east: map.getBounds().getEast(),
+      south: map.getBounds().getSouth(),
+      west: map.getBounds().getWest(),
     };
   });
 
