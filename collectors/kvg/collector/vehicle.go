@@ -53,14 +53,14 @@ func (c *VehicleCollector) getRemovedVehicles(vehicles map[string]*protocol.Vehi
 }
 
 func (c *VehicleCollector) publish(vehicle *protocol.Vehicle) error {
-	subject := fmt.Sprintf(protocol.SubjectMapVehicle, vehicle.ID)
+	topic := fmt.Sprintf(protocol.TopicMapVehicle, vehicle.ID)
 
 	jsonData, err := json.Marshal(vehicle)
 	if err != nil {
 		return err
 	}
 
-	err = c.client.Publish(subject, string(jsonData))
+	err = c.client.Publish(topic, string(jsonData))
 	if err != nil {
 		return err
 	}
@@ -69,9 +69,9 @@ func (c *VehicleCollector) publish(vehicle *protocol.Vehicle) error {
 }
 
 func (c *VehicleCollector) publishRemoved(vehicle *protocol.Vehicle) error {
-	subject := fmt.Sprintf(protocol.SubjectMapVehicle, vehicle.ID)
+	topic := fmt.Sprintf(protocol.TopicMapVehicle, vehicle.ID)
 
-	err := c.client.Publish(subject, string(protocol.DeletePayload))
+	err := c.client.Publish(topic, string(protocol.DeletePayload))
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func (c *VehicleCollector) publishRemoved(vehicle *protocol.Vehicle) error {
 	return nil
 }
 
-func (c *VehicleCollector) SubjectToID(string) string {
+func (c *VehicleCollector) TopicToID(string) string {
 	return ""
 }
 

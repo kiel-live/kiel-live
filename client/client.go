@@ -63,10 +63,10 @@ func (c *Client) IsConnected() bool {
 	return c.nc.IsConnected()
 }
 
-// Close will unsubscribe all subjects and shutdown connection
+// Close will unsubscribe all topics and shutdown connection
 func (c *Client) Disconnect() error {
-	for subject := range c.subscriptions {
-		err := c.Unsubscribe(subject)
+	for topic := range c.subscriptions {
+		err := c.Unsubscribe(topic)
 		if err != nil {
 			return err
 		}
@@ -75,34 +75,34 @@ func (c *Client) Disconnect() error {
 	return nil
 }
 
-type SubjectMessage struct {
-	Subject string
-	Data    string
-	Raw     *nats.Msg
+type TopicMessage struct {
+	Topic string
+	Data  string
+	Raw   *nats.Msg
 }
-type SubscribeCallback func(msg *SubjectMessage)
-type SubscribeOption func(subject string, cb SubscribeCallback) error
+type SubscribeCallback func(msg *TopicMessage)
+type SubscribeOption func(topic string, cb SubscribeCallback) error
 
-func (c *Client) Subscribe(subject string, cb SubscribeCallback, opts ...SubscribeOption) error {
-	if c.subscriptions[subject] != nil {
-		return fmt.Errorf("Already subscribed to '%s'", subject)
+func (c *Client) Subscribe(topic string, cb SubscribeCallback, opts ...SubscribeOption) error {
+	if c.subscriptions[topic] != nil {
+		return fmt.Errorf("Already subscribed to '%s'", topic)
 	}
 
-	sub, err := c.nc.Subscribe(subject, func(msg *nats.Msg) {
-		cb(&SubjectMessage{
-			Subject: msg.Subject,
-			Data:    string(msg.Data),
-			Raw:     msg,
+	sub, err := c.nc.Subscribe(topic, func(msg *nats.Msg) {
+		cb(&TopicMessage{
+			Topic: msg.Subject,
+			Data:  string(msg.Data),
+			Raw:   msg,
 		})
 	})
 	if err != nil {
 		return err
 	}
 
-	c.subscriptions[subject] = sub
+	c.subscriptions[topic] = sub
 
 	for _, opt := range opts {
-		err := opt(subject, cb)
+		err := opt(topic, cb)
 		if err != nil {
 			return err
 		}
@@ -112,8 +112,8 @@ func (c *Client) Subscribe(subject string, cb SubscribeCallback, opts ...Subscri
 }
 
 func (c *Client) WithAck() SubscribeOption {
-	return func(subject string, _ SubscribeCallback) error {
-		msg, err := c.nc.Request(protocol.SubjectRequestSubscribe, []byte(subject), 1*time.Second)
+	return func(topic string, _ SubscribeCallback) error {
+		msg, err := c.nc.Request(protocol.TopicRequestSubscribe, []byte(topic), 1*time.Second)
 		if err != nil {
 			if err.Error() == "nats: timeout" {
 				return fmt.Errorf("No one is answering us")
@@ -122,7 +122,7 @@ func (c *Client) WithAck() SubscribeOption {
 		}
 
 		if !strings.HasPrefix(string(msg.Data), "ok") {
-			return fmt.Errorf("Can't subscribe to '%s'", subject)
+			return fmt.Errorf("Can't subscribe to '%s'", topic)
 		}
 
 		return nil
@@ -130,8 +130,8 @@ func (c *Client) WithAck() SubscribeOption {
 }
 
 func (c *Client) WithCache() SubscribeOption {
-	return func(subject string, cb SubscribeCallback) error {
-		msg, err := c.nc.Request(protocol.SubjectRequestCache, []byte(subject), 1*time.Second)
+	return func(topic string, cb SubscribeCallback) error {
+		msg, err := c.nc.Request(protocol.TopicRequestCache, []byte(topic), 1*time.Second)
 		if err != nil {
 			// TODO ignore cache miss or timeouts
 			// return err
@@ -144,29 +144,29 @@ func (c *Client) WithCache() SubscribeOption {
 			return nil
 		}
 
-		cb(&SubjectMessage{
-			Subject: msg.Subject,
-			Data:    data,
-			Raw:     msg,
+		cb(&TopicMessage{
+			Topic: msg.Subject,
+			Data:  data,
+			Raw:   msg,
 		})
 
 		return nil
 	}
 }
 
-func (c *Client) Unsubscribe(subject string) error {
-	sub := c.subscriptions[subject]
+func (c *Client) Unsubscribe(topic string) error {
+	sub := c.subscriptions[topic]
 	if sub != nil {
-		return fmt.Errorf("You have not subscribed to that subject '%s'", subject)
+		return fmt.Errorf("You have not subscribed to that topic '%s'", topic)
 	}
 
-	msg, err := c.nc.Request(protocol.SubjectRequestUnsubscribe, []byte(subject), 1*time.Second)
+	msg, err := c.nc.Request(protocol.TopicRequestUnsubscribe, []byte(topic), 1*time.Second)
 	if err != nil {
 		return err
 	}
 
 	if string(msg.Data) != "ok" {
-		return fmt.Errorf("Unsubscription failed '%s'", subject)
+		return fmt.Errorf("Unsubscription failed '%s'", topic)
 	}
 
 	err = sub.Unsubscribe()
@@ -174,15 +174,15 @@ func (c *Client) Unsubscribe(subject string) error {
 		return err
 	}
 
-	delete(c.subscriptions, subject)
+	delete(c.subscriptions, topic)
 
 	return nil
 }
 
-func (c *Client) Publish(subject string, data string) error {
-	return c.PublishRaw(subject, []byte(data))
+func (c *Client) Publish(topic string, data string) error {
+	return c.PublishRaw(topic, []byte(data))
 }
 
-func (c *Client) PublishRaw(subject string, data []byte) error {
-	return c.nc.Publish(subject, data)
+func (c *Client) PublishRaw(topic string, data []byte) error {
+	return c.nc.Publish(topic, data)
 }
