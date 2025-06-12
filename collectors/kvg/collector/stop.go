@@ -121,7 +121,7 @@ func (c *StopCollector) Run() {
 		}
 	}
 
-	// load further details only for explicitly described stops
+	// load further details only for explicitly subscribed stops
 	for _, stopID := range stopIDs {
 		log.Debug("StopCollector: Run: ", stopID)
 		details, err := api.GetStopDetails(stopID)
