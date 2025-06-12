@@ -69,13 +69,13 @@ func main() {
 		return
 	}
 
-	// subscriptions.Subscribe(func(subject string) {
-	// 	tripID := collectors["trips"].SubjectToID(subject)
+	// subscriptions.Subscribe(func(topic string) {
+	// 	tripID := collectors["trips"].TopicToID(topic)
 	// 	if tripID != "" {
 	// 		collectors["trips"].RunSingle(tripID)
 	// 		return
 	// 	}
-	// 	stopID := collectors["map-stops"].SubjectToID(subject)
+	// 	stopID := collectors["map-stops"].TopicToID(topic)
 	// 	if stopID != "" {
 	// 		collectors["map-stops"].RunSingle(stopID)
 	// 		return

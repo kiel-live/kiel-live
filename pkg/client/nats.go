@@ -66,10 +66,10 @@ func (n *natsClient) IsConnected() bool {
 	return n.nc.IsConnected()
 }
 
-// Close will unsubscribe all subjects and shutdown connection
+// Close will unsubscribe all topics and shutdown connection
 func (n *natsClient) Disconnect() error {
-	for subject := range n.subscriptions {
-		err := n.Unsubscribe(subject)
+	for topic := range n.subscriptions {
+		err := n.Unsubscribe(topic)
 		if err != nil {
 			return err
 		}
@@ -78,40 +78,39 @@ func (n *natsClient) Disconnect() error {
 	return nil
 }
 
-func (n *natsClient) Subscribe(subject string, cb SubscribeCallback) error {
-	if n.subscriptions[subject] != nil {
-		return fmt.Errorf("already subscribed to '%s'", subject)
+func (n *natsClient) Subscribe(topic string, cb SubscribeCallback) error {
+	if n.subscriptions[topic] != nil {
+		return fmt.Errorf("already subscribed to '%s'", topic)
 	}
 
-	sub, err := n.nc.Subscribe(subject, func(msg *nats.Msg) {
-		cb(&TopicMessage{
+	sub, err := n.nc.Subscribe(topic, func(msg *nats.Msg) {
+		cb(&Message{
 			Topic: msg.Subject,
 			Data:  string(msg.Data),
-			//Raw:     msg,
 		})
 	})
 	if err != nil {
 		return err
 	}
 
-	n.subscriptions[subject] = sub
+	n.subscriptions[topic] = sub
 
 	return nil
 }
 
-func (n *natsClient) Unsubscribe(subject string) error {
-	sub := n.subscriptions[subject]
+func (n *natsClient) Unsubscribe(topic string) error {
+	sub := n.subscriptions[topic]
 	if sub != nil {
-		return fmt.Errorf("you have not subscribed to that subject '%s'", subject)
+		return fmt.Errorf("you have not subscribed to that topic '%s'", topic)
 	}
 
-	msg, err := n.nc.Request(protocol.SubjectRequestUnsubscribe, []byte(subject), 1*time.Second)
+	msg, err := n.nc.Request(protocol.TopicRequestUnsubscribe, []byte(topic), 1*time.Second)
 	if err != nil {
 		return err
 	}
 
 	if string(msg.Data) != "ok" {
-		return fmt.Errorf("unsubscribe failed '%s'", subject)
+		return fmt.Errorf("unsubscribe failed '%s'", topic)
 	}
 
 	err = sub.Unsubscribe()
@@ -119,13 +118,13 @@ func (n *natsClient) Unsubscribe(subject string) error {
 		return err
 	}
 
-	delete(n.subscriptions, subject)
+	delete(n.subscriptions, topic)
 
 	return nil
 }
 
-func (n *natsClient) Publish(subject string, data string) error {
-	return n.nc.Publish(subject, []byte(data))
+func (n *natsClient) Publish(topic string, data string) error {
+	return n.nc.Publish(topic, []byte(data))
 }
 
 func (n *natsClient) SetConnectionHandler(connectionHandler func(connected bool)) {

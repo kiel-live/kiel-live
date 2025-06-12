@@ -11,8 +11,8 @@ type Client interface {
 	SetTopicSubscriptionHandler(topicSubscriptionHandler func(topics []string))
 }
 
-type TopicMessage struct {
+type Message struct {
 	Topic string `json:"topic,omitempty"`
 	Data  string `json:"data,omitempty"`
 }
-type SubscribeCallback func(msg *TopicMessage)
+type SubscribeCallback func(msg *Message)

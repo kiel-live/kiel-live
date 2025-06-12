@@ -16,8 +16,8 @@ func (n *natsClient) getSubscribedTopics() []string {
 	defer n.subscriptionsMu.Unlock()
 
 	subscriptions := []string{}
-	for subject := range n.topicSubscriptions {
-		subscriptions = append(subscriptions, subject)
+	for topic := range n.topicSubscriptions {
+		subscriptions = append(subscriptions, topic)
 	}
 	return subscriptions
 }
@@ -57,7 +57,7 @@ func (n *natsClient) Init() {
 	n.subscriptionsMu.Lock()
 	defer n.subscriptionsMu.Unlock()
 
-	// s.numberOfSubscriptionsPerSubject = make(map[string][]string)
+	// s.numberOfSubscriptionsPerTopic = make(map[string][]string)
 
 	// init with already existing consumers
 	for consumerInfo := range n.JS.ConsumersInfo("data") {
@@ -66,7 +66,7 @@ func (n *natsClient) Init() {
 	}
 
 	// new consumers
-	err := n.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.CREATED.>", func(msg *TopicMessage) {
+	err := n.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.CREATED.>", func(msg *Message) {
 		var consumerEvent consumerEvent
 		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
 			log.Errorf("Parse response failed, reason: %v \n", err)
@@ -90,7 +90,7 @@ func (n *natsClient) Init() {
 	}
 
 	// remove consumers
-	err = n.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.DELETED.>", func(msg *TopicMessage) {
+	err = n.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.DELETED.>", func(msg *Message) {
 		var consumerEvent consumerEvent
 		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
 			log.Errorf("Parse response failed, reason: %v \n", err)
