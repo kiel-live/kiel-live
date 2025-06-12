@@ -38,7 +38,7 @@ export class HttpApi implements Api {
   private trips = ref<Map<string, Trip>>(new Map());
 
   constructor() {
-    this.ws = new ReconnectingWebSocket(`${this.url}/api/ws`);
+    this.ws = new ReconnectingWebSocket(`${this.url}/ws`);
 
     this.ws.on('message', (event) => {
       const message: WebsocketMessage = JSON.parse(event.data);
@@ -104,11 +104,14 @@ export class HttpApi implements Api {
       query.set('east', bounds.east.toString());
       query.set('south', bounds.south.toString());
       query.set('west', bounds.west.toString());
-      const items = await this.fetch<T[]>(`/api/${itemType}?${query.toString()}`);
-      store.value.clear();
-      items.forEach((item) => {
-        store.value.set(item.id, item);
-      });
+      const items = await this.fetch<T[]>(`/${itemType}?${query.toString()}`);
+      // check for arrays as go can return null for empty array
+      if (Array.isArray(items)) {
+        store.value.clear();
+        items.forEach((item) => {
+          store.value.set(item.id, item);
+        });
+      }
       loading.value = false;
     }
 

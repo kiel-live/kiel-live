@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/kiel-live/kiel-live/hub/hub"
@@ -20,25 +21,33 @@ func NewAPIServer(db database.Database, hub *hub.Hub, mux *http.ServeMux) *Serve
 	return s
 }
 
+func corsWrapper(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("[%s] %s?%s", r.Method, r.URL.Path, r.URL.Query().Encode())
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		handler(w, r)
+	}
+}
+
 // Helper methods for APIServer to register routes with HTTP methods
 func (s *Server) GET(path string, handler http.HandlerFunc) {
-	s.mux.HandleFunc("GET "+path, handler)
+	s.mux.HandleFunc("GET "+path, corsWrapper(handler))
 }
 
 func (s *Server) POST(path string, handler http.HandlerFunc) {
-	s.mux.HandleFunc("POST "+path, handler)
+	s.mux.HandleFunc("POST "+path, corsWrapper(handler))
 }
 
 func (s *Server) PUT(path string, handler http.HandlerFunc) {
-	s.mux.HandleFunc("PUT "+path, handler)
+	s.mux.HandleFunc("PUT "+path, corsWrapper(handler))
 }
 
 func (s *Server) DELETE(path string, handler http.HandlerFunc) {
-	s.mux.HandleFunc("DELETE "+path, handler)
+	s.mux.HandleFunc("DELETE "+path, corsWrapper(handler))
 }
 
 func (s *Server) Any(path string, handler http.HandlerFunc) {
-	s.mux.HandleFunc(path, handler)
+	s.mux.HandleFunc(path, corsWrapper(handler))
 }
 
 func (s *Server) registerRoutes() {
