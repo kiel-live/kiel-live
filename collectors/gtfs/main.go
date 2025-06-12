@@ -336,8 +336,8 @@ func main() {
 			}
 
 			// publish stop
-			subject := fmt.Sprintf(protocol.SubjectMapStop, stop.ID)
-			err = c.Publish(subject, string(jsonData))
+			topic := fmt.Sprintf(protocol.TopicMapStop, stop.ID)
+			err = c.Publish(topic, string(jsonData))
 			if err != nil {
 				log.Error(err)
 				continue
