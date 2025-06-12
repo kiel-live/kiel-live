@@ -67,18 +67,18 @@ export class NatsApi implements Api {
     })();
   }
 
-  async subscribe(subject: string, state: Ref<Record<string, Models>>) {
-    if (this.subscriptions.value[subject]) {
+  async subscribe(topic: string, state: Ref<Record<string, Models>>) {
+    if (this.subscriptions.value[topic]) {
       return;
     }
 
     if (!this.isConnected.value || !this.js.value) {
-      this.subscriptionsQueue[subject] = state;
+      this.subscriptionsQueue[topic] = state;
       return;
     }
 
     let resolvePendingSubscription: () => void = () => {};
-    this.subscriptions.value[subject] = {
+    this.subscriptions.value[topic] = {
       pending: new Promise((resolve) => {
         resolvePendingSubscription = resolve;
       }),
@@ -89,9 +89,9 @@ export class NatsApi implements Api {
     opts.deliverAll();
     opts.ackNone();
     opts.replayInstantly();
-    const sub = await this.js.value.subscribe(subject, opts);
+    const sub = await this.js.value.subscribe(topic, opts);
 
-    this.subscriptions.value[subject].subscription = sub;
+    this.subscriptions.value[topic].subscription = sub;
     resolvePendingSubscription();
 
     void (async () => {
@@ -113,25 +113,25 @@ export class NatsApi implements Api {
     })();
   }
 
-  async unsubscribe(subject: string) {
-    if (this.subscriptions.value[subject]) {
-      const { pending } = this.subscriptions.value[subject];
+  async unsubscribe(topic: string) {
+    if (this.subscriptions.value[topic]) {
+      const { pending } = this.subscriptions.value[topic];
       if (pending) {
         await pending;
       }
-      this.subscriptions.value[subject]?.subscription?.unsubscribe();
-      delete this.subscriptions.value[subject];
+      this.subscriptions.value[topic]?.subscription?.unsubscribe();
+      delete this.subscriptions.value[topic];
     }
-    if (this.subscriptionsQueue[subject]) {
-      delete this.subscriptionsQueue[subject];
+    if (this.subscriptionsQueue[topic]) {
+      delete this.subscriptionsQueue[topic];
     }
   }
 
   private async processSubscriptionsQueue() {
     await Promise.all(
-      Object.keys(this.subscriptionsQueue).map(async (subject) => {
-        await this.subscribe(subject, this.subscriptionsQueue[subject]);
-        delete this.subscriptionsQueue[subject];
+      Object.keys(this.subscriptionsQueue).map(async (topic) => {
+        await this.subscribe(topic, this.subscriptionsQueue[topic]);
+        delete this.subscriptionsQueue[topic];
       }),
     );
   }
