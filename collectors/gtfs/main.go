@@ -13,8 +13,8 @@ import (
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/gtfs/loader"
+	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/protocol"
 )
 
@@ -130,7 +130,7 @@ func main() {
 		log.Panic("Failed opening db", err)
 	}
 
-	c := client.NewClient(server, client.WithAuth("collector", token))
+	c := client.NewNatsClient(server, client.WithAuth("collector", token))
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)
@@ -336,7 +336,7 @@ func main() {
 			}
 
 			// publish stop
-			subject := fmt.Sprintf(protocol.SubjectMapStop, stop.ID)
+			subject := fmt.Sprintf(protocol.TopicMapStop, stop.ID)
 			err = c.Publish(subject, string(jsonData))
 			if err != nil {
 				log.Error(err)

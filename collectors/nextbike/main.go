@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
-	"github.com/kiel-live/kiel-live/client"
+	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/protocol"
 	log "github.com/sirupsen/logrus"
 )
@@ -44,7 +44,7 @@ func main() {
 		log.Fatalln("Please provide a comma separated list of next-bike city ids with NEXT_BIKE_CITY_IDS (exp: '613,195' for Kiel & Mannheim)")
 	}
 
-	c := client.NewClient(server, client.WithAuth("collector", token))
+	c := client.NewNatsClient(server, client.WithAuth("collector", token))
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)
@@ -130,7 +130,7 @@ func main() {
 							return err
 						}
 
-						subject := fmt.Sprintf(protocol.SubjectMapVehicle, vehicle.ID)
+						subject := fmt.Sprintf(protocol.TopicMapVehicle, vehicle.ID)
 						err = c.Publish(subject, string(d))
 						if err != nil {
 							return err
@@ -142,7 +142,7 @@ func main() {
 						return err
 					}
 
-					subject := fmt.Sprintf(protocol.SubjectMapStop, ID)
+					subject := fmt.Sprintf(protocol.TopicMapStop, ID)
 					err = c.Publish(subject, string(d))
 					if err != nil {
 						return err

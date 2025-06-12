@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kiel-live/kiel-live/client"
+	"github.com/kiel-live/kiel-live/pkg/client"
 )
 
 func TestClient(t *testing.T) {
-	c := client.NewClient("localhost")
+	c := client.NewNatsClient("localhost")
 	err := c.Connect()
 	if err != nil {
 		t.Error(err)
@@ -21,7 +21,7 @@ func TestClient(t *testing.T) {
 		}
 	}()
 
-	err = c.Subscribe("data.>", func(msg *client.SubjectMessage) {
+	err = c.Subscribe("data.>", func(msg *client.TopicMessage) {
 		fmt.Println(">>>", msg.Data)
 	})
 	if err != nil {

@@ -5,6 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Hub",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceRoot}/hub/",
+      "cwd": "${workspaceRoot}"
+    },
+    {
       "name": "KVG collector",
       "type": "go",
       "request": "launch",
