@@ -143,6 +143,9 @@ export class HttpApi implements Api {
       items: computed(() => Array.from(store.value.values())),
       loading,
       unsubscribe: async () => {
+        if (!bounds.value) {
+          return;
+        }
         const cellIds = getBoundsCellIds(bounds.value);
         for (const cellId of cellIds) {
           await this.unsubscribe(`map.${itemType}:${cellId}`);
