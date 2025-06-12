@@ -130,7 +130,7 @@ func main() {
 							return err
 						}
 
-						subject := fmt.Sprintf(protocol.SubjectMapVehicle, vehicle.ID)
+						subject := fmt.Sprintf(protocol.TopicMapVehicle, vehicle.ID)
 						err = c.Publish(subject, string(d))
 						if err != nil {
 							return err
@@ -142,7 +142,7 @@ func main() {
 						return err
 					}
 
-					subject := fmt.Sprintf(protocol.SubjectMapStop, ID)
+					subject := fmt.Sprintf(protocol.TopicMapStop, ID)
 					err = c.Publish(subject, string(d))
 					if err != nil {
 						return err

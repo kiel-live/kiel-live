@@ -59,14 +59,14 @@ func (c *TripCollector) getRemovedTrips(trips map[string]*protocol.Trip) (remove
 }
 
 func (c *TripCollector) publish(trip *protocol.Trip) error {
-	subject := fmt.Sprintf(protocol.SubjectDetailsTrip, trip.ID)
+	topic := fmt.Sprintf(protocol.TopicDetailsTrip, trip.ID)
 
 	jsonData, err := json.Marshal(trip)
 	if err != nil {
 		return err
 	}
 
-	err = c.client.Publish(subject, string(jsonData))
+	err = c.client.Publish(topic, string(jsonData))
 	if err != nil {
 		return err
 	}
@@ -75,9 +75,9 @@ func (c *TripCollector) publish(trip *protocol.Trip) error {
 }
 
 func (c *TripCollector) publishRemoved(trip *protocol.Trip) error {
-	subject := fmt.Sprintf(protocol.SubjectDetailsTrip, trip.ID)
+	topic := fmt.Sprintf(protocol.TopicDetailsTrip, trip.ID)
 
-	err := c.client.Publish(subject, string(protocol.DeletePayload))
+	err := c.client.Publish(topic, string(protocol.DeletePayload))
 	if err != nil {
 		return err
 	}
@@ -85,9 +85,9 @@ func (c *TripCollector) publishRemoved(trip *protocol.Trip) error {
 	return nil
 }
 
-func (c *TripCollector) SubjectToID(subject string) string {
-	if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, api.IDPrefix)) && subject != fmt.Sprintf(protocol.SubjectDetailsTrip, ">") {
-		return strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectDetailsTrip, api.IDPrefix))
+func (c *TripCollector) TopicToID(topic string) string {
+	if strings.HasPrefix(topic, fmt.Sprintf(protocol.TopicDetailsTrip, api.IDPrefix)) && topic != fmt.Sprintf(protocol.TopicDetailsTrip, ">") {
+		return strings.TrimPrefix(topic, fmt.Sprintf(protocol.TopicDetailsTrip, api.IDPrefix))
 	}
 	return ""
 }
@@ -99,10 +99,10 @@ func (c *TripCollector) Run() {
 	c.Lock()
 	defer c.Unlock()
 
-	subjects := c.subscriptions.GetSubscriptions()
+	topics := c.client.GetSubscriptions()
 	tripIDs := []string{}
-	for _, subject := range subjects {
-		tripID := c.SubjectToID(subject)
+	for _, topic := range topics {
+		tripID := c.TopicToID(topic)
 		if tripID != "" {
 			tripIDs = append(tripIDs, tripID)
 		}
@@ -137,7 +137,8 @@ func (c *TripCollector) Run() {
 	}
 
 	log.Debugf("changed %d trips and removed %d", len(changed), len(removed))
-	// update list of trips
+
+	// update cache
 	c.trips = trips
 }
 
@@ -153,7 +154,7 @@ func (c *TripCollector) RunSingle(tripID string) {
 		return
 	}
 
-	// publish changed trip
+	// publish trip
 	err = c.publish(trip)
 	if err != nil {
 		log.Error(err)
@@ -161,6 +162,7 @@ func (c *TripCollector) RunSingle(tripID string) {
 	}
 
 	log.Debugf("published single trip: %v", trip)
+
 	// update cache
 	c.trips[trip.ID] = trip
 }

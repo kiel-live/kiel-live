@@ -106,7 +106,7 @@ func main() {
 					},
 				}
 
-				subject := fmt.Sprintf(protocol.SubjectMapVehicle, vehicle.ID)
+				subject := fmt.Sprintf(protocol.TopicMapVehicle, vehicle.ID)
 
 				jsonData, err := json.Marshal(vehicle)
 				if err != nil {
