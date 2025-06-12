@@ -67,14 +67,14 @@ func (c *StopCollector) getRemovedStops(stops map[string]*protocol.Stop) (remove
 }
 
 func (c *StopCollector) publish(stop *protocol.Stop) error {
-	subject := fmt.Sprintf(protocol.SubjectMapStop, stop.ID)
+	topic := fmt.Sprintf(protocol.TopicMapStop, stop.ID)
 
 	jsonData, err := json.Marshal(stop)
 	if err != nil {
 		return err
 	}
 
-	err = c.client.Publish(subject, string(jsonData))
+	err = c.client.Publish(topic, string(jsonData))
 	if err != nil {
 		return err
 	}
@@ -83,9 +83,9 @@ func (c *StopCollector) publish(stop *protocol.Stop) error {
 }
 
 func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
-	subject := fmt.Sprintf(protocol.SubjectMapStop, stop.ID)
+	topic := fmt.Sprintf(protocol.TopicMapStop, stop.ID)
 
-	err := c.client.Publish(subject, string(protocol.DeletePayload))
+	err := c.client.Publish(topic, string(protocol.DeletePayload))
 	if err != nil {
 		return err
 	}
@@ -93,9 +93,9 @@ func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
 	return nil
 }
 
-func (c *StopCollector) SubjectToID(subject string) string {
-	if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, api.IDPrefix)) && subject != fmt.Sprintf(protocol.SubjectMapStop, ">") {
-		return strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, api.IDPrefix))
+func (c *StopCollector) TopicToID(topic string) string {
+	if strings.HasPrefix(topic, fmt.Sprintf(protocol.TopicMapStop, api.IDPrefix)) && topic != fmt.Sprintf(protocol.TopicMapStop, ">") {
+		return strings.TrimPrefix(topic, fmt.Sprintf(protocol.TopicMapStop, api.IDPrefix))
 	}
 	return ""
 }
@@ -112,10 +112,10 @@ func (c *StopCollector) Run() {
 		return
 	}
 
-	subjects := c.subscriptions.GetSubscriptions()
+	topics := c.subscriptions.GetSubscriptions()
 	var stopIDs []string
-	for _, subject := range subjects {
-		id := c.SubjectToID(subject)
+	for _, topic := range topics {
+		id := c.TopicToID(topic)
 		if id != "" {
 			stopIDs = append(stopIDs, id)
 		}

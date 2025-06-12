@@ -3,39 +3,39 @@ package protocol
 const (
 	// ___ Ctrl ___
 
-	// List of all currently subscribed subjects of all clients
-	SubjectSubscriptions = "ctrl.subscriptions"
+	// List of all currently subscribed topics of all clients
+	TopicSubscriptions = "ctrl.subscriptions"
 
-	// Request to subscribe to a subject
-	SubjectRequestSubscribe = "ctrl.subscribe"
+	// Request to subscribe to a topic
+	TopicRequestSubscribe = "ctrl.subscribe"
 
-	// Request to unsubscribe from a subject
-	SubjectRequestUnsubscribe = "ctrl.unsubscribe"
+	// Request to unsubscribe from a topic
+	TopicRequestUnsubscribe = "ctrl.unsubscribe"
 
-	// Request to get the cache of a subject
-	SubjectRequestCache = "ctrl.cache.request"
+	// Request to get the cache of a topic
+	TopicRequestCache = "ctrl.cache.request"
 
 	// ___ Map ___
 
 	// Single stops with gps position (data.map.<longitude>.<latitude>.stop.<id>)
-	SubjectMapStop = "data.map.stop.%s"
+	TopicMapStop = "data.map.stop.%s"
 
 	// Single vehicle with gps position (data.map.<longitude>.<latitude>.vehicle.<id>)
-	SubjectMapVehicle = "data.map.vehicle.%s"
+	TopicMapVehicle = "data.map.vehicle.%s"
 
 	// ___ Details ___
 
 	// Details of a specific stop (data.stop.<id>)
-	SubjectDetailsStop = "data.stop.%s"
+	TopicDetailsStop = "data.stop.%s"
 
 	// Details of a specific vehicle (data.vehicle.<id>)
-	SubjectDetailsVehicle = "data.vehicle.%s"
+	TopicDetailsVehicle = "data.vehicle.%s"
 
 	// Details of a specific trip (data.trip.<id>)
-	SubjectDetailsTrip = "data.map.trip.%s"
+	TopicDetailsTrip = "data.map.trip.%s"
 
 	// Details of a specific route (data.route.<id>)
-	SubjectDetailsRoute = "data.route.%s"
+	TopicDetailsRoute = "data.route.%s"
 )
 
 const (
