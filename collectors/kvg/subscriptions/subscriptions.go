@@ -48,7 +48,7 @@ func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func(topic string)
 	}
 
 	// new consumers
-	err := s.client.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.CREATED.>", func(msg *client.TopicMessage) {
+	err := s.client.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.CREATED.>", func(msg *client.Message) {
 		var consumerEvent consumerEvent
 		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
 			log.Errorf("Parse response failed, reason: %v \n", err)
@@ -72,7 +72,7 @@ func (s *Subscriptions) Subscribe(subscriptionCreatedCallback func(topic string)
 	}
 
 	// remove consumers
-	err = s.client.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.DELETED.>", func(msg *client.TopicMessage) {
+	err = s.client.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.DELETED.>", func(msg *client.Message) {
 		var consumerEvent consumerEvent
 		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
 			log.Errorf("Parse response failed, reason: %v \n", err)

@@ -75,12 +75,12 @@ func (c *Client) Disconnect() error {
 	return nil
 }
 
-type TopicMessage struct {
+type Message struct {
 	Topic string
 	Data  string
 	Raw   *nats.Msg
 }
-type SubscribeCallback func(msg *TopicMessage)
+type SubscribeCallback func(msg *Message)
 type SubscribeOption func(topic string, cb SubscribeCallback) error
 
 func (c *Client) Subscribe(topic string, cb SubscribeCallback, opts ...SubscribeOption) error {
@@ -89,7 +89,7 @@ func (c *Client) Subscribe(topic string, cb SubscribeCallback, opts ...Subscribe
 	}
 
 	sub, err := c.nc.Subscribe(topic, func(msg *nats.Msg) {
-		cb(&TopicMessage{
+		cb(&Message{
 			Topic: msg.Subject,
 			Data:  string(msg.Data),
 			Raw:   msg,
@@ -144,7 +144,7 @@ func (c *Client) WithCache() SubscribeOption {
 			return nil
 		}
 
-		cb(&TopicMessage{
+		cb(&Message{
 			Topic: msg.Subject,
 			Data:  data,
 			Raw:   msg,
