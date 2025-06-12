@@ -6,17 +6,15 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
-	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
+	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/protocol"
 	"github.com/sirupsen/logrus"
 )
 
 type TripCollector struct {
-	client        *client.Client
-	trips         map[string]*protocol.Trip
-	subscriptions *subscriptions.Subscriptions
+	client client.Client
+	trips  map[string]*protocol.Trip
 	sync.Mutex
 }
 

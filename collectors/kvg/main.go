@@ -6,9 +6,8 @@ import (
 
 	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
-	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/collector"
-	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
+	"github.com/kiel-live/kiel-live/pkg/client"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -36,7 +35,7 @@ func main() {
 		log.Fatalln("Please provide a token for the collector with COLLECTOR_TOKEN")
 	}
 
-	c := client.NewClient(server, client.WithAuth("collector", token))
+	c := client.NewNatsClient(server, client.WithAuth("collector", token))
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)
@@ -49,39 +48,39 @@ func main() {
 		}
 	}()
 
-	subscriptions := subscriptions.New(c)
+	// subscriptions := client.NewNtsSubscriptions(c)
 
 	collectors = make(map[string]collector.Collector)
 
 	// auto load following collectors
-	collectors["map-vehicles"], err = collector.NewCollector(c, "map-vehicles", subscriptions)
+	collectors["vehicles"], err = collector.NewCollector(c, "vehicles")
 	if err != nil {
 		log.Errorln(err)
 		return
 	}
-	collectors["map-stops"], err = collector.NewCollector(c, "map-stops", subscriptions)
+	collectors["stops"], err = collector.NewCollector(c, "stops")
 	if err != nil {
 		log.Errorln(err)
 		return
 	}
-	collectors["trips"], err = collector.NewCollector(c, "trips", subscriptions)
+	collectors["trips"], err = collector.NewCollector(c, "trips")
 	if err != nil {
 		log.Errorln(err)
 		return
 	}
 
-	subscriptions.Subscribe(func(subject string) {
-		tripID := collectors["trips"].SubjectToID(subject)
-		if tripID != "" {
-			collectors["trips"].RunSingle(tripID)
-			return
-		}
-		stopID := collectors["map-stops"].SubjectToID(subject)
-		if stopID != "" {
-			collectors["map-stops"].RunSingle(stopID)
-			return
-		}
-	})
+	// subscriptions.Subscribe(func(subject string) {
+	// 	tripID := collectors["trips"].SubjectToID(subject)
+	// 	if tripID != "" {
+	// 		collectors["trips"].RunSingle(tripID)
+	// 		return
+	// 	}
+	// 	stopID := collectors["map-stops"].SubjectToID(subject)
+	// 	if stopID != "" {
+	// 		collectors["map-stops"].RunSingle(stopID)
+	// 		return
+	// 	}
+	// })
 
 	s := gocron.NewScheduler(time.UTC)
 	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
@@ -101,6 +100,8 @@ func main() {
 		log.Errorln(err)
 		return
 	}
+
+	// TODO: run collectors on reconnect again
 
 	log.Infoln("⚡ KVG collector started")
 
