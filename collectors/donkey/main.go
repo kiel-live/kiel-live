@@ -121,7 +121,7 @@ func main() {
 				return err
 			}
 
-			subject := fmt.Sprintf(protocol.TopicMapStop, ID)
+			subject := fmt.Sprintf(protocol.SubjectMapStop, ID)
 			err = c.Publish(subject, string(d))
 			if err != nil {
 				return err

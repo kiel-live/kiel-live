@@ -105,7 +105,7 @@ func (n *natsClient) Unsubscribe(subject string) error {
 		return fmt.Errorf("you have not subscribed to that subject '%s'", subject)
 	}
 
-	msg, err := n.nc.Request(protocol.TopicRequestUnsubscribe, []byte(subject), 1*time.Second)
+	msg, err := n.nc.Request(protocol.SubjectRequestUnsubscribe, []byte(subject), 1*time.Second)
 	if err != nil {
 		return err
 	}
