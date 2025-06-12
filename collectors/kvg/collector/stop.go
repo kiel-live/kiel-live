@@ -7,17 +7,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
-	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
+	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/protocol"
 	"github.com/sirupsen/logrus"
 )
 
 type StopCollector struct {
-	client         *client.Client
+	client         client.Client
 	stops          map[string]*protocol.Stop
-	subscriptions  *subscriptions.Subscriptions
 	lastFullUpdate int64
 	sync.Mutex
 }
@@ -123,6 +121,7 @@ func (c *StopCollector) Run() {
 		return
 	}
 
+	// load further details only for explicitly subscribed stops
 	for _, stopID := range stopIDs {
 		log.Debug("StopCollector: Run: ", stopID)
 		details, err := api.GetStopDetails(stopID)

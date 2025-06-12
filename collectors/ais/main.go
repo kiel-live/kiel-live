@@ -9,7 +9,7 @@ import (
 	ais "github.com/BertoldVdb/go-ais"
 	"github.com/BertoldVdb/go-ais/aisnmea"
 	"github.com/joho/godotenv"
-	"github.com/kiel-live/kiel-live/client"
+	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/protocol"
 	log "github.com/sirupsen/logrus"
 )
@@ -63,7 +63,7 @@ func main() {
 	defer connection.Close()
 	buffer := make([]byte, 1024)
 
-	c := client.NewClient(server, client.WithAuth("collector", token))
+	c := client.NewNatsClient(server, client.WithAuth("collector", token))
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)
