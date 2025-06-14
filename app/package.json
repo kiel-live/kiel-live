@@ -53,7 +53,7 @@
     "vite-plugin-pwa": "0.21.2",
     "vite-plugin-windicss": "1.9.4",
     "vitest": "3.0.8",
-    "vue-tsc": "2.2.8",
+    "vue-tsc": "2.2.10",
     "windicss": "3.5.6",
     "workbox-window": "7.3.0"
   },
