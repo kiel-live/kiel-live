@@ -49,8 +49,8 @@ importers:
         specifier: 3.2.0
         version: 3.2.0(eslint@9.21.0(jiti@1.21.7))
       '@intlify/unplugin-vue-i18n':
-        specifier: 6.0.5
-        version: 6.0.5(@vue/compiler-dom@3.5.13)(eslint@9.21.0(jiti@1.21.7))(rollup@2.79.2)(typescript@5.8.3)(vue-i18n@11.1.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
+        specifier: 6.0.8
+        version: 6.0.8(@vue/compiler-dom@3.5.13)(eslint@9.21.0(jiti@1.21.7))(rollup@2.79.2)(typescript@5.8.3)(vue-i18n@11.1.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))
       '@playwright/test':
         specifier: ^1.50.1
         version: 1.50.1
@@ -953,8 +953,8 @@ packages:
     resolution: {integrity: sha512-uRAHAxYPeF+G5DBIboKpPgC/Waecd4Jz8ihtkpJQD5ycb5PwXp0k/+hBGl5dAjwF7w+l74kz/PKA8r8OK//RUw==}
     engines: {node: '>= 16'}
 
-  '@intlify/unplugin-vue-i18n@6.0.5':
-    resolution: {integrity: sha512-0MKaYhLvM46Mtm+OArkK75ztmqaFfhIvnm5mg8XKqCPAKVAK98o+8tB6gUQFkKrF5PMYsNXvyMJCi40cRCDJbA==}
+  '@intlify/unplugin-vue-i18n@6.0.8':
+    resolution: {integrity: sha512-Vvm3KhjE6TIBVUQAk37rBiaYy2M5OcWH0ZcI1XKEsOTeN1o0bErk+zeuXmcrcMc/73YggfI8RoxOUz9EB/69JQ==}
     engines: {node: '>= 18'}
     peerDependencies:
       petite-vue-i18n: '*'
@@ -4711,7 +4711,7 @@ snapshots:
 
   '@intlify/shared@9.14.2': {}
 
-  '@intlify/unplugin-vue-i18n@6.0.5(@vue/compiler-dom@3.5.13)(eslint@9.21.0(jiti@1.21.7))(rollup@2.79.2)(typescript@5.8.3)(vue-i18n@11.1.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))':
+  '@intlify/unplugin-vue-i18n@6.0.8(@vue/compiler-dom@3.5.13)(eslint@9.21.0(jiti@1.21.7))(rollup@2.79.2)(typescript@5.8.3)(vue-i18n@11.1.2(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))':
     dependencies:
       '@eslint-community/eslint-utils': 4.4.1(eslint@9.21.0(jiti@1.21.7))
       '@intlify/bundle-utils': 10.0.1(vue-i18n@11.1.2(vue@3.5.13(typescript@5.8.3)))
