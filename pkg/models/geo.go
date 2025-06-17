@@ -10,9 +10,9 @@ const (
 )
 
 type Location struct {
-	Latitude  float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
-	Heading   *int    `json:"heading"`
+	Latitude  float64 `json:"latitude"`  // exp: 54.306
+	Longitude float64 `json:"longitude"` // exp: 10.149
+	Heading   *int    `json:"heading"`   // in degree
 }
 
 func (l *Location) GetCellID() s2.CellID {
