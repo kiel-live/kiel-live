@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
-	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/protocol"
 	"github.com/sirupsen/logrus"
 )
 
 type VehicleCollector struct {
-	client   client.Client
+	client   *client.Client
 	vehicles map[string]*protocol.Vehicle
 }
 

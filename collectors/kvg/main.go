@@ -6,8 +6,9 @@ import (
 
 	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
+	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/collector"
-	"github.com/kiel-live/kiel-live/pkg/client"
+	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -35,7 +36,7 @@ func main() {
 		log.Fatalln("Please provide a token for the collector with COLLECTOR_TOKEN")
 	}
 
-	c := client.NewNatsClient(server, client.WithAuth("collector", token))
+	c := client.NewClient(server, client.WithAuth("collector", token))
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)
@@ -48,22 +49,22 @@ func main() {
 		}
 	}()
 
-	// subscriptions := client.NewNtsSubscriptions(c)
+	subscriptions := subscriptions.New(c)
 
 	collectors = make(map[string]collector.Collector)
 
 	// auto load following collectors
-	collectors["vehicles"], err = collector.NewCollector(c, "vehicles")
+	collectors["map-vehicles"], err = collector.NewCollector(c, "map-vehicles", subscriptions)
 	if err != nil {
 		log.Errorln(err)
 		return
 	}
-	collectors["stops"], err = collector.NewCollector(c, "stops")
+	collectors["map-stops"], err = collector.NewCollector(c, "map-stops", subscriptions)
 	if err != nil {
 		log.Errorln(err)
 		return
 	}
-	collectors["trips"], err = collector.NewCollector(c, "trips")
+	collectors["trips"], err = collector.NewCollector(c, "trips", subscriptions)
 	if err != nil {
 		log.Errorln(err)
 		return
@@ -100,8 +101,6 @@ func main() {
 		log.Errorln(err)
 		return
 	}
-
-	// TODO: run collectors on reconnect again
 
 	log.Infoln("⚡ KVG collector started")
 

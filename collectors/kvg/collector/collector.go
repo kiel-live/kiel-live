@@ -3,7 +3,8 @@ package collector
 import (
 	"fmt"
 
-	"github.com/kiel-live/kiel-live/pkg/client"
+	"github.com/kiel-live/kiel-live/client"
+	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
 )
 
 type Collector interface {
@@ -12,19 +13,21 @@ type Collector interface {
 	TopicToID(topic string) string
 }
 
-func NewCollector(client client.Client, collectorType string) (Collector, error) {
+func NewCollector(client *client.Client, collectorType string, subscriptions *subscriptions.Subscriptions) (Collector, error) {
 	switch collectorType {
-	case "vehicles":
+	case "map-vehicles":
 		return &VehicleCollector{
 			client: client,
 		}, nil
-	case "stops":
+	case "map-stops":
 		return &StopCollector{
-			client: client,
+			client:        client,
+			subscriptions: subscriptions,
 		}, nil
 	case "trips":
 		return &TripCollector{
-			client: client,
+			client:        client,
+			subscriptions: subscriptions,
 		}, nil
 	}
 

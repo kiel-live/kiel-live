@@ -6,15 +6,17 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
-	"github.com/kiel-live/kiel-live/pkg/client"
+	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
 	"github.com/kiel-live/kiel-live/protocol"
 	"github.com/sirupsen/logrus"
 )
 
 type TripCollector struct {
-	client client.Client
-	trips  map[string]*protocol.Trip
+	client        *client.Client
+	trips         map[string]*protocol.Trip
+	subscriptions *subscriptions.Subscriptions
 	sync.Mutex
 }
 
@@ -137,8 +139,7 @@ func (c *TripCollector) Run() {
 	}
 
 	log.Debugf("changed %d trips and removed %d", len(changed), len(removed))
-
-	// update cache
+	// update list of trips
 	c.trips = trips
 }
 
@@ -154,7 +155,7 @@ func (c *TripCollector) RunSingle(tripID string) {
 		return
 	}
 
-	// publish trip
+	// publish changed trip
 	err = c.publish(trip)
 	if err != nil {
 		log.Error(err)
@@ -162,7 +163,6 @@ func (c *TripCollector) RunSingle(tripID string) {
 	}
 
 	log.Debugf("published single trip: %v", trip)
-
 	// update cache
 	c.trips[trip.ID] = trip
 }

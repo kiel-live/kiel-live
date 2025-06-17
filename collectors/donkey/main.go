@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
-	"github.com/kiel-live/kiel-live/pkg/client"
+	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/protocol"
 	log "github.com/sirupsen/logrus"
 )
@@ -40,7 +40,7 @@ func main() {
 		log.Fatalln("Please provide a token for the collector with COLLECTOR_TOKEN")
 	}
 
-	c := client.NewNatsClient(server, client.WithAuth("collector", token))
+	c := client.NewClient(server, client.WithAuth("collector", token))
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)
