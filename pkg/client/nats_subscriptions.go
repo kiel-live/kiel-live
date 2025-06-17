@@ -11,7 +11,7 @@ type consumerEvent struct {
 	Consumer string `json:"consumer"`
 }
 
-func (n *natsClient) getSubscribedTopics() []string {
+func (n *natsClient) GetSubscribedTopics() []string {
 	n.subscriptionsMu.Lock()
 	defer n.subscriptionsMu.Unlock()
 
@@ -53,11 +53,9 @@ func (n *natsClient) removeSubscription(topic, consumerName string) {
 	}
 }
 
-func (n *natsClient) Init() {
+func (n *natsClient) init() {
 	n.subscriptionsMu.Lock()
 	defer n.subscriptionsMu.Unlock()
-
-	// s.numberOfSubscriptionsPerTopic = make(map[string][]string)
 
 	// init with already existing consumers
 	for consumerInfo := range n.JS.ConsumersInfo("data") {
@@ -65,7 +63,7 @@ func (n *natsClient) Init() {
 		n.addSubscription(topic, consumerInfo.Name)
 	}
 
-	// new consumers
+	// new consumer
 	err := n.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.CREATED.>", func(msg *Message) {
 		var consumerEvent consumerEvent
 		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
@@ -82,14 +80,14 @@ func (n *natsClient) Init() {
 		n.addSubscription(topic, consumerInfo.Name)
 
 		if n.topicSubscriptionHandler != nil {
-			n.topicSubscriptionHandler(n.getSubscribedTopics())
+			n.topicSubscriptionHandler(topic, true)
 		}
 	})
 	if err != nil {
 		log.Errorf("Subscribe failed, reason: %v \n", err)
 	}
 
-	// remove consumers
+	// remove consumer
 	err = n.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.DELETED.>", func(msg *Message) {
 		var consumerEvent consumerEvent
 		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
@@ -106,7 +104,7 @@ func (n *natsClient) Init() {
 		n.removeSubscription(topic, consumerEvent.Consumer)
 
 		if n.topicSubscriptionHandler != nil {
-			n.topicSubscriptionHandler(n.getSubscribedTopics())
+			n.topicSubscriptionHandler(topic, false)
 		}
 	})
 	if err != nil {

@@ -69,18 +69,30 @@ func main() {
 		return
 	}
 
-	// subscriptions.Subscribe(func(topic string) {
-	// 	tripID := collectors["trips"].TopicToID(topic)
-	// 	if tripID != "" {
-	// 		collectors["trips"].RunSingle(tripID)
-	// 		return
-	// 	}
-	// 	stopID := collectors["map-stops"].TopicToID(topic)
-	// 	if stopID != "" {
-	// 		collectors["map-stops"].RunSingle(stopID)
-	// 		return
-	// 	}
-	// })
+	c.SetOnTopicsChanged(func(topic string, added bool) {
+		if !added {
+			return
+		}
+
+		tripID := collectors["trips"].TopicToID(topic)
+		if tripID != "" {
+			collectors["trips"].RunSingle(tripID)
+			return
+		}
+		stopID := collectors["stops"].TopicToID(topic)
+		if stopID != "" {
+			collectors["stops"].RunSingle(stopID)
+			return
+		}
+	})
+
+	c.SetOnConnectionChanged(func(connected bool) {
+		if !connected {
+			return
+		}
+
+		// TODO: reset collector caches and re-run them
+	})
 
 	s := gocron.NewScheduler(time.UTC)
 	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
@@ -92,7 +104,6 @@ func main() {
 		for name, c := range collectors {
 			// TODO maybe run in go routine
 			log.Debugln("Collector for", name, "running ...")
-
 			c.Run()
 		}
 	})

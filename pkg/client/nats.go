@@ -1,6 +1,7 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -12,14 +13,14 @@ import (
 type natsClient struct {
 	nc                       *nats.Conn
 	JS                       nats.JetStreamContext
-	subscriptions            map[string]*nats.Subscription
+	subscriptions            map[string]*nats.Subscription // active subscriptions by this client
 	host                     string
 	username                 string
 	password                 string
 	connectionHandler        func(connected bool)
-	topicSubscriptionHandler func(topic []string)
+	topicSubscriptionHandler func(topic string, added bool)
 
-	topicSubscriptions map[string][]string
+	topicSubscriptions map[string][]string // topics on the server subscribed to by some client
 	subscriptionsMu    sync.Mutex
 }
 
@@ -36,6 +37,8 @@ func NewNatsClient(host string, opts ...NatsOption) Client {
 	for _, opt := range opts {
 		opt(client)
 	}
+
+	client.init()
 
 	return client
 }
@@ -123,14 +126,49 @@ func (n *natsClient) Unsubscribe(topic string) error {
 	return nil
 }
 
-func (n *natsClient) Publish(topic string, data string) error {
-	return n.nc.Publish(topic, []byte(data))
-}
-
-func (n *natsClient) SetConnectionHandler(connectionHandler func(connected bool)) {
+func (n *natsClient) SetOnConnectionChanged(connectionHandler func(connected bool)) {
 	n.connectionHandler = connectionHandler
 }
 
-func (n *natsClient) SetTopicSubscriptionHandler(topicSubscriptionHandler func(topics []string)) {
+func (n *natsClient) SetOnTopicsChanged(topicSubscriptionHandler func(topic string, added bool)) {
 	n.topicSubscriptionHandler = topicSubscriptionHandler
+}
+
+func (n *natsClient) UpdateStop(stop *protocol.Stop) error {
+	jsonData, err := json.Marshal(stop)
+	if err != nil {
+		return err
+	}
+
+	return n.nc.Publish(fmt.Sprintf(protocol.TopicStop, stop.ID), jsonData)
+}
+
+func (n *natsClient) UpdateVehicle(vehicle *protocol.Vehicle) error {
+	jsonData, err := json.Marshal(vehicle)
+	if err != nil {
+		return err
+	}
+
+	return n.nc.Publish(fmt.Sprintf(protocol.TopicVehicle, vehicle.ID), jsonData)
+}
+
+func (n *natsClient) UpdateTrip(trip *protocol.Trip) error {
+	jsonData, err := json.Marshal(trip)
+	if err != nil {
+		return err
+	}
+
+	return n.nc.Publish(fmt.Sprintf(protocol.TopicTrip, trip.ID), jsonData)
+}
+
+func (n *natsClient) DeleteStop(stopID string) error {
+	return n.nc.Publish(fmt.Sprintf(protocol.TopicStop, stopID), []byte(protocol.DeletePayload))
+}
+
+func (n *natsClient) DeleteVehicle(vehicleID string) error {
+	return n.nc.Publish(fmt.Sprintf(protocol.TopicVehicle, vehicleID), []byte(protocol.DeletePayload))
+}
+
+func (n *natsClient) DeleteTrip(tripID string) error {
+	return n.nc.Publish(fmt.Sprintf(protocol.TopicTrip, tripID), []byte(protocol.DeletePayload))
 }

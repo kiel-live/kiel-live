@@ -1,7 +1,6 @@
 package collector
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
@@ -58,36 +57,9 @@ func (c *TripCollector) getRemovedTrips(trips map[string]*protocol.Trip) (remove
 	return removed
 }
 
-func (c *TripCollector) publish(trip *protocol.Trip) error {
-	topic := fmt.Sprintf(protocol.TopicDetailsTrip, trip.ID)
-
-	jsonData, err := json.Marshal(trip)
-	if err != nil {
-		return err
-	}
-
-	err = c.client.Publish(topic, string(jsonData))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c *TripCollector) publishRemoved(trip *protocol.Trip) error {
-	topic := fmt.Sprintf(protocol.TopicDetailsTrip, trip.ID)
-
-	err := c.client.Publish(topic, string(protocol.DeletePayload))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (c *TripCollector) TopicToID(topic string) string {
-	if strings.HasPrefix(topic, fmt.Sprintf(protocol.TopicDetailsTrip, api.IDPrefix)) && topic != fmt.Sprintf(protocol.TopicDetailsTrip, ">") {
-		return strings.TrimPrefix(topic, fmt.Sprintf(protocol.TopicDetailsTrip, api.IDPrefix))
+	if strings.HasPrefix(topic, fmt.Sprintf(protocol.TopicTrip, api.IDPrefix)) && topic != fmt.Sprintf(protocol.TopicTrip, ">") {
+		return strings.TrimPrefix(topic, fmt.Sprintf(protocol.TopicTrip, api.IDPrefix))
 	}
 	return ""
 }
@@ -99,7 +71,7 @@ func (c *TripCollector) Run() {
 	c.Lock()
 	defer c.Unlock()
 
-	topics := c.subscriptions.GetSubscriptions()
+	topics := c.client.GetSubscribedTopics()
 	tripIDs := []string{}
 	for _, topic := range topics {
 		tripID := c.TopicToID(topic)
@@ -121,7 +93,7 @@ func (c *TripCollector) Run() {
 	changed := c.getChangedTrips(trips)
 	for _, trip := range changed {
 		log.Debugf("publish changed trip: %v", trip)
-		err := c.publish(trip)
+		err := c.client.UpdateTrip(trip)
 		if err != nil {
 			log.Error(err)
 		}
@@ -130,7 +102,7 @@ func (c *TripCollector) Run() {
 	removed := c.getRemovedTrips(trips)
 	for _, trip := range removed {
 		log.Debugf("publish removed trip: %v", trip)
-		err := c.publishRemoved(trip)
+		err := c.client.DeleteTrip(trip.ID)
 		if err != nil {
 			log.Error(err)
 		}
@@ -154,7 +126,7 @@ func (c *TripCollector) RunSingle(tripID string) {
 	}
 
 	// publish changed trip
-	err = c.publish(trip)
+	err = c.client.UpdateTrip(trip)
 	if err != nil {
 		log.Error(err)
 		return

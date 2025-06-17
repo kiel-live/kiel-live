@@ -1,7 +1,6 @@
 package collector
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
@@ -66,36 +65,9 @@ func (c *StopCollector) getRemovedStops(stops map[string]*protocol.Stop) (remove
 	return removed
 }
 
-func (c *StopCollector) publish(stop *protocol.Stop) error {
-	topic := fmt.Sprintf(protocol.TopicMapStop, stop.ID)
-
-	jsonData, err := json.Marshal(stop)
-	if err != nil {
-		return err
-	}
-
-	err = c.client.Publish(topic, string(jsonData))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
-	topic := fmt.Sprintf(protocol.TopicMapStop, stop.ID)
-
-	err := c.client.Publish(topic, string(protocol.DeletePayload))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (c *StopCollector) TopicToID(topic string) string {
-	if strings.HasPrefix(topic, fmt.Sprintf(protocol.TopicMapStop, api.IDPrefix)) && topic != fmt.Sprintf(protocol.TopicMapStop, ">") {
-		return strings.TrimPrefix(topic, fmt.Sprintf(protocol.TopicMapStop, api.IDPrefix))
+	if strings.HasPrefix(topic, fmt.Sprintf(protocol.TopicStop, api.IDPrefix)) && topic != fmt.Sprintf(protocol.TopicStop, ">") {
+		return strings.TrimPrefix(topic, fmt.Sprintf(protocol.TopicStop, api.IDPrefix))
 	}
 	return ""
 }
@@ -106,7 +78,7 @@ func (c *StopCollector) Run() {
 	c.Lock()
 	defer c.Unlock()
 
-	topics := c.subscriptions.GetSubscriptions()
+	topics := c.client.GetSubscribedTopics()
 	var stopIDs []string
 	for _, topic := range topics {
 		id := c.TopicToID(topic)
@@ -146,7 +118,7 @@ func (c *StopCollector) Run() {
 		stopsToPublish = c.getChangedStops(stops)
 	}
 	for _, stop := range stopsToPublish {
-		err := c.publish(stop)
+		err := c.client.UpdateStop(stop)
 		if err != nil {
 			log.Error(err)
 		}
@@ -155,7 +127,7 @@ func (c *StopCollector) Run() {
 	// publish all removed stops
 	removed := c.getRemovedStops(stops)
 	for _, stop := range removed {
-		err := c.publishRemoved(stop)
+		err := c.client.DeleteStop(stop.ID)
 		if err != nil {
 			log.Error(err)
 		}
@@ -186,7 +158,7 @@ func (c *StopCollector) RunSingle(stopID string) {
 	stop.Alerts = details.Alerts
 
 	// publish stop
-	err = c.publish(stop)
+	err = c.client.UpdateStop(stop)
 	if err != nil {
 		log.Error(err)
 	}

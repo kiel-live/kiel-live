@@ -1,9 +1,6 @@
 package collector
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
 	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/protocol"
@@ -52,33 +49,6 @@ func (c *VehicleCollector) getRemovedVehicles(vehicles map[string]*protocol.Vehi
 	return removed
 }
 
-func (c *VehicleCollector) publish(vehicle *protocol.Vehicle) error {
-	topic := fmt.Sprintf(protocol.TopicMapVehicle, vehicle.ID)
-
-	jsonData, err := json.Marshal(vehicle)
-	if err != nil {
-		return err
-	}
-
-	err = c.client.Publish(topic, string(jsonData))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c *VehicleCollector) publishRemoved(vehicle *protocol.Vehicle) error {
-	topic := fmt.Sprintf(protocol.TopicMapVehicle, vehicle.ID)
-
-	err := c.client.Publish(topic, string(protocol.DeletePayload))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (c *VehicleCollector) TopicToID(string) string {
 	return ""
 }
@@ -94,7 +64,7 @@ func (c *VehicleCollector) Run() {
 	// publish all changed vehicles
 	changed := c.getChangedVehicles(vehicles)
 	for _, vehicle := range changed {
-		err := c.publish(vehicle)
+		err := c.client.UpdateVehicle(vehicle)
 		if err != nil {
 			log.Error(err)
 		}
@@ -103,7 +73,7 @@ func (c *VehicleCollector) Run() {
 	// publish all removed vehicles
 	removed := c.getRemovedVehicles(vehicles)
 	for _, vehicle := range removed {
-		err := c.publishRemoved(vehicle)
+		err := c.client.DeleteVehicle(vehicle.ID)
 		if err != nil {
 			log.Error(err)
 		}

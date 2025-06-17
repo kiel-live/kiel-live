@@ -98,7 +98,7 @@ func main() {
 					}
 
 					for _, bike := range place.BikeList {
-						vehicle := protocol.Vehicle{
+						vehicle := &protocol.Vehicle{
 							ID:       fmt.Sprintf("nextbike-%s", bike.Number),
 							Provider: "nextbike",
 							Name:     fmt.Sprintf("Nextbike %s", bike.Number),
@@ -123,27 +123,15 @@ func main() {
 							Description: "", // TODO: add pricing data
 						}
 
-						stop.Vehicles = append(stop.Vehicles, vehicle)
+						stop.Vehicles = append(stop.Vehicles, *vehicle)
 
-						d, err := json.Marshal(vehicle)
-						if err != nil {
-							return err
-						}
-
-						topic := fmt.Sprintf(protocol.TopicMapVehicle, vehicle.ID)
-						err = c.Publish(topic, string(d))
+						err = c.UpdateVehicle(vehicle)
 						if err != nil {
 							return err
 						}
 					}
 
-					d, err := json.Marshal(stop)
-					if err != nil {
-						return err
-					}
-
-					topic := fmt.Sprintf(protocol.TopicMapStop, ID)
-					err = c.Publish(topic, string(d))
+					err = c.UpdateStop(stop)
 					if err != nil {
 						return err
 					}

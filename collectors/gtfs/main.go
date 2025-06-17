@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -230,7 +228,7 @@ func main() {
 
 		for _, gtfsStop := range g.Stops {
 			// convert to protocol.Stop
-			stop := protocol.Stop{
+			stop := &protocol.Stop{
 				ID:       IDPrefix + gtfsStop.ID,
 				Provider: agency.Name,
 				Name:     gtfsStop.Name,
@@ -329,15 +327,7 @@ func main() {
 				continue
 			}
 
-			jsonData, err := json.Marshal(stop)
-			if err != nil {
-				log.Error(err)
-				continue
-			}
-
-			// publish stop
-			topic := fmt.Sprintf(protocol.TopicMapStop, stop.ID)
-			err = c.Publish(topic, string(jsonData))
+			err = c.UpdateStop(stop)
 			if err != nil {
 				log.Error(err)
 				continue

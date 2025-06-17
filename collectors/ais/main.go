@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -94,7 +93,7 @@ func main() {
 			if decoded.Packet.GetHeader().MessageID == 1 || decoded.Packet.GetHeader().MessageID == 2 || decoded.Packet.GetHeader().MessageID == 3 {
 				positionReportPacket := decoded.Packet.(ais.PositionReport)
 
-				vehicle := protocol.Vehicle{
+				vehicle := &protocol.Vehicle{
 					ID:       IDPrefix + fmt.Sprint(positionReportPacket.UserID),
 					Provider: "ais",
 					Type:     protocol.VehicleTypeFerry,
@@ -106,15 +105,7 @@ func main() {
 					},
 				}
 
-				topic := fmt.Sprintf(protocol.TopicMapVehicle, vehicle.ID)
-
-				jsonData, err := json.Marshal(vehicle)
-				if err != nil {
-					log.Error(err)
-					continue
-				}
-
-				err = c.Publish(topic, string(jsonData))
+				err = c.UpdateVehicle(vehicle)
 				if err != nil {
 					log.Error(err)
 					continue

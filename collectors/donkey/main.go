@@ -116,13 +116,7 @@ func main() {
 				},
 			}
 
-			d, err := json.Marshal(stop)
-			if err != nil {
-				return err
-			}
-
-			topic := fmt.Sprintf(protocol.TopicMapStop, ID)
-			err = c.Publish(topic, string(d))
+			err = c.UpdateStop(stop)
 			if err != nil {
 				return err
 			}
