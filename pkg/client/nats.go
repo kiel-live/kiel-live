@@ -82,7 +82,7 @@ func (n *natsClient) Disconnect() error {
 }
 
 func (n *natsClient) Subscribe(topic string, cb SubscribeCallback) error {
-	if n.subscriptions[topic] != nil {
+	if _, ok := n.subscriptions[topic]; ok {
 		return fmt.Errorf("already subscribed to '%s'", topic)
 	}
 
