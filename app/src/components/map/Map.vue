@@ -29,7 +29,6 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 const props = withDefaults(
   defineProps<{
     selectedMarker?: Partial<Marker>;
-    mapMovedManually: boolean;
   }>(),
   {
     selectedMarker: () => ({}),
@@ -38,7 +37,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: 'markerClick', marker?: Marker): void;
-  (e: 'update:mapMovedManually', mapMovedManually: boolean): void;
+  (e: 'mapMoved'): void;
 }>();
 
 let map: Map;
@@ -48,11 +47,6 @@ type GeoJsonProperties = _GeoJsonProperties & {
   type: StopType | VehicleType | 'trip';
   id?: string;
 };
-
-const mapMovedManually = computed({
-  get: () => props.mapMovedManually,
-  set: (value) => emit('update:mapMovedManually', value),
-});
 
 const colorScheme = useColorMode();
 
@@ -387,12 +381,11 @@ onMounted(async () => {
       return;
     }
 
-    mapMovedManually.value = false;
     emit('markerClick', { type: feature.properties.type, id: feature.properties.id });
   });
 
   map.on('drag', () => {
-    mapMovedManually.value = true;
+    emit('mapMoved');
   });
 
   map.on('move', () => {
