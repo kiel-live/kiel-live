@@ -69,18 +69,18 @@ func main() {
 		return
 	}
 
-	// subscriptions.Subscribe(func(subject string) {
-	// 	tripID := collectors["trips"].SubjectToID(subject)
-	// 	if tripID != "" {
-	// 		collectors["trips"].RunSingle(tripID)
-	// 		return
-	// 	}
-	// 	stopID := collectors["map-stops"].SubjectToID(subject)
-	// 	if stopID != "" {
-	// 		collectors["map-stops"].RunSingle(stopID)
-	// 		return
-	// 	}
-	// })
+	subscriptions.Subscribe(func(topic string) {
+		tripID := collectors["trips"].TopicToID(topic)
+		if tripID != "" {
+			collectors["trips"].RunSingle(tripID)
+			return
+		}
+		stopID := collectors["map-stops"].TopicToID(topic)
+		if stopID != "" {
+			collectors["map-stops"].RunSingle(stopID)
+			return
+		}
+	})
 
 	s := gocron.NewScheduler(time.UTC)
 	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)

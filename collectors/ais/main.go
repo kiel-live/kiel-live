@@ -106,7 +106,7 @@ func main() {
 					},
 				}
 
-				subject := fmt.Sprintf(protocol.TopicMapVehicle, vehicle.ID)
+				topic := fmt.Sprintf(protocol.TopicMapVehicle, vehicle.ID)
 
 				jsonData, err := json.Marshal(vehicle)
 				if err != nil {
@@ -114,7 +114,7 @@ func main() {
 					continue
 				}
 
-				err = c.Publish(subject, string(jsonData))
+				err = c.Publish(topic, string(jsonData))
 				if err != nil {
 					log.Error(err)
 					continue

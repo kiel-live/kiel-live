@@ -99,7 +99,7 @@ func (c *TripCollector) Run() {
 	c.Lock()
 	defer c.Unlock()
 
-	topics := c.client.GetSubscriptions()
+	topics := c.subscriptions.GetSubscriptions()
 	tripIDs := []string{}
 	for _, topic := range topics {
 		tripID := c.TopicToID(topic)

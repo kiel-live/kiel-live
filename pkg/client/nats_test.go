@@ -21,7 +21,7 @@ func TestClient(t *testing.T) {
 		}
 	}()
 
-	err = c.Subscribe("data.>", func(msg *client.TopicMessage) {
+	err = c.Subscribe("data.>", func(msg *client.Message) {
 		fmt.Println(">>>", msg.Data)
 	})
 	if err != nil {
