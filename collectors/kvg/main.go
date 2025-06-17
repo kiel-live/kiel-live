@@ -48,8 +48,6 @@ func main() {
 		}
 	}()
 
-	// subscriptions := client.NewNtsSubscriptions(c)
-
 	collectors = make(map[string]collector.Collector)
 
 	// auto load following collectors
@@ -111,8 +109,6 @@ func main() {
 		log.Errorln(err)
 		return
 	}
-
-	// TODO: run collectors on reconnect again
 
 	log.Infoln("⚡ KVG collector started")
 
