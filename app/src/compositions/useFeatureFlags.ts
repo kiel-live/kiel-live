@@ -1,6 +1,6 @@
 import type { Ref } from 'vue';
 import { useStorage } from '@vueuse/core';
-import { computed } from 'vue';
+import { computed, getCurrentInstance } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { localStoragePrefix } from './useUserSettings';
@@ -14,7 +14,12 @@ interface FeatureFlag {
 }
 
 export function useFeatureFlags() {
-  const { t } = useI18n();
+  // as i18n can only be used inside components and translations
+  // are only needed for the settings we mock it otherwise
+  let t: ReturnType<typeof useI18n>['t'] = (key) => key;
+  if (getCurrentInstance()) {
+    t = useI18n().t;
+  }
 
   const featureFlags = [
     {
@@ -31,12 +36,12 @@ export function useFeatureFlags() {
   const featureFlagWithEnabled = featureFlags.map((flag) => ({
     ...flag,
     enabled: computed({
-      get: () => enabledFeatureFlags.value.includes(flag.name),
+      get: () => enabledFeatureFlags.value.includes(flag.id),
       set: (value) => {
         if (value) {
-          enabledFeatureFlags.value = [...enabledFeatureFlags.value, flag.name];
+          enabledFeatureFlags.value = [...enabledFeatureFlags.value, flag.id];
         } else {
-          enabledFeatureFlags.value = enabledFeatureFlags.value.filter((f) => f !== flag.name);
+          enabledFeatureFlags.value = enabledFeatureFlags.value.filter((f) => f !== flag.id);
         }
       },
     }),

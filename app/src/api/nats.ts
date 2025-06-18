@@ -1,9 +1,10 @@
 import type { JetStreamClient, JetStreamSubscription, NatsConnection } from 'nats.ws';
 import type { Ref } from 'vue';
-import type { Api, Models, Stop, Trip, Vehicle } from '~/api/types';
+import type { Api, Bounds, Models, Stop, Trip, Vehicle } from '~/api/types';
+import Fuse from 'fuse.js';
 import { connect, consumerOpts, createInbox, Events, StringCodec } from 'nats.ws';
-
 import { computed, ref, watch } from 'vue';
+
 import { natsServerUrl } from '~/config';
 
 const sc = StringCodec();
@@ -66,18 +67,18 @@ export class NatsApi implements Api {
     })();
   }
 
-  async subscribe(subject: string, state: Ref<Record<string, Models>>) {
-    if (this.subscriptions.value[subject]) {
+  async subscribe(topic: string, state: Ref<Record<string, Models>>) {
+    if (this.subscriptions.value[topic]) {
       return;
     }
 
     if (!this.isConnected.value || !this.js.value) {
-      this.subscriptionsQueue[subject] = state;
+      this.subscriptionsQueue[topic] = state;
       return;
     }
 
     let resolvePendingSubscription: () => void = () => {};
-    this.subscriptions.value[subject] = {
+    this.subscriptions.value[topic] = {
       pending: new Promise((resolve) => {
         resolvePendingSubscription = resolve;
       }),
@@ -88,9 +89,9 @@ export class NatsApi implements Api {
     opts.deliverAll();
     opts.ackNone();
     opts.replayInstantly();
-    const sub = await this.js.value.subscribe(subject, opts);
+    const sub = await this.js.value.subscribe(topic, opts);
 
-    this.subscriptions.value[subject].subscription = sub;
+    this.subscriptions.value[topic].subscription = sub;
     resolvePendingSubscription();
 
     void (async () => {
@@ -112,25 +113,25 @@ export class NatsApi implements Api {
     })();
   }
 
-  async unsubscribe(subject: string) {
-    if (this.subscriptions.value[subject]) {
-      const { pending } = this.subscriptions.value[subject];
+  async unsubscribe(topic: string) {
+    if (this.subscriptions.value[topic]) {
+      const { pending } = this.subscriptions.value[topic];
       if (pending) {
         await pending;
       }
-      this.subscriptions.value[subject]?.subscription?.unsubscribe();
-      delete this.subscriptions.value[subject];
+      this.subscriptions.value[topic]?.subscription?.unsubscribe();
+      delete this.subscriptions.value[topic];
     }
-    if (this.subscriptionsQueue[subject]) {
-      delete this.subscriptionsQueue[subject];
+    if (this.subscriptionsQueue[topic]) {
+      delete this.subscriptionsQueue[topic];
     }
   }
 
   private async processSubscriptionsQueue() {
     await Promise.all(
-      Object.keys(this.subscriptionsQueue).map(async (subject) => {
-        await this.subscribe(subject, this.subscriptionsQueue[subject]);
-        delete this.subscriptionsQueue[subject];
+      Object.keys(this.subscriptionsQueue).map(async (topic) => {
+        await this.subscribe(topic, this.subscriptionsQueue[topic]);
+        delete this.subscriptionsQueue[topic];
       }),
     );
   }
@@ -160,7 +161,7 @@ export class NatsApi implements Api {
   }
 
   useStop(stopId: Ref<string | undefined>) {
-    if (stopId) {
+    if (stopId.value) {
       void this.subscribe(`data.map.stop.${stopId.value}`, this.stops);
     }
 
@@ -183,7 +184,7 @@ export class NatsApi implements Api {
   }
 
   useVehicle(vehicleId: Ref<string | undefined>) {
-    if (vehicleId) {
+    if (vehicleId.value) {
       void this.subscribe(`data.map.vehicle.${vehicleId.value}`, this.vehicles);
     }
 
@@ -226,5 +227,32 @@ export class NatsApi implements Api {
         await this.unsubscribe(`data.map.trip.${tripId.value}`);
       },
     };
+  }
+
+  useSearch(query: Ref<string>, _bounds: Ref<Bounds>) {
+    const { stops, loading } = this.useStops();
+
+    const searchData = computed(() => [...Object.values(stops.value)]);
+    const searchIndex = computed(
+      () =>
+        new Fuse(searchData.value, {
+          includeScore: true,
+          keys: ['name'],
+          threshold: 0.4,
+        }),
+    );
+
+    const results = computed(() => {
+      if (query.value === '' || query.value.length < 3) {
+        return [];
+      }
+      // limit to max 20 results
+      return searchIndex.value
+        .search(query.value)
+        .slice(0, 20)
+        .map((result) => result.item);
+    });
+
+    return { results, loading };
   }
 }

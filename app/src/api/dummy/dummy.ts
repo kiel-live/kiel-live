@@ -1,5 +1,6 @@
 import type { Ref } from 'vue';
-import type { Api, Stop, Vehicle } from '~/api/types';
+import type { Api, Bounds, Stop, Vehicle } from '~/api/types';
+import Fuse from 'fuse.js';
 import { computed, ref } from 'vue';
 import { DUMMY_STOPS, DUMMY_TRIPS, DUMMY_VEHICLES } from './data';
 
@@ -56,5 +57,32 @@ export class DummyApi implements Api {
       loading: ref(false),
       unsubscribe: async () => {},
     };
+  }
+
+  useSearch(query: Ref<string>, _bounds: Ref<Bounds>) {
+    const { stops, loading } = this.useStops();
+
+    const searchData = computed(() => [...Object.values(stops.value)]);
+    const searchIndex = computed(
+      () =>
+        new Fuse(searchData.value, {
+          includeScore: true,
+          keys: ['name'],
+          threshold: 0.4,
+        }),
+    );
+
+    const results = computed(() => {
+      if (query.value === '' || query.value.length < 3) {
+        return [];
+      }
+      // limit to max 20 results
+      return searchIndex.value
+        .search(query.value)
+        .slice(0, 20)
+        .map((result) => result.item);
+    });
+
+    return { results, loading };
   }
 }
