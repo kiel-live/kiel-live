@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
 	"github.com/kiel-live/kiel-live/pkg/client"
@@ -13,9 +12,8 @@ import (
 )
 
 type StopCollector struct {
-	client         client.Client
-	stops          map[string]*models.Stop
-	lastFullUpdate int64
+	client client.Client
+	stops  map[string]*models.Stop
 	sync.Mutex
 }
 
@@ -94,30 +92,20 @@ func (c *StopCollector) Run() {
 	}
 
 	// load further details only for explicitly subscribed stops
+	log.Debugf("loading details for %d stops: %s", len(stopIDs), strings.Join(stopIDs, ", "))
 	for _, stopID := range stopIDs {
-		log.Debug("StopCollector: Run: ", stopID)
 		details, err := api.GetStopDetails(stopID)
 		if err != nil {
 			log.Error(err)
 			continue
 		}
-		log.Debug("StopCollector: publish stop", details)
 		stops[api.IDPrefix+stopID].Arrivals = details.Departures
 		stops[api.IDPrefix+stopID].Alerts = details.Alerts
 	}
 
-	var stopsToPublish []*models.Stop
-	// publish all stops when last full update is older than the max cache age
-	if c.lastFullUpdate == 0 || c.lastFullUpdate < time.Now().Unix()-models.MaxCacheAge {
-		for _, stop := range stops {
-			stopsToPublish = append(stopsToPublish, stop)
-		}
-		c.lastFullUpdate = time.Now().Unix()
-	} else {
-		// publish all changed stops
-		stopsToPublish = c.getChangedStops(stops)
-	}
+	stopsToPublish := c.getChangedStops(stops)
 	for _, stop := range stopsToPublish {
+		log.Tracef("publish updated stop: %v", stop)
 		err := c.client.UpdateStop(stop)
 		if err != nil {
 			log.Error(err)
@@ -127,6 +115,7 @@ func (c *StopCollector) Run() {
 	// publish all removed stops
 	removed := c.getRemovedStops(stops)
 	for _, stop := range removed {
+		log.Debugf("publish removed stop: %v", stop)
 		err := c.client.DeleteStop(stop.ID)
 		if err != nil {
 			log.Error(err)
@@ -166,4 +155,11 @@ func (c *StopCollector) RunSingle(stopID string) {
 	log.Debugf("published single stop: %v", stop)
 	// update cache
 	c.stops[api.IDPrefix+stopID] = stop
+}
+
+func (c *StopCollector) Reset() {
+	c.Lock()
+	defer c.Unlock()
+
+	c.stops = make(map[string]*models.Stop)
 }

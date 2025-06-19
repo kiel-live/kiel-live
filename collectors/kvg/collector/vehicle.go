@@ -1,6 +1,8 @@
 package collector
 
 import (
+	"sync"
+
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
 	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/pkg/models"
@@ -10,6 +12,7 @@ import (
 type VehicleCollector struct {
 	client   client.Client
 	vehicles map[string]*models.Vehicle
+	sync.Mutex
 }
 
 func isSameLocation(a *models.Location, b *models.Location) bool {
@@ -54,6 +57,9 @@ func (c *VehicleCollector) TopicToID(string) string {
 }
 
 func (c *VehicleCollector) Run() {
+	c.Lock()
+	defer c.Unlock()
+
 	log := logrus.WithField("collector", "vehicle")
 	vehicles, err := api.GetVehicles()
 	if err != nil {
@@ -64,6 +70,7 @@ func (c *VehicleCollector) Run() {
 	// publish all changed vehicles
 	changed := c.getChangedVehicles(vehicles)
 	for _, vehicle := range changed {
+		log.Tracef("publish updated vehicle: %v", vehicle)
 		err := c.client.UpdateVehicle(vehicle)
 		if err != nil {
 			log.Error(err)
@@ -73,6 +80,7 @@ func (c *VehicleCollector) Run() {
 	// publish all removed vehicles
 	removed := c.getRemovedVehicles(vehicles)
 	for _, vehicle := range removed {
+		log.Debugf("publish removed vehicle: %v", vehicle)
 		err := c.client.DeleteVehicle(vehicle.ID)
 		if err != nil {
 			log.Error(err)
@@ -86,3 +94,10 @@ func (c *VehicleCollector) Run() {
 }
 
 func (c *VehicleCollector) RunSingle(string) {}
+
+func (c *VehicleCollector) Reset() {
+	c.Lock()
+	defer c.Unlock()
+
+	c.vehicles = make(map[string]*models.Vehicle)
+}

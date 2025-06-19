@@ -9,6 +9,7 @@ import (
 type Collector interface {
 	Run()
 	RunSingle(ID string)
+	Reset()
 	TopicToID(topic string) string
 }
 
