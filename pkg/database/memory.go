@@ -72,16 +72,16 @@ func (b *MemoryDatabase) SetStop(_ context.Context, stop *models.Stop) error {
 	b.Lock()
 	defer b.Unlock()
 
-	cids := stop.Location.GetCellIDs()
+	cellID := stop.Location.GetCellID()
 
-	oldCids := []s2.CellID{}
+	var oldCellID s2.CellID
 	if oldStop, ok := b.stops[stop.ID]; ok {
-		oldCids = oldStop.Location.GetCellIDs()
+		oldCellID = oldStop.Location.GetCellID()
 	}
 
 	b.stops[stop.ID] = stop
 
-	b.stopsCellsIndex.UpdateItem(stop.ID, cids, oldCids)
+	b.stopsCellsIndex.UpdateItem(stop.ID, []s2.CellID{cellID}, []s2.CellID{oldCellID})
 
 	return nil
 }
@@ -91,7 +91,7 @@ func (b *MemoryDatabase) DeleteStop(_ context.Context, id string) error {
 	defer b.Unlock()
 
 	if stop, ok := b.stops[id]; ok {
-		b.stopsCellsIndex.RemoveItem(id, stop.Location.GetCellIDs())
+		b.stopsCellsIndex.RemoveItem(id, []s2.CellID{stop.Location.GetCellID()})
 		delete(b.stops, id)
 	}
 
@@ -130,16 +130,16 @@ func (b *MemoryDatabase) SetVehicle(_ context.Context, vehicle *models.Vehicle) 
 	b.Lock()
 	defer b.Unlock()
 
-	cids := vehicle.Location.GetCellIDs()
+	cellID := vehicle.Location.GetCellID()
 
-	oldCids := []s2.CellID{}
+	var oldCellID s2.CellID
 	if oldVehicle, ok := b.stops[vehicle.ID]; ok {
-		oldCids = oldVehicle.Location.GetCellIDs()
+		oldCellID = oldVehicle.Location.GetCellID()
 	}
 
 	b.vehicles[vehicle.ID] = vehicle
 
-	b.vehiclesCellsIndex.UpdateItem(vehicle.ID, cids, oldCids)
+	b.vehiclesCellsIndex.UpdateItem(vehicle.ID, []s2.CellID{cellID}, []s2.CellID{oldCellID})
 
 	return nil
 }
@@ -149,7 +149,7 @@ func (b *MemoryDatabase) DeleteVehicle(_ context.Context, id string) error {
 	defer b.Unlock()
 
 	if vehicle, ok := b.vehicles[id]; ok {
-		b.vehiclesCellsIndex.RemoveItem(id, vehicle.Location.GetCellIDs())
+		b.vehiclesCellsIndex.RemoveItem(id, []s2.CellID{vehicle.Location.GetCellID()})
 		delete(b.vehicles, id)
 	}
 

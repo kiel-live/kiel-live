@@ -16,9 +16,8 @@ func TestMemoryDatabase(t *testing.T) {
 	err := db.SetStop(t.Context(), &models.Stop{
 		ID: "1",
 		Location: &models.Location{
-			Latitude:  54.31981897337084,
-			Longitude: 10.182968719044112,
-			Heading:   nil,
+			Latitude:  int(54.31981897337084 * 360000),
+			Longitude: int(10.182968719044112 * 360000),
 		},
 		Name: "Central Station",
 	})
