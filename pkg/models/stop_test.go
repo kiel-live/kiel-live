@@ -19,9 +19,9 @@ func TestStop(t *testing.T) {
 		Name:     "123",
 		Type:     "bike",
 		Location: &models.Location{
-			Latitude:  12.3,
-			Longitude: 54.7,
-			Heading:   nil,
+			Latitude:  toDegreesInt(12.3),
+			Longitude: toDegreesInt(54.7),
+			Heading:   0,
 		},
 	}
 
