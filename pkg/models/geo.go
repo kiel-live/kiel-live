@@ -26,17 +26,6 @@ func (l *Location) GetCellID() s2.CellID {
 	return s2.CellIDFromLatLng(p).Parent(10)
 }
 
-// TODO: deprecate in favor of GetCellID
-func (l *Location) GetCellIDs() []s2.CellID {
-	cells := make([]s2.CellID, 0)
-	p := s2.LatLngFromDegrees(toDegreesFloat(l.Latitude), toDegreesFloat(l.Longitude))
-	c := s2.CellIDFromLatLng(p)
-	for i := min(c.Level(), MaxLevel); i >= MinLevel; i-- {
-		cells = append(cells, c.Parent(i))
-	}
-	return cells
-}
-
 type BoundingBox struct {
 	North float64
 	East  float64

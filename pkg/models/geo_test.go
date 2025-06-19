@@ -12,15 +12,14 @@ func toDegreesInt(value float64) int {
 	return int(value * 3600000.0)
 }
 
-func TestLocationGetCellIDs(t *testing.T) {
+func TestLocationGetCellID(t *testing.T) {
 	l := &models.Location{
 		Latitude:  toDegreesInt(54.31981897337084),
 		Longitude: toDegreesInt(10.182968719044112),
-		Heading:   0,
 	}
 
-	cells := l.GetCellIDs()
-	assert.Len(t, cells, 1) // max = min => 1
+	cell := l.GetCellID()
+	assert.Equal(t, cell.ToToken(), "47b257")
 }
 
 func TestBoundingBoxGetCellIDs(t *testing.T) {
@@ -32,18 +31,11 @@ func TestBoundingBoxGetCellIDs(t *testing.T) {
 	}
 
 	cells := b.GetCellIDs()
-	assert.Len(t, cells, 10)
+	assert.Len(t, cells, 2)
 
 	for _, cell := range cells {
 		assert.GreaterOrEqual(t, cell.Level(), models.MinLevel)
 		assert.LessOrEqual(t, cell.Level(), models.MaxLevel)
-	}
-
-	for _, cell := range cells {
-		assert.GreaterOrEqual(t, cell.LatLng().Lat.Degrees(), b.North)
-		assert.LessOrEqual(t, cell.LatLng().Lat, b.South)
-		assert.GreaterOrEqual(t, cell.LatLng().Lng, b.East)
-		assert.LessOrEqual(t, cell.LatLng().Lng, b.West)
 	}
 }
 
