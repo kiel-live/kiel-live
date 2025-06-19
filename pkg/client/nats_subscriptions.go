@@ -2,7 +2,6 @@ package client
 
 import (
 	"encoding/json"
-
 	"slices"
 
 	log "github.com/sirupsen/logrus"

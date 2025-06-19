@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/kiel-live/kiel-live/pkg/models"
+
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 )
@@ -79,7 +80,6 @@ func (n *natsClient) Connect() (err error) {
 	}
 
 	n.JS, err = n.nc.JetStream()
-
 	return err
 }
 
