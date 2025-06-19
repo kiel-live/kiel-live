@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	MinLevel = 10
-	MaxLevel = 10
+	MinLevel             = 10
+	MaxLevel             = 10
+	BoundingBoxCellLimit = 10 // max number of cells in a bounding box
 )
 
 type Location struct {
@@ -37,6 +38,6 @@ func (b *BoundingBox) GetCellIDs() []s2.CellID {
 	p1 := s2.LatLngFromDegrees(b.North, b.East)
 	p2 := s2.LatLngFromDegrees(b.South, b.West)
 	r := s2.RectFromLatLng(p1).AddPoint(p2)
-	rc := s2.RegionCoverer{MinLevel: MinLevel, MaxLevel: MaxLevel, MaxCells: 10}
+	rc := s2.RegionCoverer{MinLevel: MinLevel, MaxLevel: MaxLevel, MaxCells: BoundingBoxCellLimit}
 	return rc.Covering(r)
 }
