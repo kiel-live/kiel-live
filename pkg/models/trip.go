@@ -10,6 +10,13 @@ type Trip struct {
 	Path      []*Location    `json:"path"`
 }
 
+func (t *Trip) String() string {
+	if t == nil {
+		return "Trip(nil)"
+	}
+	return "Trip(" + t.ID + ", " + t.Provider + ", " + t.VehicleID + ")"
+}
+
 type TripArrival struct {
 	ID      string       `json:"id"`
 	Name    string       `json:"name"`

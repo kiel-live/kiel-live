@@ -135,7 +135,21 @@ func (c *StopCollector) RunSingle(stopID string) {
 	defer c.Unlock()
 
 	// get stop from cache
-	stop := c.stops[api.IDPrefix+stopID]
+	stop, ok := c.stops[api.IDPrefix+stopID]
+	if !ok {
+		log.Debugf("stop %s not found in cache, fetching stops list", stopID)
+		stops, err := api.GetStops()
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		stop, ok = stops[api.IDPrefix+stopID]
+		if !ok {
+			log.Errorf("stop %s not found in stops list", stopID)
+			return
+		}
+	}
 
 	// get stop details
 	details, err := api.GetStopDetails(stopID)

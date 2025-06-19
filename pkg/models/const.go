@@ -20,7 +20,7 @@ const (
 	TopicVehicle string = "data.map.vehicle.%s"
 
 	// Single trip (data.map.trip.<id>)
-	TopicTrip string = "data.trip.%s"
+	TopicTrip string = "data.map.trip.%s"
 
 	// Single route (data.route.<id>)
 	TopicRoute string = "data.route.%s"

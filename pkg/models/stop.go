@@ -1,5 +1,7 @@
 package models
 
+import "fmt"
+
 // Type of a stop
 type StopType string
 
@@ -22,6 +24,13 @@ type Stop struct {
 	Arrivals []*StopArrival `json:"arrivals"`
 	Vehicles []*Vehicle     `json:"vehicles"`
 	Location *Location      `json:"location"`
+}
+
+func (s *Stop) String() string {
+	if s == nil {
+		return "Stop(nil)"
+	}
+	return fmt.Sprintf("Stop(%s, %s, %s)", s.ID, s.Provider, s.Name)
 }
 
 type ArrivalState string
