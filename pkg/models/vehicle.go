@@ -30,3 +30,10 @@ type Vehicle struct {
 	Actions     []*Action   `json:"actions"`
 	Description string      `json:"description"`
 }
+
+func (v *Vehicle) String() string {
+	if v == nil {
+		return "Vehicle(nil)"
+	}
+	return "Vehicle(" + v.ID + ", " + v.Provider + ", " + v.Name + ")"
+}
