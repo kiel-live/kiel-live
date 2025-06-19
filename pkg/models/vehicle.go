@@ -1,4 +1,4 @@
-package protocol
+package models
 
 // Type of a vehicle
 
@@ -17,7 +17,7 @@ const (
 	VehicleTypeEMoped   VehicleType = "e-moped"
 )
 
-// Vehicle can be of a specific type (exp. bus, bike).
+// Vehicle is a moving object that can be of a specific type like bus or bike.
 type Vehicle struct {
 	ID          string      `json:"id"`
 	Provider    string      `json:"provider"`
@@ -25,8 +25,8 @@ type Vehicle struct {
 	Type        VehicleType `json:"type"`
 	State       string      `json:"state"`
 	Battery     string      `json:"battery"` // in percent
-	Location    Location    `json:"location"`
+	Location    *Location   `json:"location"`
 	TripID      string      `json:"tripId"`
-	Actions     []Action    `json:"actions"`
+	Actions     []*Action   `json:"actions"`
 	Description string      `json:"description"`
 }

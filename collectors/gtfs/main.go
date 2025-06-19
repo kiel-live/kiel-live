@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -13,9 +11,9 @@ import (
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/gtfs/loader"
-	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/kiel-live/kiel-live/pkg/client"
+	"github.com/kiel-live/kiel-live/pkg/models"
 )
 
 const IDPrefix = "gtfs-"
@@ -130,7 +128,7 @@ func main() {
 		log.Panic("Failed opening db", err)
 	}
 
-	c := client.NewClient(server, client.WithAuth("collector", token))
+	c := client.NewNatsClient(server, client.WithAuth("collector", token))
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)
@@ -230,12 +228,12 @@ func main() {
 
 		for _, gtfsStop := range g.Stops {
 			// convert to protocol.Stop
-			stop := protocol.Stop{
+			stop := &models.Stop{
 				ID:       IDPrefix + gtfsStop.ID,
 				Provider: agency.Name,
 				Name:     gtfsStop.Name,
 				Type:     "",
-				Location: protocol.Location{
+				Location: &models.Location{
 					Latitude:  int(gtfsStop.Latitude * 3600000),
 					Longitude: int(gtfsStop.Longitude * 3600000),
 				},
@@ -302,18 +300,18 @@ func main() {
 
 				// TODO: consider all routes for stop type
 				if stop.Type == "" {
-					stop.Type = protocol.StopType(gtfsRouteTypeToProtocolStopType(route.Type) + "-stop")
+					stop.Type = models.StopType(gtfsRouteTypeToProtocolStopType(route.Type) + "-stop")
 				}
 
-				stop.Arrivals = append(stop.Arrivals, protocol.StopArrival{
+				stop.Arrivals = append(stop.Arrivals, &models.StopArrival{
 					Name:      stop.Name,
-					Type:      protocol.VehicleType(gtfsRouteTypeToProtocolStopType(route.Type)),
+					Type:      models.VehicleType(gtfsRouteTypeToProtocolStopType(route.Type)),
 					TripID:    IDPrefix + stopTime.TripID,
-					ETA:       0, // TODO: get from gtfs-rt
+					Eta:       0, // TODO: get from gtfs-rt
 					Planned:   departureDate.Format("15:04"),
 					RouteName: route.ShortName,
 					Direction: trip.Headsign,
-					State:     protocol.Planned,
+					State:     models.Planned,
 					RouteID:   IDPrefix + route.ID,
 					VehicleID: IDPrefix + trip.ID,
 					Platform:  "", // TODO
@@ -329,15 +327,7 @@ func main() {
 				continue
 			}
 
-			jsonData, err := json.Marshal(stop)
-			if err != nil {
-				log.Error(err)
-				continue
-			}
-
-			// publish stop
-			topic := fmt.Sprintf(protocol.TopicMapStop, stop.ID)
-			err = c.Publish(topic, string(jsonData))
+			err = c.UpdateStop(stop)
 			if err != nil {
 				log.Error(err)
 				continue

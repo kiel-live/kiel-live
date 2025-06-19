@@ -10,8 +10,8 @@ import (
 
 	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
-	"github.com/kiel-live/kiel-live/client"
-	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/kiel-live/kiel-live/pkg/client"
+	"github.com/kiel-live/kiel-live/pkg/models"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -44,7 +44,7 @@ func main() {
 		log.Fatalln("Please provide a comma separated list of next-bike city ids with NEXT_BIKE_CITY_IDS (exp: '613,195' for Kiel & Mannheim)")
 	}
 
-	c := client.NewClient(server, client.WithAuth("collector", token))
+	c := client.NewNatsClient(server, client.WithAuth("collector", token))
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)
@@ -85,30 +85,30 @@ func main() {
 				for _, place := range city.Places {
 					ID := fmt.Sprintf("nextbike-%d", place.UID)
 
-					stop := &protocol.Stop{
+					stop := &models.Stop{
 						ID:       ID,
 						Provider: "nextbike",
 						Name:     place.Name,
 						Type:     "bike-stop",
-						Location: protocol.Location{
+						Location: &models.Location{
 							Latitude:  int(place.Lat * 3600000),
 							Longitude: int(place.Lng * 3600000),
 						},
-						Vehicles: []protocol.Vehicle{},
+						Vehicles: []*models.Vehicle{},
 					}
 
 					for _, bike := range place.BikeList {
-						vehicle := protocol.Vehicle{
+						vehicle := &models.Vehicle{
 							ID:       fmt.Sprintf("nextbike-%s", bike.Number),
 							Provider: "nextbike",
 							Name:     fmt.Sprintf("Nextbike %s", bike.Number),
 							Type:     "bike",
-							Location: protocol.Location{
+							Location: &models.Location{
 								Latitude:  int(place.Lat * 3600000),
 								Longitude: int(place.Lng * 3600000),
 							},
 							State: bike.State,
-							Actions: []protocol.Action{
+							Actions: []*models.Action{
 								{
 									Name: "",
 									Type: "rent",
@@ -125,25 +125,13 @@ func main() {
 
 						stop.Vehicles = append(stop.Vehicles, vehicle)
 
-						d, err := json.Marshal(vehicle)
-						if err != nil {
-							return err
-						}
-
-						topic := fmt.Sprintf(protocol.TopicMapVehicle, vehicle.ID)
-						err = c.Publish(topic, string(d))
+						err = c.UpdateVehicle(vehicle)
 						if err != nil {
 							return err
 						}
 					}
 
-					d, err := json.Marshal(stop)
-					if err != nil {
-						return err
-					}
-
-					topic := fmt.Sprintf(protocol.TopicMapStop, ID)
-					err = c.Publish(topic, string(d))
+					err = c.UpdateStop(stop)
 					if err != nil {
 						return err
 					}
