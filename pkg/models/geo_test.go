@@ -8,11 +8,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func toDegreesInt(value float64) int {
+	return int(value * 3600000.0)
+}
+
 func TestLocationGetCellIDs(t *testing.T) {
 	l := &models.Location{
-		Latitude:  54.31981897337084 * 3600000,
-		Longitude: 10.182968719044112 * 3600000,
-		Heading:   nil,
+		Latitude:  toDegreesInt(54.31981897337084),
+		Longitude: toDegreesInt(10.182968719044112),
+		Heading:   0,
 	}
 
 	cells := l.GetCellIDs()
@@ -52,9 +56,9 @@ func TestGetCellIDs(t *testing.T) {
 	}).GetCellIDs()
 
 	poiID := (&models.Location{
-		Latitude:  54.31981897337084,
-		Longitude: 10.182968719044112,
-		Heading:   nil,
+		Latitude:  toDegreesInt(54.31981897337084),
+		Longitude: toDegreesInt(10.182968719044112),
+		Heading:   0,
 	}).GetCellID()
 
 	found := slices.Contains(ids, poiID)

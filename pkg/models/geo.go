@@ -17,15 +17,19 @@ type Location struct {
 	// Longitude float64 `json:"longitude"` // exp: 10.149
 }
 
+func toDegreesFloat(value int) float64 {
+	return float64(value) / 3600000.0
+}
+
 func (l *Location) GetCellID() s2.CellID {
-	p := s2.LatLngFromDegrees(float64(l.Latitude)/3600000.0, float64(l.Longitude)/3600000.0)
+	p := s2.LatLngFromDegrees(toDegreesFloat(l.Latitude), toDegreesFloat(l.Longitude))
 	return s2.CellIDFromLatLng(p).Parent(10)
 }
 
 // TODO: deprecate in favor of GetCellID
 func (l *Location) GetCellIDs() []s2.CellID {
 	cells := make([]s2.CellID, 0)
-	p := s2.LatLngFromDegrees(float64(l.Latitude)/3600000.0, float64(l.Longitude)/3600000.0)
+	p := s2.LatLngFromDegrees(toDegreesFloat(l.Latitude), toDegreesFloat(l.Longitude))
 	c := s2.CellIDFromLatLng(p)
 	for i := min(c.Level(), MaxLevel); i >= MinLevel; i-- {
 		cells = append(cells, c.Parent(i))
