@@ -10,6 +10,13 @@ type Route struct {
 	Stops    []*RouteStop `json:"stops"`
 }
 
+func (r *Route) String() string {
+	if r == nil {
+		return "Route(nil)"
+	}
+	return "Route(" + r.ID + ", " + r.Provider + ", " + r.Name + ")"
+}
+
 type RouteStop struct {
 	ID       string    `json:"id"`
 	Location *Location `json:"location"`
