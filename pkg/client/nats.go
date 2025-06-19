@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/kiel-live/kiel-live/pkg/models"
+
 	"github.com/nats-io/nats.go"
+	"github.com/sirupsen/logrus"
 )
 
 type natsClient struct {
@@ -38,8 +40,6 @@ func NewNatsClient(host string, opts ...NatsOption) Client {
 		opt(client)
 	}
 
-	client.init()
-
 	return client
 }
 
@@ -51,11 +51,29 @@ func WithAuth(username string, password string) NatsOption {
 }
 
 func (n *natsClient) Connect() (err error) {
-	if len(n.username) < 1 && len(n.password) < 1 {
-		n.nc, err = nats.Connect(n.host)
-	} else {
-		n.nc, err = nats.Connect(n.host, nats.UserInfo(n.username, n.password))
+	opts := []nats.Option{
+		nats.Name("Kiel Live Collector"),
+		nats.ConnectHandler(func(conn *nats.Conn) {
+			if conn.IsConnected() {
+				n.initTopics()
+				logrus.Debugf("Connected to NATS server at %s", n.host)
+			}
+			if n.connectionHandler != nil {
+				n.connectionHandler(conn.IsConnected())
+			}
+		}),
+		nats.ClosedHandler(func(conn *nats.Conn) {
+			if n.connectionHandler != nil {
+				n.connectionHandler(conn.IsConnected())
+			}
+		}),
 	}
+
+	if n.username != "" && n.password != "" {
+		opts = append(opts, nats.UserInfo(n.username, n.password))
+	}
+
+	n.nc, err = nats.Connect(n.host, opts...)
 
 	if err != nil {
 		return err

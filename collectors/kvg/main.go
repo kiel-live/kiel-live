@@ -67,8 +67,8 @@ func main() {
 		return
 	}
 
-	c.SetOnTopicsChanged(func(topic string, added bool) {
-		if !added {
+	c.SetOnTopicsChanged(func(topic string, subscribed bool) {
+		if !subscribed {
 			return
 		}
 
@@ -89,7 +89,10 @@ func main() {
 			return
 		}
 
-		// TODO: reset collector caches and re-run them
+		for name, c := range collectors {
+			log.Debugf("Resetting %s collector", name)
+			c.Reset()
+		}
 	})
 
 	s := gocron.NewScheduler(time.UTC)
@@ -101,7 +104,7 @@ func main() {
 
 		for name, c := range collectors {
 			// TODO maybe run in go routine
-			log.Debugln("Collector for", name, "running ...")
+			log.Debugf("Running %s collector ...", name)
 			c.Run()
 		}
 	})

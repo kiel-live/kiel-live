@@ -136,3 +136,10 @@ func (c *TripCollector) RunSingle(tripID string) {
 	// update cache
 	c.trips[trip.ID] = trip
 }
+
+func (c *TripCollector) Reset() {
+	c.Lock()
+	defer c.Unlock()
+
+	c.trips = make(map[string]*models.Trip)
+}

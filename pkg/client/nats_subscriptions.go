@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/json"
+	"slices"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -53,9 +54,11 @@ func (n *natsClient) removeSubscription(topic, consumerName string) {
 	}
 }
 
-func (n *natsClient) init() {
+func (n *natsClient) initTopics() {
+	// create empty topicSubscriptions map
 	n.subscriptionsMu.Lock()
-	defer n.subscriptionsMu.Unlock()
+	n.topicSubscriptions = make(map[string][]string)
+	n.subscriptionsMu.Unlock()
 
 	// init with already existing consumers
 	for consumerInfo := range n.JS.ConsumersInfo("data") {
@@ -94,12 +97,11 @@ func (n *natsClient) init() {
 			log.Errorf("Parse response failed, reason: %v \n", err)
 			return
 		}
-		consumerInfo, err := n.JS.ConsumerInfo(consumerEvent.Stream, consumerEvent.Consumer)
-		if err != nil {
-			log.Errorf("Can't find consumer-info: %v", err)
+
+		topic := n.getTopicFromConsumer(consumerEvent.Consumer)
+		if topic == "" {
 			return
 		}
-		topic := consumerInfo.Config.FilterSubject
 
 		n.removeSubscription(topic, consumerEvent.Consumer)
 
@@ -110,4 +112,16 @@ func (n *natsClient) init() {
 	if err != nil {
 		log.Errorf("Subscribe failed, reason: %v \n", err)
 	}
+}
+
+func (n *natsClient) getTopicFromConsumer(consumer string) string {
+	n.subscriptionsMu.Lock()
+	defer n.subscriptionsMu.Unlock()
+	for topic, consumers := range n.topicSubscriptions {
+		if slices.Contains(consumers, consumer) {
+			return topic
+		}
+	}
+
+	return ""
 }
