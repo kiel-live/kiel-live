@@ -1,6 +1,8 @@
 package client
 
-import "github.com/kiel-live/kiel-live/protocol"
+import (
+	"github.com/kiel-live/kiel-live/pkg/models"
+)
 
 type Client interface {
 	Connect() error
@@ -9,11 +11,11 @@ type Client interface {
 	SetOnConnectionChanged(handler func(connected bool))
 
 	GetSubscribedTopics() []string
-	SetOnTopicsChanged(handler func(topic string, added bool))
+	SetOnTopicsChanged(handler func(topic string, subscribed bool))
 
-	UpdateStop(stop *protocol.Stop) error
-	UpdateVehicle(vehicle *protocol.Vehicle) error
-	UpdateTrip(trip *protocol.Trip) error
+	UpdateStop(stop *models.Stop) error
+	UpdateVehicle(vehicle *models.Vehicle) error
+	UpdateTrip(trip *models.Trip) error
 	DeleteStop(stopID string) error
 	DeleteVehicle(vehicleID string) error
 	DeleteTrip(tripID string) error

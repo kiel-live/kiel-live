@@ -12,7 +12,7 @@ import (
 	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
 	"github.com/kiel-live/kiel-live/pkg/client"
-	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/kiel-live/kiel-live/pkg/models"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -105,12 +105,12 @@ func main() {
 				return err
 			}
 
-			stop := &protocol.Stop{
+			stop := &models.Stop{
 				ID:       ID,
 				Provider: "donkey",
 				Name:     hub.Name,
 				Type:     "bike-stop",
-				Location: protocol.Location{
+				Location: &models.Location{
 					Latitude:  int(latitude * 3600000),
 					Longitude: int(longitude * 3600000),
 				},

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/kiel-live/kiel-live/pkg/models"
 	"github.com/thoas/go-funk"
 )
 
@@ -23,15 +23,15 @@ type vehicles struct {
 	Vehicles []vehicle `json:"vehicles"`
 }
 
-func (v *vehicle) parse() protocol.Vehicle {
-	return protocol.Vehicle{
+func (v *vehicle) parse() *models.Vehicle {
+	return &models.Vehicle{
 		ID:       IDPrefix + v.ID,
 		Provider: "kvg",
 		Name:     v.Name,
-		Type:     protocol.VehicleTypeBus,
+		Type:     models.VehicleTypeBus,
 		TripID:   IDPrefix + v.TripID,
 		State:    "onfire", // TODO
-		Location: protocol.Location{
+		Location: &models.Location{
 			Heading:   v.Heading,
 			Longitude: v.Longitude,
 			Latitude:  v.Latitude,
@@ -39,8 +39,8 @@ func (v *vehicle) parse() protocol.Vehicle {
 	}
 }
 
-func GetVehicles() (res map[string]*protocol.Vehicle, err error) {
-	res = make(map[string]*protocol.Vehicle)
+func GetVehicles() (res map[string]*models.Vehicle, err error) {
+	res = make(map[string]*models.Vehicle)
 	url := fmt.Sprintf("%s?cacheBuster=%d&positionType=RAW", vehiclesURL, time.Now().Unix())
 	body, err := post(url, nil)
 	if err != nil {
@@ -62,7 +62,7 @@ func GetVehicles() (res map[string]*protocol.Vehicle, err error) {
 
 	for _, vehicle := range vehicles.Vehicles {
 		v := vehicle.parse()
-		res[v.ID] = &v
+		res[v.ID] = v
 	}
 
 	return res, nil

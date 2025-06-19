@@ -1,8 +1,6 @@
-package protocol
+package models
 
 const (
-	// ___ Ctrl ___
-
 	// List of all currently subscribed topics of all clients
 	TopicSubscriptions string = "ctrl.subscriptions"
 

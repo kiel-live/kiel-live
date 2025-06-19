@@ -9,7 +9,7 @@ import (
 	"github.com/BertoldVdb/go-ais/aisnmea"
 	"github.com/joho/godotenv"
 	"github.com/kiel-live/kiel-live/pkg/client"
-	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/kiel-live/kiel-live/pkg/models"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -93,15 +93,15 @@ func main() {
 			if decoded.Packet.GetHeader().MessageID == 1 || decoded.Packet.GetHeader().MessageID == 2 || decoded.Packet.GetHeader().MessageID == 3 {
 				positionReportPacket := decoded.Packet.(ais.PositionReport)
 
-				vehicle := &protocol.Vehicle{
+				vehicle := &models.Vehicle{
 					ID:       IDPrefix + fmt.Sprint(positionReportPacket.UserID),
 					Provider: "ais",
-					Type:     protocol.VehicleTypeFerry,
+					Type:     models.VehicleTypeFerry,
 					State:    "onfire", // TODO
-					Location: protocol.Location{
-						Heading:   int(positionReportPacket.TrueHeading),
+					Location: &models.Location{
 						Longitude: int(positionReportPacket.Longitude * 3600000),
 						Latitude:  int(positionReportPacket.Latitude * 3600000),
+						Heading:   int(positionReportPacket.TrueHeading),
 					},
 				}
 

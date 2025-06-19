@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/kiel-live/kiel-live/pkg/models"
 	"github.com/nats-io/nats.go"
 )
 
@@ -107,7 +107,7 @@ func (n *natsClient) Unsubscribe(topic string) error {
 		return fmt.Errorf("you have not subscribed to that topic '%s'", topic)
 	}
 
-	msg, err := n.nc.Request(protocol.TopicRequestUnsubscribe, []byte(topic), 1*time.Second)
+	msg, err := n.nc.Request(models.TopicRequestUnsubscribe, []byte(topic), 1*time.Second)
 	if err != nil {
 		return err
 	}
@@ -134,41 +134,41 @@ func (n *natsClient) SetOnTopicsChanged(topicSubscriptionHandler func(topic stri
 	n.topicSubscriptionHandler = topicSubscriptionHandler
 }
 
-func (n *natsClient) UpdateStop(stop *protocol.Stop) error {
+func (n *natsClient) UpdateStop(stop *models.Stop) error {
 	jsonData, err := json.Marshal(stop)
 	if err != nil {
 		return err
 	}
 
-	return n.nc.Publish(fmt.Sprintf(protocol.TopicStop, stop.ID), jsonData)
+	return n.nc.Publish(fmt.Sprintf(models.TopicStop, stop.ID), jsonData)
 }
 
-func (n *natsClient) UpdateVehicle(vehicle *protocol.Vehicle) error {
+func (n *natsClient) UpdateVehicle(vehicle *models.Vehicle) error {
 	jsonData, err := json.Marshal(vehicle)
 	if err != nil {
 		return err
 	}
 
-	return n.nc.Publish(fmt.Sprintf(protocol.TopicVehicle, vehicle.ID), jsonData)
+	return n.nc.Publish(fmt.Sprintf(models.TopicVehicle, vehicle.ID), jsonData)
 }
 
-func (n *natsClient) UpdateTrip(trip *protocol.Trip) error {
+func (n *natsClient) UpdateTrip(trip *models.Trip) error {
 	jsonData, err := json.Marshal(trip)
 	if err != nil {
 		return err
 	}
 
-	return n.nc.Publish(fmt.Sprintf(protocol.TopicTrip, trip.ID), jsonData)
+	return n.nc.Publish(fmt.Sprintf(models.TopicTrip, trip.ID), jsonData)
 }
 
 func (n *natsClient) DeleteStop(stopID string) error {
-	return n.nc.Publish(fmt.Sprintf(protocol.TopicStop, stopID), []byte(protocol.DeletePayload))
+	return n.nc.Publish(fmt.Sprintf(models.TopicStop, stopID), []byte(models.DeletePayload))
 }
 
 func (n *natsClient) DeleteVehicle(vehicleID string) error {
-	return n.nc.Publish(fmt.Sprintf(protocol.TopicVehicle, vehicleID), []byte(protocol.DeletePayload))
+	return n.nc.Publish(fmt.Sprintf(models.TopicVehicle, vehicleID), []byte(models.DeletePayload))
 }
 
 func (n *natsClient) DeleteTrip(tripID string) error {
-	return n.nc.Publish(fmt.Sprintf(protocol.TopicTrip, tripID), []byte(protocol.DeletePayload))
+	return n.nc.Publish(fmt.Sprintf(models.TopicTrip, tripID), []byte(models.DeletePayload))
 }

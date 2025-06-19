@@ -11,7 +11,7 @@ import (
 	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
 	"github.com/kiel-live/kiel-live/pkg/client"
-	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/kiel-live/kiel-live/pkg/models"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -85,30 +85,30 @@ func main() {
 				for _, place := range city.Places {
 					ID := fmt.Sprintf("nextbike-%d", place.UID)
 
-					stop := &protocol.Stop{
+					stop := &models.Stop{
 						ID:       ID,
 						Provider: "nextbike",
 						Name:     place.Name,
 						Type:     "bike-stop",
-						Location: protocol.Location{
+						Location: &models.Location{
 							Latitude:  int(place.Lat * 3600000),
 							Longitude: int(place.Lng * 3600000),
 						},
-						Vehicles: []protocol.Vehicle{},
+						Vehicles: []*models.Vehicle{},
 					}
 
 					for _, bike := range place.BikeList {
-						vehicle := &protocol.Vehicle{
+						vehicle := &models.Vehicle{
 							ID:       fmt.Sprintf("nextbike-%s", bike.Number),
 							Provider: "nextbike",
 							Name:     fmt.Sprintf("Nextbike %s", bike.Number),
 							Type:     "bike",
-							Location: protocol.Location{
+							Location: &models.Location{
 								Latitude:  int(place.Lat * 3600000),
 								Longitude: int(place.Lng * 3600000),
 							},
 							State: bike.State,
-							Actions: []protocol.Action{
+							Actions: []*models.Action{
 								{
 									Name: "",
 									Type: "rent",
@@ -123,7 +123,7 @@ func main() {
 							Description: "", // TODO: add pricing data
 						}
 
-						stop.Vehicles = append(stop.Vehicles, *vehicle)
+						stop.Vehicles = append(stop.Vehicles, vehicle)
 
 						err = c.UpdateVehicle(vehicle)
 						if err != nil {

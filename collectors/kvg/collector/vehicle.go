@@ -3,20 +3,20 @@ package collector
 import (
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
 	"github.com/kiel-live/kiel-live/pkg/client"
-	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/kiel-live/kiel-live/pkg/models"
 	"github.com/sirupsen/logrus"
 )
 
 type VehicleCollector struct {
 	client   client.Client
-	vehicles map[string]*protocol.Vehicle
+	vehicles map[string]*models.Vehicle
 }
 
-func isSameLocation(a protocol.Location, b protocol.Location) bool {
+func isSameLocation(a *models.Location, b *models.Location) bool {
 	return a.Heading == b.Heading && a.Latitude == b.Latitude && a.Longitude == b.Longitude
 }
 
-func isSameVehicle(a *protocol.Vehicle, b *protocol.Vehicle) bool {
+func isSameVehicle(a *models.Vehicle, b *models.Vehicle) bool {
 	return a != nil && b != nil &&
 		a.Provider == b.Provider &&
 		a.Name == b.Name &&
@@ -29,7 +29,7 @@ func isSameVehicle(a *protocol.Vehicle, b *protocol.Vehicle) bool {
 }
 
 // returns list of changed or newly added vehicles
-func (c *VehicleCollector) getChangedVehicles(vehicles map[string]*protocol.Vehicle) (changed []*protocol.Vehicle) {
+func (c *VehicleCollector) getChangedVehicles(vehicles map[string]*models.Vehicle) (changed []*models.Vehicle) {
 	for _, v := range vehicles {
 		if !isSameVehicle(v, c.vehicles[v.ID]) {
 			changed = append(changed, v)
@@ -39,7 +39,7 @@ func (c *VehicleCollector) getChangedVehicles(vehicles map[string]*protocol.Vehi
 	return changed
 }
 
-func (c *VehicleCollector) getRemovedVehicles(vehicles map[string]*protocol.Vehicle) (removed []*protocol.Vehicle) {
+func (c *VehicleCollector) getRemovedVehicles(vehicles map[string]*models.Vehicle) (removed []*models.Vehicle) {
 	for _, v := range c.vehicles {
 		if _, ok := vehicles[v.ID]; !ok {
 			removed = append(removed, v)

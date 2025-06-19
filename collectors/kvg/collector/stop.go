@@ -8,18 +8,18 @@ import (
 
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
 	"github.com/kiel-live/kiel-live/pkg/client"
-	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/kiel-live/kiel-live/pkg/models"
 	"github.com/sirupsen/logrus"
 )
 
 type StopCollector struct {
 	client         client.Client
-	stops          map[string]*protocol.Stop
+	stops          map[string]*models.Stop
 	lastFullUpdate int64
 	sync.Mutex
 }
 
-func isSameArrivals(a, b []protocol.StopArrival) bool {
+func isSameArrivals(a, b []*models.StopArrival) bool {
 	if len(a) != len(b) {
 		return false
 	}
@@ -34,7 +34,7 @@ func isSameArrivals(a, b []protocol.StopArrival) bool {
 	return true
 }
 
-func isSameStop(a *protocol.Stop, b *protocol.Stop) bool {
+func isSameStop(a *models.Stop, b *models.Stop) bool {
 	return a != nil && b != nil &&
 		a.Provider == b.Provider &&
 		a.Name == b.Name &&
@@ -45,7 +45,7 @@ func isSameStop(a *protocol.Stop, b *protocol.Stop) bool {
 }
 
 // returns list of changed or newly added stops
-func (c *StopCollector) getChangedStops(stops map[string]*protocol.Stop) (changed []*protocol.Stop) {
+func (c *StopCollector) getChangedStops(stops map[string]*models.Stop) (changed []*models.Stop) {
 	for _, v := range stops {
 		if !isSameStop(v, c.stops[v.ID]) {
 			changed = append(changed, v)
@@ -55,7 +55,7 @@ func (c *StopCollector) getChangedStops(stops map[string]*protocol.Stop) (change
 	return changed
 }
 
-func (c *StopCollector) getRemovedStops(stops map[string]*protocol.Stop) (removed []*protocol.Stop) {
+func (c *StopCollector) getRemovedStops(stops map[string]*models.Stop) (removed []*models.Stop) {
 	for _, v := range c.stops {
 		if _, ok := stops[v.ID]; !ok {
 			removed = append(removed, v)
@@ -66,8 +66,8 @@ func (c *StopCollector) getRemovedStops(stops map[string]*protocol.Stop) (remove
 }
 
 func (c *StopCollector) TopicToID(topic string) string {
-	if strings.HasPrefix(topic, fmt.Sprintf(protocol.TopicStop, api.IDPrefix)) && topic != fmt.Sprintf(protocol.TopicStop, ">") {
-		return strings.TrimPrefix(topic, fmt.Sprintf(protocol.TopicStop, api.IDPrefix))
+	if strings.HasPrefix(topic, fmt.Sprintf(models.TopicStop, api.IDPrefix)) && topic != fmt.Sprintf(models.TopicStop, ">") {
+		return strings.TrimPrefix(topic, fmt.Sprintf(models.TopicStop, api.IDPrefix))
 	}
 	return ""
 }
@@ -106,9 +106,9 @@ func (c *StopCollector) Run() {
 		stops[api.IDPrefix+stopID].Alerts = details.Alerts
 	}
 
-	var stopsToPublish []*protocol.Stop
+	var stopsToPublish []*models.Stop
 	// publish all stops when last full update is older than the max cache age
-	if c.lastFullUpdate == 0 || c.lastFullUpdate < time.Now().Unix()-protocol.MaxCacheAge {
+	if c.lastFullUpdate == 0 || c.lastFullUpdate < time.Now().Unix()-models.MaxCacheAge {
 		for _, stop := range stops {
 			stopsToPublish = append(stopsToPublish, stop)
 		}
