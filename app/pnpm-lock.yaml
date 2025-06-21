@@ -24,8 +24,8 @@ importers:
         specifier: 4.0.2
         version: 4.0.2
       nats.ws:
-        specifier: 1.30.2
-        version: 1.30.2
+        specifier: 1.30.3
+        version: 1.30.3
       vue:
         specifier: 3.5.13
         version: 3.5.13(typescript@5.8.3)
@@ -2741,8 +2741,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nats.ws@1.30.2:
-    resolution: {integrity: sha512-hIdw6XC8Mr8I5/0MvaHRhq+Elg2XBFi2TNV7ZI4MtUKHfGGnEgAdqUacqnseIztM2jatspgy12vhDtsqb8wdJA==}
+  nats.ws@1.30.3:
+    resolution: {integrity: sha512-aM77V2SEc+B6lbxCMZK3qfRy4jg8pmHj+wZzQKDiDIQYhLPj6U2NSHHBex0syj72Ayzl4uR5Lp3aKXTaVLbRpw==}
 
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
@@ -6872,7 +6872,7 @@ snapshots:
 
   nanoid@3.3.8: {}
 
-  nats.ws@1.30.2:
+  nats.ws@1.30.3:
     optionalDependencies:
       nkeys.js: 1.1.0
 
