@@ -6,6 +6,10 @@ import (
 	"github.com/kiel-live/kiel-live/pkg/models"
 )
 
+func toDegreesInt(value float64) int {
+	return int(value * 3600000.0)
+}
+
 func TestMemoryDatabase(t *testing.T) {
 	db := NewMemoryDatabase()
 	if err := db.Open(); err != nil {
@@ -16,8 +20,8 @@ func TestMemoryDatabase(t *testing.T) {
 	err := db.SetStop(t.Context(), &models.Stop{
 		ID: "1",
 		Location: &models.Location{
-			Latitude:  int(54.31981897337084 * 360000),
-			Longitude: int(10.182968719044112 * 360000),
+			Latitude:  toDegreesInt(54.31981897337084),
+			Longitude: toDegreesInt(10.182968719044112),
 		},
 		Name: "Central Station",
 	})

@@ -7,7 +7,7 @@ import { ReconnectingWebSocket } from './ws';
 
 interface WebsocketMessage<T = unknown> {
   topic: string;
-  action?: 'updated' | 'deleted';
+  action?: 'update' | 'delete';
   data?: T;
   sent_at?: string;
 }
@@ -18,12 +18,12 @@ function isModel<T extends Model>(data: unknown): data is T {
   return data !== null && typeof data === 'object' && 'id' in data;
 }
 
-function getBoundsCellIds(bounds: Bounds): bigint[] {
+function getBoundsCellIds(bounds: Bounds): string[] {
   const rc = new s2.RegionCoverer({ minLevel: 10, maxLevel: 10 });
   const p1 = s2.LatLng.fromDegrees(bounds.north, bounds.east);
   const p2 = s2.LatLng.fromDegrees(bounds.south, bounds.west);
   const rect = s2.Rect.fromLatLng(p1).addPoint(p2);
-  const cellIDs = rc.fastCovering(rect).map((a) => a);
+  const cellIDs = rc.fastCovering(rect).map((a) => a.toString(16).replace(/0+$/, ''));
   return cellIDs;
 }
 
@@ -51,11 +51,11 @@ export class HttpApi implements Api {
           return;
         }
 
-        if (message.action === 'updated') {
+        if (message.action === 'update') {
           store.value.set(message.data.id, message.data);
         }
 
-        if (message.action === 'deleted') {
+        if (message.action === 'delete') {
           store.value.delete(message.data.id);
         }
       }
@@ -115,25 +115,32 @@ export class HttpApi implements Api {
       loading.value = false;
     }
 
+    const cellIds = computed(() => (bounds.value ? getBoundsCellIds(bounds.value) : []));
+
     watch(
-      bounds,
-      async (newBounds, oldBounds) => {
-        const newCellIds = newBounds ? getBoundsCellIds(newBounds) : [];
-        const oldCellIds = oldBounds ? getBoundsCellIds(oldBounds) : [];
+      cellIds,
+      async (newCellIds, oldCellIds) => {
+        const newBounds = bounds.value;
 
-        // Load the complete set of items for the new bounds
-        if (newBounds) {
-          await loadItems.call(this, newBounds);
-        }
-
-        const addedCellIds = newCellIds.filter((id) => !oldCellIds.includes(id));
+        const addedCellIds = newCellIds.filter((id) => !oldCellIds?.includes(id));
         for (const cellId of addedCellIds) {
           await this.subscribe(`map.${itemType}:${cellId}`, store);
         }
 
-        const removedCellIds = oldCellIds.filter((id) => !newCellIds.includes(id));
+        const removedCellIds = oldCellIds?.filter((id) => !newCellIds.includes(id)) ?? [];
         for (const cellId of removedCellIds) {
           await this.unsubscribe(`map.${itemType}:${cellId}`);
+        }
+
+        // Load the complete set of items for the new bounds if they have changed
+        if (newBounds && (addedCellIds.length > 0 || removedCellIds.length > 0)) {
+          console.log({
+            newCellIds: newCellIds.join(', '),
+            oldCellIds,
+            addedCellIds,
+            removedCellIds,
+          });
+          await loadItems.call(this, newBounds);
         }
       },
       { immediate: true },
@@ -164,7 +171,7 @@ export class HttpApi implements Api {
       }
 
       loading.value = true;
-      const item = await this.fetch<T>(`/api/${itemType}/${itemId}`);
+      const item = await this.fetch<T>(`/${itemType}/${itemId}`);
       store.value.set(itemId, item);
       loading.value = false;
     }
@@ -187,7 +194,9 @@ export class HttpApi implements Api {
       item: computed(() => (id.value ? (store.value.get(id.value) ?? null) : null)),
       loading,
       unsubscribe: async () => {
-        await this.unsubscribe(`${itemType}:${id.value}`);
+        if (id.value) {
+          await this.unsubscribe(`${itemType}:${id.value}`);
+        }
       },
     };
   }

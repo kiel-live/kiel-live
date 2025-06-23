@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/kiel-live/kiel-live/pkg/models"
 )
@@ -24,12 +25,10 @@ type Client interface {
 }
 
 type Message struct {
-	Topic string `json:"topic,omitempty"`
-	Data  string `json:"data,omitempty"`
-}
-
-func (m *Message) UnmarshalData(data any) error {
-	return json.Unmarshal([]byte(m.Data), &data)
+	Topic  string           `json:"topic,omitempty"`
+	Action string           `json:"action,omitempty"`
+	Data   *json.RawMessage `json:"data,omitempty"`
+	SentAt time.Time        `json:"sent_at"`
 }
 
 type SubscribeCallback func(msg *Message)

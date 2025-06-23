@@ -25,23 +25,23 @@ type subscriptionRequest struct {
 
 // Hub maintains the set of active clients and broadcasts messages to the clients.
 type Hub struct {
-	clients     map[*websocket.Conn]map[string]struct{} // client -> set of subscribed topics
-	mu          sync.Mutex                              // To protect clients map
-	broadcast   chan websocketMessage
-	register    chan *websocket.Conn
-	unregister  chan *websocket.Conn
-	subscribe   chan subscriptionRequest
-	unsubscribe chan subscriptionRequest
-	db          database.Database
+	clients      map[*websocket.Conn]map[string]struct{} // To protect clients map
+	clientsMutex sync.RWMutex                            // Mutex to protect access to clients map
+	broadcast    chan websocketMessage
+	register     chan *websocket.Conn
+	unregister   chan *websocket.Conn
+	subscribe    chan subscriptionRequest
+	unsubscribe  chan subscriptionRequest
+	db           database.Database
 }
 
 func NewHub(db database.Database) *Hub {
 	return &Hub{
-		broadcast:   make(chan websocketMessage),
-		register:    make(chan *websocket.Conn),
-		unregister:  make(chan *websocket.Conn),
-		subscribe:   make(chan subscriptionRequest),
-		unsubscribe: make(chan subscriptionRequest),
+		broadcast:   make(chan websocketMessage, 100),
+		register:    make(chan *websocket.Conn, 10),
+		unregister:  make(chan *websocket.Conn, 10),
+		subscribe:   make(chan subscriptionRequest, 10),
+		unsubscribe: make(chan subscriptionRequest, 10),
 		clients:     make(map[*websocket.Conn]map[string]struct{}),
 		db:          db,
 	}
@@ -51,39 +51,39 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.register:
-			h.mu.Lock()
+			h.clientsMutex.Lock()
 			h.clients[client] = make(map[string]struct{}) // Initialize empty set of topics
-			h.mu.Unlock()
-			h.sendStats()
+			h.clientsMutex.Unlock()
 			log.Println("Client registered")
+			h.sendStats()
 		case client := <-h.unregister:
-			h.mu.Lock()
+			h.clientsMutex.Lock()
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)
 				log.Println("Client unregistered")
 			}
-			h.mu.Unlock()
+			h.clientsMutex.Unlock()
 			h.sendStats()
 		case req := <-h.subscribe:
-			h.mu.Lock()
+			h.clientsMutex.Lock()
 			if clientTopics, ok := h.clients[req.client]; ok {
 				clientTopics[req.topic] = struct{}{}
 				log.Printf("Client subscribed to topic: %s", req.topic)
 			} else {
 				log.Printf("Failed to subscribe: client not registered: %v", req.client)
 			}
-			h.mu.Unlock()
+			h.clientsMutex.Unlock()
 			h.sendTopicList()
 		case req := <-h.unsubscribe:
-			h.mu.Lock()
+			h.clientsMutex.Lock()
 			if clientTopics, ok := h.clients[req.client]; ok {
 				delete(clientTopics, req.topic)
 				log.Printf("Client unsubscribed from topic: %s", req.topic)
 			}
-			h.mu.Unlock()
+			h.clientsMutex.Unlock()
 			h.sendTopicList()
 		case message := <-h.broadcast:
-			h.mu.Lock()
+			h.clientsMutex.RLock()
 			for client, topics := range h.clients {
 				if _, subscribed := topics[message.Topic]; subscribed {
 					err := client.WriteJSON(message)
@@ -93,7 +93,7 @@ func (h *Hub) Run() {
 					}
 				}
 			}
-			h.mu.Unlock()
+			h.clientsMutex.RUnlock()
 		}
 	}
 }
@@ -130,9 +130,7 @@ func (h *Hub) BroadcastMessage(topic string, action string, data any) {
 }
 
 func (h *Hub) sendTopicList() {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-
+	h.clientsMutex.RLock()
 	topicsMap := map[string]struct{}{}
 	for client := range h.clients {
 		for topic := range h.clients[client] {
@@ -144,17 +142,17 @@ func (h *Hub) sendTopicList() {
 	for topic := range topicsMap {
 		topicsList = append(topicsList, topic)
 	}
+	h.clientsMutex.RUnlock()
 
 	h.BroadcastMessage("system.topics", "", topicsList)
 }
 
 func (h *Hub) sendStats() {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-
+	h.clientsMutex.RLock()
 	stats := map[string]int{
 		"clients": len(h.clients),
 	}
+	h.clientsMutex.RUnlock()
 
 	h.BroadcastMessage("system.stats", "", stats)
 }
