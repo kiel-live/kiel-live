@@ -21,6 +21,7 @@ type HTTPApiClient struct {
 	ws               *websocket.Conn
 	subscribedTopics []string
 	mu               sync.Mutex
+	connected        bool
 
 	connectionChangedHandler func(connected bool)
 	topicsChangedHandler     func(topic string, subscribed bool)
@@ -103,13 +104,14 @@ func (h *HTTPApiClient) Connect() error {
 		return err
 	}
 
-	h.mu.Lock()
-	err = h.get("/topics", h.subscribedTopics)
-	h.mu.Unlock()
-	if err != nil {
-		h.ws.Close()
-		return fmt.Errorf("failed to get initial topics: %w", err)
-	}
+	// TODO: initially fetch subscribed topics
+	// h.mu.Lock()
+	// err = h.get("/topics", h.subscribedTopics)
+	// h.mu.Unlock()
+	// if err != nil {
+	// 	h.ws.Close()
+	// 	return fmt.Errorf("failed to get initial topics: %w", err)
+	// }
 
 	type SubscribeMessage struct {
 		Topic  string `json:"topic"`
@@ -125,17 +127,27 @@ func (h *HTTPApiClient) Connect() error {
 		return fmt.Errorf("failed to publish initial topics: %w", err)
 	}
 
+	h.connected = true
+	if h.connectionChangedHandler != nil {
+		h.connectionChangedHandler(true)
+	}
+
 	go func() {
 		for {
+			_, raw, err := h.ws.ReadMessage()
+			if err != nil {
+				return
+			}
+
 			var msg Message
-			err := h.ws.ReadJSON(msg)
+			err = json.Unmarshal(raw, &msg)
 			if err != nil {
 				return
 			}
 
 			if msg.Topic == "system.topics" {
 				var newTopics []string
-				if err := json.Unmarshal([]byte(msg.Data), &newTopics); err != nil {
+				if err := json.Unmarshal([]byte(*msg.Data), &newTopics); err != nil {
 					fmt.Printf("failed to unmarshal topics: %v\n", err)
 					continue
 				}
@@ -177,13 +189,17 @@ func (h *HTTPApiClient) Disconnect() error {
 	if h.ws != nil {
 		err := h.ws.Close()
 		h.ws = nil
+		h.connected = false
+		if h.connectionChangedHandler != nil {
+			h.connectionChangedHandler(false)
+		}
 		return err
 	}
 	return nil
 }
 
 func (h *HTTPApiClient) IsConnected() bool {
-	return h.ws != nil // TODO: check actual connection state
+	return h.ws != nil && h.connected
 }
 
 func (h *HTTPApiClient) SetOnConnectionChanged(handler func(connected bool)) {
@@ -191,7 +207,7 @@ func (h *HTTPApiClient) SetOnConnectionChanged(handler func(connected bool)) {
 }
 
 func (h *HTTPApiClient) GetSubscribedTopics() []string {
-	return nil
+	return h.subscribedTopics
 }
 
 func (h *HTTPApiClient) SetOnTopicsChanged(handler func(topic string, subscribed bool)) {
@@ -199,15 +215,15 @@ func (h *HTTPApiClient) SetOnTopicsChanged(handler func(topic string, subscribed
 }
 
 func (h *HTTPApiClient) UpdateStop(stop *models.Stop) error {
-	return h.put("/stops", stop, nil)
+	return h.put("/stops/"+stop.ID, stop, nil)
 }
 
 func (h *HTTPApiClient) UpdateVehicle(vehicle *models.Vehicle) error {
-	return h.put("/vehicles", vehicle, nil)
+	return h.put("/vehicles/"+vehicle.ID, vehicle, nil)
 }
 
 func (h *HTTPApiClient) UpdateTrip(trip *models.Trip) error {
-	return h.put("/trips", trip, nil)
+	return h.put("/trips/"+trip.ID, trip, nil)
 }
 
 func (h *HTTPApiClient) DeleteStop(stopID string) error {

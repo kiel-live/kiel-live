@@ -29,6 +29,7 @@ func NewMemoryDatabase() Database {
 		stopsCellsIndex:    NewCellIndex(),
 		vehicles:           make(map[string]*models.Vehicle),
 		vehiclesCellsIndex: NewCellIndex(),
+		trips:              make(map[string]*models.Trip),
 	}
 }
 

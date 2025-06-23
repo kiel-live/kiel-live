@@ -139,6 +139,10 @@ func (c *StopCollector) RunSingle(stopID string) {
 	c.Lock()
 	defer c.Unlock()
 
+	if c.stops == nil {
+		c.stops = make(map[string]*models.Stop)
+	}
+
 	// get stop from cache
 	stop, ok := c.stops[api.IDPrefix+stopID]
 	if !ok {
