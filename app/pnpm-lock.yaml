@@ -43,8 +43,8 @@ importers:
         specifier: 9.21.0
         version: 9.21.0
       '@iconify/json':
-        specifier: 2.2.353
-        version: 2.2.353
+        specifier: 2.2.355
+        version: 2.2.355
       '@intlify/eslint-plugin-vue-i18n':
         specifier: 3.2.0
         version: 3.2.0(eslint@9.21.0(jiti@1.21.7))
@@ -939,8 +939,8 @@ packages:
     resolution: {integrity: sha512-xeO57FpIu4p1Ri3Jq/EXq4ClRm86dVF2z/+kvFnyqVYRavTZmaFaUBbWCOuuTh0o/g7DSsk6kc2vrS4Vl5oPOQ==}
     engines: {node: '>=18.18'}
 
-  '@iconify/json@2.2.353':
-    resolution: {integrity: sha512-X9vslZVyHn3VT9KnFthpQZMzClvCK6IwAO6CC8h3B/4McNY9AlBeN0f6S+UehIH8B/0dtYejxcoIWNo6HrGc+Q==}
+  '@iconify/json@2.2.355':
+    resolution: {integrity: sha512-ZWL7HwY80E6wb6pMSsUWip/Gzg/reGUqDvYp3JzmpsOlbTgGZxrJ7rFh7CYpuPVkz2keQ7y2oI1xEpNWwl0/xQ==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -3967,7 +3967,7 @@ snapshots:
       '@babel/traverse': 7.26.9
       '@babel/types': 7.27.6
       convert-source-map: 2.0.0
-      debug: 4.4.0
+      debug: 4.4.1
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -4019,7 +4019,7 @@ snapshots:
       '@babel/core': 7.26.9
       '@babel/helper-compilation-targets': 7.26.5
       '@babel/helper-plugin-utils': 7.26.5
-      debug: 4.4.0
+      debug: 4.4.1
       lodash.debounce: 4.0.8
       resolve: 1.22.10
     transitivePeerDependencies:
@@ -4583,7 +4583,7 @@ snapshots:
       '@babel/parser': 7.27.5
       '@babel/template': 7.26.9
       '@babel/types': 7.27.6
-      debug: 4.4.0
+      debug: 4.4.1
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -4796,7 +4796,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.2': {}
 
-  '@iconify/json@2.2.353':
+  '@iconify/json@2.2.355':
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.2
@@ -7721,7 +7721,7 @@ snapshots:
   terser@5.39.0:
     dependencies:
       '@jridgewell/source-map': 0.3.6
-      acorn: 8.14.0
+      acorn: 8.15.0
       commander: 2.20.3
       source-map-support: 0.5.21
 
