@@ -43,8 +43,8 @@ importers:
         specifier: 9.21.0
         version: 9.21.0
       '@iconify/json':
-        specifier: 2.2.357
-        version: 2.2.357
+        specifier: 2.2.359
+        version: 2.2.359
       '@intlify/eslint-plugin-vue-i18n':
         specifier: 3.2.0
         version: 3.2.0(eslint@9.21.0(jiti@1.21.7))
@@ -939,8 +939,8 @@ packages:
     resolution: {integrity: sha512-xeO57FpIu4p1Ri3Jq/EXq4ClRm86dVF2z/+kvFnyqVYRavTZmaFaUBbWCOuuTh0o/g7DSsk6kc2vrS4Vl5oPOQ==}
     engines: {node: '>=18.18'}
 
-  '@iconify/json@2.2.357':
-    resolution: {integrity: sha512-v8fr/KwcJ0qsoEJ69k1+M928bfzNmmApyJBTIAwwIzHZrVEUneHTEOJRy7OVYKisauBMVVH067I2uFNoPA92iA==}
+  '@iconify/json@2.2.359':
+    resolution: {integrity: sha512-nOIaROD3xeLiFGvJu0YIgeu4Hqbmz6T71b0lsFv1TY6Uu6Lk/5Z8GhDByIE2/zfgxvxfv3f+5A/DkLHmMXYu8Q==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -4791,7 +4791,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.2': {}
 
-  '@iconify/json@2.2.357':
+  '@iconify/json@2.2.359':
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.2
