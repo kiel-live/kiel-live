@@ -43,8 +43,8 @@ importers:
         specifier: 9.21.0
         version: 9.21.0
       '@iconify/json':
-        specifier: 2.2.363
-        version: 2.2.363
+        specifier: 2.2.365
+        version: 2.2.365
       '@intlify/eslint-plugin-vue-i18n':
         specifier: 3.2.0
         version: 3.2.0(eslint@9.21.0(jiti@1.21.7))
@@ -931,8 +931,8 @@ packages:
     resolution: {integrity: sha512-xeO57FpIu4p1Ri3Jq/EXq4ClRm86dVF2z/+kvFnyqVYRavTZmaFaUBbWCOuuTh0o/g7DSsk6kc2vrS4Vl5oPOQ==}
     engines: {node: '>=18.18'}
 
-  '@iconify/json@2.2.363':
-    resolution: {integrity: sha512-iSNBti18BhOizJSZCQr/1Mqp9kyqncQfSUElkScsQ0KyLNU2XUNuQ93JAMYtqJbtqtdjjWKidCJu9yfksIQmxA==}
+  '@iconify/json@2.2.365':
+    resolution: {integrity: sha512-9ZLdIXnswa1XCssYqnCjmXtuxj0l4nkY33FTs8PYCj5rTfPrJlRiPWUDzZOocNsSqjssr5fVPo0ME1hO9h0/IQ==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -3332,6 +3332,7 @@ packages:
   source-map@0.8.0-beta.0:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
     engines: {node: '>= 8'}
+    deprecated: The work that was done in this beta branch won't be included in future versions
 
   sourcemap-codec@1.4.8:
     resolution: {integrity: sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA==}
@@ -4005,10 +4006,10 @@ snapshots:
       '@babel/helper-compilation-targets': 7.26.5
       '@babel/helper-module-transforms': 7.26.0(@babel/core@7.26.9)
       '@babel/helpers': 7.26.9
-      '@babel/parser': 7.27.5
+      '@babel/parser': 7.28.0
       '@babel/template': 7.26.9
       '@babel/traverse': 7.26.9
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
       convert-source-map: 2.0.0
       debug: 4.4.1
       gensync: 1.0.0-beta.2
@@ -4019,15 +4020,15 @@ snapshots:
 
   '@babel/generator@7.26.9':
     dependencies:
-      '@babel/parser': 7.27.5
-      '@babel/types': 7.27.6
+      '@babel/parser': 7.28.0
+      '@babel/types': 7.28.2
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
       jsesc: 3.1.0
 
   '@babel/helper-annotate-as-pure@7.25.9':
     dependencies:
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
 
   '@babel/helper-compilation-targets@7.26.5':
     dependencies:
@@ -4071,14 +4072,14 @@ snapshots:
   '@babel/helper-member-expression-to-functions@7.25.9':
     dependencies:
       '@babel/traverse': 7.26.9
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
     transitivePeerDependencies:
       - supports-color
 
   '@babel/helper-module-imports@7.25.9':
     dependencies:
       '@babel/traverse': 7.26.9
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
     transitivePeerDependencies:
       - supports-color
 
@@ -4093,7 +4094,7 @@ snapshots:
 
   '@babel/helper-optimise-call-expression@7.25.9':
     dependencies:
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
 
   '@babel/helper-plugin-utils@7.26.5': {}
 
@@ -4118,7 +4119,7 @@ snapshots:
   '@babel/helper-skip-transparent-expression-wrappers@7.25.9':
     dependencies:
       '@babel/traverse': 7.26.9
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
     transitivePeerDependencies:
       - supports-color
 
@@ -4132,14 +4133,14 @@ snapshots:
     dependencies:
       '@babel/template': 7.26.9
       '@babel/traverse': 7.26.9
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
     transitivePeerDependencies:
       - supports-color
 
   '@babel/helpers@7.26.9':
     dependencies:
       '@babel/template': 7.26.9
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
 
   '@babel/parser@7.27.5':
     dependencies:
@@ -4602,7 +4603,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.26.5
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
       esutils: 2.0.3
 
   '@babel/runtime@7.26.9':
@@ -4612,16 +4613,16 @@ snapshots:
   '@babel/template@7.26.9':
     dependencies:
       '@babel/code-frame': 7.26.2
-      '@babel/parser': 7.27.5
-      '@babel/types': 7.27.6
+      '@babel/parser': 7.28.0
+      '@babel/types': 7.28.2
 
   '@babel/traverse@7.26.9':
     dependencies:
       '@babel/code-frame': 7.26.2
       '@babel/generator': 7.26.9
-      '@babel/parser': 7.27.5
+      '@babel/parser': 7.28.0
       '@babel/template': 7.26.9
-      '@babel/types': 7.27.6
+      '@babel/types': 7.28.2
       debug: 4.4.1
       globals: 11.12.0
     transitivePeerDependencies:
@@ -4835,7 +4836,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.2': {}
 
-  '@iconify/json@2.2.363':
+  '@iconify/json@2.2.365':
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.2
