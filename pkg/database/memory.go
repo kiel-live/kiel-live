@@ -133,7 +133,7 @@ func (b *MemoryDatabase) SetVehicle(_ context.Context, vehicle *models.Vehicle) 
 	cellID := vehicle.Location.GetCellID()
 
 	var oldCellID s2.CellID
-	if oldVehicle, ok := b.stops[vehicle.ID]; ok {
+	if oldVehicle, ok := b.vehicles[vehicle.ID]; ok {
 		oldCellID = oldVehicle.Location.GetCellID()
 	}
 

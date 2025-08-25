@@ -32,7 +32,7 @@ func boundsFromQuery(values url.Values) (*models.BoundingBox, error) {
 		if !values.Has(key) {
 			return 0, fmt.Errorf("%s can't be empty", key)
 		}
-		value, err := strconv.ParseFloat(values.Get(key), 32)
+		value, err := strconv.ParseFloat(values.Get(key), 64)
 		if err != nil {
 			return 0, fmt.Errorf("%s is not a valid float: %w", key, err)
 		}

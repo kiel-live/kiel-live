@@ -100,7 +100,9 @@ func (h *HTTPApiClient) Connect() error {
 
 	h.ws, _, err = websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
-		h.ws.Close()
+		if websocket.IsUnexpectedCloseError(err) && h.ws != nil {
+			h.ws.Close()
+		}
 		return err
 	}
 
