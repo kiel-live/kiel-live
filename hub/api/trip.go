@@ -75,6 +75,6 @@ func (s *Server) handleDeleteTrip(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	s.broadcastMapItemDeleted("trips", id, trip)
+	s.broadcastItemDeleted("trips", id, trip)
 	respondWithJSON(w, http.StatusOK, trip)
 }
