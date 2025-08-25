@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
 	"github.com/kiel-live/kiel-live/pkg/client"
@@ -15,6 +16,7 @@ type StopCollector struct {
 	client client.Client
 	stops  map[string]*models.Stop
 	sync.Mutex
+	lastFullUpdate int64
 }
 
 func isSameArrivals(a, b []*models.StopArrival) bool {
@@ -108,7 +110,18 @@ func (c *StopCollector) Run() {
 		stops[api.IDPrefix+stopID].Alerts = details.Alerts
 	}
 
-	stopsToPublish := c.getChangedStops(stops)
+	var stopsToPublish []*models.Stop
+	// publish all stops when last full update is older than the max cache age as stops
+	// normally never change and the cache wont keep them forever
+	if c.lastFullUpdate == 0 || c.lastFullUpdate < time.Now().Unix()-models.MaxCacheAge {
+		for _, stop := range stops {
+			stopsToPublish = append(stopsToPublish, stop)
+		}
+		c.lastFullUpdate = time.Now().Unix()
+	} else {
+		// publish all changed stops
+		stopsToPublish = c.getChangedStops(stops)
+	}
 	for _, stop := range stopsToPublish {
 		log.Tracef("publish updated stop: %v", stop)
 		err := c.client.UpdateStop(stop)

@@ -6,5 +6,5 @@ export interface Trip {
   provider: string;
   direction: string;
   arrivals?: TripArrival[];
-  path: GpsLocation[];
+  path?: GpsLocation[];
 }
