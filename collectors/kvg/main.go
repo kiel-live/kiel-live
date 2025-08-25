@@ -85,7 +85,7 @@ func main() {
 	})
 
 	c.SetOnConnectionChanged(func(connected bool) {
-		if !connected {
+		if connected {
 			return
 		}
 
