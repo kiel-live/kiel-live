@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/json"
+	"os"
 	"time"
 
 	"github.com/kiel-live/kiel-live/pkg/models"
@@ -32,3 +33,11 @@ type Message struct {
 }
 
 type SubscribeCallback func(msg *Message)
+
+func NewClient(urlOrHost, token string) Client {
+	if os.Getenv("COLLECTOR_CLIENT") == "http" {
+		return NewHTTPApiClient(urlOrHost, token)
+	}
+
+	return NewNatsClient(urlOrHost, NatsWithAuth("collector", token))
+}

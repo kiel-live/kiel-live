@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -10,20 +11,23 @@ import (
 
 // Server holds dependencies for HTTP handlers
 type Server struct {
-	db  database.Database
-	hub *hub.Hub
-	mux *http.ServeMux
+	db    database.Database
+	hub   *hub.Hub
+	mux   *http.ServeMux
+	token string
 }
 
-func NewAPIServer(db database.Database, hub *hub.Hub, mux *http.ServeMux) *Server {
-	s := &Server{db: db, hub: hub, mux: mux}
+func NewAPIServer(db database.Database, hub *hub.Hub, mux *http.ServeMux, token string) *Server {
+	s := &Server{db: db, hub: hub, mux: mux, token: token}
 	s.registerRoutes()
 	return s
 }
 
 func corsWrapper(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("[%s] %s?%s", r.Method, r.URL.Path, r.URL.Query().Encode())
+		if r.Method != "PUT" {
+			log.Printf("[%s] %s?%s", r.Method, r.URL.Path, r.URL.Query().Encode())
+		}
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		handler(w, r)
 	}
@@ -50,6 +54,19 @@ func (s *Server) Any(path string, handler http.HandlerFunc) {
 	s.mux.HandleFunc(path, corsWrapper(handler))
 }
 
+func (s *Server) WithAuth(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token := r.Header.Get("Authorization")
+		if token != "Bearer "+s.token {
+			code := http.StatusUnauthorized
+			http.Error(w, fmt.Sprintf("%d %s", code, http.StatusText(code)), code)
+			return
+		}
+
+		handler(w, r)
+	}
+}
+
 func (s *Server) registerRoutes() {
 	// WebSocket
 	s.Any("/ws", s.serveWs)
@@ -57,22 +74,22 @@ func (s *Server) registerRoutes() {
 	// Vehicle CRUD
 	s.GET("/vehicles", s.handleGetVehicles)
 	s.GET("/vehicles/{id}", s.handleGetVehicle)
-	s.PUT("/vehicles/{id}", s.handleUpdateVehicle)
-	s.DELETE("/vehicles/{id}", s.handleDeleteVehicle)
+	s.PUT("/vehicles/{id}", s.WithAuth(s.handleUpdateVehicle))
+	s.DELETE("/vehicles/{id}", s.WithAuth(s.handleDeleteVehicle))
 
 	// Stop CRUD
 	s.GET("/stops", s.handleGetStops)
 	s.GET("/stops/{id}", s.handleGetStop)
-	s.PUT("/stops/{id}", s.handleUpdateStop)
-	s.DELETE("/stops/{id}", s.handleDeleteStop)
+	s.PUT("/stops/{id}", s.WithAuth(s.handleUpdateStop))
+	s.DELETE("/stops/{id}", s.WithAuth(s.handleDeleteStop))
 
 	// Trip CRUD
 	s.GET("/trips/{id}", s.handleGetTrip)
-	s.PUT("/trips/{id}", s.handleUpdateTrip)
-	s.DELETE("/trips/{id}", s.handleDeleteTrip)
+	s.PUT("/trips/{id}", s.WithAuth(s.handleUpdateTrip))
+	s.DELETE("/trips/{id}", s.WithAuth(s.handleDeleteTrip))
 
 	// Route CRUD
 	s.GET("/routes/{id}", s.handleGetRoute)
-	s.PUT("/routes/{id}", s.handleUpdateRoute)
-	s.DELETE("/routes/{id}", s.handleDeleteRoute)
+	s.PUT("/routes/{id}", s.WithAuth(s.handleUpdateRoute))
+	s.DELETE("/routes/{id}", s.WithAuth(s.handleDeleteRoute))
 }

@@ -43,7 +43,7 @@ func NewNatsClient(host string, opts ...NatsOption) Client {
 	return client
 }
 
-func WithAuth(username string, password string) NatsOption {
+func NatsWithAuth(username string, password string) NatsOption {
 	return func(c *natsClient) {
 		c.username = username
 		c.password = password

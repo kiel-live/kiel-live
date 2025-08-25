@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"errors"
 
 	"github.com/kiel-live/kiel-live/pkg/models"
 )
@@ -9,6 +10,8 @@ import (
 type ListOptions struct {
 	Bounds *models.BoundingBox
 }
+
+var ErrItemNotFound = errors.New("item not found")
 
 type Database interface {
 	Open() error

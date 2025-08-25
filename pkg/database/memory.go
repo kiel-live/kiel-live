@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"errors"
 	"sync"
 
 	"github.com/kiel-live/kiel-live/pkg/models"
@@ -66,7 +65,7 @@ func (b *MemoryDatabase) GetStop(_ context.Context, id string) (*models.Stop, er
 		return stop, nil
 	}
 
-	return nil, errors.New("stop not found")
+	return nil, ErrItemNotFound
 }
 
 func (b *MemoryDatabase) SetStop(_ context.Context, stop *models.Stop) error {
@@ -124,7 +123,7 @@ func (b *MemoryDatabase) GetVehicle(_ context.Context, id string) (*models.Vehic
 		return vehicle, nil
 	}
 
-	return nil, errors.New("vehicle not found")
+	return nil, ErrItemNotFound
 }
 
 func (b *MemoryDatabase) SetVehicle(_ context.Context, vehicle *models.Vehicle) error {
@@ -165,7 +164,7 @@ func (b *MemoryDatabase) GetTrip(_ context.Context, id string) (*models.Trip, er
 		return trip, nil
 	}
 
-	return nil, errors.New("trip not found")
+	return nil, ErrItemNotFound
 }
 
 func (b *MemoryDatabase) SetTrip(_ context.Context, trip *models.Trip) error {
@@ -196,7 +195,7 @@ func (b *MemoryDatabase) GetRoute(_ context.Context, id string) (*models.Route, 
 		return route, nil
 	}
 
-	return nil, errors.New("route not found")
+	return nil, ErrItemNotFound
 }
 
 func (b *MemoryDatabase) SetRoute(_ context.Context, route *models.Route) error {
