@@ -134,12 +134,6 @@ export class HttpApi implements Api {
 
         // Load the complete set of items for the new bounds if they have changed
         if (newBounds && (addedCellIds.length > 0 || removedCellIds.length > 0)) {
-          console.log({
-            newCellIds: newCellIds.join(', '),
-            oldCellIds,
-            addedCellIds,
-            removedCellIds,
-          });
           await loadItems.call(this, newBounds);
         }
       },
