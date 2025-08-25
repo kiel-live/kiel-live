@@ -18,11 +18,11 @@ type Stop struct {
 	ID       string         `json:"id"`
 	Provider string         `json:"provider"`
 	Name     string         `json:"name"`
-	Type     StopType       `json:"type"`   // Deprecated: use arrivals[].type or vehicles[].type instead
-	Routes   []*Route       `json:"routes"` // list of routes using this stop
-	Alerts   []string       `json:"alerts"` // general alerts for this stop
-	Arrivals []*StopArrival `json:"arrivals"`
-	Vehicles []*Vehicle     `json:"vehicles"`
+	Type     StopType       `json:"type"`             // Deprecated: use arrivals[].type or vehicles[].type instead
+	Routes   []*Route       `json:"routes,omitempty"` // list of routes using this stop
+	Alerts   []string       `json:"alerts,omitempty"` // general alerts for this stop
+	Arrivals []*StopArrival `json:"arrivals"`         // omitempty is avoided as null / [] is used to check if data was loaded
+	Vehicles []*Vehicle     `json:"vehicles,omitempty"`
 	Location *Location      `json:"location"`
 }
 

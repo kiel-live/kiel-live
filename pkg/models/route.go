@@ -7,7 +7,7 @@ type Route struct {
 	Name     string       `json:"name"`
 	Type     string       `json:"type"` // TODO: use VehicleType?
 	IsActive bool         `json:"isActive"`
-	Stops    []*RouteStop `json:"stops"`
+	Stops    []*RouteStop `json:"stops,omitempty"`
 }
 
 func (r *Route) String() string {

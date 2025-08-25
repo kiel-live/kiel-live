@@ -20,8 +20,8 @@ export interface Stop {
    * @deprecated use arrivals[].type or vehicles[].type instead
    */
   type: StopType;
-  routes: string[] | null; // list of routes using this stop
-  alerts: string[] | null; // general alerts for this stop
+  routes?: string[] | null; // list of routes using this stop
+  alerts?: string[] | null; // general alerts for this stop
   arrivals?: StopArrival[];
   location: GpsLocation;
   vehicles?: Vehicle[];

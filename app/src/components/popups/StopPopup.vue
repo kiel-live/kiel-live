@@ -86,10 +86,7 @@
       <NoData v-if="augmentedArrivals && augmentedArrivals.length === 0">
         {{ t('no_bus_wants_to_stop_here_right_now') }}
       </NoData>
-      <i-fa-solid-circle-notch
-        v-if="augmentedArrivals === null && stop.vehicles === null"
-        class="m-auto text-3xl animate-spin"
-      />
+      <i-fa-solid-circle-notch v-if="!augmentedArrivals && !stop.vehicles" class="m-auto text-3xl animate-spin" />
     </div>
   </div>
   <NoData v-else>
