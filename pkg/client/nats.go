@@ -43,7 +43,7 @@ func NewNatsClient(host string, opts ...NatsOption) Client {
 	return client
 }
 
-func WithAuth(username string, password string) NatsOption {
+func NatsWithAuth(username string, password string) NatsOption {
 	return func(c *natsClient) {
 		c.username = username
 		c.password = password
@@ -105,9 +105,12 @@ func (n *natsClient) Subscribe(topic string, cb SubscribeCallback) error {
 	}
 
 	sub, err := n.nc.Subscribe(topic, func(msg *nats.Msg) {
+		data := json.RawMessage(msg.Data)
 		cb(&Message{
-			Topic: msg.Subject,
-			Data:  string(msg.Data),
+			Topic:  msg.Subject,
+			Action: "",
+			Data:   &data,
+			SentAt: time.Now(),
 		})
 	})
 	if err != nil {

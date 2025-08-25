@@ -62,7 +62,7 @@ func main() {
 	defer connection.Close()
 	buffer := make([]byte, 1024)
 
-	c := client.NewNatsClient(server, client.WithAuth("collector", token))
+	c := client.NewClient(server, token)
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)

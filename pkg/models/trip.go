@@ -6,8 +6,8 @@ type Trip struct {
 	Provider  string         `json:"provider"`
 	VehicleID string         `json:"vehicleId"`
 	Direction string         `json:"direction"`
-	Arrivals  []*TripArrival `json:"arrivals"`
-	Path      []*Location    `json:"path"`
+	Arrivals  []*TripArrival `json:"arrivals,omitempty"`
+	Path      []*Location    `json:"path,omitempty"`
 }
 
 func (t *Trip) String() string {
