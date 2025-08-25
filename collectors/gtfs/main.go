@@ -128,7 +128,7 @@ func main() {
 		log.Panic("Failed opening db", err)
 	}
 
-	c := client.NewNatsClient(server, client.WithAuth("collector", token))
+	c := client.NewClient(server, token)
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)

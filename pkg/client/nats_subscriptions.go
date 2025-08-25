@@ -69,7 +69,7 @@ func (n *natsClient) initTopics() {
 	// new consumer
 	err := n.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.CREATED.>", func(msg *Message) {
 		var consumerEvent consumerEvent
-		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
+		if err := json.Unmarshal([]byte(*msg.Data), &consumerEvent); err != nil {
 			log.Errorf("Parse response failed, reason: %v \n", err)
 			return
 		}
@@ -93,7 +93,7 @@ func (n *natsClient) initTopics() {
 	// remove consumer
 	err = n.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.DELETED.>", func(msg *Message) {
 		var consumerEvent consumerEvent
-		if err := json.Unmarshal([]byte(msg.Data), &consumerEvent); err != nil {
+		if err := json.Unmarshal([]byte(*msg.Data), &consumerEvent); err != nil {
 			log.Errorf("Parse response failed, reason: %v \n", err)
 			return
 		}
