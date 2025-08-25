@@ -44,7 +44,7 @@ func main() {
 		log.Fatalln("Please provide a comma separated list of next-bike city ids with NEXT_BIKE_CITY_IDS (exp: '613,195' for Kiel & Mannheim)")
 	}
 
-	c := client.NewNatsClient(server, client.WithAuth("collector", token))
+	c := client.NewClient(server, token)
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)

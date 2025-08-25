@@ -35,7 +35,7 @@ func main() {
 		log.Fatalln("Please provide a token for the collector with COLLECTOR_TOKEN")
 	}
 
-	c := client.NewNatsClient(server, client.WithAuth("collector", token))
+	c := client.NewClient(server, token)
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)
