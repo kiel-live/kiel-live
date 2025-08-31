@@ -107,10 +107,8 @@ func (n *natsClient) Subscribe(topic string, cb SubscribeCallback) error {
 	sub, err := n.nc.Subscribe(topic, func(msg *nats.Msg) {
 		data := json.RawMessage(msg.Data)
 		cb(&Message{
-			Topic:  msg.Subject,
-			Action: "",
-			Data:   &data,
-			SentAt: time.Now(),
+			Topic: msg.Subject,
+			Data:  &data,
 		})
 	})
 	if err != nil {
