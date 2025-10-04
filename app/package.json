@@ -28,14 +28,14 @@
     "micromark": "4.0.2",
     "nats.ws": "1.30.3",
     "s2js": "1.43.6",
-    "vue": "3.5.18",
-    "vue-i18n": "11.1.11",
+    "vue": "3.5.22",
+    "vue-i18n": "11.1.12",
     "vue-router": "4.5.1"
   },
   "devDependencies": {
     "@antfu/eslint-config": "4.17.0",
     "@eslint/js": "9.21.0",
-    "@iconify/json": "2.2.377",
+    "@iconify/json": "2.2.390",
     "@intlify/eslint-plugin-vue-i18n": "3.2.0",
     "@intlify/unplugin-vue-i18n": "6.0.8",
     "@playwright/test": "^1.50.1",
@@ -50,7 +50,7 @@
     "typescript": "5.8.3",
     "unplugin-icons": "22.1.0",
     "unplugin-vue-components": "28.4.1",
-    "vite": "6.2.7",
+    "vite": "6.3.6",
     "vite-plugin-pwa": "0.21.2",
     "vite-plugin-windicss": "1.9.4",
     "vitest": "3.0.8",
@@ -58,5 +58,5 @@
     "windicss": "3.5.6",
     "workbox-window": "7.3.0"
   },
-  "packageManager": "pnpm@10.6.2"
+  "packageManager": "pnpm@10.18.0"
 }

@@ -6,13 +6,13 @@ require (
 	github.com/BertoldVdb/go-ais v0.4.0
 	github.com/artonge/go-gtfs v1.3.4
 	github.com/go-co-op/gocron v1.37.0
-	github.com/golang/geo v0.0.0-20250613135800-9e8e59d779cc
+	github.com/golang/geo v0.0.0-20250917161122-64cb148137c6
 	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-memdb v1.3.5
 	github.com/joho/godotenv v1.5.1
-	github.com/nats-io/nats.go v1.45.0
+	github.com/nats-io/nats.go v1.46.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	github.com/thoas/go-funk v0.9.3
 )
 
