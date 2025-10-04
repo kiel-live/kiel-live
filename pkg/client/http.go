@@ -63,13 +63,12 @@ func (h *HTTPApiClient) doRequest(method string, url string, request any, data a
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		resp.Body.Close()
 		return fmt.Errorf("unexpected status code: %d %s", resp.StatusCode, resp.Status)
 	}
 	if data != nil {
-		defer resp.Body.Close()
 		if err := json.NewDecoder(resp.Body).Decode(data); err != nil {
 			return err
 		}
