@@ -87,9 +87,4 @@ func (s *Server) registerRoutes() {
 	s.GET("/trips/{id}", s.handleGetTrip)
 	s.PUT("/trips/{id}", s.WithAuth(s.handleUpdateTrip))
 	s.DELETE("/trips/{id}", s.WithAuth(s.handleDeleteTrip))
-
-	// Route CRUD
-	s.GET("/routes/{id}", s.handleGetRoute)
-	s.PUT("/routes/{id}", s.WithAuth(s.handleUpdateRoute))
-	s.DELETE("/routes/{id}", s.WithAuth(s.handleDeleteRoute))
 }

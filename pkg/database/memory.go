@@ -18,8 +18,7 @@ type MemoryDatabase struct {
 	vehicles           map[string]*models.Vehicle
 	vehiclesCellsIndex *CellIndex
 
-	trips  map[string]*models.Trip
-	routes map[string]*models.Route
+	trips map[string]*models.Trip
 }
 
 func NewMemoryDatabase() Database {
@@ -182,37 +181,6 @@ func (b *MemoryDatabase) DeleteTrip(_ context.Context, id string) error {
 
 	if trip, ok := b.trips[id]; ok {
 		delete(b.trips, trip.ID)
-	}
-
-	return nil
-}
-
-func (b *MemoryDatabase) GetRoute(_ context.Context, id string) (*models.Route, error) {
-	b.RLock()
-	defer b.RUnlock()
-
-	if route, ok := b.routes[id]; ok {
-		return route, nil
-	}
-
-	return nil, ErrItemNotFound
-}
-
-func (b *MemoryDatabase) SetRoute(_ context.Context, route *models.Route) error {
-	b.Lock()
-	defer b.Unlock()
-
-	b.routes[route.ID] = route
-
-	return nil
-}
-
-func (b *MemoryDatabase) DeleteRoute(_ context.Context, id string) error {
-	b.Lock()
-	defer b.Unlock()
-
-	if route, ok := b.routes[id]; ok {
-		delete(b.routes, route.ID)
 	}
 
 	return nil

@@ -33,9 +33,4 @@ type Database interface {
 	GetTrip(ctx context.Context, id string) (*models.Trip, error)
 	SetTrip(ctx context.Context, trip *models.Trip) error
 	DeleteTrip(ctx context.Context, id string) error
-
-	// Route
-	GetRoute(ctx context.Context, id string) (*models.Route, error)
-	SetRoute(ctx context.Context, route *models.Route) error
-	DeleteRoute(ctx context.Context, id string) error
 }

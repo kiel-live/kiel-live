@@ -78,10 +78,6 @@ func (h *HTTPApiClient) doRequest(method string, url string, request any, data a
 	return nil
 }
 
-// func (h *HTTPApiClient) get(url string, data any) error {
-// 	return h.doRequest("GET", url, nil, data)
-// }
-
 func (h *HTTPApiClient) put(url string, request any, data any) error {
 	return h.doRequest("PUT", url, request, data)
 }
