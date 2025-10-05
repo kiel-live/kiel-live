@@ -1,6 +1,6 @@
 <template>
   <div v-if="vehicle" class="flex flex-col min-h-0 flex-grow">
-    <header class="border-b-1 dark:border-dark-100 mb-2">
+    <header class="border-b-1 dark:border-zinc-700 mb-2">
       <div class="flex pb-2 space-x-2 items-center">
         <i-fa-bus v-if="vehicle.type === 'bus'" />
         <i-ic-outline-pedal-bike v-else-if="vehicle.type === 'bike'" />
@@ -32,15 +32,15 @@
         >
           <span class="w-14 min-w-12">{{ arrival.planned }}</span>
           <div
-            class="marker relative flex justify-center items-center mx-4 h-12 w-8 min-w-4 after:(absolute top-0 h-full bg-gray-800 dark:bg-gray-300)"
-            :class="{ 'after:(bg-gray-500 dark:bg-gray-400)': arrival.state === 'departed' }"
+            class="marker relative flex justify-center items-center mx-4 h-12 w-8 min-w-4 after:absolute after:top-0 after:h-full after:bg-zinc-800 after:dark:bg-gray-300"
+            :class="{ 'after:bg-gray-500 after:dark:bg-gray-400)': arrival.state === 'departed' }"
           >
             <div
               v-if="
                 arrival.state !== 'departed' &&
                 (trip.arrivals[i - 1] === undefined || trip.arrivals[i - 1].state === 'departed')
               "
-              class="vehicle before:(h-4 w-4 bg-red-700 rounded-full)"
+              class="vehicle before:h-4 before:w-4 before:bg-red-700 before:rounded-full"
               :class="{ driving: arrival.state === 'predicted' }"
             >
               <div class="pulsating border-3 border-red-700 border-solid rounded-full" />
@@ -50,7 +50,7 @@
                 (arrival.state !== 'departed' && trip.arrivals[i - 1]?.state !== 'departed') ||
                 arrival.state === 'predicted'
               "
-              class="rounded-full h-4 w-4 flex items-center justify-center bg-gray-800 dark:bg-gray-300"
+              class="rounded-full h-4 w-4 flex items-center justify-center bg-zinc-800 dark:bg-gray-300"
             />
           </div>
           <span class="w-full">{{ arrival.name }}</span>
