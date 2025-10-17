@@ -1,7 +1,7 @@
 <template>
   <div
     id="app-bar"
-    class="absolute top-0 left-0 right-0 mx-2 mt-2 h-12 flex rounded-md py-1 pr-1 gap-x-1 items-center justify-between bg-white border-1 border-gray-200 shadow-xl z-20 md:transform md:-translate-x-1/2 md:right-auto md:left-1/2 md:w-96 dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
+    class="absolute top-0 left-0 right-0 mx-2 mt-2 h-12 flex rounded-md py-1 pr-1 gap-x-1 items-center justify-between bg-white border border-gray-200 shadow-xl z-20 md:transform md:-translate-x-1/2 md:right-auto md:left-1/2 md:w-96 dark:bg-zinc-900 dark:text-gray-300 dark:border-zinc-950"
   >
     <router-link :to="{ name: 'home' }" class="p-2">
       <img :alt="t('logo_alt')" src="../../assets/logo.png" class="w-6 h-6" />
@@ -10,7 +10,7 @@
       <input
         :value="internalSearchInput"
         type="text"
-        class="bg-transparent p-2 border border-transparent focus:outline-none focus-visible:(outline-none rounded-md border-gray-300 border-opacity-50) w-full h-full"
+        class="bg-transparent p-2 border border-transparent focus:outline-none focus-visible:outline-none focus-visible:rounded-md focus-visible:border-gray-300 focus-visible:border-opacity-50 w-full h-full"
         :title="t('search')"
         :placeholder="`${t('search')} ...`"
         autofocus
