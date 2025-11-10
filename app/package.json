@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@vueuse/core": "12.7.0",
-    "canvas-confetti": "1.9.3",
+    "canvas-confetti": "1.9.4",
     "fuse.js": "7.1.0",
     "maplibre-gl": "5.1.1",
     "micromark": "4.0.2",
