@@ -28,7 +28,7 @@ jobs:
       working-directory: app
 
     - name: Install Playwright Browsers
-      run: pnpm exec playwright install --with-deps
+      run: pnpm exec playwright install --with-deps chromium-headless
       working-directory: app
 
     - name: Run Playwright tests
