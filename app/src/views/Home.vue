@@ -3,30 +3,14 @@
     <AppBar v-model:search-input="searchInput" />
 
     <DetailsPopup
-      :is-open="!!selectedMarker"
-      :disable-resize="liteMode"
-      :size="popupSize"
-      @close="selectedMarker = undefined"
+      :is-open="isBottomSheetOpen"
+      :snap-points="bottomSheetSnapPoints"
+      initial-snap="50%"
+      @close="closeBottomSheet"
     >
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
-    </DetailsPopup>
-
-    <DetailsPopup
-      :is-open="$route.name === 'search'"
-      :disable-resize="liteMode"
-      :size="popupSize"
-      @close="$router.replace({ name: 'home' })"
-    >
-      <SearchPopup v-model:search-input="searchInput" />
-    </DetailsPopup>
-
-    <DetailsPopup
-      :is-open="$route.name === 'favorites'"
-      :disable-resize="liteMode"
-      :size="popupSize"
-      @close="$router.replace({ name: 'home' })"
-    >
-      <FavoritesPopup />
+      <FavoritesPopup v-else-if="route.name === 'favorites'" />
+      <SearchPopup v-else-if="route.name === 'search'" v-model:search-input="searchInput" />
     </DetailsPopup>
 
     <Map
@@ -76,13 +60,21 @@ const selectedMarker = computed<Marker | undefined>({
 const searchInput = ref('');
 
 const mapMovedManually = ref(false);
-const popupSize = computed(() => {
-  if (liteMode.value) {
-    return '1';
-  }
-  if (route.name === 'search' || route.name === 'favorites' || mapMovedManually.value) {
-    return '1/2';
-  }
-  return '3/4';
+
+const isBottomSheetOpen = computed(() => {
+  return selectedMarker.value !== undefined || route.name === 'search' || route.name === 'favorites';
 });
+
+const bottomSheetSnapPoints = computed(() => {
+  if (route.name === 'search' || route.name === 'favorites' || mapMovedManually.value) {
+    return ['50%', '90%'];
+  }
+
+  return ['10%', '50%', '90%'];
+});
+
+async function closeBottomSheet() {
+  await router.replace({ name: 'home' });
+  selectedMarker.value = undefined;
+}
 </script>

@@ -1,0 +1,310 @@
+<template>
+  <!-- Backdrop overlay -->
+  <Transition name="backdrop">
+    <div
+      v-if="isOpen && showBackdrop"
+      class="fixed inset-0 bg-black bg-opacity-40 z-9 md:hidden"
+      @click="handleBackdropClick"
+    />
+  </Transition>
+
+  <!-- Bottom sheet -->
+  <div
+    class="fixed bottom-0 left-0 right-0 flex flex-col w-full z-10 bg-white shadow-top md:shadow-right md:rounded-none md:w-80 md:top-0 md:h-auto dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
+    :class="{
+      'p-4 pb-0 pt-2': !isFullscreen,
+      'rounded-t-2xl': !isFullscreen,
+      'rounded-none p-4 pt-16': isFullscreen,
+      'pointer-events-none': !isOpen,
+    }"
+    :style="sheetStyle"
+    @touchstart="handleTouchStart"
+    @touchmove="handleTouchMove"
+    @touchend="handleTouchEnd"
+  >
+    <!-- Drag handle -->
+    <div
+      v-if="!disableResize"
+      class="w-full -mt-4 pt-4 pb-4 md:hidden cursor-grab active:cursor-grabbing"
+      :class="{ 'pointer-events-auto': isOpen }"
+    >
+      <div v-show="!isFullscreen" class="flex-shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto" :class="{ 'pointer-events-auto': isOpen }">
+      <slot />
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { useDomSize } from '~/compositions/useDomSize';
+
+type SnapPoint = number | string;
+
+const props = withDefaults(
+  defineProps<{
+    isOpen: boolean;
+    disableResize?: boolean;
+    snapPoints?: SnapPoint[]; // Array of snap points in px or %
+    initialSnap?: SnapPoint; //
+    showBackdrop?: boolean; // Show backdrop overlay
+    closeOnBackdropClick?: boolean; // Close when clicking backdrop
+  }>(),
+  {
+    disableResize: false,
+    snapPoints: () => ['10%', '50%', '90%'],
+    initialSnap: 0,
+    showBackdrop: false,
+    closeOnBackdropClick: true,
+  },
+);
+
+const emit = defineEmits<{
+  (event: 'close'): void;
+  (event: 'snapChange', snapIndex: number): void;
+}>();
+
+const velocityThreshold = 0.5;
+const animationDuration = 300;
+const animationTimingFunction = 'cubic-bezier(0.32, 0.72, 0, 1)'; // iOS-like spring
+
+const initialSnapIndex = computed(() => {
+  return props.snapPoints.indexOf(props.initialSnap);
+});
+
+const isDragging = ref(false);
+const currentHeight = ref(0);
+const currentSnapIndex = ref(initialSnapIndex.value);
+const isAnimating = ref(false);
+
+// Touch tracking
+const touchStart = ref({ y: 0, time: 0 });
+const lastTouchY = ref(0);
+const lastTouchTime = ref(0);
+
+const { height: windowHeight } = useDomSize(null);
+
+// Convert snap point to pixels
+function snapPointToPx(snapPoint: SnapPoint): number {
+  if (typeof snapPoint === 'string' && snapPoint.endsWith('%')) {
+    const percentage = Number.parseFloat(snapPoint) / 100;
+    return windowHeight.value * percentage;
+  }
+  return Number(snapPoint);
+}
+
+// Get all snap points in pixels
+const snapPointsPx = computed(() => {
+  return props.snapPoints.map(snapPointToPx).sort((a, b) => a - b);
+});
+
+const isFullscreen = computed(() => {
+  return currentHeight.value >= windowHeight.value * 0.9 || props.disableResize;
+});
+
+// Find nearest snap point based on direction
+function findNearestSnapIndex(height: number, velocity: number): number {
+  const points = snapPointsPx.value;
+
+  // Check velocity for flick gesture
+  if (Math.abs(velocity) > velocityThreshold) {
+    if (velocity > 0) {
+      // Flicking up - go to next higher snap point
+      for (let i = 0; i < points.length; i++) {
+        if (points[i] > height) {
+          return i;
+        }
+      }
+      return points.length - 1;
+    } else {
+      // Flicking down - go to next lower snap point or close
+      for (let i = points.length - 1; i >= 0; i--) {
+        if (points[i] < height) {
+          return i;
+        }
+      }
+      return -1; // Close
+    }
+  }
+
+  // No significant velocity - find closest snap point
+  let closestIndex = 0;
+  let minDistance = Math.abs(height - points[0]);
+
+  for (let i = 1; i < points.length; i++) {
+    const distance = Math.abs(height - points[i]);
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestIndex = i;
+    }
+  }
+
+  // If we're below the minimum snap point by a threshold, close
+  if (height < points[0] * 0.7) {
+    return -1;
+  }
+
+  return closestIndex;
+}
+
+// Animate to snap point
+function animateToSnapPoint(snapIndex: number) {
+  if (snapIndex === -1) {
+    // Close
+    currentHeight.value = 0;
+    emit('close');
+    return;
+  }
+
+  isAnimating.value = true;
+  currentHeight.value = snapPointsPx.value[snapIndex];
+  currentSnapIndex.value = snapIndex;
+  emit('snapChange', snapIndex);
+
+  setTimeout(() => {
+    isAnimating.value = false;
+  }, animationDuration);
+}
+
+// Touch handlers
+function handleTouchStart(e: TouchEvent) {
+  if (props.disableResize || !props.isOpen) return;
+
+  // Only handle touches on the drag handle area
+  const target = e.target as HTMLElement;
+  const isDragHandle = target.closest('.cursor-grab');
+  if (!isDragHandle) return;
+
+  isDragging.value = true;
+  touchStart.value = {
+    y: e.touches[0].clientY,
+    time: Date.now(),
+  };
+  lastTouchY.value = e.touches[0].clientY;
+  lastTouchTime.value = Date.now();
+}
+
+function handleTouchMove(e: TouchEvent) {
+  if (!isDragging.value) return;
+
+  const currentY = e.touches[0].clientY;
+  const newHeight = windowHeight.value - currentY;
+
+  // Clamp height with rubber band effect at extremes
+  const maxHeight = windowHeight.value;
+  const minHeight = 0;
+
+  if (newHeight > maxHeight) {
+    // Rubber band at top
+    currentHeight.value = maxHeight + (newHeight - maxHeight) * 0.3;
+  } else if (newHeight < minHeight) {
+    // Rubber band at bottom
+    currentHeight.value = newHeight * 0.3;
+  } else {
+    currentHeight.value = newHeight;
+  }
+
+  lastTouchY.value = currentY;
+  lastTouchTime.value = Date.now();
+
+  // Prevent scrolling when dragging
+  e.preventDefault();
+}
+
+function handleTouchEnd() {
+  if (!isDragging.value) return;
+
+  isDragging.value = false;
+
+  // Calculate velocity (px/ms)
+  const timeDelta = lastTouchTime.value - touchStart.value.time;
+  const yDelta = touchStart.value.y - lastTouchY.value; // Positive = dragging up
+  const velocity = timeDelta > 0 ? yDelta / timeDelta : 0;
+
+  // Find nearest snap point
+  const snapIndex = findNearestSnapIndex(currentHeight.value, velocity);
+  animateToSnapPoint(snapIndex);
+}
+
+function handleBackdropClick() {
+  if (props.closeOnBackdropClick) {
+    emit('close');
+  }
+}
+
+// Computed style for the sheet
+const sheetStyle = computed(() => {
+  const baseStyle: Record<string, string> = {};
+
+  // Set explicit height
+  if (currentHeight.value > 0) {
+    baseStyle.height = `${currentHeight.value}px`;
+    baseStyle.maxHeight = `${currentHeight.value}px`;
+  } else {
+    // When closed, set to 0 height
+    baseStyle.height = '0px';
+    baseStyle.maxHeight = '0px';
+    baseStyle.overflow = 'hidden';
+  }
+
+  // Add transition for smooth animation
+  if (isAnimating.value || !isDragging.value) {
+    baseStyle.transition = `height ${animationDuration}ms ${animationTimingFunction}, max-height ${animationDuration}ms ${animationTimingFunction}`;
+  }
+
+  // Desktop fullscreen handling
+  if (isFullscreen.value) {
+    baseStyle.height = '100vh';
+    baseStyle.maxHeight = '100vh';
+  }
+
+  return baseStyle;
+});
+
+// Watch isOpen prop
+watch(
+  () => props.isOpen,
+  (newValue) => {
+    if (newValue) {
+      // Open to initial snap point
+      animateToSnapPoint(initialSnapIndex.value);
+    } else {
+      // Close
+      currentHeight.value = 0;
+      currentSnapIndex.value = initialSnapIndex.value;
+    }
+  },
+  { immediate: true },
+);
+
+// Handle resize
+function handleResize() {
+  if (props.isOpen && !isDragging.value) {
+    // Recalculate current snap point height
+    currentHeight.value = snapPointsPx.value[currentSnapIndex.value];
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
+</script>
+
+<style scoped>
+.backdrop-enter-active,
+.backdrop-leave-active {
+  transition: opacity 250ms ease;
+}
+
+.backdrop-enter-from,
+.backdrop-leave-to {
+  opacity: 0;
+}
+</style>
