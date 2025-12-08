@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": "22",
+    "node": "24",
     "pnpm": "10"
   },
   "scripts": {
@@ -22,40 +22,40 @@
   },
   "dependencies": {
     "@vueuse/core": "12.7.0",
-    "canvas-confetti": "1.9.3",
+    "canvas-confetti": "1.9.4",
     "fuse.js": "7.1.0",
     "maplibre-gl": "5.1.1",
     "micromark": "4.0.2",
-    "nats.ws": "1.30.2",
-    "vue": "3.5.13",
-    "vue-i18n": "11.1.2",
-    "vue-router": "4.5.0"
+    "nats.ws": "1.30.3",
+    "vue": "3.5.24",
+    "vue-i18n": "11.1.12",
+    "vue-router": "4.5.1"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "4.3.0",
+    "@antfu/eslint-config": "6.4.2",
     "@eslint/js": "9.21.0",
-    "@iconify/json": "2.2.349",
-    "@intlify/eslint-plugin-vue-i18n": "3.2.0",
-    "@intlify/unplugin-vue-i18n": "6.0.8",
-    "@playwright/test": "^1.50.1",
+    "@iconify/json": "2.2.413",
+    "@intlify/eslint-plugin-vue-i18n": "4.1.0",
+    "@intlify/unplugin-vue-i18n": "11.0.1",
+    "@playwright/test": "^1.55.1",
     "@types/canvas-confetti": "1.9.0",
     "@types/geojson": "7946.0.16",
-    "@types/node": "22.13.14",
+    "@types/node": "22.19.1",
     "@vitejs/plugin-vue": "5.2.4",
-    "eslint": "9.21.0",
+    "eslint": "9.39.1",
     "eslint-plugin-promise": "7.2.1",
-    "eslint-plugin-vue-scoped-css": "2.9.0",
+    "eslint-plugin-vue-scoped-css": "2.12.0",
     "prettier": "3.5.3",
     "typescript": "5.8.3",
     "unplugin-icons": "22.1.0",
     "unplugin-vue-components": "28.4.1",
-    "vite": "6.2.7",
+    "vite": "6.4.1",
     "vite-plugin-pwa": "0.21.2",
     "vite-plugin-windicss": "1.9.4",
     "vitest": "3.0.8",
-    "vue-tsc": "2.2.10",
+    "vue-tsc": "2.2.12",
     "windicss": "3.5.6",
     "workbox-window": "7.3.0"
   },
-  "packageManager": "pnpm@10.6.2"
+  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a"
 }

@@ -5,3 +5,4 @@ const tileServer = 'https://tiles.immich.cloud/v1/style';
 export const darkMapStyle = `${tileServer}/dark.json`;
 export const lightMapStyle = `${tileServer}/light.json`;
 export const natsServerUrl = import.meta.env.VITE_NATS_URL;
+export const DEBUG = (globalThis?.window as { DEBUG?: boolean })?.DEBUG || import.meta.env.DEV;

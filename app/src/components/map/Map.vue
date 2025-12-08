@@ -14,7 +14,7 @@ import type {
 import type { GeoJSONSource, LineLayerSpecification, Source, SymbolLayerSpecification } from 'maplibre-gl';
 import type { Ref } from 'vue';
 import type { Bounds, Marker, StopType, VehicleType } from '~/api/types';
-import { useElementSize } from '@vueuse/core';
+import { refThrottled, useElementSize } from '@vueuse/core';
 
 import { AttributionControl, GeolocateControl, Map, NavigationControl } from 'maplibre-gl';
 import { computed, onBeforeUnmount, onMounted, ref, toRef, useTemplateRef, watch } from 'vue';
@@ -56,14 +56,10 @@ const mapMovedManually = computed({
 
 const colorScheme = useColorMode();
 
-const bounds = ref<Bounds>({
-  east: 0,
-  west: 0,
-  north: 0,
-  south: 0,
-});
-const { stops, unsubscribe: unsubscribeStops } = api.useStops(bounds);
-const { vehicles, unsubscribe: unsubscribeVehicles } = api.useVehicles(bounds);
+const bounds = ref<Bounds>();
+const throttledBounds = refThrottled(bounds, 500);
+const { stops, unsubscribe: unsubscribeStops } = api.useStops(throttledBounds);
+const { vehicles, unsubscribe: unsubscribeVehicles } = api.useVehicles(throttledBounds);
 
 const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
   Object.values(vehicles.value).map((v) => {
@@ -342,6 +338,13 @@ onMounted(async () => {
     map.addLayer(stopsLayer.value);
     map.addLayer(tripsLayer.value);
     map.addLayer(vehiclesLayer.value);
+
+    bounds.value = {
+      north: map.getBounds().getNorth(),
+      east: map.getBounds().getEast(),
+      south: map.getBounds().getSouth(),
+      west: map.getBounds().getWest(),
+    };
 
     initial = false;
   });

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -9,8 +8,8 @@ import (
 	ais "github.com/BertoldVdb/go-ais"
 	"github.com/BertoldVdb/go-ais/aisnmea"
 	"github.com/joho/godotenv"
-	"github.com/kiel-live/kiel-live/client"
-	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/kiel-live/kiel-live/pkg/client"
+	"github.com/kiel-live/kiel-live/pkg/models"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -63,7 +62,7 @@ func main() {
 	defer connection.Close()
 	buffer := make([]byte, 1024)
 
-	c := client.NewClient(server, client.WithAuth("collector", token))
+	c := client.NewClient(server, token)
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)
@@ -94,27 +93,19 @@ func main() {
 			if decoded.Packet.GetHeader().MessageID == 1 || decoded.Packet.GetHeader().MessageID == 2 || decoded.Packet.GetHeader().MessageID == 3 {
 				positionReportPacket := decoded.Packet.(ais.PositionReport)
 
-				vehicle := protocol.Vehicle{
+				vehicle := &models.Vehicle{
 					ID:       IDPrefix + fmt.Sprint(positionReportPacket.UserID),
 					Provider: "ais",
-					Type:     protocol.VehicleTypeFerry,
+					Type:     models.VehicleTypeFerry,
 					State:    "onfire", // TODO
-					Location: protocol.Location{
-						Heading:   int(positionReportPacket.TrueHeading),
+					Location: &models.Location{
 						Longitude: int(positionReportPacket.Longitude * 3600000),
 						Latitude:  int(positionReportPacket.Latitude * 3600000),
+						Heading:   int(positionReportPacket.TrueHeading),
 					},
 				}
 
-				topic := fmt.Sprintf(protocol.TopicMapVehicle, vehicle.ID)
-
-				jsonData, err := json.Marshal(vehicle)
-				if err != nil {
-					log.Error(err)
-					continue
-				}
-
-				err = c.Publish(topic, string(jsonData))
+				err = c.UpdateVehicle(vehicle)
 				if err != nil {
 					log.Error(err)
 					continue

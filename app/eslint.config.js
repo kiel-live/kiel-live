@@ -12,9 +12,9 @@ export default antfu(
     typescript: true,
     vue: true,
 
-    // Disable jsonc and yaml support
+    // Disable jsonc and pnpm support
     jsonc: false,
-    yaml: false,
+    pnpm: false,
   },
 
   js.configs.recommended,
