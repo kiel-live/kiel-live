@@ -10,7 +10,6 @@
       <input
         :value="internalSearchInput"
         type="text"
-        name="query"
         class="bg-transparent p-2 border border-transparent focus:outline-none focus-visible:(outline-none rounded-md border-gray-300 border-opacity-50) w-full h-full"
         :title="t('search')"
         :placeholder="`${t('search')} ...`"
