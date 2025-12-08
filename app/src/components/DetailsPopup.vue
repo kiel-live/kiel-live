@@ -24,113 +24,94 @@
   </div>
 </template>
 
-<script lang="ts">
-import type { PropType } from 'vue';
-import { computed, defineComponent, ref, toRef } from 'vue';
+<script lang="ts" setup>
+import { computed, ref, toRef } from 'vue';
 
-export default defineComponent({
-  name: 'DetailsPopup',
+const props = defineProps<{
+  isOpen: boolean;
+  size: '3/4' | '1/2' | '1';
+  disableResize?: boolean;
+}>();
 
-  props: {
-    isOpen: {
-      type: Boolean,
-      required: true,
-    },
+const emit = defineEmits<{
+  (event: 'close'): void;
+}>();
 
-    size: {
-      type: String as PropType<'3/4' | '1/2' | '1'>,
-      default: '3/4',
-    },
+const dragging = ref(false);
+const height = ref<number>();
+const isOpen = toRef(props, 'isOpen');
+const size = toRef(props, 'size');
+const disableResize = toRef(props, 'disableResize');
 
-    disableResize: {
-      type: Boolean,
-    },
-  },
+const actualSize = computed(() => {
+  if (disableResize.value && size.value === '1') {
+    return 'full';
+  }
 
-  emits: {
-    close: () => true,
-  },
+  if (!isOpen.value) {
+    return 'closed';
+  }
 
-  setup(props, { emit }) {
-    const dragging = ref(false);
-    const height = ref<number>();
-    const isOpen = toRef(props, 'isOpen');
-    const size = toRef(props, 'size');
-    const disableResize = toRef(props, 'disableResize');
-
-    const actualSize = computed(() => {
-      if (disableResize.value && size.value === '1') {
-        return 'full';
-      }
-
-      if (!isOpen.value) {
-        return 'closed';
-      }
-
-      if (dragging.value) {
-        if (height.value === undefined) {
-          return 'closed';
-        }
-
-        const percentage = height.value / window.innerHeight;
-        if ((size.value === '1/2' && percentage > 0.6) || (size.value === '3/4' && percentage > 0.85)) {
-          return 'maximizing';
-        }
-
-        if ((size.value === '1/2' && percentage < 0.4) || (size.value === '3/4' && percentage < 0.65)) {
-          return 'closing';
-        }
-
-        return 'defaulting';
-      }
-
-      if (height.value === 0) {
-        return 'closed';
-      }
-
-      if (height.value === window.innerHeight) {
-        return 'full';
-      }
-
-      return 'default';
-    });
-
-    function drag(e: TouchEvent) {
-      if (disableResize.value) {
-        return;
-      }
-
-      dragging.value = true;
-      height.value = window.innerHeight - e.touches[0].clientY;
+  if (dragging.value) {
+    if (height.value === undefined) {
+      return 'closed';
     }
 
-    function move(e: TouchEvent) {
-      if (!dragging.value) {
-        return;
-      }
-      height.value = window.innerHeight - e.touches[0].clientY;
+    const percentage = height.value / window.innerHeight;
+    if ((size.value === '1/2' && percentage > 0.6) || (size.value === '3/4' && percentage > 0.85)) {
+      return 'maximizing';
     }
 
-    function drop() {
-      if (!dragging.value) {
-        return;
-      }
-
-      if (actualSize.value === 'maximizing') {
-        height.value = window.innerHeight;
-      } else if (actualSize.value === 'closing') {
-        height.value = undefined;
-        emit('close');
-      } else if (actualSize.value === 'defaulting') {
-        height.value = undefined;
-      }
-
-      dragging.value = false;
+    if ((size.value === '1/2' && percentage < 0.4) || (size.value === '3/4' && percentage < 0.65)) {
+      return 'closing';
     }
 
-    return { drag, move, drop, actualSize, height, dragging };
-  },
+    return 'defaulting';
+  }
+
+  if (height.value === 0) {
+    return 'closed';
+  }
+
+  if (height.value === window.innerHeight) {
+    return 'full';
+  }
+
+  return 'default';
 });
+
+function drag(e: TouchEvent) {
+  if (disableResize.value) {
+    return;
+  }
+
+  dragging.value = true;
+  height.value = window.innerHeight - e.touches[0].clientY;
+}
+
+function move(e: TouchEvent) {
+  if (!dragging.value) {
+    return;
+  }
+  height.value = window.innerHeight - e.touches[0].clientY;
+}
+
+function drop() {
+  if (!dragging.value) {
+    return;
+  }
+
+  if (actualSize.value === 'maximizing') {
+    height.value = window.innerHeight;
+  } else if (actualSize.value === 'closing') {
+    height.value = undefined;
+    emit('close');
+  } else if (actualSize.value === 'defaulting') {
+    height.value = undefined;
+  }
+
+  dragging.value = false;
+}
 </script>
 
 <style scoped>
