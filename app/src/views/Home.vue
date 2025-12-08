@@ -5,7 +5,7 @@
     <DetailsPopup
       :is-open="isBottomSheetOpen"
       :snap-points="bottomSheetSnapPoints"
-      initial-snap="50%"
+      current-snap-point="50%"
       @close="closeBottomSheet"
     >
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />

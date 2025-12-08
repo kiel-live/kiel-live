@@ -1,20 +1,25 @@
 <template>
   <!-- Backdrop overlay -->
-  <Transition name="backdrop">
+  <Transition v-if="showBackdrop" name="backdrop">
     <div
-      v-if="isOpen && showBackdrop"
+      v-if="isOpen"
       class="fixed inset-0 bg-black bg-opacity-40 z-9 md:hidden"
-      @click="handleBackdropClick"
+      @click="
+        () => {
+          if (closeOnBackdropClick) {
+            $emit('close');
+          }
+        }
+      "
     />
   </Transition>
 
   <!-- Bottom sheet -->
   <div
-    class="fixed bottom-0 left-0 right-0 flex flex-col w-full z-10 bg-white shadow-top md:shadow-right md:rounded-none md:w-80 md:top-0 md:h-auto dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
+    class="absolute left-0 right-0 bottom-0 flex flex-col w-full z-100 bg-white shadow-top dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800 p-4"
     :class="{
-      'p-4 pb-0 pt-2': !isFullscreen,
       'rounded-t-2xl': !isFullscreen,
-      'rounded-none p-4 pt-16': isFullscreen,
+      'rounded-none': isFullscreen,
       'pointer-events-none': !isOpen,
     }"
     :style="sheetStyle"
@@ -28,7 +33,7 @@
       class="w-full -mt-4 pt-4 pb-4 md:hidden cursor-grab active:cursor-grabbing"
       :class="{ 'pointer-events-auto': isOpen }"
     >
-      <div v-show="!isFullscreen" class="flex-shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
+      <div class="flex-shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
     </div>
 
     <!-- Content -->
@@ -49,15 +54,15 @@ const props = withDefaults(
     isOpen: boolean;
     disableResize?: boolean;
     snapPoints?: SnapPoint[]; // Array of snap points in px or %
-    initialSnap?: SnapPoint; //
+    initialSnapPoint?: SnapPoint; // Initial snap point value (must be in snapPoints array)
     showBackdrop?: boolean; // Show backdrop overlay
     closeOnBackdropClick?: boolean; // Close when clicking backdrop
   }>(),
   {
     disableResize: false,
     snapPoints: () => ['10%', '50%', '90%'],
-    initialSnap: 0,
-    showBackdrop: false,
+    initialSnapPoint: '50%',
+    showBackdrop: true,
     closeOnBackdropClick: true,
   },
 );
@@ -71,14 +76,24 @@ const velocityThreshold = 0.5;
 const animationDuration = 300;
 const animationTimingFunction = 'cubic-bezier(0.32, 0.72, 0, 1)'; // iOS-like spring
 
-const initialSnapIndex = computed(() => {
-  return props.snapPoints.indexOf(props.initialSnap);
+const initialSnapPointIndex = computed(() => {
+  if (!props.initialSnapPoint) {
+    return 0;
+  }
+
+  const index = props.snapPoints.indexOf(props.initialSnapPoint);
+  if (index === -1) {
+    throw new Error('Initial snap point must be one of the defined snap points');
+  }
+
+  return index;
 });
 
 const isDragging = ref(false);
 const currentHeight = ref(0);
-const currentSnapIndex = ref(initialSnapIndex.value);
+const currentSnapIndex = ref(initialSnapPointIndex.value);
 const isAnimating = ref(false);
+const isMounted = ref(false);
 
 // Touch tracking
 const touchStart = ref({ y: 0, time: 0 });
@@ -102,11 +117,11 @@ const snapPointsPx = computed(() => {
 });
 
 const isFullscreen = computed(() => {
-  return currentHeight.value >= windowHeight.value * 0.9 || props.disableResize;
+  return currentHeight.value >= windowHeight.value || props.disableResize;
 });
 
 // Find nearest snap point based on direction
-function findNearestSnapIndex(height: number, velocity: number): number {
+function findNearestSnapIndex(height: number, velocity: number): number | null {
   const points = snapPointsPx.value;
 
   // Check velocity for flick gesture
@@ -126,7 +141,7 @@ function findNearestSnapIndex(height: number, velocity: number): number {
           return i;
         }
       }
-      return -1; // Close
+      return null; // Close
     }
   }
 
@@ -144,31 +159,38 @@ function findNearestSnapIndex(height: number, velocity: number): number {
 
   // If we're below the minimum snap point by a threshold, close
   if (height < points[0] * 0.7) {
-    return -1;
+    return null;
   }
 
   return closestIndex;
 }
 
 // Animate to snap point
-function animateToSnapPoint(snapIndex: number) {
-  if (snapIndex === -1) {
-    // Close
+function toSnapPoint(snapIndex: number | null, animate: boolean) {
+  if (snapIndex === null) {
     currentHeight.value = 0;
     emit('close');
     return;
   }
 
-  isAnimating.value = true;
-  currentHeight.value = snapPointsPx.value[snapIndex];
+  if (animate) {
+    isAnimating.value = true;
+  }
+
+  const height = snapPointsPx.value[snapIndex];
+  if (height === undefined) {
+    throw new Error('Invalid snap index');
+  }
+  currentHeight.value = height;
   currentSnapIndex.value = snapIndex;
   emit('snapChange', snapIndex);
 
-  setTimeout(() => {
-    isAnimating.value = false;
-  }, animationDuration);
+  if (animate) {
+    setTimeout(() => {
+      isAnimating.value = false;
+    }, animationDuration);
+  }
 }
-
 // Touch handlers
 function handleTouchStart(e: TouchEvent) {
   if (props.disableResize || !props.isOpen) return;
@@ -226,13 +248,7 @@ function handleTouchEnd() {
 
   // Find nearest snap point
   const snapIndex = findNearestSnapIndex(currentHeight.value, velocity);
-  animateToSnapPoint(snapIndex);
-}
-
-function handleBackdropClick() {
-  if (props.closeOnBackdropClick) {
-    emit('close');
-  }
+  toSnapPoint(snapIndex, true);
 }
 
 // Computed style for the sheet
@@ -251,7 +267,7 @@ const sheetStyle = computed(() => {
   }
 
   // Add transition for smooth animation
-  if (isAnimating.value || !isDragging.value) {
+  if ((isAnimating.value || !isDragging.value) && isMounted.value) {
     baseStyle.transition = `height ${animationDuration}ms ${animationTimingFunction}, max-height ${animationDuration}ms ${animationTimingFunction}`;
   }
 
@@ -267,17 +283,9 @@ const sheetStyle = computed(() => {
 // Watch isOpen prop
 watch(
   () => props.isOpen,
-  (newValue) => {
-    if (newValue) {
-      // Open to initial snap point
-      animateToSnapPoint(initialSnapIndex.value);
-    } else {
-      // Close
-      currentHeight.value = 0;
-      currentSnapIndex.value = initialSnapIndex.value;
-    }
+  (isOpen) => {
+    toSnapPoint(isOpen ? initialSnapPointIndex.value : null, true);
   },
-  { immediate: true },
 );
 
 // Handle resize
@@ -290,6 +298,16 @@ function handleResize() {
 
 onMounted(() => {
   window.addEventListener('resize', handleResize);
+
+  // Initialize if already open - set height before enabling transitions
+  if (props.isOpen) {
+    toSnapPoint(initialSnapPointIndex.value, false);
+  }
+
+  // Enable transitions after initial setup
+  setTimeout(() => {
+    isMounted.value = true;
+  }, 0);
 });
 
 onUnmounted(() => {

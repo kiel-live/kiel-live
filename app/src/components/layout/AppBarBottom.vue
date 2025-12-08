@@ -1,13 +1,13 @@
 <template>
   <nav
-    class="flex w-full justify-center border-t-1 border-gray-200 dark:border-gray-800 dark:bg-dark-400 dark:text-gray-300 shadow-top"
+    class="flex w-full justify-center border-t-1 border-gray-200 dark:border-gray-800 dark:bg-dark-400 dark:text-gray-300 shadow-top z-200"
   >
     <div class="flex w-full justify-around max-w-96">
       <router-link
         v-if="liteMode"
         :to="{ name: 'search' }"
         class="flex flex-col items-center w-1/3 p-2"
-        :class="{ 'text-red-700 dark:text-red-500': activeArea === 'map' }"
+        :class="{ 'text-red-700 dark:text-red-500': activeArea === 'search' }"
         :aria-label="t('search')"
       >
         <i-ph-magnifying-glass-bold class="w-6 h-6 mb-1" />
@@ -60,6 +60,10 @@ const route = useRoute();
 const activeArea = computed(() => {
   if (route.name === 'favorites') {
     return 'favorites';
+  }
+
+  if (route.name === 'search') {
+    return 'search';
   }
 
   if (route.meta.settings) {

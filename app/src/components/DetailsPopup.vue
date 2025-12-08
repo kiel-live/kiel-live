@@ -15,7 +15,14 @@
     <slot />
   </div>
 
-  <BottomSheet v-else :is-open="isOpen" :snap-points="snapPoints" @close="$emit('close')">
+  <BottomSheet
+    v-else
+    :is-open="isOpen"
+    :snap-points="snapPoints"
+    :current-snap-point="currentSnapPoint"
+    :show-backdrop="false"
+    @close="$emit('close')"
+  >
     <slot />
   </BottomSheet>
 </template>
@@ -31,7 +38,7 @@ defineProps<{
   isOpen: boolean;
   disableResize?: boolean;
   snapPoints?: SnapPoint[];
-  initialSnap?: SnapPoint;
+  currentSnapPoint?: SnapPoint;
 }>();
 
 defineEmits<{
