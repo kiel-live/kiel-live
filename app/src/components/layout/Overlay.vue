@@ -6,18 +6,10 @@
   </transition>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  name: 'Overlay',
-
-  props: {
-    isOpen: {
-      type: Boolean,
-    },
-  },
-});
+<script setup lang="ts">
+defineProps<{
+  isOpen: boolean;
+}>();
 </script>
 
 <style scoped>
