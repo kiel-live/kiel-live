@@ -246,7 +246,7 @@ onMounted(async () => {
     container: 'map',
     style: colorScheme.value === 'dark' ? darkMapStyle : lightMapStyle,
     minZoom: 5,
-    maxZoom: 18,
+    maxZoom: 22,
     center: lastLocation.value.center,
     zoom: lastLocation.value.zoom,
     pitch: lastLocation.value.pitch,
