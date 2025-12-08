@@ -11,8 +11,8 @@ import (
 
 	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
-	"github.com/kiel-live/kiel-live/client"
-	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/kiel-live/kiel-live/pkg/client"
+	"github.com/kiel-live/kiel-live/pkg/models"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -40,7 +40,7 @@ func main() {
 		log.Fatalln("Please provide a token for the collector with COLLECTOR_TOKEN")
 	}
 
-	c := client.NewClient(server, client.WithAuth("collector", token))
+	c := client.NewClient(server, token)
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)
@@ -105,24 +105,18 @@ func main() {
 				return err
 			}
 
-			stop := &protocol.Stop{
+			stop := &models.Stop{
 				ID:       ID,
 				Provider: "donkey",
 				Name:     hub.Name,
 				Type:     "bike-stop",
-				Location: protocol.Location{
+				Location: &models.Location{
 					Latitude:  int(latitude * 3600000),
 					Longitude: int(longitude * 3600000),
 				},
 			}
 
-			d, err := json.Marshal(stop)
-			if err != nil {
-				return err
-			}
-
-			subject := fmt.Sprintf(protocol.SubjectMapStop, ID)
-			err = c.Publish(subject, string(d))
+			err = c.UpdateStop(stop)
 			if err != nil {
 				return err
 			}

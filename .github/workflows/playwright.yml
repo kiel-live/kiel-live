@@ -1,0 +1,43 @@
+name: Playwright Tests
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: pnpm/action-setup@v4
+      with:
+        package_json_file: app/package.json
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: app/package.json
+        cache: "pnpm"
+        cache-dependency-path: app
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      working-directory: app
+
+    - name: Install Playwright Browsers
+      run: pnpm exec playwright install --with-deps chromium-headless-shell
+      working-directory: app
+
+    - name: Run Playwright tests
+      run: pnpm exec playwright test
+      working-directory: app
+
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: app/test-results/
+        retention-days: 30

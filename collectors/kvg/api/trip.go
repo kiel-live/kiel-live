@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/url"
 
-	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/kiel-live/kiel-live/pkg/models"
 )
 
 type tripStop struct {
@@ -26,8 +26,8 @@ type tripPaths struct {
 	Paths []tripPath `json:"paths"`
 }
 
-func (t *tripStop) parse() protocol.TripArrival {
-	return protocol.TripArrival{
+func (t *tripStop) parse() *models.TripArrival {
+	return &models.TripArrival{
 		ID:      IDPrefix + t.Stop.ShortName,
 		Name:    t.Stop.Name,
 		State:   t.Status.parse(),
@@ -43,8 +43,8 @@ type trip struct {
 }
 
 // trip parser to protocol trip
-func (t *trip) parse() protocol.Trip {
-	var arrivals []protocol.TripArrival
+func (t *trip) parse() *models.Trip {
+	var arrivals []*models.TripArrival
 	for _, stop := range t.OldStops {
 		arrivals = append(arrivals, stop.parse())
 	}
@@ -52,14 +52,14 @@ func (t *trip) parse() protocol.Trip {
 		arrivals = append(arrivals, stop.parse())
 	}
 
-	return protocol.Trip{
+	return &models.Trip{
 		Provider:  "kvg", // TODO
 		Direction: t.DirectionText,
 		Arrivals:  arrivals,
 	}
 }
 
-func GetTripPath(tripID string) []protocol.Location {
+func GetTripPath(tripID string) []*models.Location {
 	data := url.Values{}
 	data.Set("id", tripID)
 
@@ -72,9 +72,9 @@ func GetTripPath(tripID string) []protocol.Location {
 		return nil
 	}
 
-	var path []protocol.Location
+	var path []*models.Location
 	for _, waypoint := range paths.Paths[0].Waypoints {
-		path = append(path, protocol.Location{
+		path = append(path, &models.Location{
 			Latitude:  waypoint.Lat,
 			Longitude: waypoint.Lon,
 		})
@@ -83,7 +83,7 @@ func GetTripPath(tripID string) []protocol.Location {
 	return path
 }
 
-func GetTrip(tripID string) (*protocol.Trip, error) {
+func GetTrip(tripID string) (*models.Trip, error) {
 	data := url.Values{}
 	data.Set("tripId", tripID)
 
@@ -98,5 +98,5 @@ func GetTrip(tripID string) (*protocol.Trip, error) {
 	protocolTrip := trip.parse()
 	protocolTrip.ID = IDPrefix + tripID
 	protocolTrip.Path = GetTripPath(tripID)
-	return &protocolTrip, nil
+	return protocolTrip, nil
 }

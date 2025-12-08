@@ -1,4 +1,4 @@
-package protocol
+package models
 
 type Action struct {
 	Name string `json:"name"`

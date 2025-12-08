@@ -4,9 +4,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - app/**
-      - .github/workflows/check-js.yml
   push:
     branches:
       - main
@@ -21,23 +18,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: app/package.json
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version-file: app/package.json
+          cache: "pnpm"
+          cache-dependency-path: app
 
-      - name: Cache pnpm modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-          run_install: true
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: app
 
       - name: Typecheck
         run: pnpm run typecheck
@@ -52,23 +46,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: app/package.json
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version-file: app/package.json
+          cache: "pnpm"
+          cache-dependency-path: app
 
-      - name: Cache pnpm modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-          run_install: true
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: app
 
       - name: Lint
         run: pnpm run lint
@@ -83,23 +74,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: app/package.json
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version-file: app/package.json
+          cache: "pnpm"
+          cache-dependency-path: app
 
-      - name: Cache pnpm modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-          run_install: true
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: app
 
       - name: Check format
         run: pnpm run formatcheck
@@ -114,23 +102,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: app/package.json
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version-file: app/package.json
+          cache: "pnpm"
+          cache-dependency-path: app
 
-      - name: Cache pnpm modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-          run_install: true
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: app
 
       - name: Test
         run: pnpm run test

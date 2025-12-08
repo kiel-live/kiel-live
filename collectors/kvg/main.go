@@ -6,9 +6,8 @@ import (
 
 	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
-	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/collector"
-	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
+	"github.com/kiel-live/kiel-live/pkg/client"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -36,7 +35,7 @@ func main() {
 		log.Fatalln("Please provide a token for the collector with COLLECTOR_TOKEN")
 	}
 
-	c := client.NewClient(server, client.WithAuth("collector", token))
+	c := client.NewClient(server, token)
 	err = c.Connect()
 	if err != nil {
 		log.Fatalln(err)
@@ -49,37 +48,50 @@ func main() {
 		}
 	}()
 
-	subscriptions := subscriptions.New(c)
-
 	collectors = make(map[string]collector.Collector)
 
 	// auto load following collectors
-	collectors["map-vehicles"], err = collector.NewCollector(c, "map-vehicles", subscriptions)
+	collectors["vehicles"], err = collector.NewCollector(c, "vehicles")
 	if err != nil {
 		log.Errorln(err)
 		return
 	}
-	collectors["map-stops"], err = collector.NewCollector(c, "map-stops", subscriptions)
+	collectors["stops"], err = collector.NewCollector(c, "stops")
 	if err != nil {
 		log.Errorln(err)
 		return
 	}
-	collectors["trips"], err = collector.NewCollector(c, "trips", subscriptions)
+	collectors["trips"], err = collector.NewCollector(c, "trips")
 	if err != nil {
 		log.Errorln(err)
 		return
 	}
 
-	subscriptions.Subscribe(func(subject string) {
-		tripIDs := collectors["trips"].SubjectsToIDs([]string{subject})
-		if len(tripIDs) > 0 {
-			collectors["trips"].Run(tripIDs, false)
+	c.SetOnTopicsChanged(func(topic string, subscribed bool) {
+		if !subscribed {
 			return
 		}
-		stopIDs := collectors["map-stops"].SubjectsToIDs([]string{subject})
-		if len(stopIDs) > 0 {
-			collectors["map-stops"].Run(stopIDs, false)
+
+		tripID := collectors["trips"].TopicToID(topic)
+		if tripID != "" {
+			collectors["trips"].RunSingle(tripID)
 			return
+		}
+		stopID := collectors["stops"].TopicToID(topic)
+		if stopID != "" {
+			collectors["stops"].RunSingle(stopID)
+			return
+		}
+	})
+
+	c.SetOnConnectionChanged(func(connected bool) {
+		if !connected {
+			return
+		}
+
+		for name, c := range collectors {
+			log.Debugf("Resetting %s collector", name)
+			c.Reset()
 		}
 	})
 
@@ -90,11 +102,10 @@ func main() {
 			return
 		}
 
-		subjects := subscriptions.GetSubscriptions()
 		for name, c := range collectors {
 			// TODO maybe run in go routine
-			log.Debugln("Collector for", name, "running ...")
-			c.Run(c.SubjectsToIDs(subjects), true)
+			log.Debugf("Running %s collector ...", name)
+			c.Run()
 		}
 	})
 	if err != nil {

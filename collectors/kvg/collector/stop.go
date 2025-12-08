@@ -1,26 +1,25 @@
 package collector
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
-	"github.com/kiel-live/kiel-live/client"
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
-	"github.com/kiel-live/kiel-live/collectors/kvg/subscriptions"
-	"github.com/kiel-live/kiel-live/protocol"
+	"github.com/kiel-live/kiel-live/pkg/client"
+	"github.com/kiel-live/kiel-live/pkg/models"
 	"github.com/sirupsen/logrus"
 )
 
 type StopCollector struct {
-	client         *client.Client
-	stops          map[string]*protocol.Stop
-	subscriptions  *subscriptions.Subscriptions
+	client client.Client
+	stops  map[string]*models.Stop
+	sync.Mutex
 	lastFullUpdate int64
 }
 
-func isSameArrivals(a, b []protocol.StopArrival) bool {
+func isSameArrivals(a, b []*models.StopArrival) bool {
 	if len(a) != len(b) {
 		return false
 	}
@@ -35,7 +34,7 @@ func isSameArrivals(a, b []protocol.StopArrival) bool {
 	return true
 }
 
-func isSameStop(a *protocol.Stop, b *protocol.Stop) bool {
+func isSameStop(a *models.Stop, b *models.Stop) bool {
 	return a != nil && b != nil &&
 		a.Provider == b.Provider &&
 		a.Name == b.Name &&
@@ -46,7 +45,7 @@ func isSameStop(a *protocol.Stop, b *protocol.Stop) bool {
 }
 
 // returns list of changed or newly added stops
-func (c *StopCollector) getChangedStops(stops map[string]*protocol.Stop) (changed []*protocol.Stop) {
+func (c *StopCollector) getChangedStops(stops map[string]*models.Stop) (changed []*models.Stop) {
 	for _, v := range stops {
 		if !isSameStop(v, c.stops[v.ID]) {
 			changed = append(changed, v)
@@ -56,7 +55,7 @@ func (c *StopCollector) getChangedStops(stops map[string]*protocol.Stop) (change
 	return changed
 }
 
-func (c *StopCollector) getRemovedStops(stops map[string]*protocol.Stop) (removed []*protocol.Stop) {
+func (c *StopCollector) getRemovedStops(stops map[string]*models.Stop) (removed []*models.Stop) {
 	for _, v := range c.stops {
 		if _, ok := stops[v.ID]; !ok {
 			removed = append(removed, v)
@@ -66,66 +65,50 @@ func (c *StopCollector) getRemovedStops(stops map[string]*protocol.Stop) (remove
 	return removed
 }
 
-func (c *StopCollector) publish(stop *protocol.Stop) error {
-	subject := fmt.Sprintf(protocol.SubjectMapStop, stop.ID)
-
-	jsonData, err := json.Marshal(stop)
-	if err != nil {
-		return err
+func (c *StopCollector) TopicToID(topic string) string {
+	if strings.HasPrefix(topic, fmt.Sprintf(models.TopicStop, api.IDPrefix)) && topic != fmt.Sprintf(models.TopicStop, ">") {
+		return strings.TrimPrefix(topic, fmt.Sprintf(models.TopicStop, api.IDPrefix))
 	}
-
-	err = c.client.Publish(subject, string(jsonData))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return ""
 }
 
-func (c *StopCollector) publishRemoved(stop *protocol.Stop) error {
-	subject := fmt.Sprintf(protocol.SubjectMapStop, stop.ID)
+func (c *StopCollector) Run() {
+	log := logrus.WithField("collector", "stop")
 
-	err := c.client.Publish(subject, string(protocol.DeletePayload))
-	if err != nil {
-		return err
-	}
+	c.Lock()
+	defer c.Unlock()
 
-	return nil
-}
-
-func (c *StopCollector) SubjectsToIDs(subjects []string) []string {
-	var ids []string
-	for _, subject := range subjects {
-		if strings.HasPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, api.IDPrefix)) && subject != fmt.Sprintf(protocol.SubjectMapStop, ">") {
-			ids = append(ids, strings.TrimPrefix(subject, fmt.Sprintf(protocol.SubjectMapStop, api.IDPrefix)))
+	topics := c.client.GetSubscribedTopics()
+	var stopIDs []string
+	for _, topic := range topics {
+		id := c.TopicToID(topic)
+		if id != "" {
+			stopIDs = append(stopIDs, id)
 		}
 	}
-	return ids
-}
 
-func (c *StopCollector) Run(stopIDs []string, _ bool) {
-	log := logrus.WithField("collector", "stop")
 	stops, err := api.GetStops()
 	if err != nil {
 		log.Error(err)
 		return
 	}
 
+	// load further details only for explicitly subscribed stops
+	log.Debugf("loading details for %d stops: %s", len(stopIDs), strings.Join(stopIDs, ", "))
 	for _, stopID := range stopIDs {
-		log.Debug("StopCollector: Run: ", stopID)
 		details, err := api.GetStopDetails(stopID)
 		if err != nil {
 			log.Error(err)
 			continue
 		}
-		log.Debug("StopCollector: publish stop", details)
 		stops[api.IDPrefix+stopID].Arrivals = details.Departures
 		stops[api.IDPrefix+stopID].Alerts = details.Alerts
 	}
 
-	var stopsToPublish []*protocol.Stop
-	// publish all stops when last full update is older than the max cache age
-	if c.lastFullUpdate == 0 || c.lastFullUpdate < time.Now().Unix()-protocol.MaxCacheAge {
+	var stopsToPublish []*models.Stop
+	// publish all stops when last full update is older than the max cache age as stops
+	// normally never change and the cache wont keep them forever
+	if c.lastFullUpdate == 0 || c.lastFullUpdate < time.Now().Unix()-models.MaxCacheAge {
 		for _, stop := range stops {
 			stopsToPublish = append(stopsToPublish, stop)
 		}
@@ -135,7 +118,8 @@ func (c *StopCollector) Run(stopIDs []string, _ bool) {
 		stopsToPublish = c.getChangedStops(stops)
 	}
 	for _, stop := range stopsToPublish {
-		err := c.publish(stop)
+		log.Tracef("publish updated stop: %v", stop)
+		err := c.client.UpdateStop(stop)
 		if err != nil {
 			log.Error(err)
 		}
@@ -144,7 +128,8 @@ func (c *StopCollector) Run(stopIDs []string, _ bool) {
 	// publish all removed stops
 	removed := c.getRemovedStops(stops)
 	for _, stop := range removed {
-		err := c.publishRemoved(stop)
+		log.Debugf("publish removed stop: %v", stop)
+		err := c.client.DeleteStop(stop.ID)
 		if err != nil {
 			log.Error(err)
 		}
@@ -154,4 +139,54 @@ func (c *StopCollector) Run(stopIDs []string, _ bool) {
 
 	// update list of stops
 	c.stops = stops
+}
+
+func (c *StopCollector) RunSingle(stopID string) {
+	log := logrus.WithField("collector", "stop").WithField("stop-id", stopID)
+
+	c.Lock()
+	defer c.Unlock()
+
+	// get stop from cache
+	stop, ok := c.stops[api.IDPrefix+stopID]
+	if !ok {
+		log.Debugf("stop %s not found in cache, fetching stops list", stopID)
+		stops, err := api.GetStops()
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		stop, ok = stops[api.IDPrefix+stopID]
+		if !ok {
+			log.Errorf("stop %s not found in stops list", stopID)
+			return
+		}
+	}
+
+	// get stop details
+	details, err := api.GetStopDetails(stopID)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	stop.Arrivals = details.Departures
+	stop.Alerts = details.Alerts
+
+	// publish stop
+	err = c.client.UpdateStop(stop)
+	if err != nil {
+		log.Error(err)
+	}
+
+	log.Debugf("published single stop: %v", stop)
+	// update cache
+	c.stops[api.IDPrefix+stopID] = stop
+}
+
+func (c *StopCollector) Reset() {
+	c.Lock()
+	defer c.Unlock()
+
+	c.stops = make(map[string]*models.Stop)
 }

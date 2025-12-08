@@ -10,9 +10,6 @@ on:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
-    paths:
-      - app/**
-      - .github/workflows/app.yml
 
 permissions:
   pull-requests: write # allow surge-preview to create/update PR comments
@@ -24,23 +21,20 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: app/package.json
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version-file: app/package.json
+          cache: "pnpm"
+          cache-dependency-path: app
 
-      - name: Cache pnpm modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-          run_install: true
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: app
 
       - name: Build 🔧
         run: pnpm build

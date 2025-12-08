@@ -1,5 +1,6 @@
 <template>
-  <div
+  <nav
+    id="app-bar"
     class="absolute top-0 left-0 right-0 mx-2 mt-2 h-12 flex rounded-md py-1 pr-1 gap-x-1 items-center justify-between bg-white border-1 border-gray-200 shadow-xl z-20 md:transform md:-translate-x-1/2 md:right-auto md:left-1/2 md:w-96 dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
   >
     <router-link :to="{ name: 'home' }" class="p-2 flex items-center">
@@ -14,6 +15,7 @@
         :title="t('search')"
         :placeholder="`${t('search')} ...`"
         autofocus
+        name="query"
         @input="(event) => (internalSearchInput = (event.currentTarget as HTMLInputElement).value)"
         @keydown.escape="$router.back()"
         @click="$router.push({ name: 'search' })"
@@ -27,7 +29,7 @@
       <i-majesticons-cloud-download-line />
       <span>{{ t('update') }}</span>
     </Button>
-  </div>
+  </nav>
 </template>
 
 <script lang="ts" setup>

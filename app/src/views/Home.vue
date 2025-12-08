@@ -3,15 +3,10 @@
     <AppBar v-model:search-input="searchInput" />
 
     <DetailsPopup
-      :open="!!selectedMarker || $route.name === 'search' || $route.name === 'favorites'"
-      :is-drawer="!liteMode"
+      :is-open="isPopupOpen"
+      :disable-resize="liteMode"
       :size="popupSize"
-      @close="
-        () => {
-          selectedMarker = undefined;
-          $router.replace({ name: 'home' });
-        }
-      "
+      @close="$router.replace({ name: 'home' })"
     >
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
       <SearchPopup v-if="$route.name === 'search'" v-model:search-input="searchInput" />
@@ -65,6 +60,11 @@ const selectedMarker = computed<Marker | undefined>({
 const searchInput = ref('');
 
 const mapMovedManually = ref(false);
+
+const isPopupOpen = computed(() => {
+  return selectedMarker.value !== undefined || route.name === 'search' || route.name === 'favorites';
+});
+
 const popupSize = computed(() => {
   if (liteMode.value) {
     return '1';

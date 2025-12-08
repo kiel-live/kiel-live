@@ -1,7 +1,7 @@
 <template>
   <DrawerRoot
     v-if="isDrawer"
-    v-model:open="open"
+    v-model:open="isOpen"
     v-model:active-snap-point="snap"
     :snap-points="snapPoints"
     :modal="false"
@@ -22,7 +22,7 @@
       </DrawerContent>
     </DrawerPortal>
   </DrawerRoot>
-  <div v-else-if="open" class="flex p-4 max-w-5xl mx-auto max-h-[calc(100%-64px)] h-full mt-16">
+  <div v-else-if="isOpen" class="flex p-4 max-w-5xl mx-auto max-h-[calc(100%-64px)] h-full mt-16">
     <slot />
   </div>
 </template>
@@ -40,7 +40,7 @@ defineEmits<{
   (event: 'close'): void;
 }>();
 
-const open = defineModel<boolean>('open', { required: true });
+const isOpen = defineModel<boolean>('is-open', { required: true });
 
 const snapPoints = computed(() => {
   if (props.size === '1/2') return ['200px', 0.5];
@@ -48,7 +48,40 @@ const snapPoints = computed(() => {
 });
 
 const snap = ref<number | string | null>(0.5);
-watch([() => props.size, open], () => {
+watch([() => props.size, isOpen], () => {
   snap.value = 0.5;
 });
+
+function drag(e: TouchEvent) {
+  if (disableResize.value) {
+    return;
+  }
+
+  dragging.value = true;
+  height.value = window.innerHeight - e.touches[0].clientY;
+}
+
+function move(e: TouchEvent) {
+  if (!dragging.value) {
+    return;
+  }
+  height.value = window.innerHeight - e.touches[0].clientY;
+}
+
+function drop() {
+  if (!dragging.value) {
+    return;
+  }
+
+  if (actualSize.value === 'maximizing') {
+    height.value = window.innerHeight;
+  } else if (actualSize.value === 'closing') {
+    height.value = undefined;
+    emit('close');
+  } else if (actualSize.value === 'defaulting') {
+    height.value = undefined;
+  }
+
+  dragging.value = false;
+}
 </script>
