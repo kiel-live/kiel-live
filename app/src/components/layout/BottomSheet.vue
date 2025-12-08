@@ -52,7 +52,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref, watch, useTemplateRef } from 'vue';
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue';
 import { useDomSize } from '~/compositions/useDomSize';
 
 type SnapPoint = number | string;
@@ -115,7 +115,7 @@ const lastTouchTime = ref(0);
 const parentElement = computed(() => sheetRef.value?.parentElement);
 const { height: windowHeight } = useDomSize(parentElement);
 
-const remSize = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
+const remSize = Number.parseFloat(window.getComputedStyle(document.documentElement).fontSize);
 
 // Convert snap point to pixels
 function snapPointToPx(snapPoint: SnapPoint): number {

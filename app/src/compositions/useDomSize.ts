@@ -1,4 +1,5 @@
-import { onMounted, onUnmounted, readonly, type Ref, ref, watch } from 'vue';
+import type { Ref } from 'vue';
+import { onMounted, onUnmounted, readonly, ref, watch } from 'vue';
 
 export function useDomSize(el: Ref<HTMLElement | null | undefined>) {
   const width = ref(0);
