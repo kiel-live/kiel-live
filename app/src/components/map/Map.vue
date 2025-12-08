@@ -518,7 +518,7 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 @reference "tailwindcss";
 
 #map :deep(.maplibregl-ctrl-attrib) {
-  @apply dark:bg-zinc-900;
+  @apply dark:bg-neutral-900;
 }
 
 #map :deep(.maplibregl-ctrl-attrib a) {
@@ -530,7 +530,7 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 }
 
 #map :deep(.maplibregl-ctrl-group) {
-  @apply dark:bg-zinc-900;
+  @apply dark:bg-neutral-900;
 }
 
 .dark #map :deep(.maplibregl-ctrl-group:not(:empty)) {
@@ -538,7 +538,7 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 }
 
 #map :deep(.maplibregl-ctrl-group button + button) {
-  @apply dark:border-t-zinc-700;
+  @apply dark:border-t-neutral-700;
 }
 
 #map :deep(.maplibregl-ctrl button .maplibregl-ctrl-icon) {

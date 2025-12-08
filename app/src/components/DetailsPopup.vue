@@ -1,7 +1,7 @@
 <template>
   <div
     v-show="isOpen"
-    class="absolute bottom-0 left-0 right-0 flex flex-col w-full z-10 bg-white shadow-top md:shadow-right md:rounded-none md:w-80 md:top-0 md:h-auto transition dark:bg-zinc-900 dark:text-gray-300 dark:border-zinc-950"
+    class="absolute bottom-0 left-0 right-0 flex flex-col w-full z-10 bg-white shadow-top md:shadow-right md:rounded-none md:w-80 md:top-0 md:h-auto transition dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-950"
     :class="{
       'overflow-hidden max-h-0': actualSize === 'closed',
       'h-full md:mx-auto md:w-200 md:shadow-none': actualSize === 'full',

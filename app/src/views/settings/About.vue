@@ -1,6 +1,6 @@
 <template>
   <SettingsContainer>
-    <h1 class="mb-4 text-xl font-bold">{{ t('kiel_live') }}</h1>
+    <h1 class="mb-4 text-xl">{{ t('kiel_live') }}</h1>
 
     <img src="../../assets/logo.png" :alt="t('logo_alt')" class="w-36 mx-auto mb-4" />
 
@@ -20,14 +20,14 @@
     <div class="flex flex-col mt-4">
       <router-link
         :to="{ name: 'settings-settings' }"
-        class="flex items-center border-b border-t dark:border-gray-600 py-4 px-2 gap-2"
+        class="flex items-center border-b dark:border-neutral-600 dark:bg-neutral-700 py-4 px-2 gap-2 rounded-t-md"
       >
         <i-ph-gear-fill />
         <span>{{ t('settings') }}</span>
       </router-link>
       <router-link
         :to="{ name: 'settings-contact' }"
-        class="flex items-center border-b dark:border-gray-600 py-4 px-2 gap-2"
+        class="flex items-center border-b dark:border-neutral-600 dark:bg-neutral-700 py-4 px-2 gap-2"
       >
         <i-ic-round-message />
         <span>{{ t('contact_us') }}</span>
@@ -36,7 +36,7 @@
         :href="analyticsUrl"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex items-center border-b dark:border-gray-600 py-4 px-2 gap-2"
+        class="flex items-center border-b dark:border-neutral-600 dark:bg-neutral-700 py-4 px-2 gap-2"
         @click="track('click:analytics')"
       >
         <i-ion-md-analytics />
@@ -44,7 +44,7 @@
       </a>
       <router-link
         :to="{ name: 'settings-changelog' }"
-        class="flex items-center py-4 px-2 gap-2 border-b dark:border-gray-600"
+        class="flex items-center py-4 px-2 gap-2 border-b dark:border-gray-600 dark:bg-neutral-700"
       >
         <i-ic-outline-update />
         <span>{{ t('changelog') }}</span>
@@ -53,7 +53,7 @@
         href="https://github.com/kiel-live/kiel-live"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex items-center py-4 px-2 gap-2"
+        class="flex items-center py-4 px-2 gap-2 dark:bg-neutral-700 rounded-b-md"
         @click="track('click:github')"
       >
         <i-mdi-github />

@@ -23,11 +23,11 @@ body {
 *::-webkit-scrollbar-thumb {
   transition: background 0.2s ease-in-out;
   border: 3px solid transparent;
-  @apply bg-gray-500 dark:bg-zinc-800 rounded-full bg-clip-content;
+  @apply bg-gray-500 dark:bg-neutral-800 rounded-full bg-clip-content;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-600 dark:bg-zinc-700;
+  @apply bg-gray-600 dark:bg-neutral-700;
 }
 
 *::-webkit-scrollbar-corner {

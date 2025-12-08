@@ -1,6 +1,6 @@
 <template>
   <div v-if="stop" class="flex flex-col min-h-0 flex-grow">
-    <div class="flex flex-row pb-2 mb-2 border-b-1 dark:border-zinc-700 items-center">
+    <div class="flex flex-row pb-2 mb-2 border-b-1 dark:border-neutral-700 items-center">
       <i-mdi-ferry v-if="stop.type === 'ferry-stop'" />
       <i-mdi-sign-real-estate v-else />
       <h1 class="text-lg ml-2">{{ stop.name }}</h1>
@@ -37,7 +37,7 @@
       <router-link
         v-for="arrival in augmentedArrivals"
         :key="arrival.tripId"
-        class="flex flex-col py-2 w-full not-last:border-b-1 dark:border-zinc-800"
+        class="flex flex-col py-2 w-full not-last:border-b-1 dark:border-neutral-800"
         :to="{
           name: 'map-marker',
           params: { markerType: stop.type.replace('-stop', ''), markerId: arrival.vehicleId },
@@ -70,7 +70,7 @@
       <router-link
         v-for="vehicle in stop.vehicles"
         :key="vehicle.id"
-        class="flex flex-col py-2 w-full not-last:border-b-1 dark:border-zinc-800"
+        class="flex flex-col py-2 w-full not-last:border-b-1 dark:border-neutral-800"
         :to="{
           name: 'map-marker',
           params: { markerType: vehicle.type, markerId: vehicle.id },
