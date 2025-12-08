@@ -22,6 +22,7 @@
     :is-open="isOpen"
     :snap-points="snapPoints"
     :show-backdrop="false"
+    prevent-close
     @update:current-snap-point="$emit('update:current-snap-point', $event)"
     @close="$emit('close')"
   >

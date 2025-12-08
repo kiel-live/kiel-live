@@ -39,7 +39,13 @@
     </div>
 
     <!-- Content -->
-    <div class="flex-1 overflow-y-auto" :class="{ 'pointer-events-auto': isOpen }">
+    <div
+      ref="content"
+      class="flex-1 overflow-y-auto"
+      :class="{ 'pointer-events-auto': isOpen }"
+      @touchstart="handleContentTouchStart"
+      @touchmove="handleContentTouchMove"
+    >
       <slot />
     </div>
   </div>
@@ -59,6 +65,7 @@ const props = withDefaults(
     currentSnapPoint?: SnapPoint; // Initial snap point value (must be in snapPoints array)
     showBackdrop?: boolean; // Show backdrop overlay
     closeOnBackdropClick?: boolean; // Close when clicking backdrop
+    preventClose?: boolean; // Prevent closing by dragging down
   }>(),
   {
     disableResize: false,
@@ -66,6 +73,7 @@ const props = withDefaults(
     initialSnapPoint: '50%',
     showBackdrop: true,
     closeOnBackdropClick: true,
+    preventClose: false,
   },
 );
 
@@ -91,7 +99,8 @@ const initialSnapPointIndex = computed(() => {
   return index;
 });
 
-const sheet = useTemplateRef('sheet');
+const sheetRef = useTemplateRef('sheet');
+const contentRef = useTemplateRef('content');
 const isDragging = ref(false);
 const currentHeight = ref(0);
 const currentSnapIndex = ref(initialSnapPointIndex.value);
@@ -103,7 +112,7 @@ const touchStart = ref({ y: 0, time: 0 });
 const lastTouchY = ref(0);
 const lastTouchTime = ref(0);
 
-const parentElement = computed(() => sheet.value?.parentElement);
+const parentElement = computed(() => sheetRef.value?.parentElement);
 const { height: windowHeight } = useDomSize(parentElement);
 
 const remSize = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
@@ -160,7 +169,8 @@ function findNearestSnapIndex(height: number, velocity: number): number | null {
           return i;
         }
       }
-      return null; // Close
+      // Only allow closing if preventClose is false
+      return props.preventClose ? 0 : null;
     }
   }
 
@@ -176,9 +186,9 @@ function findNearestSnapIndex(height: number, velocity: number): number | null {
     }
   }
 
-  // If we're below the minimum snap point by a threshold, close
+  // If we're below the minimum snap point by a threshold, close (unless prevented)
   if (height < points[0] * 0.7) {
-    return null;
+    return props.preventClose ? 0 : null;
   }
 
   return closestIndex;
@@ -227,6 +237,87 @@ function handleTouchStart(e: TouchEvent) {
   };
   lastTouchY.value = e.touches[0].clientY;
   lastTouchTime.value = Date.now();
+}
+
+// Content scroll edge detection
+function isScrolledToTop(element: HTMLElement): boolean {
+  return element.scrollTop <= 0;
+}
+
+function isScrolledToBottom(element: HTMLElement): boolean {
+  return Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 1;
+}
+
+// Find the scrollable element that was touched
+function findScrollableParent(target: HTMLElement): HTMLElement | null {
+  let current: HTMLElement | null = target;
+
+  while (current && current !== contentRef.value) {
+    const overflowY = window.getComputedStyle(current).overflowY;
+    const isScrollable = overflowY === 'auto' || overflowY === 'scroll';
+    const hasScroll = current.scrollHeight > current.clientHeight;
+
+    if (isScrollable && hasScroll) {
+      return current;
+    }
+
+    current = current.parentElement;
+  }
+
+  // Check the content container itself
+  if (contentRef.value) {
+    const overflowY = window.getComputedStyle(contentRef.value).overflowY;
+    const isScrollable = overflowY === 'auto' || overflowY === 'scroll';
+    const hasScroll = contentRef.value.scrollHeight > contentRef.value.clientHeight;
+
+    if (isScrollable && hasScroll) {
+      return contentRef.value;
+    }
+  }
+
+  return null;
+}
+
+let scrollableElement: HTMLElement | null = null;
+
+function handleContentTouchStart(e: TouchEvent) {
+  if (props.disableResize || !props.isOpen || !contentRef.value) return;
+
+  // Find the scrollable element at touch point
+  scrollableElement = findScrollableParent(e.target as HTMLElement);
+
+  touchStart.value = {
+    y: e.touches[0].clientY,
+    time: Date.now(),
+  };
+  lastTouchY.value = e.touches[0].clientY;
+  lastTouchTime.value = Date.now();
+}
+
+function handleContentTouchMove(e: TouchEvent) {
+  if (props.disableResize || !props.isOpen) return;
+
+  const deltaY = e.touches[0].clientY - touchStart.value.y;
+  const scrollingDown = deltaY > 0;
+  const scrollingUp = deltaY < 0;
+
+  // If there's a scrollable element, check its scroll position
+  if (scrollableElement) {
+    const shouldDragOnScrollTop = scrollingDown && isScrolledToTop(scrollableElement);
+    const shouldDragOnScrollBottom = scrollingUp && isScrolledToBottom(scrollableElement);
+
+    if ((shouldDragOnScrollTop || shouldDragOnScrollBottom) && !isDragging.value) {
+      // Start dragging the sheet
+      isDragging.value = true;
+
+      // Prevent content scrolling
+      e.preventDefault();
+    }
+  } else if (!isDragging.value) {
+    // No scrollable element found, start dragging immediately
+    isDragging.value = true;
+    e.preventDefault();
+  }
 }
 
 function handleTouchMove(e: TouchEvent) {
