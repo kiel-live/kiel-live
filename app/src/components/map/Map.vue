@@ -22,7 +22,7 @@ import { api } from '~/api';
 import BusIcon from '~/components/map/busIcon';
 import { useColorMode } from '~/compositions/useColorMode';
 import { useUserSettings } from '~/compositions/useUserSettings';
-import { brightMapStyle, darkMapStyle } from '~/config';
+import { darkMapStyle, lightMapStyle, mapMaxBounds } from '~/config';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -244,16 +244,14 @@ onMounted(async () => {
 
   map = new Map({
     container: 'map',
-    // style: 'https://demotiles.maplibre.org/style.json',
-    style: colorScheme.value === 'dark' ? darkMapStyle : brightMapStyle,
+    style: colorScheme.value === 'dark' ? darkMapStyle : lightMapStyle,
     minZoom: 5,
-    maxZoom: 18,
+    maxZoom: 22,
     center: lastLocation.value.center,
     zoom: lastLocation.value.zoom,
     pitch: lastLocation.value.pitch,
     bearing: lastLocation.value.bearing,
-    // [west, south, east, north]
-    maxBounds: [5.0, 46.0, 15.0, 57.0],
+    maxBounds: mapMaxBounds,
     attributionControl: false,
   });
 
@@ -431,7 +429,7 @@ watch(colorScheme, () => {
   if (colorScheme.value === 'dark') {
     map.setStyle(darkMapStyle);
   } else {
-    map.setStyle(brightMapStyle);
+    map.setStyle(lightMapStyle);
   }
 
   // TODO: properly re-render custom layers

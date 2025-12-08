@@ -6,3 +6,4 @@ storybook-static/
 .pnpm-store/
 .ci/charts/
 components.d.ts
+public/map-styles/*.json
