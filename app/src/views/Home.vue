@@ -3,14 +3,14 @@
     <AppBar v-model:search-input="searchInput" />
 
     <DetailsPopup
+      v-bind:current-snap-point="bottomSheetSnapPoint"
       :is-open="isBottomSheetOpen"
       :snap-points="bottomSheetSnapPoints"
-      v-bind:current-snap-point="bottomSheetSnapPoint"
       @close="closeBottomSheet"
     >
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
-      <FavoritesPopup v-else-if="route.name === 'favorites'" />
-      <SearchPopup v-else-if="route.name === 'search'" v-model:search-input="searchInput" />
+      <FavoritesPopup v-if="route.name === 'favorites'" />
+      <SearchPopup v-if="route.name === 'search'" v-model:search-input="searchInput" />
     </DetailsPopup>
 
     <Map

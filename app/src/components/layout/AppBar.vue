@@ -15,6 +15,7 @@
         :title="t('search')"
         :placeholder="`${t('search')} ...`"
         autofocus
+        name="query"
         @input="(event) => (internalSearchInput = (event.currentTarget as HTMLInputElement).value)"
         @keydown.escape="$router.back()"
         @click="$router.push({ name: 'search' })"
