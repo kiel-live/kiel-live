@@ -5,8 +5,11 @@
   "sources": {
     "vector": {
       "type": "vector",
-      "url": "https://tiles.ju60.de/data/sh.json",
-      "attribution": "\u003Ca href=\"http://www.openmaptiles.org/\" target=\"_blank\"\u003E&copy; OpenMapTiles\u003C/a\u003E \u003Ca href=\"http://www.openstreetmap.org/about/\" target=\"_blank\"\u003E&copy; OpenStreetMap contributors\u003C/a\u003E"
+      "attribution": "\u003Ca href=\"https://github.com/protomaps/basemaps\"\u003EProtomaps\u003C/a\u003E © \u003Ca href=\"https://openstreetmap.org\"\u003EOpenStreetMap\u003C/a\u003E",
+      "tiles": [
+        "https://tiles.ju60.de/de/{z}/{x}/{y}.mvt"
+      ],
+      "maxzoom": 15
     }
   },
   "layers": [
