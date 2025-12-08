@@ -1,17 +1,16 @@
-import { onMounted, onUnmounted, readonly, ref } from 'vue';
+import { onMounted, onUnmounted, readonly, type Ref, ref, watch } from 'vue';
 
-export function useDomSize(el: HTMLElement | null) {
+export function useDomSize(el: Ref<HTMLElement | null | undefined>) {
   const width = ref(0);
   const height = ref(0);
 
   function updateSize() {
-    if (el) {
-      width.value = el.offsetWidth;
-      height.value = el.offsetHeight;
-    } else {
-      width.value = window.innerWidth;
-      height.value = window.innerHeight;
+    if (!el.value) {
+      return;
     }
+
+    width.value = el.value.offsetWidth;
+    height.value = el.value.offsetHeight;
   }
 
   onMounted(() => {
@@ -22,6 +21,8 @@ export function useDomSize(el: HTMLElement | null) {
   onUnmounted(() => {
     window.removeEventListener('resize', updateSize);
   });
+
+  watch(el, updateSize);
 
   return {
     width: readonly(width),

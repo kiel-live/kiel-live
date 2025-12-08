@@ -5,7 +5,7 @@
     <DetailsPopup
       :is-open="isBottomSheetOpen"
       :snap-points="bottomSheetSnapPoints"
-      current-snap-point="50%"
+      v-bind:current-snap-point="bottomSheetSnapPoint"
       @close="closeBottomSheet"
     >
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
@@ -67,11 +67,15 @@ const isBottomSheetOpen = computed(() => {
 
 const bottomSheetSnapPoints = computed(() => {
   if (route.name === 'search' || route.name === 'favorites' || mapMovedManually.value) {
-    return ['50%', '90%'];
+    // half, full with visible search bar
+    return ['50%', '95%'];
   }
 
-  return ['10%', '50%', '90%'];
+  // just-header, half, almost-full
+  return ['6rem', '50%', '99%'];
 });
+
+const bottomSheetSnapPoint = ref<string | number | undefined>('50%');
 
 async function closeBottomSheet() {
   await router.replace({ name: 'home' });

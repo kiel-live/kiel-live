@@ -16,11 +16,13 @@
 
   <!-- Bottom sheet -->
   <div
-    class="absolute left-0 right-0 bottom-0 flex flex-col w-full z-100 bg-white shadow-top dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800 p-4"
+    ref="sheet"
+    class="absolute left-0 right-0 bottom-0 flex flex-col w-full z-100 bg-white shadow-top dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
     :class="{
       'rounded-t-2xl': !isFullscreen,
       'rounded-none': isFullscreen,
       'pointer-events-none': !isOpen,
+      'p-4': isOpen,
     }"
     :style="sheetStyle"
     @touchstart="handleTouchStart"
@@ -44,7 +46,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch, useTemplateRef } from 'vue';
 import { useDomSize } from '~/compositions/useDomSize';
 
 type SnapPoint = number | string;
@@ -53,8 +55,8 @@ const props = withDefaults(
   defineProps<{
     isOpen: boolean;
     disableResize?: boolean;
-    snapPoints?: SnapPoint[]; // Array of snap points in px or %
-    initialSnapPoint?: SnapPoint; // Initial snap point value (must be in snapPoints array)
+    snapPoints?: SnapPoint[]; // Array of snap points as number (px) or string (px, rem or %)
+    currentSnapPoint?: SnapPoint; // Initial snap point value (must be in snapPoints array)
     showBackdrop?: boolean; // Show backdrop overlay
     closeOnBackdropClick?: boolean; // Close when clicking backdrop
   }>(),
@@ -69,7 +71,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (event: 'close'): void;
-  (event: 'snapChange', snapIndex: number): void;
+  (event: 'update:current-snap-point', snapPoint: SnapPoint): void;
 }>();
 
 const velocityThreshold = 0.5;
@@ -77,11 +79,11 @@ const animationDuration = 300;
 const animationTimingFunction = 'cubic-bezier(0.32, 0.72, 0, 1)'; // iOS-like spring
 
 const initialSnapPointIndex = computed(() => {
-  if (!props.initialSnapPoint) {
+  if (!props.currentSnapPoint) {
     return 0;
   }
 
-  const index = props.snapPoints.indexOf(props.initialSnapPoint);
+  const index = props.snapPoints.indexOf(props.currentSnapPoint);
   if (index === -1) {
     throw new Error('Initial snap point must be one of the defined snap points');
   }
@@ -89,6 +91,7 @@ const initialSnapPointIndex = computed(() => {
   return index;
 });
 
+const sheet = useTemplateRef('sheet');
 const isDragging = ref(false);
 const currentHeight = ref(0);
 const currentSnapIndex = ref(initialSnapPointIndex.value);
@@ -100,7 +103,10 @@ const touchStart = ref({ y: 0, time: 0 });
 const lastTouchY = ref(0);
 const lastTouchTime = ref(0);
 
-const { height: windowHeight } = useDomSize(null);
+const parentElement = computed(() => sheet.value?.parentElement);
+const { height: windowHeight } = useDomSize(parentElement);
+
+const remSize = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
 
 // Convert snap point to pixels
 function snapPointToPx(snapPoint: SnapPoint): number {
@@ -108,7 +114,20 @@ function snapPointToPx(snapPoint: SnapPoint): number {
     const percentage = Number.parseFloat(snapPoint) / 100;
     return windowHeight.value * percentage;
   }
-  return Number(snapPoint);
+
+  if (typeof snapPoint === 'string' && snapPoint.endsWith('rem')) {
+    return Number.parseFloat(snapPoint) * remSize;
+  }
+
+  if (typeof snapPoint === 'string' && snapPoint.endsWith('px')) {
+    return Number.parseFloat(snapPoint);
+  }
+
+  if (typeof snapPoint === 'number') {
+    return snapPoint;
+  }
+
+  throw new Error('Invalid snap point format');
 }
 
 // Get all snap points in pixels
@@ -183,7 +202,8 @@ function toSnapPoint(snapIndex: number | null, animate: boolean) {
   }
   currentHeight.value = height;
   currentSnapIndex.value = snapIndex;
-  emit('snapChange', snapIndex);
+  const currentSnapPoint = props.snapPoints[snapIndex];
+  emit('update:current-snap-point', currentSnapPoint);
 
   if (animate) {
     setTimeout(() => {
