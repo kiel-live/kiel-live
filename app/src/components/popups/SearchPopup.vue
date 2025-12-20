@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col min-h-0 flex-grow">
-    <div class="flex pb-2 mb-2 border-b-1 border-gray-200 dark:border-neutral-700 space-x-2 items-center">
+    <div class="flex pb-2 mb-2 border-b-1 border-gray-200 dark:border-neutral-600 space-x-2 items-center">
       <i-ph-magnifying-glass-bold />
       <h1 class="text-lg">{{ t('search_result') }}</h1>
     </div>
@@ -15,7 +15,7 @@
         v-for="searchResult in searchResults"
         :key="searchResult.id"
         :to="{ name: 'map-marker', params: { markerType: searchResult.type, markerId: searchResult.id } }"
-        class="flex py-2 not-last:border-b-1 dark:border-neutral-800 max-w-full"
+        class="flex py-2 not-last:border-b-1 border-gray-200 dark:border-neutral-700 max-w-full"
         @click="searchInput = ''"
       >
         <i-mdi-sign-real-estate v-if="searchResult.type === 'bus-stop'" class="mr-2" />

@@ -1,6 +1,6 @@
 <template>
   <nav
-    class="flex w-full justify-center border-t-1 border-gray-200 dark:border-neutral-700 dark:bg-neutral-800 dark:text-gray-300 shadow-top"
+    class="flex w-full justify-center border-t-1 border-gray-200 dark:border-neutral-600 dark:bg-neutral-800 dark:text-gray-300 shadow-top"
   >
     <div class="flex w-full justify-around max-w-96">
       <router-link
