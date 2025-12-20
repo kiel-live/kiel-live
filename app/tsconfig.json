@@ -24,13 +24,6 @@
     /* Linting */
     "strict": true
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "src/**/*.json",
-    "vite.config.ts",
-    "playwright.config.ts"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/**/*.json", "vite.config.ts", "playwright.config.ts"],
   "exclude": ["node_modules", "**/__tests__/**/*", "**/dist/**/*"]
 }
