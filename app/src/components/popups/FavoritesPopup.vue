@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col min-h-0 flex-grow">
-    <div class="flex pb-2 mb-2 border-b-1 dark:border-neutral-700 space-x-2 items-center">
+    <div class="flex pb-2 mb-2 border-b-1 border-gray-200 dark:border-neutral-700 space-x-2 items-center">
       <i-ph-star-fill />
       <h1 class="text-lg">{{ t('favorites') }}</h1>
     </div>

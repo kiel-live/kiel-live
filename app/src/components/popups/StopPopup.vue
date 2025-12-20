@@ -1,6 +1,6 @@
 <template>
   <div v-if="stop" class="flex flex-col min-h-0 flex-grow">
-    <div class="flex flex-row pb-2 mb-2 border-b-1 dark:border-neutral-700 items-center">
+    <div class="flex flex-row pb-2 mb-2 border-b-1 border-gray-200 dark:border-neutral-700 items-center">
       <i-mdi-ferry v-if="stop.type === 'ferry-stop'" />
       <i-mdi-sign-real-estate v-else />
       <h1 class="text-lg ml-2">{{ stop.name }}</h1>

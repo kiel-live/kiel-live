@@ -22,6 +22,7 @@ const props = defineProps<{
 
 const classes = computed(() => [
   'border-2',
+  'border-gray-200',
   'hover:border-gray-300',
   'dark:border-gray-400',
   'dark:hover:border-gray-500',
