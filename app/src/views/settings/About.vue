@@ -27,7 +27,7 @@
       </router-link>
       <router-link
         :to="{ name: 'settings-contact' }"
-        class="flex items-center border-b  border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2"
+        class="flex items-center border-b border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2"
       >
         <i-ic-round-message />
         <span>{{ t('contact_us') }}</span>
@@ -36,7 +36,7 @@
         :href="analyticsUrl"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex items-center border-b  border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2"
+        class="flex items-center border-b border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2"
         @click="track('click:analytics')"
       >
         <i-ion-md-analytics />
