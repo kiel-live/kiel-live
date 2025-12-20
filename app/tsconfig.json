@@ -29,7 +29,6 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "src/**/*.json",
-    "windi.config.ts",
     "vite.config.ts",
     "playwright.config.ts"
   ],
