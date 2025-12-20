@@ -20,7 +20,7 @@
     <div class="flex flex-col mt-4">
       <router-link
         :to="{ name: 'settings-settings' }"
-        class="flex items-center border-b border-t border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2 rounded-t-md"
+        class="flex items-center border-b border-t border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2"
       >
         <i-ph-gear-fill />
         <span>{{ t('settings') }}</span>
@@ -53,7 +53,7 @@
         href="https://github.com/kiel-live/kiel-live"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex items-center py-4 px-2 gap-2 rounded-b-md"
+        class="flex items-center py-4 px-2 gap-2"
         @click="track('click:github')"
       >
         <i-mdi-github />
