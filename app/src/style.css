@@ -1,5 +1,10 @@
 @import 'tailwindcss';
 
+@theme {
+  --shadow-right: 4px 0 8px 0 rgba(17, 24, 39, 0.25);
+  --shadow-top: -4px 0 8px 0 rgba(17, 24, 39, 0.25);
+}
+
 html,
 body,
 #app {
@@ -40,9 +45,4 @@ body {
 
 .prose a {
   @apply text-blue-500 dark:text-white;
-}
-
-@theme {
-  --shadow-right: 4px 0 8px 0 rgba(17, 24, 39, 0.25);
-  --shadow-top: -4px 0 8px 0 rgba(17, 24, 39, 0.25);
 }
