@@ -17,10 +17,6 @@ export default {
         // override red-500 to fix accessibility issues
         'red-500': 'rgb(250 68 68)',
       },
-      boxShadow: {
-        right: '4px 0 8px 0 rgba(17, 24, 39, 0.25)',
-        top: '-4px 0 8px 0 rgba(17, 24, 39, 0.25)',
-      },
       stroke: ({ theme }) => theme('colors'),
       fill: ({ theme }) => theme('colors'),
     },
