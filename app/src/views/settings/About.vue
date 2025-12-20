@@ -1,6 +1,6 @@
 <template>
   <SettingsContainer>
-    <h1 class="mb-4 text-xl">{{ t('kiel_live') }}</h1>
+    <h1 class="mb-4 text-xl font-bold">{{ t('kiel_live') }}</h1>
 
     <img src="../../assets/logo.png" :alt="t('logo_alt')" class="w-36 mx-auto mb-4" />
 
@@ -20,7 +20,7 @@
     <div class="flex flex-col mt-4">
       <router-link
         :to="{ name: 'settings-settings' }"
-        class="flex items-center border-b border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2 rounded-t-md"
+        class="flex items-center border-b border-t border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2 rounded-t-md"
       >
         <i-ph-gear-fill />
         <span>{{ t('settings') }}</span>
