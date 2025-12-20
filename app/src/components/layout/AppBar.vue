@@ -1,7 +1,7 @@
 <template>
   <nav
     id="app-bar"
-    class="absolute top-0 left-0 right-0 mx-2 mt-2 h-12 flex rounded-md py-1 pr-1 gap-x-1 items-center justify-between bg-white border border-gray-200 shadow-xl z-20 md:transform md:-translate-x-1/2 md:right-auto md:left-1/2 md:w-96 dark:bg-neutral-900 dark:text-gray-300 dark:border-neutral-950"
+    class="absolute top-0 left-0 right-0 mx-2 mt-2 h-12 flex rounded-md py-1 pr-1 gap-x-1 items-center justify-between bg-white border border-gray-200 shadow-xl z-20 md:transform md:-translate-x-1/2 md:right-auto md:left-1/2 md:w-96 dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-950"
   >
     <router-link :to="{ name: 'home' }" class="p-2">
       <img :alt="t('logo_alt')" src="../../assets/logo.png" class="w-6 h-6" />

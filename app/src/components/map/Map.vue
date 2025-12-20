@@ -518,7 +518,7 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 @reference "tailwindcss";
 
 #map :deep(.maplibregl-ctrl-attrib) {
-  @apply dark:bg-neutral-900;
+  @apply dark:bg-neutral-800;
 }
 
 #map :deep(.maplibregl-ctrl-attrib a) {
@@ -530,7 +530,7 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 }
 
 #map :deep(.maplibregl-ctrl-group) {
-  @apply dark:bg-neutral-900;
+  @apply dark:bg-neutral-800;
 }
 
 .dark #map :deep(.maplibregl-ctrl-group:not(:empty)) {
