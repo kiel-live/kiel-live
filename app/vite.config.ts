@@ -6,6 +6,7 @@ import Icons from 'unplugin-icons/vite';
 import Components from 'unplugin-vue-components/vite';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 import WindiCSS from 'vite-plugin-windicss';
 
 // https://vitejs.dev/config/
@@ -56,6 +57,15 @@ export default defineConfig({
           },
         ],
       },
+    }),
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'public/map-styles/*.json',
+          dest: 'map-styles',
+          transform: (contents) => JSON.stringify(JSON.parse(contents.toString())),
+        },
+      ],
     }),
   ],
   resolve: {
