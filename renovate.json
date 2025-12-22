@@ -5,9 +5,14 @@
     ":maintainLockFilesWeekly",
     ":enablePreCommit",
     "schedule:automergeDaily",
-    "schedule:weekends"
+    "schedule:daily"
   ],
+  "timezone": "Europe/Berlin",
+  "dependencyDashboard": true,
+  "semanticCommits": "enabled",
+  "rangeStrategy": "pin",
   "prConcurrentLimit": 5,
+  "rebaseWhen": "conflicted",
   "automergeType": "branch",
   "major": {
     "automerge": false
@@ -29,24 +34,16 @@
   "labels": ["dependencies"],
   "packageRules": [
     {
-      "matchManagers": ["gomod", "npm", "dockerfile"]
-    },
-    {
-      "matchManagers": ["woodpecker"],
-      "addLabels": ["build"]
-    },
-    {
-      "groupName": "golang deps non-major",
       "matchManagers": ["gomod"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "extends": ["schedule:daily"]
+      "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"]
     },
     {
-      "groupName": "pre-commit non-major",
-      "matchManagers": ["pre-commit"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "addLabels": ["build"]
+      "matchPackagePatterns": ["^vue", "^@vue", "^vite", "^@vite", "^@intlify"],
+      "groupName": "vue ecosystem"
+    },
+    {
+      "matchPackagePatterns": ["^eslint", "^prettier", "^@antfu/eslint-config"],
+      "groupName": "linters and formatters"
     }
-  ],
-  "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"]
+  ]
 }
