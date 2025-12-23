@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": "24",
-    "pnpm": "10"
+    "node": "v24.12.0",
+    "pnpm": "10.26.1"
   },
   "scripts": {
     "start": "VITE_BUILD_DATE=$(date '+%d.%m.%Y %H:%M:%S') vite",
@@ -37,7 +37,7 @@
     "@iconify/json": "2.2.413",
     "@intlify/eslint-plugin-vue-i18n": "4.1.0",
     "@intlify/unplugin-vue-i18n": "11.0.1",
-    "@playwright/test": "^1.55.1",
+    "@playwright/test": "1.57.0",
     "@types/canvas-confetti": "1.9.0",
     "@types/geojson": "7946.0.16",
     "@types/node": "22.19.1",
