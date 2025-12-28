@@ -58,18 +58,12 @@ jobs:
           dist: app/dist
           build: echo "dummy"
 
-      - name: Install SSH Client 🔑
-        uses: webfactory/ssh-agent@v0.4.1
-        if: "github.ref_type == 'tag'"
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.7.6
         if: "github.ref_type == 'tag'"
         with:
-          SSH: true
-          REPOSITORY_NAME: kiel-live/kiel-live.github.io
-          BRANCH: master
-          FOLDER: app/dist
-          CLEAN: true
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          repository-name: kiel-live/kiel-live.github.io
+          branch: master
+          folder: app/dist
+          clean: true
