@@ -41,7 +41,7 @@
     "@types/canvas-confetti": "1.9.0",
     "@types/geojson": "7946.0.16",
     "@types/node": "22.19.1",
-    "@vitejs/plugin-vue": "5.2.4",
+    "@vitejs/plugin-vue": "6.0.3",
     "eslint": "9.39.1",
     "eslint-plugin-promise": "7.2.1",
     "eslint-plugin-vue-scoped-css": "2.12.0",
@@ -49,13 +49,13 @@
     "typescript": "5.8.3",
     "unplugin-icons": "22.1.0",
     "unplugin-vue-components": "28.4.1",
-    "vite": "6.4.1",
-    "vite-plugin-pwa": "0.21.2",
+    "vite": "7.3.0",
+    "vite-plugin-pwa": "1.2.0",
     "vite-plugin-windicss": "1.9.4",
-    "vitest": "3.0.8",
+    "vitest": "4.0.16",
     "vue-tsc": "2.2.12",
     "windicss": "3.5.6",
     "workbox-window": "7.3.0"
   },
-  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a"
+  "packageManager": "pnpm@10.26.2"
 }
