@@ -20,14 +20,14 @@
     <div class="flex flex-col mt-4">
       <router-link
         :to="{ name: 'settings-settings' }"
-        class="flex items-center border-b border-t dark:border-gray-600 py-4 px-2 gap-2"
+        class="flex items-center border-b border-t border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2"
       >
         <i-ph-gear-fill />
         <span>{{ t('settings') }}</span>
       </router-link>
       <router-link
         :to="{ name: 'settings-contact' }"
-        class="flex items-center border-b dark:border-gray-600 py-4 px-2 gap-2"
+        class="flex items-center border-b border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2"
       >
         <i-ic-round-message />
         <span>{{ t('contact_us') }}</span>
@@ -36,7 +36,7 @@
         :href="analyticsUrl"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex items-center border-b dark:border-gray-600 py-4 px-2 gap-2"
+        class="flex items-center border-b border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2"
         @click="track('click:analytics')"
       >
         <i-ion-md-analytics />
@@ -44,7 +44,7 @@
       </a>
       <router-link
         :to="{ name: 'settings-changelog' }"
-        class="flex items-center py-4 px-2 gap-2 border-b dark:border-gray-600"
+        class="flex items-center py-4 px-2 gap-2 border-b border-gray-200 dark:border-neutral-600"
       >
         <i-ic-outline-update />
         <span>{{ t('changelog') }}</span>

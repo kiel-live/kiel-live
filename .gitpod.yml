@@ -25,7 +25,6 @@ vscode:
     - esbenp.prettier-vscode
     - dbaeumer.vscode-eslint
     - Vue.volar
-    - voorjaar.windicss-intellisense
     - golang.go
 
 ports:
