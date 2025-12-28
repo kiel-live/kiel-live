@@ -1,6 +1,9 @@
 minimumReleaseAge: 1440
+
 strictPeerDependencies: true
+
 trustPolicy: no-downgrade
+
 trustPolicyExclude:
   - synckit@0.10.4
   - semver@6.3.1
