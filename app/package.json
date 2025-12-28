@@ -36,7 +36,7 @@
     "@eslint/js": "9.21.0",
     "@iconify/json": "2.2.413",
     "@intlify/eslint-plugin-vue-i18n": "4.1.0",
-    "@intlify/unplugin-vue-i18n": "11.0.1",
+    "@intlify/unplugin-vue-i18n": "11.0.3",
     "@playwright/test": "1.57.0",
     "@types/canvas-confetti": "1.9.0",
     "@types/geojson": "7946.0.16",
