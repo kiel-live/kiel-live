@@ -515,8 +515,10 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
+
 #map :deep(.maplibregl-ctrl-attrib) {
-  @apply dark:bg-dark-400;
+  @apply dark:bg-neutral-800;
 }
 
 #map :deep(.maplibregl-ctrl-attrib a) {
@@ -524,11 +526,11 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 }
 
 #map :deep(.maplibregl-ctrl-attrib-button) {
-  @apply dark:(filter invert);
+  @apply dark:filter dark:invert;
 }
 
 #map :deep(.maplibregl-ctrl-group) {
-  @apply dark:bg-dark-400;
+  @apply dark:bg-neutral-800;
 }
 
 .dark #map :deep(.maplibregl-ctrl-group:not(:empty)) {
@@ -536,10 +538,10 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 }
 
 #map :deep(.maplibregl-ctrl-group button + button) {
-  @apply dark:border-t-dark-100;
+  @apply dark:border-t-neutral-700;
 }
 
 #map :deep(.maplibregl-ctrl button .maplibregl-ctrl-icon) {
-  @apply dark:(filter invert);
+  @apply dark:filter dark:invert;
 }
 </style>
