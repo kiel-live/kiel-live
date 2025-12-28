@@ -14,6 +14,15 @@ linters:
   settings:
     misspell:
       locale: US
+    revive:
+      enable-default-rules: true
+      rules:
+        - name: var-naming
+          exclude: [""]
+          arguments:
+            - [] # AllowList
+            - [] # DenyList
+            - - skip-package-name-checks: true
   exclusions:
     generated: lax
     presets:
