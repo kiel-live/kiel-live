@@ -1,5 +1,9 @@
 minimumReleaseAge: 1440
 
+onlyBuiltDependencies:
+  - '@tailwindcss/oxide'
+  - esbuild
+
 strictPeerDependencies: true
 
 trustPolicy: no-downgrade
