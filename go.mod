@@ -1,6 +1,6 @@
 module github.com/kiel-live/kiel-live
 
-go 1.24.11
+go 1.25.4
 
 require (
 	github.com/BertoldVdb/go-ais v0.4.0
