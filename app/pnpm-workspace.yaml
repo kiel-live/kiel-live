@@ -1,5 +1,8 @@
 minimumReleaseAge: 1440
 
+onlyBuiltDependencies:
+  - esbuild
+
 strictPeerDependencies: true
 
 trustPolicy: no-downgrade
