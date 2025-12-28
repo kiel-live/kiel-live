@@ -20,6 +20,13 @@ export default defineConfig({
     },
   ],
 
+  expect: {
+    toHaveScreenshot: {
+      // Disallow any color differences
+      threshold: 0,
+    },
+  },
+
   webServer: {
     command: 'VITE_USE_DUMMY_API=true pnpm run build && pnpm run preview',
     url: 'http://localhost:4173',
