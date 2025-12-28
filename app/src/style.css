@@ -3,6 +3,7 @@
 @theme {
   --shadow-right: 4px 0 8px 0 rgba(17, 24, 39, 0.25);
   --shadow-top: -4px 0 8px 0 rgba(17, 24, 39, 0.25);
+  --color-red-high-contrast: rgb(250, 78, 78);
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
