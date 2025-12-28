@@ -21,9 +21,9 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": [
-        "(^|/|\\.)([Dd]ocker|[Cc]ontainer)file$",
-        "(^|/)([Dd]ocker|[Cc]ontainer)file[^/]*$"
+      "managerFilePatterns": [
+        "/(^|/|\\.)([Dd]ocker|[Cc]ontainer)file$/",
+        "/(^|/)([Dd]ocker|[Cc]ontainer)file[^/]*$/"
       ],
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\sENV .*?_VERSION=\"(?<currentValue>.*)\"\\s"
@@ -31,19 +31,36 @@
       "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
     }
   ],
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "packageRules": [
     {
-      "matchManagers": ["gomod"],
-      "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"]
+      "matchManagers": [
+        "gomod"
+      ],
+      "postUpdateOptions": [
+        "gomodTidy",
+        "gomodUpdateImportPaths"
+      ]
     },
     {
-      "matchPackagePatterns": ["^vue", "^@vue", "^vite", "^@vite", "^@intlify"],
-      "groupName": "vue ecosystem"
+      "groupName": "vue ecosystem",
+      "matchPackageNames": [
+        "/^vue/",
+        "/^@vue/",
+        "/^vite/",
+        "/^@vite/",
+        "/^@intlify/"
+      ]
     },
     {
-      "matchPackagePatterns": ["^eslint", "^prettier", "^@antfu/eslint-config"],
-      "groupName": "linters and formatters"
+      "groupName": "linters and formatters",
+      "matchPackageNames": [
+        "/^eslint/",
+        "/^prettier/",
+        "/^@antfu/eslint-config/"
+      ]
     }
   ]
 }

@@ -40,7 +40,7 @@
     "@playwright/test": "1.57.0",
     "@types/canvas-confetti": "1.9.0",
     "@types/geojson": "7946.0.16",
-    "@types/node": "22.19.1",
+    "@types/node": "24.10.4",
     "@vitejs/plugin-vue": "6.0.3",
     "eslint": "9.39.1",
     "eslint-plugin-promise": "7.2.1",
@@ -55,7 +55,8 @@
     "vitest": "4.0.16",
     "vue-tsc": "3.2.1",
     "windicss": "3.5.6",
-    "workbox-window": "7.3.0"
+    "workbox-build": "7.4.0",
+    "workbox-window": "7.4.0"
   },
   "packageManager": "pnpm@10.26.2+sha512.0e308ff2005fc7410366f154f625f6631ab2b16b1d2e70238444dd6ae9d630a8482d92a451144debc492416896ed16f7b114a86ec68b8404b2443869e68ffda6"
 }
