@@ -18,6 +18,7 @@
     "automerge": false
   },
   "automerge": true,
+  "minimumReleaseAge": "14 days",
   "customManagers": [
     {
       "customType": "regex",
