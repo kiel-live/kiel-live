@@ -6,7 +6,7 @@
     <router-link :to="{ name: 'home' }" class="p-2">
       <img :alt="t('logo_alt')" src="../../assets/logo.png" class="w-6 h-6" />
     </router-link>
-    <div v-if="isConnected" class="flex flex-grow h-full">
+    <div v-if="isConnected" class="flex grow h-full">
       <input
         :value="internalSearchInput"
         type="text"
