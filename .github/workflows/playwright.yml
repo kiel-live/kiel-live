@@ -17,7 +17,7 @@ jobs:
         package_json_file: app/package.json
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version-file: app/package.json
         cache: "pnpm"
@@ -35,7 +35,7 @@ jobs:
       run: pnpm exec playwright test
       working-directory: app
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       if: ${{ !cancelled() }}
       with:
         name: playwright-report

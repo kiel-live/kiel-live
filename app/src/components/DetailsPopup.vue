@@ -18,7 +18,7 @@
     @touchend="drop"
   >
     <div v-if="!disableResize" class="w-full -mt-4 pt-4 pb-4 md:hidden" @touchstart="drag">
-      <div v-show="actualSize !== 'full'" class="flex-shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
+      <div v-show="actualSize !== 'full'" class="shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
     </div>
     <slot />
   </div>
