@@ -39,7 +39,7 @@
         class="flex items-center border-b border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2"
         @click="track('click:analytics')"
       >
-        <i-ion-md-analytics />
+        <i-ic-outline-analytics />
         <span>{{ t('analytics') }}</span>
       </a>
       <router-link
