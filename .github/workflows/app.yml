@@ -59,7 +59,7 @@ jobs:
           build: echo "dummy"
 
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4.7.6
+        uses: JamesIves/github-pages-deploy-action@v4.8.0
         if: "github.ref_type == 'tag'"
         with:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
