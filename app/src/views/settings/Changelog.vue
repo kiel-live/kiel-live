@@ -11,7 +11,7 @@
     <h2 class="border-b border-gray-200 dark:border-neutral-600 mt-2 mb-1 font-bold">
       {{ new Date('2019-05-20').toLocaleDateString() }}
     </h2>
-    <span><i-fa-solid-birthday-cake class="align-text-bottom inline" /> {{ t('changelog_project_started') }}</span>
+    <span><i-ph-cake-fill class="align-text-bottom inline" /> {{ t('changelog_project_started') }}</span>
   </SettingsContainer>
 </template>
 

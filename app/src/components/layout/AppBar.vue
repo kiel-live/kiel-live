@@ -22,10 +22,10 @@
     </div>
     <div v-else class="flex gap-x-2 mr-2 items-center">
       <span>{{ t('no_connection') }}</span>
-      <i-ic-baseline-cloud-off class="text-red-600" />
+      <i-carbon-cloud-offline class="text-red-600" />
     </div>
     <Button v-if="needRefresh" class="h-full gap-x-1" @click="updateServiceWorker(true)">
-      <i-ic-outline-cloud-download />
+      <i-carbon-cloud-download />
       <span>{{ t('update') }}</span>
     </Button>
   </nav>

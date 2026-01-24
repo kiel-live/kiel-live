@@ -15,7 +15,7 @@
       />
 
       <Button type="submit">
-        <i-mdi-email class="mr-2" />
+        <i-carbon-email class="mr-2" />
         <span>{{ t('send_email') }}</span>
       </Button>
     </form>
