@@ -63,17 +63,21 @@ export default defineConfig(({ mode }) => {
       }),
       csp({
         dev: {
-          run: true, // Run the plugin in dev mode
+          run: false, // set to true to test CSP in dev mode
           outlierSupport: ['vue', 'tailwind'],
         },
         policy: {
           'script-src-elem': ["'self'", 'https://boomerang.ju60.de'],
-          'style-src-elem': ["'self'", "'unsafe-inline'"],
+          'style-src-elem': [
+            "'self'",
+            "'unsafe-inline'", // needed for useColorMode and DetailsPopup
+          ],
           'connect-src': ["'self'", env.VITE_NATS_URL || '', 'https://tiles.ju60.de'],
           'worker-src': ["'self'", 'blob:'],
-        },
-        build: {
-          sri: true,
+          'img-src': [
+            "'self'",
+            'data:', // needed for maplibre-gl.js icons
+          ],
         },
       }),
     ],
