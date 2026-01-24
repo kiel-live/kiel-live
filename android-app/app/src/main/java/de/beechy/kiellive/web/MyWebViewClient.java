@@ -47,6 +47,7 @@ public class MyWebViewClient extends WebViewClient {
             .append("if (typeof(customSheet) != 'undefined') {")
             .append("const pixel = " + statusBarHeight + " / window.devicePixelRatio + 8;")
             .append("customSheet.insertRule('#app-bar,#settings-container { margin-top: ' + pixel + 'px; }', 0);")
+            .append("customSheet.insertRule('#popup-container { max-height: calc(100% - ' + pixel + 'px - 64px); }', 0);")
             .append("}");
 
         webView.loadUrl(jsUrl.toString());
