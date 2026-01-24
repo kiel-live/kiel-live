@@ -76,7 +76,7 @@ export default defineConfig(({ mode }) => {
           'worker-src': ["'self'", 'blob:'],
           'img-src': [
             "'self'",
-            'data:', // needed for maplibre-gl.js icons
+            'data:', // needed for maplibre-gl icons
           ],
         },
       }),
