@@ -18,6 +18,7 @@ body,
 body {
   /* disable android pull to refresh feature */
   overflow-y: hidden;
+  --app-bar-space: 64px; /* define the space the popup should leave for the app bar */
 }
 
 *::-webkit-scrollbar {

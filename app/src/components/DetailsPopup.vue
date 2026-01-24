@@ -5,11 +5,10 @@
     class="absolute bottom-0 left-0 right-0 flex flex-col w-full px-4 pb-0 pt-2 z-10 bg-white shadow-top md:shadow-right md:rounded-none md:w-80 md:top-0 md:h-auto transition dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-950"
     :class="{
       'overflow-hidden max-h-0': actualSize === 'closed',
-      'max-h-[calc(100%-64px)]': actualSize !== 'closed',
+      'max-h-[calc(100%-var(--app-bar-space))]': actualSize !== 'closed',
       'h-full md:mx-auto md:w-200 md:shadow-none': actualSize === 'full',
       'h-1/2': size === '1/2' && actualSize === 'default',
       'h-3/4': size === '3/4' && actualSize === 'default',
-      '': actualSize !== 'closed' && actualSize !== 'full',
       'rounded-t-2xl': actualSize !== 'full' || !disableResize,
       'rounded-none': actualSize === 'full' && disableResize,
       'opacity-80': actualSize === 'closing',
