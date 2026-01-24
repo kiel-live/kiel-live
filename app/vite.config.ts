@@ -69,7 +69,7 @@ export default defineConfig(({ mode }) => {
         policy: {
           'script-src-elem': ["'self'", 'https://boomerang.ju60.de'],
           'style-src-elem': ["'self'", "'unsafe-inline'"],
-          'connect-src': ["'self'", env.VITE_NATS_URL, 'https://tiles.ju60.de'],
+          'connect-src': ["'self'", env.VITE_NATS_URL || '', 'https://tiles.ju60.de'],
           'worker-src': ["'self'", 'blob:'],
         },
         build: {
