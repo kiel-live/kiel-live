@@ -1,6 +1,6 @@
 <template>
-  <div v-if="vehicle" class="flex flex-col min-h-0 flex-grow">
-    <header class="border-b-1 border-gray-200 dark:border-neutral-600 mb-2">
+  <div v-if="vehicle" class="flex flex-col min-h-0 grow">
+    <header class="border-b border-gray-200 dark:border-neutral-600 mb-2">
       <div class="flex pb-2 space-x-2 items-center">
         <i-ic-baseline-directions-bus v-if="vehicle.type === 'bus'" />
         <i-ic-outline-pedal-bike v-else-if="vehicle.type === 'bike'" />

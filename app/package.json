@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": "v24.12.0",
+    "node": "24.13.0",
     "pnpm": "10.27.0"
   },
   "scripts": {
@@ -24,12 +24,12 @@
     "@vueuse/core": "14.1.0",
     "canvas-confetti": "1.9.4",
     "fuse.js": "7.1.0",
-    "maplibre-gl": "5.1.1",
+    "maplibre-gl": "5.15.0",
     "micromark": "4.0.2",
     "nats.ws": "1.30.3",
-    "vue": "3.5.24",
-    "vue-i18n": "11.1.12",
-    "vue-router": "4.5.1"
+    "vue": "3.5.26",
+    "vue-i18n": "11.2.8",
+    "vue-router": "4.6.4"
   },
   "devDependencies": {
     "@antfu/eslint-config": "6.7.3",
@@ -39,13 +39,13 @@
     "@iconify-json/ic": "1.2.4",
     "@iconify-json/mdi": "1.2.3",
     "@iconify-json/ph": "1.2.2",
-    "@intlify/eslint-plugin-vue-i18n": "4.1.0",
+    "@intlify/eslint-plugin-vue-i18n": "4.1.1",
     "@intlify/unplugin-vue-i18n": "11.0.3",
     "@playwright/test": "1.57.0",
     "@tailwindcss/vite": "4.1.18",
     "@types/canvas-confetti": "1.9.0",
     "@types/geojson": "7946.0.16",
-    "@types/node": "24.10.4",
+    "@types/node": "24.10.9",
     "@vitejs/plugin-vue": "6.0.3",
     "eslint": "9.39.2",
     "eslint-plugin-promise": "7.2.1",
@@ -55,10 +55,10 @@
     "typescript": "5.9.3",
     "unplugin-icons": "22.5.0",
     "unplugin-vue-components": "30.0.0",
-    "vite": "7.3.0",
+    "vite": "7.3.1",
     "vite-plugin-pwa": "1.2.0",
-    "vitest": "4.0.16",
-    "vue-tsc": "3.2.1",
+    "vitest": "4.0.17",
+    "vue-tsc": "3.2.2",
     "workbox-build": "7.4.0",
     "workbox-window": "7.4.0"
   },
