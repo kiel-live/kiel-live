@@ -17,7 +17,13 @@
     :style="{ height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0 }"
     @pointercancel="drop"
   >
-    <button v-if="!disableResize" type="button" class="w-full -mt-4 pt-4 pb-4 md:hidden" :title="$t('drag_to_resize')" @pointerdown="drag">
+    <button
+      v-if="!disableResize"
+      type="button"
+      class="w-full -mt-4 pt-4 pb-4 md:hidden"
+      :title="$t('drag_to_resize')"
+      @pointerdown="drag"
+    >
       <div class="shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
     </button>
     <slot />
