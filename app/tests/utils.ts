@@ -9,3 +9,7 @@ export function testColorScheme(name: string, testFunc: ({ page }: { page: Page 
     });
   });
 }
+
+export async function waitForMapToLoad(page: Page) {
+  await page.waitForSelector('#map[data-idle="true"]');
+}

@@ -15,12 +15,11 @@
       fade: !dragging,
     }"
     :style="{ height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0 }"
-    @touchmove="move"
-    @touchend="drop"
+    @pointercancel="drop"
   >
-    <div v-if="!disableResize" class="w-full -mt-4 pt-4 pb-4 md:hidden" @touchstart="drag">
+    <button v-if="!disableResize" type="button" class="w-full -mt-4 pt-4 pb-4 md:hidden" :title="$t('drag_to_resize')" @pointerdown="drag">
       <div class="shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
-    </div>
+    </button>
     <slot />
   </div>
 </template>
@@ -81,20 +80,24 @@ const actualSize = computed(() => {
   return 'default';
 });
 
-function drag(e: TouchEvent) {
+function drag(e: PointerEvent) {
   if (disableResize.value) {
     return;
   }
 
   dragging.value = true;
-  height.value = window.innerHeight - e.touches[0].clientY;
+  height.value = window.innerHeight - e.clientY;
+
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', drop);
+  window.addEventListener('pointercancel', drop);
 }
 
-function move(e: TouchEvent) {
+function move(e: PointerEvent) {
   if (!dragging.value) {
     return;
   }
-  height.value = window.innerHeight - e.touches[0].clientY;
+  height.value = window.innerHeight - e.clientY;
 }
 
 function drop() {
@@ -112,6 +115,10 @@ function drop() {
   }
 
   dragging.value = false;
+
+  window.removeEventListener('pointermove', move);
+  window.removeEventListener('pointerup', drop);
+  window.removeEventListener('pointercancel', drop);
 }
 </script>
 
