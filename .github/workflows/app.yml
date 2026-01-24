@@ -19,14 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
         with:
           package_json_file: app/package.json
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: app/package.json
           cache: "pnpm"
@@ -59,7 +59,7 @@ jobs:
           build: echo "dummy"
 
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4.7.6
+        uses: JamesIves/github-pages-deploy-action@v4.8.0
         if: "github.ref_type == 'tag'"
         with:
           ssh-key: ${{ secrets.DEPLOY_KEY }}

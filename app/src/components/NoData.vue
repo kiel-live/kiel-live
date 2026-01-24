@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center flex-grow">
+  <div class="flex flex-col items-center grow">
     <i-fa-solid-ban class="text-3xl mt-auto" />
     <div class="flex flex-col items-center my-2 text-lg"><slot /></div>
     <Button class="mt-auto mb-4" :to="{ name: 'home' }" replace>

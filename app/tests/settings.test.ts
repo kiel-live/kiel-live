@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
+import { testColorScheme } from './utils';
 
-test('Settings', async ({ page }) => {
+testColorScheme('Settings', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Settings' }).click();
   await expect(page.getByRole('link', { name: 'Follow @kiel.live' })).toBeVisible();
@@ -13,7 +14,7 @@ test('Settings', async ({ page }) => {
   await expect(page).toHaveScreenshot();
 });
 
-test('Lite mode', async ({ page }) => {
+testColorScheme('Lite mode', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Settings' }).click();
   await page.getByRole('main').getByRole('link', { name: 'Settings' }).click();
@@ -41,7 +42,16 @@ test('Dark Theme', async ({ page }) => {
   await expect(page).toHaveScreenshot();
 });
 
-test('Contact Us', async ({ page }) => {
+test('Light Theme', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Settings' }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Settings' }).click();
+  await page.getByLabel('ThemeChoose a theme that fits').selectOption('light');
+
+  await expect(page).toHaveScreenshot();
+});
+
+testColorScheme('Contact Us', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Settings' }).click();
   await page.getByRole('link', { name: 'Contact us' }).click();
@@ -53,7 +63,7 @@ test('Contact Us', async ({ page }) => {
   await expect(page).toHaveScreenshot();
 });
 
-test('Changelog', async ({ page }) => {
+testColorScheme('Changelog', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Settings' }).click();
   await page.getByRole('link', { name: 'Changelog' }).click();
