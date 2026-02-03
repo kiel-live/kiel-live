@@ -15,7 +15,7 @@
       />
 
       <Button type="submit">
-        <i-carbon-email class="mr-2" />
+        <i-ph-envelope class="mr-2" />
         <span>{{ t('send_email') }}</span>
       </Button>
     </form>

@@ -13,7 +13,7 @@
       class="mx-auto mb-auto w-8/10"
       @click="track('click:instagram')"
     >
-      <i-carbon-logo-instagram class="mr-2" />
+      <i-ph-instagram-logo class="mr-2" />
       <span>{{ t('follow_instagram', { account: '@kiel.live' }) }}</span>
     </Button>
 
@@ -56,7 +56,7 @@
         class="flex items-center py-4 px-2 gap-2"
         @click="track('click:github')"
       >
-        <i-carbon-logo-github />
+        <i-ph-github-logo />
         <span>{{ t('develop_on_github') }}</span>
       </a>
     </div>
