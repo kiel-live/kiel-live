@@ -34,7 +34,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "6.7.3",
     "@eslint/js": "9.39.2",
-    "@iconify/json": "2.2.431",
+    "@iconify/json": "2.2.433",
     "@intlify/eslint-plugin-vue-i18n": "4.1.1",
     "@intlify/unplugin-vue-i18n": "11.0.3",
     "@playwright/test": "1.58.0",
