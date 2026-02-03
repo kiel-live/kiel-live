@@ -7,7 +7,7 @@
         v-if="liteMode"
         :to="{ name: 'search' }"
         class="flex flex-col items-center w-1/3 p-2"
-        :class="{ 'text-red-700 dark:text-red-high-contrast': activeArea === 'search' }"
+        :class="{ 'text-red-700 dark:text-red-high-contrast': activeArea === 'map-or-search' }"
         :aria-label="t('search')"
       >
         <i-ph-magnifying-glass-bold class="w-6 h-6 mb-1" />
@@ -17,7 +17,7 @@
         v-else
         :to="{ name: 'home' }"
         class="flex flex-col items-center w-1/3 p-2"
-        :class="{ 'text-red-700 dark:text-red-high-contrast': activeArea === 'map' }"
+        :class="{ 'text-red-700 dark:text-red-high-contrast': activeArea === 'map-or-search' }"
         :aria-label="t('map')"
       >
         <i-carbon-map class="w-6 h-6 mb-1" />
@@ -38,7 +38,7 @@
         :class="{ 'text-red-700 dark:text-red-high-contrast': activeArea === 'settings' }"
         :aria-label="t('settings')"
       >
-        <i-ic-baseline-settings class="w-6 h-6 mb-1" />
+        <i-ph-gear-fill class="w-6 h-6 mb-1" />
         <span class="mt-auto text-xs">{{ t('settings') }}</span>
       </router-link>
     </div>
@@ -62,14 +62,10 @@ const activeArea = computed(() => {
     return 'favorites';
   }
 
-  if (route.name === 'search') {
-    return 'search';
-  }
-
   if (route.meta.settings) {
     return 'settings';
   }
 
-  return 'map';
+  return 'map-or-search';
 });
 </script>

@@ -13,7 +13,7 @@
       class="mx-auto mb-auto w-8/10"
       @click="track('click:instagram')"
     >
-      <i-mdi-instagram class="mr-2" />
+      <i-ph-instagram-logo class="mr-2" />
       <span>{{ t('follow_instagram', { account: '@kiel.live' }) }}</span>
     </Button>
 
@@ -22,14 +22,14 @@
         :to="{ name: 'settings-settings' }"
         class="flex items-center border-b border-t border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2"
       >
-        <i-ph-gear-fill />
+        <i-ph-gear />
         <span>{{ t('settings') }}</span>
       </router-link>
       <router-link
         :to="{ name: 'settings-contact' }"
         class="flex items-center border-b border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2"
       >
-        <i-ic-round-message />
+        <i-ph-chat-text />
         <span>{{ t('contact_us') }}</span>
       </router-link>
       <a
@@ -39,14 +39,14 @@
         class="flex items-center border-b border-gray-200 dark:border-neutral-600 py-4 px-2 gap-2"
         @click="track('click:analytics')"
       >
-        <i-ion-md-analytics />
+        <i-ph-chart-line />
         <span>{{ t('analytics') }}</span>
       </a>
       <router-link
         :to="{ name: 'settings-changelog' }"
         class="flex items-center py-4 px-2 gap-2 border-b border-gray-200 dark:border-neutral-600"
       >
-        <i-ic-outline-update />
+        <i-ph-clock-clockwise />
         <span>{{ t('changelog') }}</span>
       </router-link>
       <a
@@ -56,7 +56,7 @@
         class="flex items-center py-4 px-2 gap-2"
         @click="track('click:github')"
       >
-        <i-mdi-github />
+        <i-ph-github-logo />
         <span>{{ t('develop_on_github') }}</span>
       </a>
     </div>
