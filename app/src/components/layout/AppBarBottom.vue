@@ -38,7 +38,7 @@
         :class="{ 'text-red-700 dark:text-red-high-contrast': activeArea === 'settings' }"
         :aria-label="t('settings')"
       >
-        <i-ic-baseline-settings class="w-6 h-6 mb-1" />
+        <i-ph-gear class="w-6 h-6 mb-1" />
         <span class="mt-auto text-xs">{{ t('settings') }}</span>
       </router-link>
     </div>

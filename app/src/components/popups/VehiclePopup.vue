@@ -2,16 +2,16 @@
   <div v-if="vehicle" class="flex flex-col min-h-0 grow">
     <header class="border-b border-gray-200 dark:border-neutral-600 mb-2">
       <div class="flex pb-2 space-x-2 items-center">
-        <i-fa-bus v-if="vehicle.type === 'bus'" />
-        <i-ic-outline-pedal-bike v-else-if="vehicle.type === 'bike'" />
-        <i-ic-baseline-directions-car v-else-if="vehicle.type === 'car'" />
-        <i-ic-twotone-electric-scooter v-else-if="vehicle.type === 'e-scooter'" />
-        <i-ic-twotone-electric-scooter v-else-if="vehicle.type === 'ferry'" />
-        <i-ic-baseline-train v-else-if="vehicle.type === 'train'" />
-        <i-ic-outline-subway v-else-if="vehicle.type === 'subway'" />
-        <i-ic-baseline-tram v-else-if="vehicle.type === 'tram'" />
-        <i-ic-baseline-moped v-else-if="vehicle.type === 'moped'" />
-        <i-ic-baseline-electric-moped v-else-if="vehicle.type === 'e-moped'" />
+        <i-mdi-bus v-if="vehicle.type === 'bus'" />
+        <i-carbon-bicycle v-else-if="vehicle.type === 'bike'" />
+        <i-ph-car v-else-if="vehicle.type === 'car'" />
+        <i-ph-scooter v-else-if="vehicle.type === 'e-scooter'" />
+        <i-mdi-ferry v-else-if="vehicle.type === 'ferry'" />
+        <i-carbon-train-profile v-else-if="vehicle.type === 'train'" />
+        <i-ph-subway v-else-if="vehicle.type === 'subway'" />
+        <i-ph-tram v-else-if="vehicle.type === 'tram'" />
+        <i-mdi-moped v-else-if="vehicle.type === 'moped'" />
+        <i-mdi-moped-electric v-else-if="vehicle.type === 'e-moped'" />
         <h1 class="text-lg">{{ vehicle.name }}</h1>
       </div>
 
@@ -58,7 +58,7 @@
       </div>
       <NoData v-else>{{ t('trip_expired') }}</NoData>
     </template>
-    <i-fa-solid-circle-notch v-else-if="vehicle.tripId !== ''" class="mx-auto mt-4 text-3xl animate-spin" />
+    <i-ph-circle-notch v-else-if="vehicle.tripId !== ''" class="mx-auto mt-4 text-3xl animate-spin" />
     <!-- eslint-disable-next-line vue/no-v-html -->
     <span v-if="vehicleDescription" class="prose" v-html="vehicleDescription" />
   </div>

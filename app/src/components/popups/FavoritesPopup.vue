@@ -15,7 +15,6 @@
         class="flex py-2 not-last:border-b border-gray-200 dark:border-neutral-700"
       >
         <i-mdi-sign-real-estate v-if="favorite.type === 'bus-stop'" class="mr-2" />
-        <!-- <i-fa-bus v-else-if="searchResult.item.type === 'bus'" class="mr-2" /> -->
         <div class="">
           {{ favorite.name }}
         </div>
