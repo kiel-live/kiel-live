@@ -14,7 +14,6 @@
       fade: !dragging,
     }"
     :style="{ height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0 }"
-    @pointercancel="drop"
   >
     <button
       type="button"
@@ -29,7 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, toRef } from 'vue';
+import { computed, onUnmounted, ref, toRef } from 'vue';
 
 const props = defineProps<{
   isOpen: boolean;
@@ -98,6 +97,12 @@ function move(e: PointerEvent) {
   height.value = window.innerHeight - e.clientY;
 }
 
+function removeEventListeners() {
+  window.removeEventListener('pointermove', move);
+  window.removeEventListener('pointerup', drop);
+  window.removeEventListener('pointercancel', drop);
+}
+
 function drop() {
   if (!dragging.value) {
     return;
@@ -114,10 +119,12 @@ function drop() {
 
   dragging.value = false;
 
-  window.removeEventListener('pointermove', move);
-  window.removeEventListener('pointerup', drop);
-  window.removeEventListener('pointercancel', drop);
+  removeEventListeners();
 }
+
+onUnmounted(() => {
+  removeEventListeners();
+});
 </script>
 
 <style scoped>
