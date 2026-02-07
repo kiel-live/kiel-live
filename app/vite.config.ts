@@ -67,6 +67,7 @@ export default defineConfig(({ mode }) => {
           outlierSupport: ['vue', 'tailwind'],
         },
         policy: {
+          'default-src': ["'none'"],
           'script-src-elem': ["'self'", 'https://boomerang.ju60.de'],
           'style-src-elem': [
             "'self'",
