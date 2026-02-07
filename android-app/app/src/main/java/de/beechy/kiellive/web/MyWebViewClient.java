@@ -31,6 +31,7 @@ public class MyWebViewClient extends WebViewClient {
 
     /**
      * Injects the safe area top inset as a CSS custom property (CSS variable).
+     * https://stackoverflow.com/a/30270803
      */
     void injectCssIntoWebView(WebView webView, int statusBarHeight) {
         // Calculate the pixel value accounting for device pixel ratio
