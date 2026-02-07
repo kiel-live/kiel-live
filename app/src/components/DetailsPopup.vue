@@ -9,11 +9,14 @@
       'h-3/4': size === '3/4' && actualSize === 'default',
       'p-4 pb-0 pt-2': actualSize !== 'closed' && actualSize !== 'full',
       'rounded-t-2xl': actualSize !== 'full',
-      'rounded-none p-4 pt-16': actualSize === 'full',
+      'rounded-none p-4': actualSize === 'full',
       'opacity-80': actualSize === 'closing',
       fade: !dragging,
     }"
-    :style="{ height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0 }"
+    :style="{
+      height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0,
+      paddingTop: actualSize === 'full' ? 'calc(4rem + var(--safe-area-top, 0px))' : undefined
+    }"
     @touchmove="move"
     @touchend="drop"
   >
