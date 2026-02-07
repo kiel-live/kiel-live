@@ -17,7 +17,7 @@
   <!-- Bottom sheet -->
   <div
     ref="sheet"
-    class="absolute left-0 right-0 bottom-0 flex flex-col w-full z-100 bg-white shadow-top dark:bg-dark-400 dark:text-gray-300 dark:border-dark-800"
+    class="absolute left-0 right-0 bottom-0 flex flex-col w-full z-100  shadow-top bg-white dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-950"
     :class="{
       'rounded-t-2xl': !isFullscreen,
       'rounded-none': isFullscreen,
@@ -35,7 +35,7 @@
       class="w-full -mt-4 pt-4 pb-4 md:hidden cursor-grab active:cursor-grabbing"
       :class="{ 'pointer-events-auto': isOpen }"
     >
-      <div class="flex-shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
+      <div class="shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
     </div>
 
     <!-- Content -->
