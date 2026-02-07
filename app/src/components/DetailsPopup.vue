@@ -15,7 +15,7 @@
     }"
     :style="{
       height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0,
-      paddingTop: actualSize === 'full' ? 'calc(4rem + var(--safe-area-top, 0px))' : undefined
+      paddingTop: actualSize === 'full' ? 'calc(4rem + var(--safe-area-top, 0px))' : undefined,
     }"
     @touchmove="move"
     @touchend="drop"
