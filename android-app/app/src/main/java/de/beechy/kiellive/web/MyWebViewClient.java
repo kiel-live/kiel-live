@@ -34,10 +34,19 @@ public class MyWebViewClient extends WebViewClient {
      * https://stackoverflow.com/a/30270803
      */
     void injectCssIntoWebView(WebView webView, int statusBarHeight) {
+        // determine navigation bar height (if present)
+        int navBarHeight = 0;
+        int resourceId = context.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            navBarHeight = context.getResources().getDimensionPixelSize(resourceId);
+        }
+        
         // Calculate the pixel value accounting for device pixel ratio
         String jsCode = "javascript:{"
-                + "const pixel = " + statusBarHeight + " / window.devicePixelRatio;"
-                + "document.documentElement.style.setProperty('--safe-area-top', pixel + 'px');"
+                + "const top = " + statusBarHeight + " / window.devicePixelRatio;"
+                + "const bottom = " + navBarHeight + " / window.devicePixelRatio;"
+                + "document.documentElement.style.setProperty('--safe-area-top', top + 'px');"
+                + "document.documentElement.style.setProperty('--safe-area-bottom', bottom + 'px');"
                 + "}";
 
         webView.loadUrl(jsCode);

@@ -2,7 +2,7 @@
 
 @theme {
   --shadow-right: 4px 0 8px 0 rgba(17, 24, 39, 0.25);
-  --shadow-top: -4px 0 8px 0 rgba(17, 24, 39, 0.25);
+  --shadow-top: 0 -8px 8px 0 rgba(17, 24, 39, 0.1);
   --color-red-high-contrast: rgb(250, 78, 78);
 }
 
@@ -11,7 +11,8 @@
 :root {
   /* Safe area top inset - injected by Android app or defaults to 0 for web */
   --safe-area-top: 0px;
-
+  /* Safe area bottom inset (for android navigation) */
+  --safe-area-bottom: 0px;
   /* define the space the popup should leave for the app bar */
   --app-bar-space: 64px;
 }
