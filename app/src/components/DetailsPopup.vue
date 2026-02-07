@@ -1,134 +1,59 @@
 <template>
   <div
+    v-if="liteMode"
     v-show="isOpen"
-    class="absolute bottom-0 left-0 right-0 flex flex-col w-full px-4 pb-0 pt-2 z-10 bg-white md:shadow-right md:rounded-none md:w-80 md:top-0 md:h-auto transition dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-950"
-    :class="{
-      'overflow-hidden max-h-0': actualSize === 'closed',
-      'max-md:max-h-[calc(100%-var(--safe-area-top)-var(--app-bar-space))]': actualSize !== 'closed',
-      'h-full md:mx-auto md:w-200 shadow-none': actualSize === 'full',
-      'h-1/2': size === '1/2' && actualSize === 'default',
-      'h-3/4': size === '3/4' && actualSize === 'default',
-      'rounded-t-2xl shadow-top': actualSize !== 'full' || !disableResize,
-      'rounded-none': actualSize === 'full' && disableResize,
-      'opacity-80': actualSize === 'closing',
-      fade: !dragging,
-    }"
-    :style="{ height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0 }"
-    @pointercancel="drop"
+    class="h-full w-full flex flex-col z-10 p-4 pt-16 mx-auto max-w-4xl bg-white dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-950"
   >
-    <button
-      v-if="!disableResize"
-      type="button"
-      class="w-full -mt-4 pt-4 pb-4 md:hidden touch-none"
-      :title="$t('drag_to_resize')"
-      @pointerdown="drag"
-    >
-      <div class="shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
-    </button>
     <slot />
   </div>
+
+  <Transition v-else-if="isDesktop" name="fade">
+    <div
+      v-if="isOpen"
+      class="absolute bottom-0 left-0 right-0 flex flex-col w-full z-10 bg-white shadow-top md:shadow-right md:rounded-none md:w-80 md:top-0 md:h-auto transition dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-950 h-1/2 p-4 pb-0 pt-2 rounded-t-2xl fade"
+    >
+      <slot />
+    </div>
+  </Transition>
+
+  <BottomSheet
+    v-else
+    :is-open="isOpen"
+    :size="size"
+    @close="$emit('close')"
+  >
+    <slot />
+  </BottomSheet>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, toRef } from 'vue';
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
+import BottomSheet from '~/components/layout/BottomSheet.vue';
+import { useUserSettings } from '~/compositions/useUserSettings';
 
-const props = defineProps<{
+defineProps<{
   isOpen: boolean;
   size: '3/4' | '1/2' | '1';
-  disableResize?: boolean;
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   (event: 'close'): void;
 }>();
 
-const dragging = ref(false);
-const height = ref<number>();
-const isOpen = toRef(props, 'isOpen');
-const size = toRef(props, 'size');
-const disableResize = toRef(props, 'disableResize');
+const { liteMode } = useUserSettings();
 
-const actualSize = computed(() => {
-  if (disableResize.value && size.value === '1') {
-    return 'full';
-  }
-
-  if (!isOpen.value) {
-    return 'closed';
-  }
-
-  if (dragging.value) {
-    if (height.value === undefined) {
-      return 'closed';
-    }
-
-    const percentage = height.value / window.innerHeight;
-    if ((size.value === '1/2' && percentage > 0.6) || (size.value === '3/4' && percentage > 0.85)) {
-      return 'maximizing';
-    }
-
-    if ((size.value === '1/2' && percentage < 0.4) || (size.value === '3/4' && percentage < 0.65)) {
-      return 'closing';
-    }
-
-    return 'defaulting';
-  }
-
-  if (height.value === 0) {
-    return 'closed';
-  }
-
-  if (height.value === window.innerHeight) {
-    return 'full';
-  }
-
-  return 'default';
-});
-
-function drag(e: PointerEvent) {
-  if (disableResize.value) {
-    return;
-  }
-
-  dragging.value = true;
-  height.value = window.innerHeight - e.clientY;
-
-  window.addEventListener('pointermove', move);
-  window.addEventListener('pointerup', drop);
-  window.addEventListener('pointercancel', drop);
-}
-
-function move(e: PointerEvent) {
-  if (!dragging.value) {
-    return;
-  }
-  height.value = window.innerHeight - e.clientY;
-}
-
-function drop() {
-  if (!dragging.value) {
-    return;
-  }
-
-  if (actualSize.value === 'maximizing') {
-    height.value = window.innerHeight;
-  } else if (actualSize.value === 'closing') {
-    height.value = undefined;
-    emit('close');
-  } else if (actualSize.value === 'defaulting') {
-    height.value = undefined;
-  }
-
-  dragging.value = false;
-
-  window.removeEventListener('pointermove', move);
-  window.removeEventListener('pointerup', drop);
-  window.removeEventListener('pointercancel', drop);
-}
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const isDesktop = breakpoints.greater('md');
 </script>
 
 <style scoped>
-.fade {
-  transition: height 0.15s ease;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
