@@ -4,7 +4,6 @@
 
     <DetailsPopup
       :is-open="isPopupOpen"
-      :disable-resize="liteMode"
       :size="popupSize"
       @close="$router.replace({ name: 'home' })"
     >
@@ -66,9 +65,6 @@ const isPopupOpen = computed(() => {
 });
 
 const popupSize = computed(() => {
-  if (liteMode.value) {
-    return '1';
-  }
   if (route.name === 'search' || route.name === 'favorites' || mapMovedManually.value) {
     return '1/2';
   }
