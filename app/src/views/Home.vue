@@ -3,7 +3,7 @@
     <AppBar v-model:search-input="searchInput" />
 
     <DetailsPopup
-      v-bind:current-snap-point="bottomSheetSnapPoint"
+      :current-snap-point="bottomSheetSnapPoint"
       :is-open="isBottomSheetOpen"
       :snap-points="bottomSheetSnapPoints"
       @close="closeBottomSheet"
