@@ -13,7 +13,7 @@ import androidx.core.content.ContextCompat;
 import de.beechy.kiellive.activities.MainActivity;
 
 public class MyWebChromeClient extends WebChromeClient {
-    private MainActivity mainActivity;
+    private final MainActivity mainActivity;
 
     public MyWebChromeClient(MainActivity mainActivity) {
         this.mainActivity = mainActivity;

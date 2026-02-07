@@ -8,6 +8,14 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+:root {
+  /* Safe area top inset - injected by Android app or defaults to 0 for web */
+  --safe-area-top: 0px;
+
+  /* define the space the popup should leave for the app bar */
+  --app-bar-space: 64px;
+}
+
 html,
 body,
 #app {

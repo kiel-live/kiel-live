@@ -9,7 +9,7 @@ import android.webkit.WebViewClient;
 import de.beechy.kiellive.Config;
 
 public class MyWebViewClient extends WebViewClient {
-    private Context context;
+    private final Context context;
     private int statusBarHeight;
 
     public MyWebViewClient(Context context) {
@@ -29,28 +29,18 @@ public class MyWebViewClient extends WebViewClient {
         return true;
     }
 
-    // https://stackoverflow.com/a/30270803
-    private final static String CREATE_CUSTOM_SHEET =
-            "if (typeof(document.head) != 'undefined' && typeof(customSheet) == 'undefined') {"
-                    + "var customSheet = (function() {"
-                    + "var style = document.createElement(\"style\");"
-                    + "style.appendChild(document.createTextNode(\"\"));"
-                    + "document.head.appendChild(style);"
-                    + "return style.sheet;"
-                    + "})();"
-                    + "}";
-
-    // https://stackoverflow.com/a/30270803
+    /**
+     * Injects the safe area top inset as a CSS custom property (CSS variable).
+     * https://stackoverflow.com/a/30270803
+     */
     void injectCssIntoWebView(WebView webView, int statusBarHeight) {
-        StringBuilder jsUrl = new StringBuilder("javascript:");
-        jsUrl.append(CREATE_CUSTOM_SHEET)
-            .append("if (typeof(customSheet) != 'undefined') {")
-            .append("const pixel = " + statusBarHeight + " / window.devicePixelRatio + 8;")
-            .append("customSheet.insertRule('#app-bar,#settings-container { margin-top: ' + pixel + 'px; }', 0);")
-            .append("customSheet.insertRule('#popup-container { max-height: calc(100% - ' + pixel + 'px - var(--app-bar-space)); }', 0);")
-            .append("}");
+        // Calculate the pixel value accounting for device pixel ratio
+        String jsCode = "javascript:{"
+                + "const pixel = " + statusBarHeight + " / window.devicePixelRatio;"
+                + "document.documentElement.style.setProperty('--safe-area-top', pixel + 'px');"
+                + "}";
 
-        webView.loadUrl(jsUrl.toString());
+        webView.loadUrl(jsCode);
     }
 
     public void setStatusBarHeight(int statusBarHeight) {

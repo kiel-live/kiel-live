@@ -10,6 +10,13 @@ export function testColorScheme(name: string, testFunc: ({ page }: { page: Page 
   });
 }
 
+export async function setLiteMode(page: Page) {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Settings' }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Settings' }).click();
+  await page.getByRole('checkbox', { name: 'Lite mode If you enable the' }).check();
+}
+
 export async function waitForMapToLoad(page: Page) {
   await page.waitForSelector('#map[data-idle="true"]');
 }
