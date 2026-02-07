@@ -19,7 +19,7 @@
     <button
       v-if="!disableResize"
       type="button"
-      class="w-full -mt-4 pt-4 pb-4 md:hidden"
+      class="w-full -mt-4 pt-4 pb-4 md:hidden touch-none"
       :title="$t('drag_to_resize')"
       @pointerdown="drag"
     >
