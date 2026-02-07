@@ -1,6 +1,5 @@
 <template>
   <div
-    id="settings-container"
     class="flex flex-col min-h-0 grow overflow-y-auto p-2 md:max-w-200 md:mx-auto"
     style="margin-top: var(--safe-area-top, 0px)"
   >
