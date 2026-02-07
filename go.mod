@@ -1,6 +1,6 @@
 module github.com/kiel-live/kiel-live
 
-go 1.24.11
+go 1.25.4
 
 require (
 	github.com/BertoldVdb/go-ais v0.4.0
@@ -9,8 +9,8 @@ require (
 	github.com/golang/geo v0.0.0-20251125140653-09e2dd3603dd
 	github.com/hashicorp/go-memdb v1.3.5
 	github.com/joho/godotenv v1.5.1
-	github.com/nats-io/nats.go v1.47.0
-	github.com/sirupsen/logrus v1.9.3
+	github.com/nats-io/nats.go v1.48.0
+	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
 	github.com/thoas/go-funk v0.9.3
 )

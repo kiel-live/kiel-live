@@ -5,20 +5,26 @@
     ":maintainLockFilesWeekly",
     ":enablePreCommit",
     "schedule:automergeDaily",
-    "schedule:weekends"
+    "schedule:daily"
   ],
+  "timezone": "Europe/Berlin",
+  "dependencyDashboard": true,
+  "semanticCommits": "enabled",
+  "rangeStrategy": "pin",
   "prConcurrentLimit": 5,
+  "rebaseWhen": "conflicted",
   "automergeType": "branch",
   "major": {
     "automerge": false
   },
   "automerge": true,
+  "minimumReleaseAge": "3 days",
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": [
-        "(^|/|\\.)([Dd]ocker|[Cc]ontainer)file$",
-        "(^|/)([Dd]ocker|[Cc]ontainer)file[^/]*$"
+      "managerFilePatterns": [
+        "/(^|/|\\.)([Dd]ocker|[Cc]ontainer)file$/",
+        "/(^|/)([Dd]ocker|[Cc]ontainer)file[^/]*$/"
       ],
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\sENV .*?_VERSION=\"(?<currentValue>.*)\"\\s"
@@ -26,27 +32,36 @@
       "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
     }
   ],
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "packageRules": [
     {
-      "matchManagers": ["gomod", "npm", "dockerfile"]
+      "matchManagers": [
+        "gomod"
+      ],
+      "postUpdateOptions": [
+        "gomodTidy",
+        "gomodUpdateImportPaths"
+      ]
     },
     {
-      "matchManagers": ["woodpecker"],
-      "addLabels": ["build"]
+      "groupName": "vue ecosystem",
+      "matchPackageNames": [
+        "/^vue/",
+        "/^@vue/",
+        "/^vite/",
+        "/^@vite/",
+        "/^@intlify/"
+      ]
     },
     {
-      "groupName": "golang deps non-major",
-      "matchManagers": ["gomod"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "extends": ["schedule:daily"]
-    },
-    {
-      "groupName": "pre-commit non-major",
-      "matchManagers": ["pre-commit"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "addLabels": ["build"]
+      "groupName": "linters and formatters",
+      "matchPackageNames": [
+        "/^eslint/",
+        "/^prettier/",
+        "/^@antfu/eslint-config/"
+      ]
     }
-  ],
-  "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"]
+  ]
 }

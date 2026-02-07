@@ -1,13 +1,13 @@
 <template>
   <nav
-    class="flex w-full justify-center border-t-1 border-gray-200 dark:border-gray-800 dark:bg-dark-400 dark:text-gray-300 shadow-top z-200"
+    class="flex w-full justify-center border-t border-gray-200 dark:border-gray-800 dark:bg-neutral-800 dark:text-gray-300 shadow-top"
   >
     <div class="flex w-full justify-around max-w-96">
       <router-link
         v-if="liteMode"
         :to="{ name: 'search' }"
         class="flex flex-col items-center w-1/3 p-2"
-        :class="{ 'text-red-700 dark:text-red-500': activeArea === 'search' }"
+        :class="{ 'text-red-700 dark:text-red-high-contrast': activeArea === 'map-or-search' }"
         :aria-label="t('search')"
       >
         <i-ph-magnifying-glass-bold class="w-6 h-6 mb-1" />
@@ -17,7 +17,7 @@
         v-else
         :to="{ name: 'home' }"
         class="flex flex-col items-center w-1/3 p-2"
-        :class="{ 'text-red-700 dark:text-red-500': activeArea === 'map' }"
+        :class="{ 'text-red-700 dark:text-red-high-contrast': activeArea === 'map-or-search' }"
         :aria-label="t('map')"
       >
         <i-carbon-map class="w-6 h-6 mb-1" />
@@ -26,7 +26,7 @@
       <router-link
         :to="{ name: 'favorites' }"
         class="flex flex-col items-center w-1/3 p-2"
-        :class="{ 'text-red-700 dark:text-red-500': activeArea === 'favorites' }"
+        :class="{ 'text-red-700 dark:text-red-high-contrast': activeArea === 'favorites' }"
         :aria-label="t('favorites')"
       >
         <i-ph-star-fill class="w-6 h-6 mb-1" />
@@ -35,10 +35,10 @@
       <router-link
         :to="{ name: 'settings-about' }"
         class="flex flex-col items-center w-1/3 p-2"
-        :class="{ 'text-red-700 dark:text-red-500': activeArea === 'settings' }"
+        :class="{ 'text-red-700 dark:text-red-high-contrast': activeArea === 'settings' }"
         :aria-label="t('settings')"
       >
-        <i-ic-baseline-settings class="w-6 h-6 mb-1" />
+        <i-ph-gear-fill class="w-6 h-6 mb-1" />
         <span class="mt-auto text-xs">{{ t('settings') }}</span>
       </router-link>
     </div>
@@ -62,14 +62,10 @@ const activeArea = computed(() => {
     return 'favorites';
   }
 
-  if (route.name === 'search') {
-    return 'search';
-  }
-
   if (route.meta.settings) {
     return 'settings';
   }
 
-  return 'map';
+  return 'map-or-search';
 });
 </script>

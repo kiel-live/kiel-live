@@ -10,12 +10,12 @@
       <textarea
         v-model="message"
         rows="10"
-        class="w-full p-2 rounded-md border border-gray-300 bg-white dark:border-gray-400 dark:bg-dark-400"
+        class="w-full p-2 rounded-md border border-gray-300 bg-white dark:border-gray-400 dark:bg-neutral-800"
         type="text"
       />
 
       <Button type="submit">
-        <i-mdi-email class="mr-2" />
+        <i-ph-envelope class="mr-2" />
         <span>{{ t('send_email') }}</span>
       </Button>
     </form>

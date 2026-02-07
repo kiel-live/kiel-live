@@ -1,6 +1,6 @@
 <template>
-  <div v-if="stop" class="flex flex-col min-h-0 flex-grow">
-    <div class="flex flex-row pb-2 mb-2 border-b-1 dark:border-dark-100 items-center">
+  <div v-if="stop" class="flex flex-col min-h-0 grow">
+    <div class="flex flex-row pb-2 mb-2 border-b border-gray-200 dark:border-neutral-600 items-center">
       <i-mdi-ferry v-if="stop.type === 'ferry-stop'" />
       <i-mdi-sign-real-estate v-else />
       <h1 class="text-lg ml-2">{{ stop.name }}</h1>
@@ -19,13 +19,13 @@
 
     <Actions :actions="stop.actions ?? []" />
 
-    <div class="flex flex-col flex-grow overflow-y-auto">
+    <div class="flex flex-col grow overflow-y-auto">
       <div
         v-if="stop.alerts && stop.alerts.length >= 1"
         class="bg-red-300 dark:bg-red-800 bg-opacity-50 dark:bg-opacity-50 p-2 mb-2 rounded-md"
       >
-        <div class="flex items-center border-b-1 border-gray-500 dark:border-gray-300 mb-2">
-          <i-mdi-alert class="mr-2" /><span class="font-bold">{{ t('alerts') }}</span>
+        <div class="flex items-center border-b border-gray-500 dark:border-gray-300 mb-2">
+          <i-carbon-warning-alt-filled class="mr-2" /><span class="font-bold">{{ t('alerts') }}</span>
         </div>
         <ul>
           <li v-for="(alert, i) in stop.alerts" :key="i" class="items-center ml-5 list-outside list-disc">
@@ -37,7 +37,7 @@
       <router-link
         v-for="arrival in augmentedArrivals"
         :key="arrival.tripId"
-        class="flex flex-col py-2 w-full not-last:border-b-1 dark:border-dark-300"
+        class="flex flex-col py-2 w-full not-last:border-b border-gray-200 dark:border-neutral-700"
         :to="{
           name: 'map-marker',
           params: { markerType: stop.type.replace('-stop', ''), markerId: arrival.vehicleId },
@@ -46,16 +46,16 @@
         <div class="flex flex-row items-center">
           <i-mdi-bus v-if="arrival.type === 'bus'" class="mr-2 w-6 h-6" />
           <i-mdi-ferry v-else-if="arrival.type === 'ferry'" class="mr-2" />
-          <i-mdi-tram v-else-if="arrival.type === 'tram'" class="mr-2 w-6 h-6" />
+          <i-carbon-tram v-else-if="arrival.type === 'tram'" class="mr-2 w-6 h-6" />
           <i-carbon-train-profile v-else-if="arrival.type === 'train'" class="mr-2" />
 
           <span class="mr-2">{{ arrival.routeName }}</span>
-          <span class="flex-grow">{{ arrival.direction }}</span>
+          <span class="grow">{{ arrival.direction }}</span>
           <span>{{ arrival.eta ?? arrival.planned }}</span>
           <div class="ml-2 flex items-center">
-            <i-fa-solid-clock v-if="arrival.state === 'planned'" />
-            <i-fa-solid-hand-paper v-if="arrival.state === 'stopping'" />
-            <i-fa-solid-running v-if="arrival.state === 'predicted'" />
+            <i-ph-clock-fill v-if="arrival.state === 'planned'" />
+            <i-ph-hand-fill v-if="arrival.state === 'stopping'" />
+            <i-ph-person-simple-run-bold v-if="arrival.state === 'predicted'" />
           </div>
         </div>
         <div class="flex flex-row gap-1 text-gray-500 dark:text-gray-400 text-xs">
@@ -70,14 +70,14 @@
       <router-link
         v-for="vehicle in stop.vehicles"
         :key="vehicle.id"
-        class="flex flex-col py-2 w-full not-last:border-b-1 dark:border-dark-300"
+        class="flex flex-col py-2 w-full not-last:border-b border-gray-200 dark:border-neutral-700"
         :to="{
           name: 'map-marker',
           params: { markerType: vehicle.type, markerId: vehicle.id },
         }"
       >
         <div class="flex flex-row">
-          <i-ic-outline-pedal-bike v-if="vehicle.type === 'bike'" class="mr-2" />
+          <i-carbon-bicycle v-if="vehicle.type === 'bike'" class="mr-2" />
           <i-mdi-ferry v-else-if="vehicle.type === 'ferry'" class="mr-2" />
 
           <span class="mr-2">{{ vehicle.name }}</span>
@@ -86,7 +86,7 @@
       <NoData v-if="augmentedArrivals && augmentedArrivals.length === 0">
         {{ t('no_bus_wants_to_stop_here_right_now') }}
       </NoData>
-      <i-fa-solid-circle-notch v-if="!augmentedArrivals && !stop.vehicles" class="m-auto text-3xl animate-spin" />
+      <i-ph-circle-notch v-if="!augmentedArrivals && !stop.vehicles" class="m-auto text-3xl animate-spin" />
     </div>
   </div>
   <NoData v-else>

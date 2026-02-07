@@ -1,10 +1,10 @@
-import { expect, test } from '@playwright/test';
+import { expect } from '@playwright/test';
+import { testColorScheme, waitForMapToLoad } from './utils';
 
-test('Can render map', async ({ page }) => {
+testColorScheme('Can render map', async ({ page }) => {
   await page.goto('/');
 
-  // wait for the map to have loaded
-  await page.waitForSelector('#map[data-idle="true"]');
+  await waitForMapToLoad(page);
 
   await expect(page).toHaveScreenshot();
 });
