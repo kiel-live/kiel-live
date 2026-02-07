@@ -9,7 +9,7 @@ import android.webkit.WebViewClient;
 import de.beechy.kiellive.Config;
 
 public class MyWebViewClient extends WebViewClient {
-    private Context context;
+    private final Context context;
     private int statusBarHeight;
 
     public MyWebViewClient(Context context) {
@@ -31,13 +31,11 @@ public class MyWebViewClient extends WebViewClient {
 
     /**
      * Injects the safe area top inset as a CSS custom property (CSS variable).
-     * This allows the web app to freely use --safe-area-top anywhere without
-     * requiring Android app updates.
      */
     void injectCssIntoWebView(WebView webView, int statusBarHeight) {
-        // Calculate the pixel value accounting for device pixel ratio and add 8px margin
+        // Calculate the pixel value accounting for device pixel ratio
         String jsCode = "javascript:{"
-                + "const pixel = " + statusBarHeight + " / window.devicePixelRatio + 8;"
+                + "const pixel = " + statusBarHeight + " / window.devicePixelRatio;"
                 + "document.documentElement.style.setProperty('--safe-area-top', pixel + 'px');"
                 + "}";
 
