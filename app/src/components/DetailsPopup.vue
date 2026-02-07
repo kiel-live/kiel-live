@@ -1,31 +1,35 @@
 <template>
   <div
     v-show="isOpen"
-    class="absolute bottom-0 left-0 right-0 flex flex-col w-full z-10 bg-white shadow-top md:shadow-right md:rounded-none md:w-80 md:top-0 md:h-auto transition dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-950"
+    class="absolute bottom-0 left-0 right-0 flex flex-col w-full px-4 pb-0 pt-2 z-10 bg-white md:shadow-right md:rounded-none md:w-80 md:top-0 md:h-auto transition dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-950"
     :class="{
       'overflow-hidden max-h-0': actualSize === 'closed',
-      'h-full md:mx-auto md:w-200 md:shadow-none': actualSize === 'full',
+      'max-md:max-h-[calc(100%-var(--safe-area-top)-var(--app-bar-space))]': actualSize !== 'closed',
+      'h-full md:mx-auto md:w-200 shadow-none': actualSize === 'full',
       'h-1/2': size === '1/2' && actualSize === 'default',
       'h-3/4': size === '3/4' && actualSize === 'default',
-      'p-4 pb-0 pt-2': actualSize !== 'closed' && actualSize !== 'full',
-      'rounded-t-2xl': actualSize !== 'full',
-      'rounded-none p-4 pt-16': actualSize === 'full',
+      'rounded-t-2xl shadow-top': actualSize !== 'full' || !disableResize,
+      'rounded-none': actualSize === 'full' && disableResize,
       'opacity-80': actualSize === 'closing',
       fade: !dragging,
     }"
     :style="{ height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0 }"
-    @touchmove="move"
-    @touchend="drop"
   >
-    <div v-if="!disableResize" class="w-full -mt-4 pt-4 pb-4 md:hidden" @touchstart="drag">
-      <div v-show="actualSize !== 'full'" class="shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
-    </div>
+    <button
+      v-if="!disableResize"
+      type="button"
+      class="w-full -mt-4 pt-4 pb-4 md:hidden touch-none"
+      :title="$t('drag_to_resize')"
+      @pointerdown="drag"
+    >
+      <div class="shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
+    </button>
     <slot />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, toRef } from 'vue';
+import { computed, onUnmounted, ref, toRef } from 'vue';
 
 const props = defineProps<{
   isOpen: boolean;
@@ -80,20 +84,30 @@ const actualSize = computed(() => {
   return 'default';
 });
 
-function drag(e: TouchEvent) {
+function drag(e: PointerEvent) {
   if (disableResize.value) {
     return;
   }
 
   dragging.value = true;
-  height.value = window.innerHeight - e.touches[0].clientY;
+  height.value = window.innerHeight - e.clientY;
+
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', drop);
+  window.addEventListener('pointercancel', drop);
 }
 
-function move(e: TouchEvent) {
+function move(e: PointerEvent) {
   if (!dragging.value) {
     return;
   }
-  height.value = window.innerHeight - e.touches[0].clientY;
+  height.value = window.innerHeight - e.clientY;
+}
+
+function removeEventListeners() {
+  window.removeEventListener('pointermove', move);
+  window.removeEventListener('pointerup', drop);
+  window.removeEventListener('pointercancel', drop);
 }
 
 function drop() {
@@ -111,7 +125,13 @@ function drop() {
   }
 
   dragging.value = false;
+
+  removeEventListeners();
 }
+
+onUnmounted(() => {
+  removeEventListeners();
+});
 </script>
 
 <style scoped>

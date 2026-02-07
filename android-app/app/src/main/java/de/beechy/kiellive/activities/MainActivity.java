@@ -1,8 +1,6 @@
 package de.beechy.kiellive.activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;

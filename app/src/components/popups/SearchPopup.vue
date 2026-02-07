@@ -20,7 +20,6 @@
       >
         <i-mdi-sign-real-estate v-if="searchResult.type === 'bus-stop'" class="mr-2" />
         <i-mdi-ferry v-else-if="searchResult.type === 'ferry-stop'" class="mr-2" />
-        <!-- <i-fa-bus v-else-if="searchResult.type === 'bus'" class="mr-2" /> -->
         <div class="">
           {{ searchResult.name }}
         </div>
