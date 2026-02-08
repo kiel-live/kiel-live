@@ -1,14 +1,13 @@
 <template>
   <div
     v-show="isOpen"
-    class="absolute right-0 bottom-0 left-0 z-10 flex w-full flex-col bg-white px-4 pt-2 pb-0 transition dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
+    class="shadow-top absolute right-0 bottom-0 left-0 z-10 flex w-full flex-col rounded-t-2xl bg-white px-4 pt-2 pb-0 transition dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
     :class="{
       'max-h-0 overflow-hidden': actualSize === 'closed',
       'max-h-[calc(100%-var(--safe-area-top)-var(--app-bar-space))]': actualSize !== 'closed',
       'h-full shadow-none': actualSize === 'full',
       'h-1/2': size === '1/2' && actualSize === 'default',
       'h-3/4': size === '3/4' && actualSize === 'default',
-      'shadow-top rounded-t-2xl': actualSize !== 'full',
       'rounded-none': actualSize === 'full',
       'opacity-80': actualSize === 'closing',
       fade: !dragging,
