@@ -88,8 +88,7 @@ func main() {
 	defer ws.Close()
 
 	subMsg := aisstream.SubscriptionMessage{
-		APIKey: apiKey,
-		// BoundingBoxes: [][][]float64{{{-90.0, -180.0}, {90.0, 180.0}}}, // bounding box for the entire world
+		APIKey:        apiKey,
 		BoundingBoxes: [][][]float64{{{54.0, 10.0}, {55.0, 11.0}}},
 		FiltersShipMMSI: []string{
 			"211865680", // Wik
