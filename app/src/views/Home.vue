@@ -3,14 +3,14 @@
     <AppBar v-model:search-input="searchInput" />
 
     <DetailsPopup
-      :is-open="isBottomSheetOpen"
+      :is-open="isPopupOpen"
       :current-snap-point="bottomSheetSnapPoint"
       :snap-points="bottomSheetSnapPoints"
       @close="closeBottomSheet"
     >
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
-      <FavoritesPopup v-if="route.name === 'favorites'" />
       <SearchPopup v-if="route.name === 'search'" v-model:search-input="searchInput" />
+      <FavoritesPopup v-if="route.name === 'favorites'" />
     </DetailsPopup>
 
     <Map
@@ -61,7 +61,7 @@ const searchInput = ref('');
 
 const mapMovedManually = ref(false);
 
-const isBottomSheetOpen = computed(() => {
+const isPopupOpen = computed(() => {
   return selectedMarker.value !== undefined || route.name === 'search' || route.name === 'favorites';
 });
 
@@ -72,7 +72,7 @@ const bottomSheetSnapPoints = computed(() => {
   }
 
   // just-header, half, almost-full
-  return ['6rem', '50%', '99%'];
+  return ['6rem', '50%', '100%'];
 });
 
 const bottomSheetSnapPoint = ref<string | number | undefined>('50%');
