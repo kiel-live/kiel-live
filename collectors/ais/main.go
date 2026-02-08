@@ -1,12 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"net"
 	"os"
 
-	ais "github.com/BertoldVdb/go-ais"
-	"github.com/BertoldVdb/go-ais/aisnmea"
+	aisstream "github.com/aisstream/ais-message-models/golang/aisStream"
+	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
 	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/pkg/models"
@@ -14,6 +14,30 @@ import (
 )
 
 const IDPrefix = "ais-"
+
+func wsConnect() (*websocket.Conn, error) {
+	url := "wss://stream.aisstream.io/v0/stream"
+	ws, http, err := websocket.DefaultDialer.Dial(url, nil)
+	if err != nil {
+		return nil, err
+	}
+	_ = http
+
+	return ws, nil
+}
+
+func subscribeToStream(ws *websocket.Conn, subMsg aisstream.SubscriptionMessage) error {
+	subMsgBytes, err := json.Marshal(subMsg)
+	if err != nil {
+		return err
+	}
+
+	if err := ws.WriteMessage(websocket.TextMessage, subMsgBytes); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func main() {
 	log.Infof("Kiel-Live AIS collector version %s", "1.0.0") // TODO use proper version
@@ -27,14 +51,9 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	address := os.Getenv("UDP_ADDRESS")
-	if address == "" {
-		log.Fatalln("Please provide a UDP address for the collector with UDP_ADDRESS")
-	}
-
-	port := os.Getenv("UDP_PORT")
-	if port == "" {
-		log.Fatalln("Please provide a UDP port for the collector with UDP_PORT")
+	api_key := os.Getenv("AISSTREAM_API_KEY")
+	if api_key == "" {
+		log.Fatalln("Please provide an API key for the AIS stream with AISSTREAM_API_KEY")
 	}
 
 	server := os.Getenv("COLLECTOR_SERVER")
@@ -46,21 +65,6 @@ func main() {
 	if token == "" {
 		log.Fatalln("Please provide a token for the collector with MANAGER_TOKEN")
 	}
-
-	s, err := net.ResolveUDPAddr("udp4", address+":"+port)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	connection, err := net.ListenUDP("udp4", s)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	defer connection.Close()
-	buffer := make([]byte, 1024)
 
 	c := client.NewClient(server, token)
 	err = c.Connect()
@@ -75,41 +79,94 @@ func main() {
 		}
 	}()
 
+	ws, err := wsConnect()
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+	log.Infoln("Connected to AIS stream")
+	defer ws.Close()
+
+	subMsg := aisstream.SubscriptionMessage{
+		APIKey: api_key,
+		// BoundingBoxes: [][][]float64{{{-90.0, -180.0}, {90.0, 180.0}}}, // bounding box for the entire world
+		BoundingBoxes: [][][]float64{{{54.0, 10.0}, {55.0, 11.0}}},
+		FiltersShipMMSI: []string{
+			"211865680", // Wik
+			"211341930", // Gaarden
+			"211848130", // Friedrichsort
+			"211872380", // Wellingdorf
+			"218035310", // Laboe
+			"218039370", // Dietrichsdorf
+			"211399920", // Duesternbrook
+			"211549030", // Adler 1
+		},
+	}
+
+	err = subscribeToStream(ws, subMsg)
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+	log.Infoln("Subscribed to AIS stream")
+
 	for {
-		n, _, err := connection.ReadFromUDP(buffer)
+		_, p, err := ws.ReadMessage()
 		if err != nil {
-			log.Error(err)
-			continue
-		}
-
-		nm := aisnmea.NMEACodecNew(ais.CodecNew(false, false))
-
-		decoded, err := nm.ParseSentence(string(buffer[0 : n-1]))
-		if err != nil {
-			log.Error(err)
-			continue
-		}
-		if decoded != nil {
-			if decoded.Packet.GetHeader().MessageID == 1 || decoded.Packet.GetHeader().MessageID == 2 || decoded.Packet.GetHeader().MessageID == 3 {
-				positionReportPacket := decoded.Packet.(ais.PositionReport)
-
-				vehicle := &models.Vehicle{
-					ID:       IDPrefix + fmt.Sprint(positionReportPacket.UserID),
-					Provider: "ais",
-					Type:     models.VehicleTypeFerry,
-					State:    "onfire", // TODO
-					Location: &models.Location{
-						Longitude: int(positionReportPacket.Longitude * 3600000),
-						Latitude:  int(positionReportPacket.Latitude * 3600000),
-						Heading:   int(positionReportPacket.TrueHeading),
-					},
-				}
-
-				err = c.UpdateVehicle(vehicle)
+			if websocket.IsCloseError(err, websocket.CloseAbnormalClosure) {
+				// reconnect
+				log.Warnln("Websocket connection closed, reconnecting...")
+				ws, err = wsConnect()
 				if err != nil {
-					log.Error(err)
-					continue
+					log.Fatalln(err)
 				}
+				log.Infoln("Reconnected to AIS stream")
+				err = subscribeToStream(ws, subMsg)
+				if err != nil {
+					log.Fatalln(err)
+				}
+				log.Infoln("Resubscribed to AIS stream")
+				continue
+			}
+			log.Fatalln(err)
+		}
+		var packet aisstream.AisStreamMessage
+
+		err = json.Unmarshal(p, &packet)
+		if err != nil {
+			log.Errorln(err)
+			continue
+		}
+
+		var shipName string
+		// field may or may not be populated
+		if packetShipName, ok := packet.MetaData["ShipName"]; ok {
+			shipName = packetShipName.(string)
+		}
+
+		switch packet.MessageType {
+		case aisstream.POSITION_REPORT:
+			var positionReport aisstream.PositionReport
+			positionReport = *packet.Message.PositionReport
+			log.Debugf("MMSI: %d Ship Name: %s Latitude: %f Longitude: %f",
+				positionReport.UserID, shipName, positionReport.Latitude, positionReport.Longitude)
+			vehicle := &models.Vehicle{
+				ID:       IDPrefix + fmt.Sprint(positionReport.UserID),
+				Provider: "ais",
+				Name:     shipName,
+				Type:     models.VehicleTypeFerry,
+				State:    "onfire", // TODO
+				Location: &models.Location{
+					Longitude: int(positionReport.Longitude * 3600000),
+					Latitude:  int(positionReport.Latitude * 3600000),
+					Heading:   int(positionReport.TrueHeading),
+				},
+			}
+
+			err = c.UpdateVehicle(vehicle)
+			if err != nil {
+				log.Error(err)
+				continue
 			}
 		}
 	}

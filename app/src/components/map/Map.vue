@@ -67,11 +67,12 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
     let iconNameFocused = `${v.type}-selected`;
 
     // TODO: remove custom bus icons at some point
-    if (v.type === 'bus') {
+    if (v.type === 'bus' || v.type === 'ferry') {
+      const name = v.type === 'bus' ? v.name.split(' ')[0] : v.name.slice(0, 2)
       const iconData = {
         kind: 'vehicle',
         type: v.type,
-        name: v.name.split(' ')[0],
+        name,
         focused: false,
         heading: v.location.heading,
       };
@@ -289,7 +290,7 @@ onMounted(async () => {
     }
 
     const iconData = JSON.parse(e.id) as IconData;
-    if (iconData.kind === 'vehicle' && iconData.type === 'bus') {
+    if (iconData.kind === 'vehicle' && (iconData.type === 'bus' || iconData.type === 'ferry')) {
       map.addImage(e.id, new BusIcon(map, iconData.focused, iconData.name, iconData.heading), {
         pixelRatio: 2,
       });
