@@ -9,18 +9,13 @@
       'h-1/2': size === '1/2' && actualSize === 'default',
       'h-3/4': size === '3/4' && actualSize === 'default',
       'rounded-t-2xl shadow-top': actualSize !== 'full',
-      'rounded-none': actualSize === 'full' ,
+      'rounded-none': actualSize === 'full',
       'opacity-80': actualSize === 'closing',
       fade: !dragging,
     }"
     :style="{ height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0 }"
   >
-    <button
-      type="button"
-      class="w-full -mt-4 pt-4 pb-4 touch-none"
-      :title="$t('drag_to_resize')"
-      @pointerdown="drag"
-    >
+    <button type="button" class="w-full -mt-4 pt-4 pb-4 touch-none" :title="$t('drag_to_resize')" @pointerdown="drag">
       <div class="shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
     </button>
     <slot />

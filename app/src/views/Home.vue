@@ -2,11 +2,7 @@
   <div class="relative h-full w-full items-center justify-center overflow-hidden">
     <AppBar v-model:search-input="searchInput" />
 
-    <DetailsPopup
-      :is-open="isPopupOpen"
-      :size="popupSize"
-      @close="$router.replace({ name: 'home' })"
-    >
+    <DetailsPopup :is-open="isPopupOpen" :size="popupSize" @close="$router.replace({ name: 'home' })">
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
       <SearchPopup v-if="route.name === 'search'" v-model:search-input="searchInput" />
       <FavoritesPopup v-if="route.name === 'favorites'" />
