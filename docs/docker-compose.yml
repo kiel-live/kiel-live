@@ -19,7 +19,7 @@ services:
       - web
       - default
   setup:
-    image: natsio/nats-box:0.19.2
+    image: natsio/nats-box:0.19.3
     environment:
       - NATS_URL=nats:4222
       - NATS_USER=admin

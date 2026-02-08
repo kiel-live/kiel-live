@@ -13,7 +13,7 @@ services:
       - ./nats/nats-server.conf:/nats-server.conf
     command: -c /nats-server.conf
   setup:
-    image: natsio/nats-box:0.19.2
+    image: natsio/nats-box:0.19.3
     environment:
       - NATS_URL=server:4222
       - NATS_USER=admin
