@@ -2,12 +2,7 @@
   <div class="relative h-full w-full items-center justify-center overflow-hidden">
     <AppBar v-model:search-input="searchInput" />
 
-    <DetailsPopup
-      :is-open="isPopupOpen"
-      :disable-resize="liteMode"
-      :size="popupSize"
-      @close="$router.replace({ name: 'home' })"
-    >
+    <DetailsPopup :is-open="isPopupOpen" :size="popupSize" @close="$router.replace({ name: 'home' })">
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
       <SearchPopup v-if="route.name === 'search'" v-model:search-input="searchInput" />
       <FavoritesPopup v-if="route.name === 'favorites'" />
@@ -66,9 +61,6 @@ const isPopupOpen = computed(() => {
 });
 
 const popupSize = computed(() => {
-  if (liteMode.value) {
-    return '1';
-  }
   if (route.name === 'search' || route.name === 'favorites' || mapMovedManually.value) {
     return '1/2';
   }
