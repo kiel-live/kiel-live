@@ -3,7 +3,7 @@
     <main class="flex min-h-0 grow">
       <router-view />
     </main>
-    <AppBarBottom class="mt-auto shrink-0 mb-(--safe-area-bottom)" />
+    <AppBarBottom class="mt-auto mb-(--safe-area-bottom) shrink-0" />
     <UpdateNotice />
     <GeneralNotice />
   </div>
