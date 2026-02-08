@@ -3,10 +3,11 @@ module github.com/kiel-live/kiel-live
 go 1.25.4
 
 require (
-	github.com/BertoldVdb/go-ais v0.4.0
+	github.com/aisstream/ais-message-models/golang/aisStream v0.0.0-20230628154343-8650fc5bf8c3
 	github.com/artonge/go-gtfs v1.3.4
 	github.com/go-co-op/gocron v1.37.0
 	github.com/golang/geo v0.0.0-20251125140653-09e2dd3603dd
+	github.com/gorilla/websocket v1.5.0
 	github.com/hashicorp/go-memdb v1.3.5
 	github.com/joho/godotenv v1.5.1
 	github.com/nats-io/nats.go v1.48.0
@@ -16,7 +17,6 @@ require (
 )
 
 require (
-	github.com/adrianmo/go-nmea v1.10.0 // indirect
 	github.com/artonge/go-csv-tag/v2 v2.5.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
