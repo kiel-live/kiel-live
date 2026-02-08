@@ -63,5 +63,6 @@
   "feature_flags": "Feature flags",
   "feature_flags_description": "Enable or disable features that are still in development.",
   "navigate_to": "Navigate to",
-  "rent_vehicle": "Start ride"
+  "rent_vehicle": "Start ride",
+  "drag_to_resize": "Drag to resize popup"
 }

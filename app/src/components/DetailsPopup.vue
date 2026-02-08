@@ -13,21 +13,23 @@
       'opacity-80': actualSize === 'closing',
       fade: !dragging,
     }"
-    :style="{
-      height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0,
-    }"
-    @touchmove="move"
-    @touchend="drop"
+    :style="{ height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0 }"
   >
-    <div v-if="!disableResize" class="-mt-4 w-full pt-4 pb-4 md:hidden" @touchstart="drag">
+    <button
+      v-if="!disableResize"
+      type="button"
+      class="-mt-4 w-full touch-none pt-4 pb-4 md:hidden"
+      :title="$t('drag_to_resize')"
+      @pointerdown="drag"
+    >
       <div class="mx-auto h-1.5 w-12 shrink-0 rounded-full bg-gray-500" />
-    </div>
+    </button>
     <slot />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, toRef } from 'vue';
+import { computed, onUnmounted, ref, toRef } from 'vue';
 
 const props = defineProps<{
   isOpen: boolean;
@@ -82,20 +84,30 @@ const actualSize = computed(() => {
   return 'default';
 });
 
-function drag(e: TouchEvent) {
+function drag(e: PointerEvent) {
   if (disableResize.value) {
     return;
   }
 
   dragging.value = true;
-  height.value = window.innerHeight - e.touches[0].clientY;
+  height.value = window.innerHeight - e.clientY;
+
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', drop);
+  window.addEventListener('pointercancel', drop);
 }
 
-function move(e: TouchEvent) {
+function move(e: PointerEvent) {
   if (!dragging.value) {
     return;
   }
-  height.value = window.innerHeight - e.touches[0].clientY;
+  height.value = window.innerHeight - e.clientY;
+}
+
+function removeEventListeners() {
+  window.removeEventListener('pointermove', move);
+  window.removeEventListener('pointerup', drop);
+  window.removeEventListener('pointercancel', drop);
 }
 
 function drop() {
@@ -113,7 +125,13 @@ function drop() {
   }
 
   dragging.value = false;
+
+  removeEventListeners();
 }
+
+onUnmounted(() => {
+  removeEventListeners();
+});
 </script>
 
 <style scoped>

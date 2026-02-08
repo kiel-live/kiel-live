@@ -1,5 +1,7 @@
 <template>
+  <!-- TODO: remove id app-bar when android apps are updated to set --safe-area-top CSS variable -->
   <nav
+    id="app-bar"
     class="absolute top-0 right-0 left-0 z-20 mx-2 mt-[calc(0.5rem+var(--safe-area-top,0px))] flex h-12 items-center justify-between gap-x-1 rounded-md border border-gray-200 bg-white py-1 pr-1 shadow-xl md:right-auto md:left-1/2 md:w-96 md:-translate-x-1/2 md:transform dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
   >
     <router-link :to="{ name: 'home' }" class="p-2">
