@@ -51,8 +51,8 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	api_key := os.Getenv("AISSTREAM_API_KEY")
-	if api_key == "" {
+	apiKey := os.Getenv("AISSTREAM_API_KEY")
+	if apiKey == "" {
 		log.Fatalln("Please provide an API key for the AIS stream with AISSTREAM_API_KEY")
 	}
 
@@ -88,7 +88,7 @@ func main() {
 	defer ws.Close()
 
 	subMsg := aisstream.SubscriptionMessage{
-		APIKey: api_key,
+		APIKey: apiKey,
 		// BoundingBoxes: [][][]float64{{{-90.0, -180.0}, {90.0, 180.0}}}, // bounding box for the entire world
 		BoundingBoxes: [][][]float64{{{54.0, 10.0}, {55.0, 11.0}}},
 		FiltersShipMMSI: []string{
