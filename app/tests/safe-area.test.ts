@@ -25,7 +25,9 @@ test('Safe area on map with maximized popup', async ({ page }) => {
   await page.goto('/');
   await injectSafeAreaVars(page);
   await waitForMapToLoad(page);
-  await page.getByRole('button', { name: 'Drag to resize popup' }).dragTo(page.getByRole('textbox', { name: 'Search' }));
+  await page
+    .getByRole('button', { name: 'Drag to resize popup' })
+    .dragTo(page.getByRole('textbox', { name: 'Search' }));
 
   await expect(page).toHaveScreenshot();
 });
