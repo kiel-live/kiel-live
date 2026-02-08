@@ -25,6 +25,7 @@ jobs:
           - nextbike
           - donkey
           - gtfs
+          - ais
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v6
