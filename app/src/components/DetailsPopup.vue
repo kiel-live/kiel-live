@@ -1,14 +1,14 @@
 <template>
   <div
     v-show="isOpen"
-    class="absolute bottom-0 left-0 right-0 flex flex-col w-full px-4 pb-0 pt-2 z-10 bg-white md:shadow-right md:rounded-none md:w-80 md:top-0 md:h-auto transition dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-950"
+    class="md:shadow-right absolute right-0 bottom-0 left-0 z-10 flex w-full flex-col bg-white px-4 pt-2 pb-0 transition md:top-0 md:h-auto md:w-80 md:rounded-none dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
     :class="{
-      'overflow-hidden max-h-0': actualSize === 'closed',
+      'max-h-0 overflow-hidden': actualSize === 'closed',
       'max-md:max-h-[calc(100%-var(--safe-area-top)-var(--app-bar-space))]': actualSize !== 'closed',
-      'h-full md:mx-auto md:w-200 shadow-none': actualSize === 'full',
+      'h-full shadow-none md:mx-auto md:w-200': actualSize === 'full',
       'h-1/2': size === '1/2' && actualSize === 'default',
       'h-3/4': size === '3/4' && actualSize === 'default',
-      'rounded-t-2xl shadow-top': actualSize !== 'full' || !disableResize,
+      'shadow-top rounded-t-2xl': actualSize !== 'full' || !disableResize,
       'rounded-none': actualSize === 'full' && disableResize,
       'opacity-80': actualSize === 'closing',
       fade: !dragging,
@@ -18,11 +18,11 @@
     <button
       v-if="!disableResize"
       type="button"
-      class="w-full -mt-4 pt-4 pb-4 md:hidden touch-none"
+      class="-mt-4 w-full touch-none pt-4 pb-4 md:hidden"
       :title="$t('drag_to_resize')"
       @pointerdown="drag"
     >
-      <div class="shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
+      <div class="mx-auto h-1.5 w-12 shrink-0 rounded-full bg-gray-500" />
     </button>
     <slot />
   </div>
