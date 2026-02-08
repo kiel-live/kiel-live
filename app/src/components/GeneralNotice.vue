@@ -1,12 +1,12 @@
 <template>
   <PopupNotice :show="!!alert" @close="close">
-    <div v-if="alert" class="flex flex-col text-center gap-4">
-      <span class="text-xl mb-2">{{ alert.title }}</span>
+    <div v-if="alert" class="flex flex-col gap-4 text-center">
+      <span class="mb-2 text-xl">{{ alert.title }}</span>
       <!-- eslint-disable-next-line vue/no-v-html -->
       <span class="prose" v-html="body" />
     </div>
 
-    <div class="flex flex-row w-full justify-center mt-8">
+    <div class="mt-8 flex w-full flex-row justify-center">
       <Button @click="close">{{ t('ok') }}</Button>
     </div>
   </PopupNotice>

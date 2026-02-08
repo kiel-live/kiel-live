@@ -1,7 +1,7 @@
 <template>
-  <div v-if="vehicle" class="flex flex-col min-h-0 grow">
-    <header class="border-b border-gray-200 dark:border-neutral-600 mb-2">
-      <div class="flex pb-2 space-x-2 items-center">
+  <div v-if="vehicle" class="flex min-h-0 grow flex-col">
+    <header class="mb-2 border-b border-gray-200 dark:border-neutral-600">
+      <div class="flex items-center space-x-2 pb-2">
         <i-mdi-bus v-if="vehicle.type === 'bus'" />
         <i-carbon-bicycle v-else-if="vehicle.type === 'bike'" />
         <i-ph-car v-else-if="vehicle.type === 'car'" />
@@ -32,7 +32,7 @@
         >
           <span class="w-14 min-w-12">{{ arrival.planned }}</span>
           <div
-            class="marker relative flex justify-center items-center mx-4 h-12 w-8 min-w-4 after:absolute after:top-0 after:h-full after:bg-neutral-800 dark:after:bg-gray-300"
+            class="marker relative mx-4 flex h-12 w-8 min-w-4 items-center justify-center after:absolute after:top-0 after:h-full after:bg-neutral-800 dark:after:bg-gray-300"
             :class="{ 'after:bg-gray-500 dark:after:bg-gray-400': arrival.state === 'departed' }"
           >
             <div
@@ -40,17 +40,17 @@
                 arrival.state !== 'departed' &&
                 (trip.arrivals[i - 1] === undefined || trip.arrivals[i - 1].state === 'departed')
               "
-              class="vehicle before:h-4 before:w-4 before:bg-red-700 before:rounded-full"
+              class="vehicle before:h-4 before:w-4 before:rounded-full before:bg-red-700"
               :class="{ driving: arrival.state === 'predicted' }"
             >
-              <div class="pulsating border-3 border-red-700 border-solid rounded-full" />
+              <div class="pulsating rounded-full border-3 border-solid border-red-700" />
             </div>
             <div
               v-if="
                 (arrival.state !== 'departed' && trip.arrivals[i - 1]?.state !== 'departed') ||
                 arrival.state === 'predicted'
               "
-              class="rounded-full h-4 w-4 flex items-center justify-center bg-neutral-800 dark:bg-gray-300"
+              class="flex h-4 w-4 items-center justify-center rounded-full bg-neutral-800 dark:bg-gray-300"
             />
           </div>
           <span class="w-full">{{ arrival.name }}</span>
@@ -58,7 +58,7 @@
       </div>
       <NoData v-else>{{ t('trip_expired') }}</NoData>
     </template>
-    <i-ph-circle-notch v-else-if="vehicle.tripId !== ''" class="mx-auto mt-4 text-3xl animate-spin" />
+    <i-ph-circle-notch v-else-if="vehicle.tripId !== ''" class="mx-auto mt-4 animate-spin text-3xl" />
     <!-- eslint-disable-next-line vue/no-v-html -->
     <span v-if="vehicleDescription" class="prose" v-html="vehicleDescription" />
   </div>

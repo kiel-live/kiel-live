@@ -1,5 +1,5 @@
 <template>
-  <div id="map" ref="mapElement" class="w-full h-full" />
+  <div id="map" ref="mapElement" class="h-full w-full" />
 </template>
 
 <script lang="ts" setup>
@@ -526,7 +526,7 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 }
 
 #map :deep(.maplibregl-ctrl-attrib-button) {
-  @apply dark:filter dark:invert;
+  @apply dark:invert dark:filter;
 }
 
 #map :deep(.maplibregl-ctrl-group) {
@@ -542,6 +542,6 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 }
 
 #map :deep(.maplibregl-ctrl button .maplibregl-ctrl-icon) {
-  @apply dark:filter dark:invert;
+  @apply dark:invert dark:filter;
 }
 </style>
