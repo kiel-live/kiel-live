@@ -1,22 +1,22 @@
 <template>
   <div
     v-show="isOpen"
-    class="absolute bottom-0 left-0 right-0 flex flex-col w-full px-4 pb-0 pt-2 z-10 transition bg-white dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-950"
+    class="absolute right-0 bottom-0 left-0 z-10 flex w-full flex-col bg-white px-4 pt-2 pb-0 transition dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
     :class="{
-      'overflow-hidden max-h-0': actualSize === 'closed',
+      'max-h-0 overflow-hidden': actualSize === 'closed',
       'max-h-[calc(100%-var(--safe-area-top)-var(--app-bar-space))]': actualSize !== 'closed',
       'h-full shadow-none': actualSize === 'full',
       'h-1/2': size === '1/2' && actualSize === 'default',
       'h-3/4': size === '3/4' && actualSize === 'default',
-      'rounded-t-2xl shadow-top': actualSize !== 'full',
+      'shadow-top rounded-t-2xl': actualSize !== 'full',
       'rounded-none': actualSize === 'full',
       'opacity-80': actualSize === 'closing',
       fade: !dragging,
     }"
     :style="{ height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0 }"
   >
-    <button type="button" class="w-full -mt-4 pt-4 pb-4 touch-none" :title="$t('drag_to_resize')" @pointerdown="drag">
-      <div class="shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
+    <button type="button" class="-mt-4 w-full touch-none pt-4 pb-4" :title="$t('drag_to_resize')" @pointerdown="drag">
+      <div class="mx-auto h-1.5 w-12 shrink-0 rounded-full bg-gray-500" />
     </button>
     <slot />
   </div>
