@@ -68,7 +68,7 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
 
     // TODO: remove custom bus icons at some point
     if (v.type === 'bus' || v.type === 'ferry') {
-      const name = v.type === 'bus' ? v.name.split(' ')[0] : v.name.slice(0, 2)
+      const name = v.type === 'bus' ? v.name.split(' ')[0] : v.name.slice(0, 2);
       const iconData = {
         kind: 'vehicle',
         type: v.type,
