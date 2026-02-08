@@ -151,11 +151,12 @@ func main() {
 			log.Debugf("MMSI: %d Ship Name: %s Latitude: %f Longitude: %f",
 				positionReport.UserID, shipName, positionReport.Latitude, positionReport.Longitude)
 			vehicle := &models.Vehicle{
-				ID:       IDPrefix + fmt.Sprint(positionReport.UserID),
-				Provider: "ais",
-				Name:     shipName,
-				Type:     models.VehicleTypeFerry,
-				State:    "onfire", // TODO
+				ID:          IDPrefix + fmt.Sprint(positionReport.UserID),
+				Provider:    "ais",
+				Name:        shipName,
+				Description: fmt.Sprintf("Die Live-Position der Fähre \"%s\".\n\nDie Position wird regelmäßig über AIS aktualisiert.", shipName),
+				Type:        models.VehicleTypeFerry,
+				State:       "onfire", // TODO
 				Location: &models.Location{
 					Longitude: int(positionReport.Longitude * 3600000),
 					Latitude:  int(positionReport.Latitude * 3600000),
