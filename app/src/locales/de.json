@@ -63,5 +63,6 @@
   "feature_flags": "Feature flags",
   "feature_flags_description": "Aktiviere oder deaktiviere Funktionen, die sich noch in der Entwicklung befinden.",
   "navigate_to": "Navigieren",
-  "rent_vehicle": "Fahrt beginnen"
+  "rent_vehicle": "Fahrt beginnen",
+  "drag_to_resize": "Zum Ändern der Popup-Größe ziehen"
 }

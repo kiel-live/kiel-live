@@ -1,5 +1,5 @@
 <template>
-  <div id="map" ref="mapElement" class="w-full h-full" />
+  <div id="map" ref="mapElement" class="h-full w-full" />
 </template>
 
 <script lang="ts" setup>
@@ -67,11 +67,12 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
     let iconNameFocused = `${v.type}-selected`;
 
     // TODO: remove custom bus icons at some point
-    if (v.type === 'bus') {
+    if (v.type === 'bus' || v.type === 'ferry') {
+      const name = v.type === 'bus' ? v.name.split(' ')[0] : v.name.slice(0, 2);
       const iconData = {
         kind: 'vehicle',
         type: v.type,
-        name: v.name.split(' ')[0],
+        name,
         focused: false,
         heading: v.location.heading,
       };
@@ -289,7 +290,7 @@ onMounted(async () => {
     }
 
     const iconData = JSON.parse(e.id) as IconData;
-    if (iconData.kind === 'vehicle' && iconData.type === 'bus') {
+    if (iconData.kind === 'vehicle' && (iconData.type === 'bus' || iconData.type === 'ferry')) {
       map.addImage(e.id, new BusIcon(map, iconData.focused, iconData.name, iconData.heading), {
         pixelRatio: 2,
       });
@@ -526,7 +527,7 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 }
 
 #map :deep(.maplibregl-ctrl-attrib-button) {
-  @apply dark:filter dark:invert;
+  @apply dark:invert dark:filter;
 }
 
 #map :deep(.maplibregl-ctrl-group) {
@@ -542,6 +543,6 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 }
 
 #map :deep(.maplibregl-ctrl button .maplibregl-ctrl-icon) {
-  @apply dark:filter dark:invert;
+  @apply dark:invert dark:filter;
 }
 </style>

@@ -3,7 +3,7 @@
   <Transition v-if="showBackdrop" name="backdrop">
     <div
       v-if="isOpen"
-      class="fixed inset-0 bg-black bg-opacity-40 z-9 md:hidden"
+      class="bg-opacity-40 fixed inset-0 z-9 bg-black md:hidden"
       @click="
         () => {
           if (closeOnBackdropClick) {
@@ -17,7 +17,7 @@
   <!-- Bottom sheet -->
   <div
     ref="sheet"
-    class="absolute left-0 right-0 bottom-0 flex flex-col w-full z-100  shadow-top bg-white dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-950"
+    class="shadow-top absolute right-0 bottom-0 left-0 z-100 flex w-full flex-col bg-white dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
     :class="{
       'rounded-t-2xl': !isFullscreen,
       'rounded-none': isFullscreen,
@@ -32,10 +32,10 @@
     <!-- Drag handle -->
     <div
       v-if="!disableResize"
-      class="w-full -mt-4 pt-4 pb-4 md:hidden cursor-grab active:cursor-grabbing"
+      class="-mt-4 w-full cursor-grab pt-4 pb-4 active:cursor-grabbing md:hidden"
       :class="{ 'pointer-events-auto': isOpen }"
     >
-      <div class="shrink-0 bg-gray-500 w-12 h-1.5 rounded-full mx-auto" />
+      <div class="mx-auto h-1.5 w-12 shrink-0 rounded-full bg-gray-500" />
     </div>
 
     <!-- Content -->

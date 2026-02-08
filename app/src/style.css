@@ -2,7 +2,7 @@
 
 @theme {
   --shadow-right: 4px 0 8px 0 rgba(17, 24, 39, 0.25);
-  --shadow-top: -4px 0 8px 0 rgba(17, 24, 39, 0.25);
+  --shadow-top: 0 -8px 8px 0 rgba(17, 24, 39, 0.1);
   --color-red-high-contrast: rgb(250, 78, 78);
 }
 
@@ -11,7 +11,8 @@
 :root {
   /* Safe area top inset - injected by Android app or defaults to 0 for web */
   --safe-area-top: 0px;
-
+  /* Safe area bottom inset (for android navigation) */
+  --safe-area-bottom: 0px;
   /* define the space the popup should leave for the app bar */
   --app-bar-space: 64px;
 }
@@ -29,7 +30,7 @@ body {
 }
 
 *::-webkit-scrollbar {
-  @apply bg-transparent w-3 h-3;
+  @apply h-3 w-3 bg-transparent;
 }
 
 * {
@@ -39,7 +40,7 @@ body {
 *::-webkit-scrollbar-thumb {
   transition: background 0.2s ease-in-out;
   border: 3px solid transparent;
-  @apply bg-gray-500 dark:bg-neutral-800 rounded-full bg-clip-content;
+  @apply rounded-full bg-gray-500 bg-clip-content dark:bg-neutral-800;
 }
 
 *::-webkit-scrollbar-thumb:hover {
