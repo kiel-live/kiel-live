@@ -2,7 +2,7 @@
   <div
     v-if="liteMode"
     v-show="isOpen"
-    class="z-10 mx-auto flex h-full max-h-[calc(100%-var(--safe-area-top)-var(--app-bar-space))] w-full max-w-4xl flex-col bg-white p-4 pt-16 dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
+    class="z-10 mx-auto mt-[calc(var(--safe-area-top)+var(--app-bar-space))] flex h-full max-h-[calc(100%-var(--safe-area-top)-var(--app-bar-space))] w-full max-w-4xl flex-col bg-white p-4 dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
   >
     <slot />
   </div>
