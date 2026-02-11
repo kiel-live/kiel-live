@@ -15,9 +15,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const IDPrefix = "ais-"
-
 const (
+	IDPrefix   = "ais-"
 	pongWait   = 60 * time.Second
 	pingPeriod = (pongWait * 9) / 10
 	writeWait  = 10 * time.Second
