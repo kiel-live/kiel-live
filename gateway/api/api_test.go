@@ -1,18 +1,18 @@
 package api
 
 import (
-"bytes"
-"context"
-"encoding/json"
-"net/http"
-"net/http/httptest"
-"testing"
+	"bytes"
+	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 
-"github.com/kiel-live/kiel-live/gateway/database"
-"github.com/kiel-live/kiel-live/gateway/hub"
-"github.com/kiel-live/kiel-live/gateway/search"
-"github.com/kiel-live/kiel-live/pkg/models"
-"github.com/stretchr/testify/assert"
+	"github.com/kiel-live/kiel-live/gateway/database"
+	"github.com/kiel-live/kiel-live/gateway/hub"
+	"github.com/kiel-live/kiel-live/gateway/search"
+	"github.com/kiel-live/kiel-live/pkg/models"
+	"github.com/stretchr/testify/assert"
 )
 
 const testToken = "test-secret-token"
@@ -216,142 +216,142 @@ func TestHandleDeleteStop_WithAuth(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	// Verify it's deleted
-_, err = server.db.GetStop(context.Background(), "stop-1")
-assert.Error(t, err)
+	_, err = server.db.GetStop(context.Background(), "stop-1")
+	assert.Error(t, err)
 }
 
 // Vehicle Tests
 
 func TestHandleGetVehicle_Success(t *testing.T) {
-server, mux := setupTestServer(t)
+	server, mux := setupTestServer(t)
 
-vehicle := &models.Vehicle{
-ID:       "vehicle-1",
-Name:     "Bus 11",
-Provider: "kvg",
-Type:     models.VehicleTypeBus,
-Location: &models.Location{
-Latitude:  toDegreesInt(54.32),
-Longitude: toDegreesInt(10.14),
-},
-}
-err := server.db.SetVehicle(context.Background(), vehicle)
-assert.NoError(t, err)
+	vehicle := &models.Vehicle{
+		ID:       "vehicle-1",
+		Name:     "Bus 11",
+		Provider: "kvg",
+		Type:     models.VehicleTypeBus,
+		Location: &models.Location{
+			Latitude:  toDegreesInt(54.32),
+			Longitude: toDegreesInt(10.14),
+		},
+	}
+	err := server.db.SetVehicle(context.Background(), vehicle)
+	assert.NoError(t, err)
 
-w := makeRequest(t, mux, "GET", "/vehicles/vehicle-1", nil, "")
+	w := makeRequest(t, mux, "GET", "/vehicles/vehicle-1", nil, "")
 
-assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 
-var retrieved models.Vehicle
-err = json.NewDecoder(w.Body).Decode(&retrieved)
-assert.NoError(t, err)
-assert.Equal(t, "vehicle-1", retrieved.ID)
-assert.Equal(t, "Bus 11", retrieved.Name)
+	var retrieved models.Vehicle
+	err = json.NewDecoder(w.Body).Decode(&retrieved)
+	assert.NoError(t, err)
+	assert.Equal(t, "vehicle-1", retrieved.ID)
+	assert.Equal(t, "Bus 11", retrieved.Name)
 }
 
 func TestHandleGetVehicles_WithBounds(t *testing.T) {
-server, mux := setupTestServer(t)
+	server, mux := setupTestServer(t)
 
-vehicles := []*models.Vehicle{
-{
-ID:       "vehicle-1",
-Name:     "Bus 11",
-Provider: "kvg",
-Type:     models.VehicleTypeBus,
-Location: &models.Location{
-Latitude:  toDegreesInt(54.32),
-Longitude: toDegreesInt(10.14),
-},
-},
-{
-ID:       "vehicle-2",
-Name:     "Bus 12",
-Provider: "kvg",
-Type:     models.VehicleTypeBus,
-Location: &models.Location{
-Latitude:  toDegreesInt(54.33),
-Longitude: toDegreesInt(10.15),
-},
-},
-}
+	vehicles := []*models.Vehicle{
+		{
+			ID:       "vehicle-1",
+			Name:     "Bus 11",
+			Provider: "kvg",
+			Type:     models.VehicleTypeBus,
+			Location: &models.Location{
+				Latitude:  toDegreesInt(54.32),
+				Longitude: toDegreesInt(10.14),
+			},
+		},
+		{
+			ID:       "vehicle-2",
+			Name:     "Bus 12",
+			Provider: "kvg",
+			Type:     models.VehicleTypeBus,
+			Location: &models.Location{
+				Latitude:  toDegreesInt(54.33),
+				Longitude: toDegreesInt(10.15),
+			},
+		},
+	}
 
-for _, vehicle := range vehicles {
-err := server.db.SetVehicle(context.Background(), vehicle)
-assert.NoError(t, err)
-}
+	for _, vehicle := range vehicles {
+		err := server.db.SetVehicle(context.Background(), vehicle)
+		assert.NoError(t, err)
+	}
 
-w := makeRequest(t, mux, "GET", "/vehicles?north=54.35&east=10.20&south=54.30&west=10.10", nil, "")
+	w := makeRequest(t, mux, "GET", "/vehicles?north=54.35&east=10.20&south=54.30&west=10.10", nil, "")
 
-assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 
-var retrieved []*models.Vehicle
-err := json.NewDecoder(w.Body).Decode(&retrieved)
-assert.NoError(t, err)
-assert.GreaterOrEqual(t, len(retrieved), 2)
+	var retrieved []*models.Vehicle
+	err := json.NewDecoder(w.Body).Decode(&retrieved)
+	assert.NoError(t, err)
+	assert.GreaterOrEqual(t, len(retrieved), 2)
 }
 
 func TestHandleUpdateVehicle_WithAuth(t *testing.T) {
-_, mux := setupTestServer(t)
+	_, mux := setupTestServer(t)
 
-vehicle := &models.Vehicle{
-ID:       "vehicle-1",
-Name:     "Updated Bus",
-Provider: "kvg",
-Type:     models.VehicleTypeBus,
-Location: &models.Location{
-Latitude:  toDegreesInt(54.32),
-Longitude: toDegreesInt(10.14),
-},
-}
+	vehicle := &models.Vehicle{
+		ID:       "vehicle-1",
+		Name:     "Updated Bus",
+		Provider: "kvg",
+		Type:     models.VehicleTypeBus,
+		Location: &models.Location{
+			Latitude:  toDegreesInt(54.32),
+			Longitude: toDegreesInt(10.14),
+		},
+	}
 
-w := makeRequest(t, mux, "PUT", "/vehicles/vehicle-1", vehicle, testToken)
+	w := makeRequest(t, mux, "PUT", "/vehicles/vehicle-1", vehicle, testToken)
 
-assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 
-var retrieved models.Vehicle
-err := json.NewDecoder(w.Body).Decode(&retrieved)
-assert.NoError(t, err)
-assert.Equal(t, "vehicle-1", retrieved.ID)
-assert.Equal(t, "Updated Bus", retrieved.Name)
+	var retrieved models.Vehicle
+	err := json.NewDecoder(w.Body).Decode(&retrieved)
+	assert.NoError(t, err)
+	assert.Equal(t, "vehicle-1", retrieved.ID)
+	assert.Equal(t, "Updated Bus", retrieved.Name)
 }
 
 func TestHandleUpdateVehicle_LocationRequired(t *testing.T) {
-_, mux := setupTestServer(t)
+	_, mux := setupTestServer(t)
 
-vehicle := &models.Vehicle{
-ID:       "vehicle-1",
-Name:     "Bus without location",
-Provider: "kvg",
-Type:     models.VehicleTypeBus,
-Location: nil, // No location
-}
+	vehicle := &models.Vehicle{
+		ID:       "vehicle-1",
+		Name:     "Bus without location",
+		Provider: "kvg",
+		Type:     models.VehicleTypeBus,
+		Location: nil, // No location
+	}
 
-w := makeRequest(t, mux, "PUT", "/vehicles/vehicle-1", vehicle, testToken)
+	w := makeRequest(t, mux, "PUT", "/vehicles/vehicle-1", vehicle, testToken)
 
-assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestHandleDeleteVehicle_WithAuth(t *testing.T) {
-server, mux := setupTestServer(t)
+	server, mux := setupTestServer(t)
 
-vehicle := &models.Vehicle{
-ID:       "vehicle-1",
-Name:     "Bus 11",
-Provider: "kvg",
-Type:     models.VehicleTypeBus,
-Location: &models.Location{
-Latitude:  toDegreesInt(54.32),
-Longitude: toDegreesInt(10.14),
-},
-}
-err := server.db.SetVehicle(context.Background(), vehicle)
-assert.NoError(t, err)
+	vehicle := &models.Vehicle{
+		ID:       "vehicle-1",
+		Name:     "Bus 11",
+		Provider: "kvg",
+		Type:     models.VehicleTypeBus,
+		Location: &models.Location{
+			Latitude:  toDegreesInt(54.32),
+			Longitude: toDegreesInt(10.14),
+		},
+	}
+	err := server.db.SetVehicle(context.Background(), vehicle)
+	assert.NoError(t, err)
 
-w := makeRequest(t, mux, "DELETE", "/vehicles/vehicle-1", nil, testToken)
+	w := makeRequest(t, mux, "DELETE", "/vehicles/vehicle-1", nil, testToken)
 
-assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 
-// Verify it's deleted
+	// Verify it's deleted
 	_, err = server.db.GetVehicle(context.Background(), "vehicle-1")
 	assert.Error(t, err)
 }
@@ -419,75 +419,75 @@ func TestHandleDeleteTrip_WithAuth(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	// Verify it's deleted
-_, err = server.db.GetTrip(context.Background(), "trip-1")
-assert.Error(t, err)
+	_, err = server.db.GetTrip(context.Background(), "trip-1")
+	assert.Error(t, err)
 }
 
 // Authorization Tests
 
 func TestWithAuth_ValidToken(t *testing.T) {
-_, mux := setupTestServer(t)
+	_, mux := setupTestServer(t)
 
-vehicle := &models.Vehicle{
-ID:       "vehicle-1",
-Name:     "Test Vehicle",
-Provider: "test",
-Type:     models.VehicleTypeBus,
-Location: &models.Location{
-Latitude:  toDegreesInt(54.32),
-Longitude: toDegreesInt(10.14),
-},
-}
+	vehicle := &models.Vehicle{
+		ID:       "vehicle-1",
+		Name:     "Test Vehicle",
+		Provider: "test",
+		Type:     models.VehicleTypeBus,
+		Location: &models.Location{
+			Latitude:  toDegreesInt(54.32),
+			Longitude: toDegreesInt(10.14),
+		},
+	}
 
-w := makeRequest(t, mux, "PUT", "/vehicles/vehicle-1", vehicle, testToken)
+	w := makeRequest(t, mux, "PUT", "/vehicles/vehicle-1", vehicle, testToken)
 
-assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestWithAuth_InvalidToken(t *testing.T) {
-_, mux := setupTestServer(t)
+	_, mux := setupTestServer(t)
 
-vehicle := &models.Vehicle{
-ID:       "vehicle-1",
-Name:     "Test Vehicle",
-Provider: "test",
-Type:     models.VehicleTypeBus,
-Location: &models.Location{
-Latitude:  toDegreesInt(54.32),
-Longitude: toDegreesInt(10.14),
-},
-}
+	vehicle := &models.Vehicle{
+		ID:       "vehicle-1",
+		Name:     "Test Vehicle",
+		Provider: "test",
+		Type:     models.VehicleTypeBus,
+		Location: &models.Location{
+			Latitude:  toDegreesInt(54.32),
+			Longitude: toDegreesInt(10.14),
+		},
+	}
 
-w := makeRequest(t, mux, "PUT", "/vehicles/vehicle-1", vehicle, "wrong-token")
+	w := makeRequest(t, mux, "PUT", "/vehicles/vehicle-1", vehicle, "wrong-token")
 
-assert.Equal(t, http.StatusUnauthorized, w.Code)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
 
 func TestWithAuth_MissingToken(t *testing.T) {
-_, mux := setupTestServer(t)
+	_, mux := setupTestServer(t)
 
-vehicle := &models.Vehicle{
-ID:       "vehicle-1",
-Name:     "Test Vehicle",
-Provider: "test",
-Type:     models.VehicleTypeBus,
-Location: &models.Location{
-Latitude:  toDegreesInt(54.32),
-Longitude: toDegreesInt(10.14),
-},
-}
+	vehicle := &models.Vehicle{
+		ID:       "vehicle-1",
+		Name:     "Test Vehicle",
+		Provider: "test",
+		Type:     models.VehicleTypeBus,
+		Location: &models.Location{
+			Latitude:  toDegreesInt(54.32),
+			Longitude: toDegreesInt(10.14),
+		},
+	}
 
-w := makeRequest(t, mux, "PUT", "/vehicles/vehicle-1", vehicle, "")
+	w := makeRequest(t, mux, "PUT", "/vehicles/vehicle-1", vehicle, "")
 
-assert.Equal(t, http.StatusUnauthorized, w.Code)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
 
 // CORS Tests
 
 func TestCORSHeader(t *testing.T) {
-_, mux := setupTestServer(t)
+	_, mux := setupTestServer(t)
 
-w := makeRequest(t, mux, "GET", "/vehicles?north=54.35&east=10.20&south=54.30&west=10.10", nil, "")
+	w := makeRequest(t, mux, "GET", "/vehicles?north=54.35&east=10.20&south=54.30&west=10.10", nil, "")
 
-assert.Equal(t, "*", w.Header().Get("Access-Control-Allow-Origin"))
+	assert.Equal(t, "*", w.Header().Get("Access-Control-Allow-Origin"))
 }
