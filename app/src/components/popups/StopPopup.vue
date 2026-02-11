@@ -63,7 +63,7 @@
             <span>{{ t('next_stop') }}</span>
             <span>{{ arrival.nextStopName }}</span>
           </template>
-          <!-- <div v-else class="w-1/3 mb-1 bg-gray-500 dark:bg-gray-400 rounded-lg animate-pulse opacity-10" /> -->
+          <!-- <div v-else class="w-1/3 mb-1 bg-gray-500 dark:bg-gray-600 rounded-lg animate-pulse opacity-10" /> -->
           <span class="ml-auto">{{ arrival.platform }}</span>
         </div>
       </router-link>

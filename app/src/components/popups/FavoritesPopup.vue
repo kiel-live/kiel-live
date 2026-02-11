@@ -12,7 +12,7 @@
         v-for="favorite in favorites"
         :key="favorite.id"
         :to="{ name: 'map-marker', params: { markerType: favorite.type, markerId: favorite.id } }"
-        class="flex items-center gap-3 rounded-lg border border-gray-100 bg-white px-4 py-3 transition-colors hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900"
+        class="flex items-center gap-3 rounded-lg border border-gray-100 bg-white px-4 py-3 transition-colors hover:bg-gray-50 dark:border-neutral-950 dark:bg-neutral-800 dark:hover:bg-neutral-900"
       >
         <i-mdi-sign-real-estate v-if="favorite.type === 'bus-stop'" class="text-xl" />
         <div class="font-medium">

@@ -15,7 +15,7 @@
         v-for="searchResult in searchResults"
         :key="searchResult.id"
         :to="{ name: 'map-marker', params: { markerType: searchResult.type, markerId: searchResult.id } }"
-        class="flex max-w-full items-center gap-3 rounded-lg border border-gray-100 bg-white px-4 py-3 transition-colors hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900"
+        class="flex max-w-full items-center gap-3 rounded-lg border border-gray-100 bg-white px-4 py-3 transition-colors hover:bg-gray-50 dark:border-neutral-950 dark:bg-neutral-800 dark:hover:bg-neutral-900"
         @click="searchInput = ''"
       >
         <i-mdi-sign-real-estate v-if="searchResult.type === 'bus-stop'" class="text-xl" />

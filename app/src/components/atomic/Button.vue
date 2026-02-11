@@ -24,7 +24,7 @@ const classes = computed(() => [
   'border',
   'border-gray-200',
   'hover:border-gray-300',
-  'dark:border-neutral-800',
+  'dark:border-neutral-950',
   'dark:hover:border-neutral-700',
   'hover:bg-gray-50',
   'dark:hover:bg-neutral-900',

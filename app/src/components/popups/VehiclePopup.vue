@@ -34,8 +34,8 @@
           <div
             class="marker relative mx-4 flex h-12 w-8 min-w-4 items-center justify-center after:absolute after:top-0 after:h-full"
             :class="{
-              'after:bg-neutral-800 dark:after:bg-gray-300': arrival.state !== 'departed',
-              'after:bg-gray-500 dark:after:bg-gray-400': arrival.state === 'departed',
+              'after:bg-neutral-800 dark:after:bg-gray-500': arrival.state !== 'departed',
+              'after:bg-gray-500 dark:after:bg-gray-600': arrival.state === 'departed',
             }"
           >
             <div
@@ -53,7 +53,7 @@
                 (arrival.state !== 'departed' && trip.arrivals[i - 1]?.state !== 'departed') ||
                 arrival.state === 'predicted'
               "
-              class="flex h-4 w-4 items-center justify-center rounded-full bg-neutral-800 dark:bg-gray-300"
+              class="flex h-4 w-4 items-center justify-center rounded-full bg-neutral-800 dark:bg-gray-500"
             />
           </div>
           <span class="w-full">{{ arrival.name }}</span>

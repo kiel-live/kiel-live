@@ -1,7 +1,7 @@
 <template>
   <!-- Mobile Bottom Navigation -->
   <nav
-    class="flex w-full justify-center border-t border-gray-100 bg-white md:hidden dark:border-neutral-800 dark:bg-neutral-950 dark:text-gray-300"
+    class="flex w-full justify-center border-t border-gray-100 bg-white md:hidden dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
   >
     <div class="flex w-full max-w-96 justify-around">
       <router-link
@@ -47,7 +47,7 @@
 
   <!-- Desktop Left Sidebar Navigation -->
   <nav
-    class="fixed top-0 bottom-0 left-0 z-30 hidden w-20 flex-col items-center gap-6 border-r border-gray-100 bg-white py-6 md:flex dark:border-neutral-800 dark:bg-neutral-950 dark:text-gray-300"
+    class="fixed top-0 bottom-0 left-0 z-30 hidden w-20 flex-col items-center gap-6 border-r border-gray-100 bg-white py-6 md:flex dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
   >
     <router-link :to="{ name: 'home' }" class="mb-4" :aria-label="t('logo_alt')">
       <img :alt="t('logo_alt')" src="../../assets/logo.png" class="h-10 w-10" />

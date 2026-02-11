@@ -6,14 +6,14 @@
       <div
         v-for="(entry, id) in changelog"
         :key="id"
-        class="rounded-xl border border-gray-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        class="rounded-xl border border-gray-100 bg-white p-4 dark:border-neutral-950 dark:bg-neutral-800"
       >
         <h2 class="mb-2 font-semibold text-gray-900 dark:text-gray-100">
           {{ entry.date.toLocaleDateString() }}
         </h2>
         <span class="text-gray-600 dark:text-gray-400">{{ entry.text }}</span>
       </div>
-      <div class="rounded-xl border border-gray-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+      <div class="rounded-xl border border-gray-100 bg-white p-4 dark:border-neutral-950 dark:bg-neutral-800">
         <h2 class="mb-2 font-semibold text-gray-900 dark:text-gray-100">
           {{ new Date('2019-05-20').toLocaleDateString() }}
         </h2>

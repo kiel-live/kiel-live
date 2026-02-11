@@ -18,18 +18,18 @@
     </Button>
 
     <div
-      class="mb-6 flex flex-col overflow-hidden rounded-xl border border-gray-100 bg-white dark:border-neutral-800 dark:bg-neutral-950"
+      class="mb-6 flex flex-col overflow-hidden rounded-xl border border-gray-100 bg-white dark:border-neutral-950 dark:bg-neutral-800"
     >
       <router-link
         :to="{ name: 'settings-settings' }"
-        class="flex items-center gap-3 border-b border-gray-100 px-4 py-4 transition-colors hover:bg-gray-50 dark:border-neutral-800 dark:hover:bg-neutral-900"
+        class="flex items-center gap-3 border-b border-gray-100 px-4 py-4 transition-colors hover:bg-gray-50 dark:border-neutral-950 dark:hover:bg-neutral-900"
       >
         <i-ph-gear class="text-xl" />
         <span class="font-medium">{{ t('settings') }}</span>
       </router-link>
       <router-link
         :to="{ name: 'settings-contact' }"
-        class="flex items-center gap-3 border-b border-gray-100 px-4 py-4 transition-colors hover:bg-gray-50 dark:border-neutral-800 dark:hover:bg-neutral-900"
+        class="flex items-center gap-3 border-b border-gray-100 px-4 py-4 transition-colors hover:bg-gray-50 dark:border-neutral-950 dark:hover:bg-neutral-900"
       >
         <i-ph-chat-text class="text-xl" />
         <span class="font-medium">{{ t('contact_us') }}</span>
@@ -38,7 +38,7 @@
         :href="analyticsUrl"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex items-center gap-3 border-b border-gray-100 px-4 py-4 transition-colors hover:bg-gray-50 dark:border-neutral-800 dark:hover:bg-neutral-900"
+        class="flex items-center gap-3 border-b border-gray-100 px-4 py-4 transition-colors hover:bg-gray-50 dark:border-neutral-950 dark:hover:bg-neutral-900"
         @click="track('click:analytics')"
       >
         <i-ph-chart-line class="text-xl" />
@@ -46,7 +46,7 @@
       </a>
       <router-link
         :to="{ name: 'settings-changelog' }"
-        class="flex items-center gap-3 border-b border-gray-100 px-4 py-4 transition-colors hover:bg-gray-50 dark:border-neutral-800 dark:hover:bg-neutral-900"
+        class="flex items-center gap-3 border-b border-gray-100 px-4 py-4 transition-colors hover:bg-gray-50 dark:border-neutral-950 dark:hover:bg-neutral-900"
       >
         <i-ph-clock-clockwise class="text-xl" />
         <span class="font-medium">{{ t('changelog') }}</span>

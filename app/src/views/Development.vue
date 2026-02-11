@@ -16,7 +16,7 @@
         <div
           v-for="featureFlag in featureFlags"
           :key="featureFlag.id"
-          class="flex items-center justify-between gap-4 rounded-xl border border-gray-100 bg-white p-4 transition-colors hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900"
+          class="flex items-center justify-between gap-4 rounded-xl border border-gray-100 bg-white p-4 transition-colors hover:bg-gray-50 dark:border-neutral-950 dark:bg-neutral-800 dark:hover:bg-neutral-900"
         >
           <label class="flex flex-col" for="lite-mode">
             <span class="font-medium">{{ featureFlag.name }}</span>

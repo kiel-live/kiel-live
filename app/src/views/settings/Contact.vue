@@ -10,7 +10,7 @@
       <textarea
         v-model="message"
         rows="10"
-        class="w-full rounded-xl border border-gray-100 bg-white p-4 transition-colors focus:border-gray-300 focus:outline-none dark:border-neutral-800 dark:bg-neutral-950 dark:focus:border-neutral-700"
+        class="w-full rounded-xl border border-gray-100 bg-white p-4 transition-colors focus:border-gray-300 focus:outline-none dark:border-neutral-950 dark:bg-neutral-800 dark:focus:border-neutral-700"
         type="text"
       />
 
