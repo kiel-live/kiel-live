@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kiel-live/kiel-live/pkg/database"
+	"github.com/kiel-live/kiel-live/gateway/database"
 
 	"github.com/gorilla/websocket"
 )

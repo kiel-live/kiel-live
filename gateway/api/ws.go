@@ -18,8 +18,10 @@ var upgrader = websocket.Upgrader{
 
 // clientSubscriptionMessage defines the structure for client messages to subscribe/unsubscribe.
 type clientSubscriptionMessage struct {
-	Action string `json:"action"` // "subscribe" or "unsubscribe"
+	Action string `json:"action"` // "subscribe", "unsubscribe", or "search"
 	Topic  string `json:"topic"`
+	Query  string `json:"query,omitempty"` // for search
+	Limit  int    `json:"limit,omitempty"` // for search
 }
 
 func (s *Server) serveWs(w http.ResponseWriter, r *http.Request) {
@@ -52,6 +54,22 @@ func (s *Server) serveWs(w http.ResponseWriter, r *http.Request) {
 				s.hub.SubscribeClient(c, msg.Topic)
 			case "unsubscribe":
 				s.hub.UnsubscribeClient(c, msg.Topic)
+			case "search":
+				limit := msg.Limit
+				if limit == 0 {
+					limit = 20
+				}
+				results, err := s.search.Search(r.Context(), msg.Query, limit)
+				if err != nil {
+					log.Printf("search error: %v", err)
+				} else {
+					if err := c.WriteJSON(map[string]any{
+						"action": "search_results",
+						"data":   results,
+					}); err != nil {
+						log.Printf("error writing search results: %v", err)
+					}
+				}
 			default:
 				log.Printf("Unknown action from client: %s", msg.Action)
 			}

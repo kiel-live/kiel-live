@@ -1,6 +1,6 @@
 module github.com/kiel-live/kiel-live
 
-go 1.24
+go 1.24.0
 
 require (
 	github.com/BertoldVdb/go-ais v0.4.0
@@ -14,6 +14,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.11.1
 	github.com/thoas/go-funk v0.9.3
+	golang.org/x/text v0.34.0
 )
 
 require (

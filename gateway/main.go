@@ -6,28 +6,32 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/kiel-live/kiel-live/hub/api"
-	"github.com/kiel-live/kiel-live/hub/hub"
-	"github.com/kiel-live/kiel-live/pkg/database"
+	"github.com/kiel-live/kiel-live/gateway/api"
+	"github.com/kiel-live/kiel-live/gateway/database"
+	"github.com/kiel-live/kiel-live/gateway/hub"
+	"github.com/kiel-live/kiel-live/gateway/search"
 )
 
 func main() {
-	port := os.Getenv("HUB_PORT")
+	port := os.Getenv("GATEWAY_PORT")
 	if port == "" {
 		port = "4568"
 	}
 
-	collectorToken := os.Getenv("HUB_COLLECTOR_TOKEN")
+	collectorToken := os.Getenv("GATEWAY_COLLECTOR_TOKEN")
 	if collectorToken == "" {
-		log.Fatal("HUB_COLLECTOR_TOKEN is required")
+		log.Fatal("GATEWAY_COLLECTOR_TOKEN is required")
 	}
 
 	db := database.NewMemoryDatabase()
+
+	search := search.NewMemorySearch()
+
 	hub := hub.NewHub(db)
 	go hub.Run()
 
 	apiRouter := http.NewServeMux()
-	api.NewAPIServer(db, hub, apiRouter, collectorToken)
+	api.NewAPIServer(db, search, hub, apiRouter, collectorToken)
 
 	router := http.NewServeMux()
 	router.Handle("/api/v1/", http.StripPrefix("/api/v1", apiRouter))

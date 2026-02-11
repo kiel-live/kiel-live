@@ -5,20 +5,28 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/kiel-live/kiel-live/hub/hub"
-	"github.com/kiel-live/kiel-live/pkg/database"
+	"github.com/kiel-live/kiel-live/gateway/database"
+	"github.com/kiel-live/kiel-live/gateway/hub"
+	"github.com/kiel-live/kiel-live/gateway/search"
 )
 
 // Server holds dependencies for HTTP handlers
 type Server struct {
-	db    database.Database
-	hub   *hub.Hub
-	mux   *http.ServeMux
-	token string
+	db     database.Database
+	search search.Search
+	hub    *hub.Hub
+	mux    *http.ServeMux
+	token  string
 }
 
-func NewAPIServer(db database.Database, hub *hub.Hub, mux *http.ServeMux, token string) *Server {
-	s := &Server{db: db, hub: hub, mux: mux, token: token}
+func NewAPIServer(db database.Database, search search.Search, hub *hub.Hub, mux *http.ServeMux, token string) *Server {
+	s := &Server{
+		db:     db,
+		search: search,
+		hub:    hub,
+		mux:    mux,
+		token:  token,
+	}
 	s.registerRoutes()
 	return s
 }
