@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -23,6 +24,8 @@ const (
 )
 
 var wsWriteMutex sync.Mutex
+var keepAliveCancelMu sync.Mutex
+var keepAliveCancel context.CancelFunc
 
 func wsConnect() (*websocket.Conn, error) {
 	url := "wss://stream.aisstream.io/v0/stream"
@@ -41,24 +44,40 @@ func configureConnection(ws *websocket.Conn) {
 		_ = ws.SetReadDeadline(time.Now().Add(pongWait))
 		return nil
 	})
-	go startKeepAlive(ws)
+
+	// cancel any previous keep-alive goroutine
+	keepAliveCancelMu.Lock()
+	if keepAliveCancel != nil {
+		keepAliveCancel()
+		keepAliveCancel = nil
+	}
+	var ctx context.Context
+	ctx, keepAliveCancel = context.WithCancel(context.Background())
+	keepAliveCancelMu.Unlock()
+
+	go startKeepAlive(ctx, ws)
 }
 
-func startKeepAlive(ws *websocket.Conn) {
+func startKeepAlive(ctx context.Context, ws *websocket.Conn) {
 	ticker := time.NewTicker(pingPeriod)
 	defer ticker.Stop()
-	for range ticker.C {
-		wsWriteMutex.Lock()
-		if err := ws.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
-			wsWriteMutex.Unlock()
-			log.Errorln("Error setting write deadline:", err)
+	for {
+		select {
+		case <-ctx.Done():
 			return
-		}
-		if err := ws.WriteMessage(websocket.PingMessage, nil); err != nil {
+		case <-ticker.C:
+			wsWriteMutex.Lock()
+			if err := ws.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+				wsWriteMutex.Unlock()
+				log.Errorln("Error setting write deadline:", err)
+				return
+			}
+			if err := ws.WriteMessage(websocket.PingMessage, nil); err != nil {
+				wsWriteMutex.Unlock()
+				return
+			}
 			wsWriteMutex.Unlock()
-			return
 		}
-		wsWriteMutex.Unlock()
 	}
 }
 
@@ -151,23 +170,22 @@ func main() {
 
 	for {
 		_, p, err := ws.ReadMessage()
-		if err != nil {
-			if websocket.IsCloseError(err, websocket.CloseAbnormalClosure) {
-				// reconnect
-				log.Warnln("Websocket connection closed, reconnecting...")
-				ws, err = wsConnect()
-				if err != nil {
-					log.Fatalln(err)
-				}
-				log.Infoln("Reconnected to AIS stream")
-				configureConnection(ws)
-				err = subscribeToStream(ws, subMsg)
-				if err != nil {
-					log.Fatalln(err)
-				}
-				log.Infoln("Resubscribed to AIS stream")
-				continue
+		if websocket.IsCloseError(err, websocket.CloseAbnormalClosure) {
+			// reconnect
+			log.Warnln("Websocket connection closed, reconnecting...")
+			ws, err = wsConnect()
+			if err != nil {
+				log.Fatalln(err)
 			}
+			log.Infoln("Reconnected to AIS stream")
+			configureConnection(ws)
+			err = subscribeToStream(ws, subMsg)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			log.Infoln("Resubscribed to AIS stream")
+			continue
+		} else if err != nil {
 			log.Fatalln(err)
 		}
 		var packet aisstream.AisStreamMessage
