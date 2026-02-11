@@ -21,16 +21,21 @@ const props = defineProps<{
 }>();
 
 const classes = computed(() => [
-  'border-2',
+  'border',
   'border-gray-200',
   'hover:border-gray-300',
-  'dark:border-gray-400',
-  'dark:hover:border-gray-500',
-  'p-2',
+  'dark:border-neutral-800',
+  'dark:hover:border-neutral-700',
+  'hover:bg-gray-50',
+  'dark:hover:bg-neutral-900',
+  'px-4',
+  'py-2.5',
   'flex',
   'items-center',
   'justify-center',
   'cursor-pointer',
-  props.rounded ? 'rounded-full' : 'rounded',
+  'transition-all',
+  'font-medium',
+  props.rounded ? 'rounded-full' : 'rounded-xl',
 ]);
 </script>

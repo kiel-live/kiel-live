@@ -1,26 +1,26 @@
 <template>
   <div class="flex min-h-0 grow flex-col">
-    <div class="mb-2 flex items-center space-x-2 border-b border-gray-200 pb-2 dark:border-neutral-600">
-      <i-ph-magnifying-glass-bold />
-      <h1 class="text-lg">{{ t('search_result') }}</h1>
+    <div class="mb-4 flex items-center space-x-2">
+      <i-ph-magnifying-glass-bold class="text-xl" />
+      <h1 class="text-xl font-semibold">{{ t('search_result') }}</h1>
     </div>
-    <div v-if="searchResults.length === 0 && searchInput.length < 3" class="m-auto max-w-52 text-center text-xl">
-      <p>{{ t('search_stop_vehicle') }}</p>
+    <div v-if="searchResults.length === 0 && searchInput.length < 3" class="m-auto max-w-52 text-center text-lg">
+      <p class="text-gray-500 dark:text-gray-400">{{ t('search_stop_vehicle') }}</p>
     </div>
-    <div v-else-if="searchResults.length === 0 && searchInput.length >= 3" class="m-auto max-w-52 text-center text-xl">
-      <p>{{ t('no_entry') }}</p>
+    <div v-else-if="searchResults.length === 0 && searchInput.length >= 3" class="m-auto max-w-52 text-center text-lg">
+      <p class="text-gray-500 dark:text-gray-400">{{ t('no_entry') }}</p>
     </div>
-    <div class="flex flex-col overflow-y-auto">
+    <div class="flex flex-col gap-1 overflow-y-auto">
       <router-link
         v-for="searchResult in searchResults"
         :key="searchResult.id"
         :to="{ name: 'map-marker', params: { markerType: searchResult.type, markerId: searchResult.id } }"
-        class="flex max-w-full border-gray-200 py-2 not-last:border-b dark:border-neutral-700"
+        class="flex max-w-full items-center gap-3 rounded-lg border border-gray-100 bg-white px-4 py-3 transition-colors hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900"
         @click="searchInput = ''"
       >
-        <i-mdi-sign-real-estate v-if="searchResult.type === 'bus-stop'" class="mr-2" />
-        <i-mdi-ferry v-else-if="searchResult.type === 'ferry-stop'" class="mr-2" />
-        <div class="">
+        <i-mdi-sign-real-estate v-if="searchResult.type === 'bus-stop'" class="text-xl" />
+        <i-mdi-ferry v-else-if="searchResult.type === 'ferry-stop'" class="text-xl" />
+        <div class="font-medium">
           {{ searchResult.name }}
         </div>
       </router-link>

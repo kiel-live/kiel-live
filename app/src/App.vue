@@ -1,5 +1,5 @@
 <template>
-  <div class="app m-auto flex h-full w-full flex-col bg-white text-black dark:bg-neutral-800 dark:text-gray-300">
+  <div class="app flex h-full w-full flex-col bg-white text-black dark:bg-neutral-900 dark:text-gray-300">
     <main class="flex min-h-0 grow">
       <router-view />
     </main>

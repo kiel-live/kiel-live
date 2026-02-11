@@ -1,18 +1,18 @@
 <template>
   <div v-if="vehicle" class="flex min-h-0 grow flex-col">
-    <header class="mb-2 border-b border-gray-200 dark:border-neutral-600">
-      <div class="flex items-center space-x-2 pb-2">
-        <i-mdi-bus v-if="vehicle.type === 'bus'" />
-        <i-carbon-bicycle v-else-if="vehicle.type === 'bike'" />
-        <i-ph-car v-else-if="vehicle.type === 'car'" />
-        <i-ph-scooter v-else-if="vehicle.type === 'e-scooter'" />
-        <i-mdi-ferry v-else-if="vehicle.type === 'ferry'" />
-        <i-carbon-train-profile v-else-if="vehicle.type === 'train'" />
-        <i-ph-subway v-else-if="vehicle.type === 'subway'" />
-        <i-ph-tram v-else-if="vehicle.type === 'tram'" />
-        <i-mdi-moped v-else-if="vehicle.type === 'moped'" />
-        <i-mdi-moped-electric v-else-if="vehicle.type === 'e-moped'" />
-        <h1 class="text-lg">{{ vehicle.name }}</h1>
+    <header class="mb-4">
+      <div class="flex items-center space-x-2 pb-3">
+        <i-mdi-bus v-if="vehicle.type === 'bus'" class="text-xl" />
+        <i-carbon-bicycle v-else-if="vehicle.type === 'bike'" class="text-xl" />
+        <i-ph-car v-else-if="vehicle.type === 'car'" class="text-xl" />
+        <i-ph-scooter v-else-if="vehicle.type === 'e-scooter'" class="text-xl" />
+        <i-mdi-ferry v-else-if="vehicle.type === 'ferry'" class="text-xl" />
+        <i-carbon-train-profile v-else-if="vehicle.type === 'train'" class="text-xl" />
+        <i-ph-subway v-else-if="vehicle.type === 'subway'" class="text-xl" />
+        <i-ph-tram v-else-if="vehicle.type === 'tram'" class="text-xl" />
+        <i-mdi-moped v-else-if="vehicle.type === 'moped'" class="text-xl" />
+        <i-mdi-moped-electric v-else-if="vehicle.type === 'e-moped'" class="text-xl" />
+        <h1 class="text-xl font-semibold">{{ vehicle.name }}</h1>
       </div>
 
       <Actions :actions="vehicle.actions ?? []" />

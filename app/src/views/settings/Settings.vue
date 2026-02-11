@@ -1,11 +1,13 @@
 <template>
   <SettingsContainer>
-    <h1 class="mb-2 text-xl font-bold">{{ t('settings') }}</h1>
+    <h1 class="mb-6 text-2xl font-bold">{{ t('settings') }}</h1>
 
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center justify-between gap-4">
+    <div class="flex flex-col gap-3">
+      <div
+        class="flex items-center justify-between gap-4 rounded-xl border border-gray-100 bg-white p-4 transition-colors hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900"
+      >
         <label class="flex flex-col" for="lite-mode">
-          <span>{{ t('lite_mode') }}</span>
+          <span class="font-medium">{{ t('lite_mode') }}</span>
           <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('lite_mode_description') }}</span>
         </label>
         <Checkbox
@@ -15,9 +17,11 @@
         />
       </div>
 
-      <div class="flex items-center justify-between gap-4">
+      <div
+        class="flex items-center justify-between gap-4 rounded-xl border border-gray-100 bg-white p-4 transition-colors hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900"
+      >
         <label class="flex flex-col" for="theme">
-          <span>{{ t('theme') }}</span>
+          <span class="font-medium">{{ t('theme') }}</span>
           <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('theme_description') }}</span>
         </label>
         <Select id="theme" v-model="theme" :options="options" />

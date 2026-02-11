@@ -1,21 +1,25 @@
 <template>
   <SettingsContainer>
-    <h1 class="mb-2 text-xl font-bold">{{ t('kiel_live') }}</h1>
+    <h1 class="mb-6 text-2xl font-bold">{{ t('kiel_live') }}</h1>
 
-    <p v-if="buildDate" class="mb-4 flex gap-1 text-sm text-gray-500 dark:text-gray-400">
+    <p v-if="buildDate" class="mb-6 flex justify-center gap-1 text-sm text-gray-500 dark:text-gray-400">
       <span>{{ t('version_from') }}</span>
-      <router-link :to="{ name: 'dev' }">{{ buildDate }}</router-link>
+      <router-link :to="{ name: 'dev' }" class="underline">{{ buildDate }}</router-link>
     </p>
 
     <div>
-      <h2 class="text-lg font-bold">{{ t('feature_flags') }}</h2>
+      <h2 class="mb-2 text-lg font-semibold">{{ t('feature_flags') }}</h2>
 
-      <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">{{ t('feature_flags_description') }}</p>
+      <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">{{ t('feature_flags_description') }}</p>
 
-      <div class="flex flex-col gap-2">
-        <div v-for="featureFlag in featureFlags" :key="featureFlag.id" class="flex items-center justify-between gap-4">
+      <div class="flex flex-col gap-3">
+        <div
+          v-for="featureFlag in featureFlags"
+          :key="featureFlag.id"
+          class="flex items-center justify-between gap-4 rounded-xl border border-gray-100 bg-white p-4 transition-colors hover:bg-gray-50 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900"
+        >
           <label class="flex flex-col" for="lite-mode">
-            <span>{{ featureFlag.name }}</span>
+            <span class="font-medium">{{ featureFlag.name }}</span>
             <span v-if="featureFlag.description" class="text-sm text-gray-500 dark:text-gray-400">{{
               featureFlag.description
             }}</span>
@@ -37,6 +41,7 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
 
+import Checkbox from '~/components/atomic/Checkbox.vue';
 import SettingsContainer from '~/components/layout/SettingsContainer.vue';
 import { useFeatureFlags } from '~/compositions/useFeatureFlags';
 import { useTrack } from '~/compositions/useTrack';

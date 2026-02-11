@@ -10,7 +10,7 @@
   <Transition v-else-if="isDesktop" name="fade">
     <div
       v-if="isOpen"
-      class="shadow-right absolute top-0 bottom-0 left-0 z-10 flex w-80 flex-col bg-white px-4 py-2 dark:bg-neutral-800 dark:text-gray-300"
+      class="absolute top-0 bottom-0 left-0 z-10 flex w-[400px] flex-col overflow-y-auto border-r border-gray-100 bg-white px-6 py-4 md:left-20 dark:border-neutral-800 dark:bg-neutral-950 dark:text-gray-300"
     >
       <slot />
     </div>

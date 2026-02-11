@@ -1,7 +1,7 @@
 <template>
   <input
     type="checkbox"
-    class="h-5 w-5 shrink-0 rounded"
+    class="h-6 w-6 shrink-0 cursor-pointer rounded-md accent-red-600 transition-all dark:accent-red-500"
     :checked="modelValue"
     @change="$emit('update:modelValue', !modelValue)"
   />
