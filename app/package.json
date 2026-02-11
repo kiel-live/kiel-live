@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "VITE_BUILD_DATE=$(date '+%d.%m.%Y %H:%M:%S') vite",
     "build": "VITE_BUILD_DATE=$(date '+%d.%m.%Y %H:%M:%S') vite build",
+    "build:test": "VITE_BUILD_DATE='01.01.1970 00:00:00' vite build",
     "preview": "vite preview",
     "lint": "eslint --max-warnings 0 .",
     "formatcheck": "prettier -c .",
