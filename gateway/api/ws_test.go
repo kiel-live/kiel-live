@@ -78,8 +78,9 @@ func TestWebSocket_Subscribe(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 
 	// Should receive a system.topics message
-	var msg map[string]interface{}
-	conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+	var msg map[string]any
+	err = conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+	assert.NoError(t, err)
 	err = conn.ReadJSON(&msg)
 	assert.NoError(t, err)
 	assert.Equal(t, "system.topics", msg["topic"])
@@ -105,8 +106,9 @@ func TestWebSocket_Unsubscribe(t *testing.T) {
 	server.hub.BroadcastMessage("test.unsubscribe", "test", map[string]string{"data": "before"})
 	time.Sleep(50 * time.Millisecond)
 
-	var msg1 map[string]interface{}
-	conn.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
+	var msg1 map[string]any
+	err = conn.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
+	assert.NoError(t, err)
 	err = conn.ReadJSON(&msg1)
 	assert.NoError(t, err)
 	assert.Equal(t, "test.unsubscribe", msg1["topic"])
@@ -125,8 +127,9 @@ func TestWebSocket_Unsubscribe(t *testing.T) {
 	server.hub.BroadcastMessage("test.unsubscribe", "test", map[string]string{"data": "after"})
 	time.Sleep(50 * time.Millisecond)
 
-	var msg2 map[string]interface{}
-	conn.SetReadDeadline(time.Now().Add(200 * time.Millisecond))
+	var msg2 map[string]any
+	err = conn.SetReadDeadline(time.Now().Add(200 * time.Millisecond))
+	assert.NoError(t, err)
 	err = conn.ReadJSON(&msg2)
 	assert.Error(t, err) // Should timeout since we're not subscribed
 }
@@ -155,8 +158,9 @@ func TestWebSocket_BroadcastToSubscriber(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 
 	// Client should receive the message
-	var msg map[string]interface{}
-	conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+	var msg map[string]any
+	err = conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+	assert.NoError(t, err)
 	err = conn.ReadJSON(&msg)
 	assert.NoError(t, err)
 	assert.Equal(t, "vehicles.test-vehicle", msg["topic"])
@@ -179,9 +183,10 @@ func TestWebSocket_OnlySubscribersReceiveMessages(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 
 	// Should NOT receive the message (timeout expected)
-	var msg map[string]interface{}
-	conn.SetReadDeadline(time.Now().Add(300 * time.Millisecond))
-	err := conn.ReadJSON(&msg)
+	var msg map[string]any
+	err := conn.SetReadDeadline(time.Now().Add(300 * time.Millisecond))
+	assert.NoError(t, err)
+	err = conn.ReadJSON(&msg)
 	assert.Error(t, err) // Should timeout
 }
 
@@ -215,8 +220,9 @@ func TestWebSocket_Search(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Should receive search results
-	var msg map[string]interface{}
-	conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+	var msg map[string]any
+	err = conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+	assert.NoError(t, err)
 	err = conn.ReadJSON(&msg)
 	assert.NoError(t, err)
 	assert.Equal(t, "search_results", msg["action"])
@@ -253,8 +259,9 @@ func TestWebSocket_SearchDefaultLimit(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Should receive search results
-	var msg map[string]interface{}
-	conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+	var msg map[string]any
+	err = conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+	assert.NoError(t, err)
 	err = conn.ReadJSON(&msg)
 	assert.NoError(t, err)
 	assert.Equal(t, "search_results", msg["action"])
@@ -300,7 +307,7 @@ func TestWebSocket_InvalidJSON(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 
 	// Try to read - should fail because connection is closed
-	var msg map[string]interface{}
+	var msg map[string]any
 	conn.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
 	err = conn.ReadJSON(&msg)
 	assert.Error(t, err)
@@ -385,8 +392,9 @@ func TestWebSocket_MessageTimestamp(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 
 	// Receive and check timestamp
-	var msg map[string]interface{}
-	conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+	var msg map[string]any
+	err = conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+	assert.NoError(t, err)
 	err = conn.ReadJSON(&msg)
 	assert.NoError(t, err)
 
@@ -423,14 +431,15 @@ func TestWebSocket_SystemStats(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 
 	// Should receive system.stats after second client connects
-	var msg map[string]interface{}
-	conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+	var msg map[string]any
+	err = conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+	assert.NoError(t, err)
 	err = conn.ReadJSON(&msg)
 	// It's possible we get the message or timeout depending on timing
 	if err == nil {
 		assert.Equal(t, "system.stats", msg["topic"])
 		// Verify stats data structure if we got the message
-		if data, ok := msg["data"].(map[string]interface{}); ok {
+		if data, ok := msg["data"].(map[string]any); ok {
 			assert.Contains(t, data, "clients")
 		}
 	}

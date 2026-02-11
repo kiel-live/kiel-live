@@ -30,7 +30,8 @@ func Test_basicUsage(t *testing.T) {
 	index.Set("Cologne")
 	index.Set("Frankfurt")
 	index.Set("Stuttgart")
-	index.Set("Schweinfurt")
+	index.Set("Schwerin")
+	index.Set("Schleswig")
 
 	// Update an item (just call Set again)
 	index.Set("Berlin") // Updates existing entry
@@ -57,9 +58,9 @@ func Test_basicUsage(t *testing.T) {
 	}
 
 	// Search for multiple matches
-	results = index.Search("furt")
+	results = index.Search("Sch")
 	if len(results) != 2 {
-		t.Errorf("Expected 2 results for 'furt', got %d", len(results))
+		t.Errorf("Expected 2 results for 'Sch', got %d", len(results))
 	}
 
 	// Search on updated index

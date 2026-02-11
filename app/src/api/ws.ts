@@ -47,13 +47,11 @@ export class ReconnectingWebSocket {
     this.ws?.send(data);
   }
 
-  /* eslint-disable no-dupe-class-members */
   on(event: 'message', cb: (e: MessageEvent) => void): void;
   on(event: 'open' | 'close' | 'error', cb: (e: Event) => void): void;
   on(event: string, cb: (e: any) => void) {
     this.emitter.on(event, cb);
   }
-  /* eslint-enable no-dupe-class-members */
 
   private log(...args: unknown[]) {
     if (DEBUG) {

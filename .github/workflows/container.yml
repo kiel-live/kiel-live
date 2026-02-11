@@ -59,8 +59,8 @@ jobs:
           build-args: |
             COLLECTOR_NAME=${{ matrix.collector }}
 
-  build-hub-image:
-    name: Build hub container image
+  build-gateway-image:
+    name: Build gateway container image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
@@ -70,7 +70,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/hub
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gateway
           tags: |
             type=ref,event=tag
             type=ref,event=pr
@@ -91,4 +91,4 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          file: hub/Containerfile
+          file: gateway/Containerfile
