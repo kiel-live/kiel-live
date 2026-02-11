@@ -1,23 +1,15 @@
 <template>
   <transition name="fade">
-    <div v-if="isOpen" class="absolute top-0 left-0 flex h-full w-full min-h-0 bg-white dark:bg-dark-400 z-10">
+    <div v-if="isOpen" class="absolute top-0 left-0 z-10 flex h-full min-h-0 w-full bg-white dark:bg-neutral-800">
       <slot />
     </div>
   </transition>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  name: 'Overlay',
-
-  props: {
-    isOpen: {
-      type: Boolean,
-    },
-  },
-});
+<script setup lang="ts">
+defineProps<{
+  isOpen: boolean;
+}>();
 </script>
 
 <style scoped>

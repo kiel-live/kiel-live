@@ -2,7 +2,7 @@
   <SettingsContainer>
     <h1 class="mb-4 text-xl font-bold">{{ t('kiel_live') }}</h1>
 
-    <img src="../../assets/logo.png" :alt="t('logo_alt')" class="w-36 mx-auto mb-4" />
+    <img src="../../assets/logo.png" :alt="t('logo_alt')" class="mx-auto mb-4 w-36" />
 
     <p class="mb-4 text-center">{{ t('where_is_my_bus') }}</p>
 
@@ -13,55 +13,55 @@
       class="mx-auto mb-auto w-8/10"
       @click="track('click:instagram')"
     >
-      <i-mdi-instagram class="mr-2" />
+      <i-ph-instagram-logo class="mr-2" />
       <span>{{ t('follow_instagram', { account: '@kiel.live' }) }}</span>
     </Button>
 
-    <div class="flex flex-col mt-4">
+    <div class="mt-4 flex flex-col">
       <router-link
         :to="{ name: 'settings-settings' }"
-        class="flex items-center border-b border-t dark:border-gray-600 py-4 px-2 gap-2"
+        class="flex items-center gap-2 border-t border-b border-gray-200 px-2 py-4 dark:border-neutral-600"
       >
-        <i-ph-gear-fill />
+        <i-ph-gear />
         <span>{{ t('settings') }}</span>
       </router-link>
       <router-link
         :to="{ name: 'settings-contact' }"
-        class="flex items-center border-b dark:border-gray-600 py-4 px-2 gap-2"
+        class="flex items-center gap-2 border-b border-gray-200 px-2 py-4 dark:border-neutral-600"
       >
-        <i-ic-round-message />
+        <i-ph-chat-text />
         <span>{{ t('contact_us') }}</span>
       </router-link>
       <a
         :href="analyticsUrl"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex items-center border-b dark:border-gray-600 py-4 px-2 gap-2"
+        class="flex items-center gap-2 border-b border-gray-200 px-2 py-4 dark:border-neutral-600"
         @click="track('click:analytics')"
       >
-        <i-ion-md-analytics />
+        <i-ph-chart-line />
         <span>{{ t('analytics') }}</span>
       </a>
       <router-link
         :to="{ name: 'settings-changelog' }"
-        class="flex items-center py-4 px-2 gap-2 border-b dark:border-gray-600"
+        class="flex items-center gap-2 border-b border-gray-200 px-2 py-4 dark:border-neutral-600"
       >
-        <i-ic-outline-update />
+        <i-ph-clock-clockwise />
         <span>{{ t('changelog') }}</span>
       </router-link>
       <a
         href="https://github.com/kiel-live/kiel-live"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex items-center py-4 px-2 gap-2"
+        class="flex items-center gap-2 px-2 py-4"
         @click="track('click:github')"
       >
-        <i-mdi-github />
+        <i-ph-github-logo />
         <span>{{ t('develop_on_github') }}</span>
       </a>
     </div>
 
-    <p v-if="buildDate" class="flex text-gray-500 dark:text-gray-400 text-sm gap-1">
+    <p v-if="buildDate" class="flex gap-1 text-sm text-gray-500 dark:text-gray-400">
       <span>{{ t('version_from') }}</span>
       <router-link :to="{ name: 'dev' }">{{ buildDate }}</router-link>
     </p>

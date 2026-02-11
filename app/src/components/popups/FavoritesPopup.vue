@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col min-h-0 flex-grow">
-    <div class="flex pb-2 mb-2 border-b-1 dark:border-dark-100 space-x-2 items-center">
+  <div class="flex min-h-0 grow flex-col">
+    <div class="mb-2 flex items-center space-x-2 border-b border-gray-200 pb-2 dark:border-neutral-600">
       <i-ph-star-fill />
       <h1 class="text-lg">{{ t('favorites') }}</h1>
     </div>
@@ -12,10 +12,9 @@
         v-for="favorite in favorites"
         :key="favorite.id"
         :to="{ name: 'map-marker', params: { markerType: favorite.type, markerId: favorite.id } }"
-        class="flex py-2 not-last:border-b-1 dark:border-dark-300"
+        class="flex border-gray-200 py-2 not-last:border-b dark:border-neutral-700"
       >
         <i-mdi-sign-real-estate v-if="favorite.type === 'bus-stop'" class="mr-2" />
-        <!-- <i-fa-bus v-else-if="searchResult.item.type === 'bus'" class="mr-2" /> -->
         <div class="">
           {{ favorite.name }}
         </div>

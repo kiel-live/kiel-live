@@ -1,9 +1,9 @@
 <template>
-  <div class="flex flex-col items-center flex-grow">
-    <i-fa-solid-ban class="text-3xl mt-auto" />
-    <div class="flex flex-col items-center my-2 text-lg"><slot /></div>
+  <div class="flex grow flex-col items-center">
+    <i-ph-empty class="mt-auto text-3xl" />
+    <div class="my-2 flex flex-col items-center text-lg"><slot /></div>
     <Button class="mt-auto mb-4" :to="{ name: 'home' }" replace>
-      <i-fa-close class="mr-2" /><span>{{ t('close') }}</span>
+      <i-ph-x-bold class="mr-2 font-bold" /><span>{{ t('close') }}</span>
     </Button>
   </div>
 </template>

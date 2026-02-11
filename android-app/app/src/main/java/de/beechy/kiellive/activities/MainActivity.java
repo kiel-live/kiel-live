@@ -1,8 +1,6 @@
 package de.beechy.kiellive.activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -14,6 +12,7 @@ import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.activity.OnBackPressedCallback;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,15 +67,19 @@ public class MainActivity extends AppCompatActivity {
         extraHeaders.put("app-name", getApplication().getPackageName());
         extraHeaders.put("app-version", BuildConfig.VERSION_NAME);
         myWebView.loadUrl(Config.APP_URL + path, extraHeaders);
-    }
 
-    @Override
-    public void onBackPressed() {
-        if (myWebView.canGoBack()) {
-            myWebView.goBack();
-        } else {
-            super.onBackPressed();
-        }
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (myWebView.canGoBack()) {
+                    myWebView.goBack();
+                } else {
+                    setEnabled(false);
+                    MainActivity.this.getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     @Override

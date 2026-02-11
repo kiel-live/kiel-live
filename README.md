@@ -42,5 +42,5 @@ You can set it to `wss://api.kiel-live.ju60.de/` to use the production server so
 ```bash
 cd app/
 pnpm install # install dependencies
-pnpm start # start the PWA
+pnpm run dev # start the PWA
 ```

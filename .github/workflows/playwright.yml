@@ -10,14 +10,14 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - uses: pnpm/action-setup@v4
       with:
         package_json_file: app/package.json
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version-file: app/package.json
         cache: "pnpm"
@@ -28,14 +28,14 @@ jobs:
       working-directory: app
 
     - name: Install Playwright Browsers
-      run: pnpm exec playwright install --with-deps
+      run: pnpm exec playwright install --with-deps chromium-headless-shell
       working-directory: app
 
     - name: Run Playwright tests
       run: pnpm exec playwright test
       working-directory: app
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       if: ${{ !cancelled() }}
       with:
         name: playwright-report

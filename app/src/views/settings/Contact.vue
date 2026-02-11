@@ -2,20 +2,20 @@
   <SettingsContainer>
     <h1 class="mb-4 text-xl font-bold">{{ t('kiel_live') }}</h1>
 
-    <img src="../../assets/logo.png" :alt="t('logo_alt')" class="w-36 mx-auto mb-4" />
+    <img src="../../assets/logo.png" :alt="t('logo_alt')" class="mx-auto mb-4 w-36" />
 
     <p class="mb-4 text-center">{{ t('contact_title') }}</p>
 
-    <form class="flex flex-col gap-4 items-center mx-auto mb-auto w-8/10" @submit.prevent="sendEmail">
+    <form class="mx-auto mb-auto flex w-8/10 flex-col items-center gap-4" @submit.prevent="sendEmail">
       <textarea
         v-model="message"
         rows="10"
-        class="w-full p-2 rounded-md border border-gray-300 bg-white dark:border-gray-400 dark:bg-dark-400"
+        class="w-full rounded-md border border-gray-300 bg-white p-2 dark:border-gray-400 dark:bg-neutral-800"
         type="text"
       />
 
       <Button type="submit">
-        <i-mdi-email class="mr-2" />
+        <i-ph-envelope class="mr-2" />
         <span>{{ t('send_email') }}</span>
       </Button>
     </form>

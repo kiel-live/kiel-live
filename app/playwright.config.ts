@@ -10,7 +10,7 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:4173',
-    trace: 'on-first-retry',
+    trace: 'retain-on-first-failure',
   },
 
   projects: [
@@ -19,6 +19,13 @@ export default defineConfig({
       use: { ...devices['Pixel 5'] },
     },
   ],
+
+  expect: {
+    toHaveScreenshot: {
+      // Disallow any color differences
+      threshold: 0,
+    },
+  },
 
   webServer: {
     command: 'VITE_USE_DUMMY_API=true pnpm run build && pnpm run preview',

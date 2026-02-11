@@ -4,16 +4,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.transition.Explode;
 import android.view.View;
-import android.view.Window;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import de.beechy.kiellive.R;
 
@@ -26,9 +20,7 @@ public class SplashActivity extends AppCompatActivity {
 
         // wait some time before opening web-view
         Handler handler = new Handler();
-        handler.postDelayed(() -> {
-            openMain();
-        }, 500);
+        handler.postDelayed(this::openMain, 500);
 
         // add click-listener to skip splash-screen
         RelativeLayout layout = findViewById(R.id.layout);
