@@ -33,7 +33,7 @@ export default defineConfig({
   },
 
   webServer: {
-    command: 'VITE_USE_DUMMY_API=true pnpm run build && pnpm run preview',
+    command: 'VITE_USE_DUMMY_API=true pnpm run build:test && pnpm run preview',
     url: 'http://localhost:4173',
     reuseExistingServer: !process.env.CI,
   },
