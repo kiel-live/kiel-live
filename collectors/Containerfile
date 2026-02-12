@@ -3,7 +3,7 @@ FROM golang:1.25.6-alpine AS build
 ARG COLLECTOR_NAME
 WORKDIR /src/
 COPY . /src/
-RUN cd /src/collectors/$COLLECTOR_NAME && CGO_ENABLED=0 go build -o /bin/collector
+RUN CGO_ENABLED=0 go build -o /bin/collector /src/collectors/$COLLECTOR_NAME
 RUN mkdir /tmp-for-scratch
 
 FROM scratch

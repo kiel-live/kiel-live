@@ -28,13 +28,45 @@ jobs:
   unit-tests:
     name: unit-tests
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
     steps:
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
         with:
-          go-version: "1.24"
-
-      - uses: actions/checkout@v4
-
+          go-version-file: "go.mod"
       - name: Run unit tests
         run: |
-          go test ./... -coverprofile=coverage.out
+          go test ./... -coverprofile=coverage.out -covermode=atomic
+      - name: Extract coverage percentage
+        id: coverage
+        run: |
+          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}')
+          echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
+          echo "Coverage: $COVERAGE"
+          go tool cover -func=coverage.out -o=coverage.txt
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const coverage = '${{ steps.coverage.outputs.percentage }}';
+            const comment = `## 📊 Coverage Report
+
+            **Total Coverage:** ${coverage}
+
+            <details>
+            <summary>View detailed coverage</summary>
+
+            \`\`\`
+            ${require('fs').readFileSync('coverage.txt', 'utf8')}
+            \`\`\`
+            </details>`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

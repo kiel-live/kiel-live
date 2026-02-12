@@ -131,7 +131,7 @@ func TestWebSocket_Unsubscribe(t *testing.T) {
 	err = conn.SetReadDeadline(time.Now().Add(200 * time.Millisecond))
 	assert.NoError(t, err)
 	err = conn.ReadJSON(&msg2)
-	assert.Error(t, err) // Should timeout since we're not subscribed
+	assert.Error(t, err)
 }
 
 func TestWebSocket_BroadcastToSubscriber(t *testing.T) {
@@ -289,8 +289,6 @@ func TestWebSocket_ClientDisconnect(t *testing.T) {
 
 	// Broadcasting should not cause errors even though client disconnected
 	server.hub.BroadcastMessage("test.topic", "update", map[string]string{"data": "test"})
-
-	// No assertion needed - just ensuring no panic
 }
 
 func TestWebSocket_InvalidJSON(t *testing.T) {
@@ -308,7 +306,8 @@ func TestWebSocket_InvalidJSON(t *testing.T) {
 
 	// Try to read - should fail because connection is closed
 	var msg map[string]any
-	conn.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
+	err = conn.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
+	assert.NoError(t, err)
 	err = conn.ReadJSON(&msg)
 	assert.Error(t, err)
 }
@@ -443,9 +442,4 @@ func TestWebSocket_SystemStats(t *testing.T) {
 			assert.Contains(t, data, "clients")
 		}
 	}
-	// Test passes if no panic/error - timing in unit tests can be tricky
 }
-
-// Note: More complex multi-client broadcast scenarios may have timing issues
-// in unit tests due to goroutine scheduling. These are better tested in
-// integration or end-to-end tests with proper synchronization mechanisms.

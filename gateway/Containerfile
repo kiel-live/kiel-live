@@ -1,12 +1,11 @@
-FROM golang:1.24-alpine AS build
+FROM golang:1.25.6-alpine AS build
 
 WORKDIR /src/
 COPY . /src/
-RUN cd /src/gateway && CGO_ENABLED=0 go build -o /bin/gateway
+RUN CGO_ENABLED=0 go build -o /bin/gateway /src/gateway
 RUN mkdir /tmp-for-scratch
 
 FROM scratch
-EXPOSE 4568
 COPY --from=build /tmp-for-scratch /tmp
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /bin/gateway /bin/gateway
