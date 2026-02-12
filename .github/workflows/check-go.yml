@@ -45,32 +45,95 @@ jobs:
           COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}')
           echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
           echo "Coverage: $COVERAGE"
-          go tool cover -func=coverage.out -o=coverage.txt
+
+          # Generate per-package coverage
+          go tool cover -func=coverage.out | grep -v "^total:" | awk '{
+            split($1, parts, ":");
+            split(parts[1], pathParts, "/");
+
+            # Extract package path
+            package = "";
+            for (i = 1; i < length(pathParts); i++) {
+              if (i > 1) package = package "/";
+              package = package pathParts[i];
+            }
+
+            if (package != "") {
+              coverage[package] += $NF;
+              count[package]++;
+            }
+          }
+          END {
+            for (pkg in coverage) {
+              printf "%s %.1f%%\n", pkg, coverage[pkg];
+            }
+          }' | sort -t' ' -k2 -nr > coverage-by-package.txt
+
+          cat coverage-by-package.txt
       - name: Comment PR
         uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const fs = require('fs');
             const coverage = '${{ steps.coverage.outputs.percentage }}';
+            const coverageNum = parseFloat(coverage.replace('%', ''));
 
             const minThreshold = 70.0;
-            if (parseFloat(coverage.replace('%', '')) > minThreshold) {
+            if (coverageNum > minThreshold) {
               console.log(`Coverage ${coverage}% is above threshold of ${minThreshold}%. Skipping comment.`);
               return; // Don't comment if coverage is above threshold
             }
 
-            const comment = `## 📊 Go Coverage Report
+            // Read per-package coverage
+            const packageCoverage = fs.readFileSync('coverage-by-package.txt', 'utf8').trim();
 
-            **Total Coverage:** ${coverage}
+            // Helper function to get emoji based on coverage
+            const getCoverageEmoji = (pct) => {
+              if (pct >= 80) return '🟢';
+              if (pct >= 60) return '🟡';
+              if (pct >= 40) return '🟠';
+              return '🔴';
+            };
 
-            <details>
-            <summary>View detailed coverage</summary>
+            // Helper function to format coverage with color
+            const formatCoverage = (pct) => {
+              const emoji = getCoverageEmoji(pct);
+              return `${emoji} **${pct.toFixed(1)}%**`;
+            };
 
-            \`\`\`
-            ${require('fs').readFileSync('coverage.txt', 'utf8')}
-            \`\`\`
-            </details>`;
+            // Build package table
+            let packageTable = '| Package | Coverage |\n|---------|----------|\n';
+            if (packageCoverage) {
+              const lines = packageCoverage.split('\n');
+              for (const line of lines) {
+                if (line.trim()) {
+                  const [pkg, cov] = line.split(' ');
+                  const covNum = parseFloat(cov.replace('%', ''));
+                  const emoji = getCoverageEmoji(covNum);
+                  packageTable += `| \`${pkg}\` | ${emoji} ${cov} |\n`;
+                }
+              }
+            } else {
+              packageTable += '| _No data_ | - |\n';
+            }
+
+            const totalEmoji = getCoverageEmoji(coverageNum);
+
+            const comment = `## 🧪 Go Test Coverage Report
+
+            ### Overall Coverage
+            ${totalEmoji} **${coverage}** of code is covered by tests
+
+            ---
+
+            ### 📦 Coverage by Package
+            ${packageTable}
+
+            ---
+
+            <sub>Coverage threshold: ${minThreshold}% | ${totalEmoji} ≥80% ${getCoverageEmoji(70)} ≥60% ${getCoverageEmoji(50)} ≥40% ${getCoverageEmoji(30)} <40%</sub>`;
 
             const existingComments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
@@ -78,7 +141,9 @@ jobs:
               repo: context.repo.repo,
             });
 
-            const botComment = existingComments.data.find(comment => comment.user.type === 'Bot' && comment.body.includes('## 📊 Go Coverage Report'));
+            const botComment = existingComments.data.find(comment =>
+              comment.user.type === 'Bot' && comment.body.includes('## 🧪 Go Test Coverage Report')
+            );
 
             if (botComment) {
               await github.rest.issues.updateComment({
