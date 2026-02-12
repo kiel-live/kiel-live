@@ -1,0 +1,17 @@
+name: 'Go Coverage Comment'
+description: 'Posts a coverage report comment on pull requests'
+inputs:
+  coverage-file:
+    description: 'Path to the coverage.out file'
+    required: true
+  min-threshold:
+    description: 'Minimum coverage threshold percentage'
+    required: false
+    default: '70.0'
+  github-token:
+    description: 'GitHub token for commenting on PRs'
+    required: true
+
+runs:
+  using: 'node20'
+  main: 'index.js'
