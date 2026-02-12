@@ -48,11 +48,19 @@ jobs:
           go tool cover -func=coverage.out -o=coverage.txt
       - name: Comment PR
         uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const coverage = '${{ steps.coverage.outputs.percentage }}';
-            const comment = `## 📊 Coverage Report
+
+            const minThreshold = 70.0;
+            if (parseFloat(coverage.replace('%', '')) > minThreshold) {
+              console.log(`Coverage ${coverage}% is above threshold of ${minThreshold}%. Skipping comment.`);
+              return; // Don't comment if coverage is above threshold
+            }
+
+            const comment = `## 📊 Go Coverage Report
 
             **Total Coverage:** ${coverage}
 
@@ -64,9 +72,26 @@ jobs:
             \`\`\`
             </details>`;
 
-            github.rest.issues.createComment({
+            const existingComments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: comment
             });
+
+            const botComment = existingComments.data.find(comment => comment.user.type === 'Bot' && comment.body.includes('## 📊 Go Coverage Report'));
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                comment_id: botComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
