@@ -1,6 +1,3 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
-const fs = require('fs');
 const { execSync } = require('child_process');
 
 /**
@@ -30,15 +27,13 @@ function parseCoverageFile(coverageFile) {
 
   for (const line of lines) {
     if (line.trim() && !line.includes('total:')) {
-      // Format: path/to/file.go:function coverage%
       const match = line.match(/^(.+?):\S+\s+(\d+\.\d+)%/);
       if (match) {
         const filePath = match[1];
         const coverage = parseFloat(match[2]);
 
-        // Extract package path (directory of the file)
         const parts = filePath.split('/');
-        parts.pop(); // Remove filename
+        parts.pop();
         const packagePath = parts.join('/') || '.';
 
         if (!packageCoverage[packagePath]) {
@@ -50,20 +45,15 @@ function parseCoverageFile(coverageFile) {
     }
   }
 
-  // Calculate average coverage per package and format
-  const packageResults = [];
+  // Calculate and sort packages
+  const packages = [];
   for (const [pkg, data] of Object.entries(packageCoverage)) {
     const avgCoverage = data.count > 0 ? data.total / data.count : 0;
-    packageResults.push({ package: pkg, coverage: avgCoverage });
+    packages.push({ package: pkg, coverage: avgCoverage });
   }
+  packages.sort((a, b) => b.coverage - a.coverage);
 
-  // Sort by coverage descending
-  packageResults.sort((a, b) => b.coverage - a.coverage);
-
-  return {
-    totalCoverage,
-    packages: packageResults
-  };
+  return { totalCoverage, packages };
 }
 
 /**
@@ -101,76 +91,65 @@ ${packageTable}
 }
 
 /**
- * Main action execution
+ * Main function executed by github-script
  */
-async function run() {
-  try {
-    // Get inputs
-    const coverageFile = core.getInput('coverage-file', { required: true });
-    const minThreshold = parseFloat(core.getInput('min-threshold', { required: false }) || '70.0');
-    const token = core.getInput('github-token', { required: true });
+module.exports = async ({ github, context }) => {
+  const coverageFile = process.env.COVERAGE_FILE;
+  const minThreshold = parseFloat(process.env.MIN_THRESHOLD || '70.0');
 
-    // Parse coverage file
-    console.log(`Parsing coverage file: ${coverageFile}`);
-    const { totalCoverage, packages } = parseCoverageFile(coverageFile);
-    console.log(`Total coverage: ${totalCoverage}`);
-    console.log(`Packages found: ${packages.length}`);
+  console.log(`Parsing coverage file: ${coverageFile}`);
 
-    const coverageNum = parseFloat(totalCoverage.replace('%', ''));
+  // Parse coverage file
+  const { totalCoverage, packages } = parseCoverageFile(coverageFile);
+  const coverageNum = parseFloat(totalCoverage.replace('%', ''));
 
-    // Check if we should skip commenting
-    if (coverageNum > minThreshold) {
-      console.log(`Coverage ${totalCoverage} is above threshold of ${minThreshold}%. Skipping comment.`);
-      return;
-    }
+  console.log(`Total coverage: ${totalCoverage}`);
+  console.log(`Packages found: ${packages.length}`);
 
-    // Build comment body
-    const commentBody = buildCoverageComment(totalCoverage, packages, minThreshold);
+  // Check if we should skip commenting
+  if (coverageNum > minThreshold) {
+    console.log(`Coverage ${totalCoverage} is above threshold of ${minThreshold}%. Skipping comment.`);
+    return;
+  }
 
-    // Post or update comment
-    const octokit = github.getOctokit(token);
-    const context = github.context;
+  // Build comment body
+  const commentBody = buildCoverageComment(totalCoverage, packages, minThreshold);
 
-    if (context.eventName !== 'pull_request') {
-      console.log('Not a pull request event, skipping comment.');
-      return;
-    }
+  // Only comment on pull requests
+  if (context.eventName !== 'pull_request') {
+    console.log('Not a pull request event, skipping comment.');
+    return;
+  }
 
-    // Find existing bot comment
-    const { data: comments } = await octokit.rest.issues.listComments({
+  // Find existing bot comment
+  const { data: comments } = await github.rest.issues.listComments({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    issue_number: context.issue.number,
+  });
+
+  const botComment = comments.find(
+    comment => comment.user.type === 'Bot' &&
+               comment.body.includes('## 🧪 Go Test Coverage Report')
+  );
+
+  if (botComment) {
+    // Update existing comment
+    await github.rest.issues.updateComment({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      comment_id: botComment.id,
+      body: commentBody,
+    });
+    console.log(`Updated comment #${botComment.id}`);
+  } else {
+    // Create new comment
+    await github.rest.issues.createComment({
       owner: context.repo.owner,
       repo: context.repo.repo,
       issue_number: context.issue.number,
+      body: commentBody,
     });
-
-    const botComment = comments.find(
-      comment => comment.user.type === 'Bot' &&
-                 comment.body.includes('## 🧪 Go Test Coverage Report')
-    );
-
-    if (botComment) {
-      // Update existing comment
-      await octokit.rest.issues.updateComment({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        comment_id: botComment.id,
-        body: commentBody,
-      });
-      console.log(`Updated comment #${botComment.id}`);
-    } else {
-      // Create new comment
-      await octokit.rest.issues.createComment({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        issue_number: context.issue.number,
-        body: commentBody,
-      });
-      console.log('Created new coverage comment');
-    }
-
-  } catch (error) {
-    core.setFailed(error.message);
+    console.log('Created new coverage comment');
   }
-}
-
-run();
+};

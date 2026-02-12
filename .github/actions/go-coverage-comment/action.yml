@@ -13,5 +13,16 @@ inputs:
     required: true
 
 runs:
-  using: 'node20'
-  main: 'index.js'
+  using: 'composite'
+  steps:
+    - name: Post coverage comment
+      uses: actions/github-script@v7
+      env:
+        COVERAGE_FILE: ${{ inputs.coverage-file }}
+        MIN_THRESHOLD: ${{ inputs.min-threshold }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const script = require('${{ github.action_path }}/index.js');
+          await script({ github, context, core, exec, glob, io, require });
+
