@@ -78,6 +78,13 @@ const router = createRouter({
 const { liteMode } = useUserSettings();
 
 router.beforeEach((to, from, next): void => {
+  // Handle github pages 404.html redirect
+  const redirect = sessionStorage.getItem('redirect');
+  if (redirect) {
+    sessionStorage.removeItem('redirect');
+    return next(redirect);
+  }
+
   if (to.name === 'home' && (firstStartOfApp || liteMode.value)) {
     firstStartOfApp = false;
     next({ name: 'favorites' });
