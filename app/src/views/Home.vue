@@ -2,7 +2,12 @@
   <div class="relative h-full w-full items-center justify-center overflow-hidden">
     <AppBar v-model:search-input="searchInput" />
 
-    <DetailsPopup :is-open="isPopupOpen" :size="popupSize" @close="$router.replace({ name: 'home' })">
+    <DetailsPopup
+      :is-open="isPopupOpen"
+      :current-snap-point="bottomSheetSnapPoint"
+      :snap-points="bottomSheetSnapPoints"
+      @close="closeBottomSheet"
+    >
       <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
       <SearchPopup v-if="route.name === 'search'" v-model:search-input="searchInput" />
       <FavoritesPopup v-if="route.name === 'favorites'" />
@@ -60,10 +65,20 @@ const isPopupOpen = computed(() => {
   return selectedMarker.value !== undefined || route.name === 'search' || route.name === 'favorites';
 });
 
-const popupSize = computed(() => {
+const bottomSheetSnapPoints = computed(() => {
   if (route.name === 'search' || route.name === 'favorites' || mapMovedManually.value) {
-    return '1/2';
+    // half, full with visible search bar
+    return ['50%', '95%'];
   }
-  return '3/4';
+
+  // just-header, half, almost-full
+  return ['6rem', '50%', '100%'];
 });
+
+const bottomSheetSnapPoint = ref<string | number | undefined>('50%');
+
+async function closeBottomSheet() {
+  await router.replace({ name: 'home' });
+  selectedMarker.value = undefined;
+}
 </script>
