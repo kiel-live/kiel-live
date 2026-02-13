@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+const fs = require('fs');
 
 /**
  * Get emoji indicator based on coverage percentage
@@ -11,45 +11,63 @@ function getCoverageEmoji(percentage) {
 }
 
 /**
- * Parse coverage.out file and extract coverage data
+ * Parse coverage.out file directly and extract coverage data
+ * Format: mode: atomic
+ *         path/to/file.go:startLine.startCol,endLine.endCol numStatements count
  */
 function parseCoverageFile(coverageFile) {
-  // Get function-level coverage data
-  const coverageOutput = execSync(`go tool cover -func=${coverageFile}`, { encoding: 'utf8' });
+  const content = fs.readFileSync(coverageFile, 'utf8');
+  const lines = content.split('\n');
 
-  // Extract total coverage
-  const totalMatch = coverageOutput.match(/total:.*?(\d+\.\d+)%/);
-  const totalCoverage = totalMatch ? `${totalMatch[1]}%` : '0.0%';
-
-  // Parse per-package coverage
   const packageCoverage = {};
-  const lines = coverageOutput.split('\n');
+  let totalStatements = 0;
+  let coveredStatements = 0;
 
   for (const line of lines) {
-    if (line.trim() && !line.includes('total:')) {
-      const match = line.match(/^(.+?):\S+\s+(\d+\.\d+)%/);
-      if (match) {
-        const filePath = match[1];
-        const coverage = parseFloat(match[2]);
+    // Skip mode line and empty lines
+    if (!line.trim() || line.startsWith('mode:')) continue;
 
-        const parts = filePath.split('/');
-        parts.pop();
-        const packagePath = parts.join('/') || '.';
+    // Parse: path/to/file.go:10.2,12.3 2 1
+    const match = line.match(/^(.+?):[\d.,]+\s+(\d+)\s+(\d+)/);
+    if (match) {
+      const filePath = match[1];
+      const numStatements = parseInt(match[2], 10);
+      const count = parseInt(match[3], 10);
 
-        if (!packageCoverage[packagePath]) {
-          packageCoverage[packagePath] = { total: 0, count: 0 };
-        }
-        packageCoverage[packagePath].total += coverage;
-        packageCoverage[packagePath].count += 1;
+      // Extract package path (directory of the file)
+      const parts = filePath.split('/');
+      parts.pop(); // Remove filename
+      const packagePath = parts.join('/') || '.';
+
+      // Initialize package stats if needed
+      if (!packageCoverage[packagePath]) {
+        packageCoverage[packagePath] = { total: 0, covered: 0 };
+      }
+
+      // Update package coverage
+      packageCoverage[packagePath].total += numStatements;
+      if (count > 0) {
+        packageCoverage[packagePath].covered += numStatements;
+      }
+
+      // Update total coverage
+      totalStatements += numStatements;
+      if (count > 0) {
+        coveredStatements += numStatements;
       }
     }
   }
 
-  // Calculate and sort packages
+  // Calculate total coverage percentage
+  const totalCoverage = totalStatements > 0
+    ? `${((coveredStatements / totalStatements) * 100).toFixed(1)}%`
+    : '0.0%';
+
+  // Calculate per-package coverage and sort
   const packages = [];
   for (const [pkg, data] of Object.entries(packageCoverage)) {
-    const avgCoverage = data.count > 0 ? data.total / data.count : 0;
-    packages.push({ package: pkg, coverage: avgCoverage });
+    const coverage = data.total > 0 ? (data.covered / data.total) * 100 : 0;
+    packages.push({ package: pkg, coverage });
   }
   packages.sort((a, b) => b.coverage - a.coverage);
 
