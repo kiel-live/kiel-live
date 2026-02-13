@@ -12,7 +12,6 @@ import type {
   Point,
 } from 'geojson';
 import type { GeoJSONSource, LineLayerSpecification, Source, SymbolLayerSpecification } from 'maplibre-gl';
-import type { Ref } from 'vue';
 import type { Bounds, Marker, StopType, VehicleType } from '~/api/types';
 import { refThrottled, useElementSize } from '@vueuse/core';
 
@@ -61,24 +60,28 @@ const throttledBounds = refThrottled(bounds, 500);
 const { stops, unsubscribe: unsubscribeStops } = api.useStops(throttledBounds);
 const { vehicles, unsubscribe: unsubscribeVehicles } = api.useVehicles(throttledBounds);
 
-const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
+const vehiclesGeoJson = computed(() =>
   Object.values(vehicles.value).map((v) => {
     let iconName: string = v.type;
     let iconNameFocused = `${v.type}-selected`;
+    let iconSize = 0.2;
+    let text = v.name;
 
     // TODO: remove custom bus icons at some point
-    if (v.type === 'bus' || v.type === 'ferry') {
-      const name = v.type === 'bus' ? v.name.split(' ')[0] : v.name.slice(0, 2);
+    if (v.type === 'bus') {
       const iconData = {
         kind: 'vehicle',
         type: v.type,
-        name,
+        name: v.name.split(' ')[0], // text inside the icon, usually the line number
         focused: false,
         heading: v.location.heading,
       };
 
+      text = ''; // we already show the line number inside the icon
+
       iconName = JSON.stringify(iconData);
       iconNameFocused = JSON.stringify({ ...iconData, focused: true });
+      iconSize = 0.5;
     }
 
     return {
@@ -86,39 +89,42 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
       properties: {
         kind: 'vehicle',
         type: v.type,
-        name: v.name,
+        text,
         id: v.id,
-        number: v.name.split(' ')[0],
+        line: v.name.split(' ')[0], // used to show all buses of the same line
         to: v.name.split(' ').slice(1).join(' '),
         iconName,
         iconNameFocused,
-        iconSize: v.type === 'bus' ? 1.2 : 0.8,
+        iconSize,
       },
 
       geometry: {
         type: 'Point',
         coordinates: [v.location.longitude / 3600000, v.location.latitude / 3600000],
       },
-    };
+    } satisfies Feature<Point, GeoJsonProperties>;
   }),
 );
 
-const stopsGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
-  Object.values(stops.value).map((s) => ({
-    type: 'Feature',
-    properties: {
-      kind: 'stop',
-      type: s.type,
-      name: s.name,
-      id: s.id,
-      iconName: s.type,
-      iconNameFocused: `${s.type}-selected`,
-    },
-    geometry: {
-      type: 'Point',
-      coordinates: [s.location.longitude / 3600000, s.location.latitude / 3600000],
-    },
-  })),
+const stopsGeoJson = computed(() =>
+  Object.values(stops.value).map(
+    (s) =>
+      ({
+        type: 'Feature',
+        properties: {
+          kind: 'stop',
+          type: s.type,
+          name: s.name,
+          id: s.id,
+          iconName: s.type,
+          iconNameFocused: `${s.type}-selected`,
+        },
+        geometry: {
+          type: 'Point',
+          coordinates: [s.location.longitude / 3600000, s.location.latitude / 3600000],
+        },
+      }) satisfies Feature<Point, GeoJsonProperties>,
+  ),
 );
 
 const selectedMarker = toRef(props, 'selectedMarker');
@@ -142,84 +148,102 @@ const tripsGeoJson = computed<Feature<LineString, GeoJsonProperties>[]>(() => {
           coordinates: trip.value.path.map((p) => [p.longitude / 3600000, p.latitude / 3600000]),
         },
       },
-    ];
+    ] satisfies Feature<LineString, GeoJsonProperties>[];
   }
   return [];
 });
 
-const geojson = computed<FeatureCollection<Geometry, GeoJsonProperties>>(() => ({
-  type: 'FeatureCollection',
-  features: [...vehiclesGeoJson.value, ...stopsGeoJson.value, ...tripsGeoJson.value],
-}));
+const geojson = computed(
+  () =>
+    ({
+      type: 'FeatureCollection',
+      features: [...vehiclesGeoJson.value, ...stopsGeoJson.value, ...tripsGeoJson.value],
+    }) satisfies FeatureCollection<Geometry, GeoJsonProperties>,
+);
 
-const stopsLayer: Ref<SymbolLayerSpecification> = computed(() => ({
-  id: 'stops',
-  type: 'symbol',
-  source: 'geojson',
-  filter: ['==', 'kind', 'stop'],
-  paint: {
-    'icon-opacity': [
-      'match',
-      ['get', 'number'],
-      selectedVehicle.value?.name.split(' ')[0] ?? '',
-      1,
-      selectedMarker.value.type === 'bus' ? 0.3 : 1,
-    ],
-  },
-  layout: {
-    'icon-image': [
-      'match',
-      ['get', 'id'],
-      selectedMarker.value.id || '',
-      ['get', 'iconNameFocused'],
-      ['get', 'iconName'],
-    ],
-    'icon-size': 0.4,
-    'icon-rotation-alignment': 'map',
-    'icon-allow-overlap': true,
-    'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
-  },
-}));
+const stopsLayer = computed(
+  () =>
+    ({
+      id: 'stops',
+      type: 'symbol',
+      source: 'geojson',
+      filter: ['==', 'kind', 'stop'],
+      paint: {
+        'icon-opacity': [
+          'match',
+          ['get', 'line'],
+          selectedVehicle.value?.name.split(' ')[0] ?? '',
+          1,
+          selectedMarker.value.type === 'bus' ? 0.3 : 1,
+        ],
+      },
+      layout: {
+        'icon-image': [
+          'match',
+          ['get', 'id'],
+          selectedMarker.value.id || '',
+          ['get', 'iconNameFocused'],
+          ['get', 'iconName'],
+        ],
+        'icon-size': 0.2,
+        'icon-rotation-alignment': 'map',
+        'icon-allow-overlap': true,
+        'symbol-sort-key': ['match', ['get', 'line'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
+      },
+    }) satisfies SymbolLayerSpecification,
+);
 
-const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
-  id: 'vehicles',
-  type: 'symbol',
-  source: 'geojson',
-  paint: {
-    'icon-opacity': [
-      'match',
-      ['get', 'number'],
-      selectedVehicle.value?.name.split(' ')[0] ?? '',
-      1,
-      selectedMarker.value.type === 'bus' ? 0.3 : 1,
-    ],
-  },
-  filter: ['==', 'kind', 'vehicle'],
-  layout: {
-    'icon-image': [
-      'match',
-      ['get', 'id'],
-      selectedMarker.value.id || '',
-      ['get', 'iconNameFocused'],
-      ['get', 'iconName'],
-    ],
-    'icon-size': ['get', 'iconSize'],
-    'icon-rotation-alignment': 'map',
-    'icon-allow-overlap': true,
-    'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
-  },
-}));
+const vehiclesLayer = computed(
+  () =>
+    ({
+      id: 'vehicles',
+      type: 'symbol',
+      source: 'geojson',
+      paint: {
+        'icon-opacity': [
+          'match',
+          ['get', 'line'],
+          selectedVehicle.value?.name.split(' ')[0] ?? '',
+          1,
+          selectedMarker.value.type === 'bus' ? 0.3 : 1,
+        ],
+        'text-color': colorScheme.value === 'light' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)',
+      },
+      filter: ['==', 'kind', 'vehicle'],
+      layout: {
+        'icon-image': [
+          'match',
+          ['get', 'id'],
+          selectedMarker.value.id || '',
+          ['get', 'iconNameFocused'],
+          ['get', 'iconName'],
+        ],
+        'icon-size': ['get', 'iconSize'],
+        'icon-rotation-alignment': 'map',
+        'icon-allow-overlap': true,
+        'symbol-sort-key': ['match', ['get', 'line'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
+        'text-field': ['get', 'text'],
+        'text-offset': [0, 1.5],
+        'text-size': 8,
+        'text-anchor': 'top',
+        'text-allow-overlap': true,
+      },
+    }) satisfies SymbolLayerSpecification,
+);
 
-const tripsLayer: Ref<LineLayerSpecification> = computed(() => ({
-  id: 'trips',
-  type: 'line',
-  source: 'geojson',
-  filter: ['==', 'type', 'trip'],
-  paint: {
-    'line-width': 3,
-    'line-color': 'rgb(170, 0, 0)',
-  },
-}));
+const tripsLayer = computed(
+  () =>
+    ({
+      id: 'trips',
+      type: 'line',
+      source: 'geojson',
+      filter: ['==', 'type', 'trip'],
+      paint: {
+        'line-width': 3,
+        'line-color': 'rgb(170, 0, 0)',
+      },
+    }) satisfies LineLayerSpecification,
+);
 
 const mapElement = useTemplateRef('mapElement');
 const { width, height } = useElementSize(mapElement);
@@ -291,35 +315,34 @@ onMounted(async () => {
 
     const iconData = JSON.parse(e.id) as IconData;
     if (iconData.kind === 'vehicle' && (iconData.type === 'bus' || iconData.type === 'ferry')) {
-      map.addImage(e.id, new BusIcon(map, iconData.focused, iconData.name, iconData.heading), {
-        pixelRatio: 2,
-      });
+      map.addImage(e.id, new BusIcon(map, iconData.focused, iconData.name, iconData.heading));
     }
   });
 
   async function loadImage(name: string, url: string) {
     const image = await map.loadImage(url);
-    map.addImage(name, image.data, { pixelRatio: 2 });
+    map.addImage(name, image.data);
   }
 
   async function loadImages() {
-    // bus stop
+    // bus
     await loadImage('bus-stop', '/icons/stop-bus.png');
     await loadImage('bus-stop-selected', '/icons/stop-bus-selected.png');
 
-    // bike stop
+    // bike
     await loadImage('bike-stop', '/icons/stop-bike.png');
     await loadImage('bike-stop-selected', '/icons/stop-bike-selected.png');
 
-    // tram stop
+    // tram
     await loadImage('tram-stop', '/icons/stop-tram.png');
     await loadImage('tram-stop-selected', '/icons/stop-tram-selected.png');
 
-    // train stop
+    // train
     await loadImage('train-stop', '/icons/stop-train.png');
     await loadImage('train-stop-selected', '/icons/stop-train-selected.png');
 
-    // ferry stop
+    // ferry
+    await loadImage('ferry', '/icons/vehicle-ferry.png');
     await loadImage('ferry-stop', '/icons/stop-ferry.png');
     await loadImage('ferry-stop-selected', '/icons/stop-ferry-selected.png');
 
@@ -350,25 +373,20 @@ onMounted(async () => {
     initial = false;
   });
 
-  // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
-  map.on('mouseenter', 'vehicles', () => {
-    map.getCanvas().style.cursor = 'pointer';
-  });
+  function addPointerOnHover(layerName: string) {
+    // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
+    map.on('mouseenter', layerName, () => {
+      map.getCanvas().style.cursor = 'pointer';
+    });
 
-  // Change it back to a pointer when it leaves.
-  map.on('mouseleave', 'vehicles', () => {
-    map.getCanvas().style.cursor = '';
-  });
+    // Change it back to a pointer when it leaves.
+    map.on('mouseleave', layerName, () => {
+      map.getCanvas().style.cursor = '';
+    });
+  }
 
-  // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
-  map.on('mouseenter', 'stops', () => {
-    map.getCanvas().style.cursor = 'pointer';
-  });
-
-  // Change it back to a pointer when it leaves.
-  map.on('mouseleave', 'stops', () => {
-    map.getCanvas().style.cursor = '';
-  });
+  addPointerOnHover('stops');
+  addPointerOnHover('vehicles');
 
   map.on('click', (e) => {
     const features = map.queryRenderedFeatures(e.point, {
