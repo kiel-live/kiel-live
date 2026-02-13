@@ -38,11 +38,6 @@ jobs:
           bundler-cache: true
           working-directory: fastlane
 
-      - name: Install bundler & Fastlane
-        run: |
-          cd fastlane
-          bundle install --jobs 4 --retry 3
-
       - name: Generate gplay-key.json file
         if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
         run: echo "${{secrets.GPLAY_PRIVATE_SERVICE_ACCOUNT_KEY}}" | base64 -d > fastlane/gplay-key.json
@@ -53,11 +48,13 @@ jobs:
 
       - name: Build and submit to Google Play
         if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
-        run: fastlane ${{ inputs.track || 'beta' }}
+        run: bundle exec fastlane ${{ inputs.track || 'beta' }}
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{secrets.ANDROID_KEYSTORE_PASSWORD}}
           ANDROID_KEY_PASSWORD: ${{secrets.ANDROID_KEY_PASSWORD}}
+        working-directory: fastlane
 
       - name: Build bundle
         if: github.event_name == 'pull_request'
-        run: fastlane build
+        run: bundle exec fastlane build
+        working-directory: fastlane

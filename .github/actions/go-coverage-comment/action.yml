@@ -25,4 +25,3 @@ runs:
         script: |
           const script = require('${{ github.action_path }}/index.js');
           await script({ github, context, core, exec, glob, io, require });
-
