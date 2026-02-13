@@ -24,3 +24,25 @@ jobs:
         uses: golangci/golangci-lint-action@v9
         with:
           version: v2.7.2
+
+  unit-tests:
+    name: unit-tests
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: "go.mod"
+      - name: Run unit tests
+        run: |
+          go test ./... -coverprofile=coverage.out -covermode=atomic
+      - name: Comment PR with coverage
+        uses: ./.github/actions/go-coverage-comment
+        if: github.event_name == 'pull_request'
+        with:
+          coverage-file: coverage.out
+          min-threshold: '70.0'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
