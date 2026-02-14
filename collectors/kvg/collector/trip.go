@@ -58,6 +58,11 @@ func (c *TripCollector) getRemovedTrips(trips map[string]*models.Trip) (removed 
 }
 
 func (c *TripCollector) TopicToID(topic string) string {
+	prefix := fmt.Sprintf("trips:%s", api.IDPrefix)
+	if strings.HasPrefix(topic, prefix) {
+		return strings.TrimPrefix(topic, prefix)
+	}
+
 	if strings.HasPrefix(topic, fmt.Sprintf(models.TopicTrip, api.IDPrefix)) && topic != fmt.Sprintf(models.TopicTrip, ">") {
 		return strings.TrimPrefix(topic, fmt.Sprintf(models.TopicTrip, api.IDPrefix))
 	}

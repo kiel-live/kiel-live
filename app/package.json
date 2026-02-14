@@ -28,6 +28,7 @@
     "maplibre-gl": "5.15.0",
     "micromark": "4.0.2",
     "nats.ws": "1.30.3",
+    "s2js": "1.43.6",
     "vue": "3.5.27",
     "vue-i18n": "11.2.8",
     "vue-router": "4.6.4"

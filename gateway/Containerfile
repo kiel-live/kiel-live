@@ -1,16 +1,15 @@
 FROM golang:1.25.6-alpine AS build
 
-ARG COLLECTOR_NAME
 WORKDIR /src/
 COPY . /src/
-RUN CGO_ENABLED=0 go build -o /bin/collector /src/collectors/$COLLECTOR_NAME
+RUN CGO_ENABLED=0 go build -o /bin/gateway /src/gateway
 RUN mkdir /tmp-for-scratch
 
 FROM scratch
 COPY --from=build /tmp-for-scratch /tmp
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=build /bin/collector /bin/collector
+COPY --from=build /bin/gateway /bin/gateway
 COPY --from=build /usr/local/go/lib/time/zoneinfo.zip /
 ENV ZONEINFO=/zoneinfo.zip
 
-ENTRYPOINT ["/bin/collector"]
+ENTRYPOINT ["/bin/gateway"]

@@ -58,3 +58,37 @@ jobs:
           file: collectors/Containerfile
           build-args: |
             COLLECTOR_NAME=${{ matrix.collector }}
+
+  build-gateway-image:
+    name: Build gateway container image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/gateway
+          tags: |
+            type=ref,event=tag
+            type=ref,event=pr
+            type=raw,value=next,enable={{is_default_branch}}
+
+      - name: Login to registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: gateway/Containerfile

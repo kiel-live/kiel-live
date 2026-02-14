@@ -66,6 +66,11 @@ func (c *StopCollector) getRemovedStops(stops map[string]*models.Stop) (removed 
 }
 
 func (c *StopCollector) TopicToID(topic string) string {
+	prefix := fmt.Sprintf("stops:%s", api.IDPrefix)
+	if strings.HasPrefix(topic, prefix) {
+		return strings.TrimPrefix(topic, prefix)
+	}
+
 	if strings.HasPrefix(topic, fmt.Sprintf(models.TopicStop, api.IDPrefix)) && topic != fmt.Sprintf(models.TopicStop, ">") {
 		return strings.TrimPrefix(topic, fmt.Sprintf(models.TopicStop, api.IDPrefix))
 	}
@@ -146,6 +151,10 @@ func (c *StopCollector) RunSingle(stopID string) {
 
 	c.Lock()
 	defer c.Unlock()
+
+	if c.stops == nil {
+		c.stops = make(map[string]*models.Stop)
+	}
 
 	// get stop from cache
 	stop, ok := c.stops[api.IDPrefix+stopID]

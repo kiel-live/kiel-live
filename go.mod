@@ -14,6 +14,7 @@ require (
 	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
 	github.com/thoas/go-funk v0.9.3
+	golang.org/x/text v0.34.0
 )
 
 require (
