@@ -54,11 +54,6 @@ public class MainActivity extends AppCompatActivity {
         MyWebViewClient webViewClient = new MyWebViewClient(this);
 
         myWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        myWebView.setOnApplyWindowInsetsListener((view, insets) -> {
-            webViewClient.setStatusBarHeight(insets.getStableInsetTop());
-            return insets.consumeSystemWindowInsets();
-        });
-
         myWebView.setWebViewClient(webViewClient);
         myWebView.setWebChromeClient(new MyWebChromeClient(this));
 
