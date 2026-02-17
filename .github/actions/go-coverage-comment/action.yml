@@ -16,7 +16,7 @@ runs:
   using: 'composite'
   steps:
     - name: Post coverage comment
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       env:
         COVERAGE_FILE: ${{ inputs.coverage-file }}
         MIN_THRESHOLD: ${{ inputs.min-threshold }}
