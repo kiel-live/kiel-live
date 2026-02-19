@@ -227,6 +227,9 @@ func main() {
 		txn := db.Txn(false)
 		defer txn.Abort()
 
+		// Track active trips that we need to publish
+		activeTrips := make(map[string]bool)
+
 		for _, gtfsStop := range g.Stops {
 			// convert to protocol.Stop
 			stop := &models.Stop{
@@ -305,6 +308,9 @@ func main() {
 					continue
 				}
 
+				// Track this trip as active
+				activeTrips[trip.ID] = true
+
 				// TODO: consider all routes for stop type
 				if stop.Type == "" {
 					stop.Type = models.StopType(gtfsRouteTypeToProtocolStopType(route.Type) + "-stop")
@@ -335,6 +341,40 @@ func main() {
 			}
 
 			err = c.UpdateStop(stop)
+			if err != nil {
+				log.Error(err)
+				continue
+			}
+		}
+
+		// Publish active trips with their paths
+		for tripID := range activeTrips {
+			_trip, err := txn.First("trips", "id", tripID)
+			if err != nil {
+				log.Error(err)
+				continue
+			}
+			gtfsTrip := _trip.(gtfs.Trip)
+
+			tripPath := buildTripPath(g, tripID)
+
+			trip := &models.Trip{
+				ID:        IDPrefix + tripID,
+				Provider:  agency.Name,
+				VehicleID: "", // Will be set by AIS collector when matched
+				Direction: gtfsTrip.Headsign,
+				Path:      tripPath,
+				Arrivals: []*models.TripArrival{
+					{
+						ID:    tripID + "-1",
+						Name:  tripID + "-1",
+						State: models.Planned, // TODO: get from gtfs-rt
+						// Planned: .Format("15:04"),
+					},
+				},
+			}
+
+			err = c.UpdateTrip(trip)
 			if err != nil {
 				log.Error(err)
 				continue
