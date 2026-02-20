@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-co-op/gocron"
+	"github.com/go-co-op/gocron/v2"
 	"github.com/joho/godotenv"
 	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/pkg/models"

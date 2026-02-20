@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/artonge/go-gtfs"
-	"github.com/go-co-op/gocron"
+	"github.com/go-co-op/gocron/v2"
 	"github.com/hashicorp/go-memdb"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
