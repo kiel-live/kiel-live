@@ -216,124 +216,139 @@ func main() {
 
 	txn.Commit()
 
-	s := gocron.NewScheduler(time.UTC)
-	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
-	_, err = s.Every(1).Minute().Do(func() {
-		if !c.IsConnected() {
-			return
+	s, err := gocron.NewScheduler(
+		gocron.WithLocation(time.UTC),
+		gocron.WithLimitConcurrentJobs(1, gocron.LimitModeReschedule),
+	)
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
+	defer func() {
+		if err := s.Shutdown(); err != nil {
+			log.Error(err)
 		}
+	}()
 
-		txn := db.Txn(false)
-		defer txn.Abort()
-
-		for _, gtfsStop := range g.Stops {
-			// convert to protocol.Stop
-			stop := &models.Stop{
-				ID:       IDPrefix + gtfsStop.ID,
-				Provider: agency.Name,
-				Name:     gtfsStop.Name,
-				Type:     "",
-				Location: &models.Location{
-					Latitude:  int(gtfsStop.Latitude * 3600000),
-					Longitude: int(gtfsStop.Longitude * 3600000),
-				},
-				Alerts: strings.Split(generalAlerts, ";"), // TODO: get alerts from gtfs-rt feed
+	_, err = s.NewJob(
+		gocron.DurationJob(1*time.Minute),
+		gocron.NewTask(func() {
+			if !c.IsConnected() {
+				return
 			}
 
-			// TODO: remove empty alerts
-			if len(stop.Alerts) == 1 && stop.Alerts[0] == "" {
-				stop.Alerts = []string{}
-			}
+			txn := db.Txn(false)
+			defer txn.Abort()
 
-			stopTimesIt, err := txn.Get("stop_times", "stop_id", gtfsStop.ID)
-			if err != nil {
-				log.Error(err)
-				continue
-			}
-
-			stopTimes := make([]gtfs.StopTime, 0)
-			for obj := stopTimesIt.Next(); obj != nil; obj = stopTimesIt.Next() {
-				stopTime := obj.(gtfs.StopTime)
-				stopTimes = append(stopTimes, stopTime)
-			}
-
-			// iterate over stop times
-			for _, stopTime := range stopTimes {
-				_trip, err := txn.First("trips", "id", stopTime.TripID)
-				if err != nil {
-					log.Error(err)
-					continue
-				}
-				trip := _trip.(gtfs.Trip)
-
-				_calendar, err := txn.First("calendars", "id", trip.ServiceID)
-				if err != nil {
-					log.Error(err)
-					continue
-				}
-				calendar := _calendar.(gtfs.Calendar)
-
-				// check if service is active today
-				if !weekdayIsActiveInCalendar(calendar) {
-					continue
+			for _, gtfsStop := range g.Stops {
+				// convert to protocol.Stop
+				stop := &models.Stop{
+					ID:       IDPrefix + gtfsStop.ID,
+					Provider: agency.Name,
+					Name:     gtfsStop.Name,
+					Type:     "",
+					Location: &models.Location{
+						Latitude:  int(gtfsStop.Latitude * 3600000),
+						Longitude: int(gtfsStop.Longitude * 3600000),
+					},
+					Alerts: strings.Split(generalAlerts, ";"), // TODO: get alerts from gtfs-rt feed
 				}
 
-				_route, err := txn.First("routes", "id", trip.RouteID)
-				if err != nil {
-					log.Error(err)
-					continue
+				// TODO: remove empty alerts
+				if len(stop.Alerts) == 1 && stop.Alerts[0] == "" {
+					stop.Alerts = []string{}
 				}
-				route := _route.(gtfs.Route)
 
-				// convert departure time to unix timestamp
-				departureTime, err := time.Parse("15:04:05", stopTime.Departure)
+				stopTimesIt, err := txn.Get("stop_times", "stop_id", gtfsStop.ID)
 				if err != nil {
 					log.Error(err)
 					continue
 				}
 
-				now := time.Now()
-				departureDate := time.Date(now.Year(), now.Month(), now.Day(), departureTime.Hour(), departureTime.Minute(), departureTime.Second(), 0, time.Local)
-				if departureDate.Before(now) || departureDate.After(now.Add(4*time.Hour)) {
-					continue
+				stopTimes := make([]gtfs.StopTime, 0)
+				for obj := stopTimesIt.Next(); obj != nil; obj = stopTimesIt.Next() {
+					stopTime := obj.(gtfs.StopTime)
+					stopTimes = append(stopTimes, stopTime)
 				}
 
-				// TODO: consider all routes for stop type
+				// iterate over stop times
+				for _, stopTime := range stopTimes {
+					_trip, err := txn.First("trips", "id", stopTime.TripID)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					trip := _trip.(gtfs.Trip)
+
+					_calendar, err := txn.First("calendars", "id", trip.ServiceID)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					calendar := _calendar.(gtfs.Calendar)
+
+					// check if service is active today
+					if !weekdayIsActiveInCalendar(calendar) {
+						continue
+					}
+
+					_route, err := txn.First("routes", "id", trip.RouteID)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					route := _route.(gtfs.Route)
+
+					// convert departure time to unix timestamp
+					departureTime, err := time.Parse("15:04:05", stopTime.Departure)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+
+					now := time.Now()
+					departureDate := time.Date(now.Year(), now.Month(), now.Day(), departureTime.Hour(), departureTime.Minute(), departureTime.Second(), 0, time.Local)
+					if departureDate.Before(now) || departureDate.After(now.Add(4*time.Hour)) {
+						continue
+					}
+
+					// TODO: consider all routes for stop type
+					if stop.Type == "" {
+						stop.Type = models.StopType(gtfsRouteTypeToProtocolStopType(route.Type) + "-stop")
+					}
+
+					stop.Arrivals = append(stop.Arrivals, &models.StopArrival{
+						Name:      stop.Name,
+						Type:      models.VehicleType(gtfsRouteTypeToProtocolStopType(route.Type)),
+						TripID:    IDPrefix + stopTime.TripID,
+						Eta:       0, // TODO: get from gtfs-rt
+						Planned:   departureDate.Format("15:04"),
+						RouteName: route.ShortName,
+						Direction: trip.Headsign,
+						State:     models.Planned,
+						RouteID:   IDPrefix + route.ID,
+						VehicleID: IDPrefix + trip.ID,
+						Platform:  "", // TODO
+					})
+				}
 				if stop.Type == "" {
-					stop.Type = models.StopType(gtfsRouteTypeToProtocolStopType(route.Type) + "-stop")
+					log.Warnf("Stop %s has no type and is therefore skipped", stop.ID)
+					continue
 				}
 
-				stop.Arrivals = append(stop.Arrivals, &models.StopArrival{
-					Name:      stop.Name,
-					Type:      models.VehicleType(gtfsRouteTypeToProtocolStopType(route.Type)),
-					TripID:    IDPrefix + stopTime.TripID,
-					Eta:       0, // TODO: get from gtfs-rt
-					Planned:   departureDate.Format("15:04"),
-					RouteName: route.ShortName,
-					Direction: trip.Headsign,
-					State:     models.Planned,
-					RouteID:   IDPrefix + route.ID,
-					VehicleID: IDPrefix + trip.ID,
-					Platform:  "", // TODO
-				})
-			}
-			if stop.Type == "" {
-				log.Warnf("Stop %s has no type and is therefore skipped", stop.ID)
-				continue
-			}
+				if len(stop.Arrivals) == 0 {
+					log.Warnf("Stop %s has no arrivals and is therefore skipped", stop.ID)
+					continue
+				}
 
-			if len(stop.Arrivals) == 0 {
-				log.Warnf("Stop %s has no arrivals and is therefore skipped", stop.ID)
-				continue
+				err = c.UpdateStop(stop)
+				if err != nil {
+					log.Error(err)
+					continue
+				}
 			}
-
-			err = c.UpdateStop(stop)
-			if err != nil {
-				log.Error(err)
-				continue
-			}
-		}
-	})
+		}),
+	)
 	if err != nil {
 		log.Errorln(err)
 		return
@@ -341,5 +356,6 @@ func main() {
 
 	log.Infoln("⚡ GTFS collector started")
 
-	s.StartBlocking()
+	s.Start()
+	select {}
 }

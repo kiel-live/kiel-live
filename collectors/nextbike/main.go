@@ -57,90 +57,105 @@ func main() {
 		}
 	}()
 
-	s := gocron.NewScheduler(time.UTC)
-	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
-	_, err = s.Every(5).Seconds().Do(func() error {
-		if !c.IsConnected() {
-			return nil
+	s, err := gocron.NewScheduler(
+		gocron.WithLocation(time.UTC),
+		gocron.WithLimitConcurrentJobs(1, gocron.LimitModeReschedule),
+	)
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
+	defer func() {
+		if err := s.Shutdown(); err != nil {
+			log.Error(err)
 		}
+	}()
 
-		resp, err := http.Get("https://api.nextbike.net/maps/nextbike-live.json?city=" + cityIDs)
-		if err != nil {
-			return err
-		}
+	_, err = s.NewJob(
+		gocron.DurationJob(5*time.Second),
+		gocron.NewTask(func() error {
+			if !c.IsConnected() {
+				return nil
+			}
 
-		data, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
+			resp, err := http.Get("https://api.nextbike.net/maps/nextbike-live.json?city=" + cityIDs)
+			if err != nil {
+				return err
+			}
 
-		nextbikeResp := NextbikeResponse{}
-		err = json.Unmarshal(data, &nextbikeResp)
-		if err != nil {
-			return err
-		}
+			data, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return err
+			}
 
-		for _, country := range nextbikeResp.Countries {
-			for _, city := range country.Cities {
-				for _, place := range city.Places {
-					ID := fmt.Sprintf("nextbike-%d", place.UID)
+			nextbikeResp := NextbikeResponse{}
+			err = json.Unmarshal(data, &nextbikeResp)
+			if err != nil {
+				return err
+			}
 
-					stop := &models.Stop{
-						ID:       ID,
-						Provider: "nextbike",
-						Name:     place.Name,
-						Type:     "bike-stop",
-						Location: &models.Location{
-							Latitude:  int(place.Lat * 3600000),
-							Longitude: int(place.Lng * 3600000),
-						},
-						Vehicles: []*models.Vehicle{},
-					}
+			for _, country := range nextbikeResp.Countries {
+				for _, city := range country.Cities {
+					for _, place := range city.Places {
+						ID := fmt.Sprintf("nextbike-%d", place.UID)
 
-					for _, bike := range place.BikeList {
-						vehicle := &models.Vehicle{
-							ID:       fmt.Sprintf("nextbike-%s", bike.Number),
+						stop := &models.Stop{
+							ID:       ID,
 							Provider: "nextbike",
-							Name:     fmt.Sprintf("Nextbike %s", bike.Number),
-							Type:     "bike",
+							Name:     place.Name,
+							Type:     "bike-stop",
 							Location: &models.Location{
 								Latitude:  int(place.Lat * 3600000),
 								Longitude: int(place.Lng * 3600000),
 							},
-							State: bike.State,
-							Actions: []*models.Action{
-								{
-									Name: "",
-									Type: "rent",
-									URL:  fmt.Sprintf("https://nxtb.it/%s", bike.Number),
-								},
-								{
-									Name: "",
-									Type: "navigate-to",
-									URL:  fmt.Sprintf("https://www.google.com/maps/place/%f,%f", place.Lat, place.Lng),
-								},
-							},
-							Description: "", // TODO: add pricing data
+							Vehicles: []*models.Vehicle{},
 						}
 
-						stop.Vehicles = append(stop.Vehicles, vehicle)
+						for _, bike := range place.BikeList {
+							vehicle := &models.Vehicle{
+								ID:       fmt.Sprintf("nextbike-%s", bike.Number),
+								Provider: "nextbike",
+								Name:     fmt.Sprintf("Nextbike %s", bike.Number),
+								Type:     "bike",
+								Location: &models.Location{
+									Latitude:  int(place.Lat * 3600000),
+									Longitude: int(place.Lng * 3600000),
+								},
+								State: bike.State,
+								Actions: []*models.Action{
+									{
+										Name: "",
+										Type: "rent",
+										URL:  fmt.Sprintf("https://nxtb.it/%s", bike.Number),
+									},
+									{
+										Name: "",
+										Type: "navigate-to",
+										URL:  fmt.Sprintf("https://www.google.com/maps/place/%f,%f", place.Lat, place.Lng),
+									},
+								},
+								Description: "", // TODO: add pricing data
+							}
 
-						err = c.UpdateVehicle(vehicle)
+							stop.Vehicles = append(stop.Vehicles, vehicle)
+
+							err = c.UpdateVehicle(vehicle)
+							if err != nil {
+								return err
+							}
+						}
+
+						err = c.UpdateStop(stop)
 						if err != nil {
 							return err
 						}
 					}
-
-					err = c.UpdateStop(stop)
-					if err != nil {
-						return err
-					}
 				}
 			}
-		}
 
-		return nil
-	})
+			return nil
+		}),
+	)
 	if err != nil {
 		log.Errorln(err)
 		return
@@ -148,5 +163,6 @@ func main() {
 
 	log.Infoln("⚡ Nextbike collector started")
 
-	s.StartBlocking()
+	s.Start()
+	select {}
 }
