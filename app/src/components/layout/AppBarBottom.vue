@@ -1,6 +1,7 @@
 <template>
+  <!-- Mobile Bottom Navigation -->
   <nav
-    class="shadow-top flex w-full justify-center border-t border-gray-200 dark:border-gray-800 dark:bg-neutral-800 dark:text-gray-300"
+    class="flex w-full justify-center border-t border-gray-100 bg-white md:hidden dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
   >
     <div class="flex w-full max-w-96 justify-around">
       <router-link
@@ -42,6 +43,45 @@
         <span class="mt-auto text-xs">{{ t('settings') }}</span>
       </router-link>
     </div>
+  </nav>
+
+  <!-- Desktop Left Sidebar Navigation -->
+  <nav
+    class="fixed top-0 bottom-0 left-0 z-30 hidden w-20 flex-col items-center gap-6 border-r border-gray-100 bg-white py-6 md:flex dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
+  >
+    <router-link :to="{ name: 'home' }" class="mb-4" :aria-label="t('logo_alt')">
+      <img :alt="t('logo_alt')" src="../../assets/logo.png" class="h-10 w-10" />
+    </router-link>
+
+    <router-link
+      v-if="!liteMode"
+      :to="{ name: 'home' }"
+      class="flex flex-col items-center rounded-xl p-3 transition-all hover:bg-gray-100 dark:hover:bg-neutral-900"
+      :class="{
+        'dark:text-red-high-contrast bg-red-50 text-red-700 dark:bg-red-950/30': activeArea === 'map-or-search',
+      }"
+      :aria-label="t('map')"
+    >
+      <i-carbon-map class="h-7 w-7" />
+    </router-link>
+
+    <router-link
+      :to="{ name: 'favorites' }"
+      class="flex flex-col items-center rounded-xl p-3 transition-all hover:bg-gray-100 dark:hover:bg-neutral-900"
+      :class="{ 'dark:text-red-high-contrast bg-red-50 text-red-700 dark:bg-red-950/30': activeArea === 'favorites' }"
+      :aria-label="t('favorites')"
+    >
+      <i-ph-star-fill class="h-7 w-7" />
+    </router-link>
+
+    <router-link
+      :to="{ name: 'settings-about' }"
+      class="mt-auto flex flex-col items-center rounded-xl p-3 transition-all hover:bg-gray-100 dark:hover:bg-neutral-900"
+      :class="{ 'dark:text-red-high-contrast bg-red-50 text-red-700 dark:bg-red-950/30': activeArea === 'settings' }"
+      :aria-label="t('settings')"
+    >
+      <i-ph-gear-fill class="h-7 w-7" />
+    </router-link>
   </nav>
 </template>
 

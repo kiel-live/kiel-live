@@ -233,8 +233,8 @@ function flyTo(center: [number, number]) {
     center,
     padding: {
       // 768: md breakpoint
-      // 320: sidebar width w-80
-      left: width.value >= 768 ? 320 : 0,
+      // 480: left nav (80px) + sidebar width (400px)
+      left: width.value >= 768 ? 480 : 0,
       bottom: width.value >= 768 ? 0 : height.value * (2 / 3),
     },
   });
