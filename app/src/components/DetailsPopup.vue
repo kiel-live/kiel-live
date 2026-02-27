@@ -16,7 +16,16 @@
     </div>
   </Transition>
 
-  <BottomSheet v-else :is-open="isOpen" :size="size" @close="$emit('close')">
+  <BottomSheet
+    v-else
+    :current-snap-point="currentSnapPoint"
+    :is-open="isOpen"
+    :snap-points="snapPoints"
+    :show-backdrop="false"
+    prevent-close
+    @update:current-snap-point="$emit('update:current-snap-point', $event)"
+    @close="$emit('close')"
+  >
     <slot />
   </BottomSheet>
 </template>
@@ -26,13 +35,18 @@ import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import BottomSheet from '~/components/layout/BottomSheet.vue';
 import { useUserSettings } from '~/compositions/useUserSettings';
 
+type SnapPoint = number | string;
+
 defineProps<{
   isOpen: boolean;
-  size: '3/4' | '1/2' | '1';
+  disableResize?: boolean;
+  snapPoints?: SnapPoint[];
+  currentSnapPoint?: SnapPoint;
 }>();
 
 defineEmits<{
   (event: 'close'): void;
+  (event: 'update:current-snap-point', snapPoint: SnapPoint): void;
 }>();
 
 const { liteMode } = useUserSettings();
