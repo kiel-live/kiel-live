@@ -1,19 +1,19 @@
 <template>
   <div v-if="stop" class="flex min-h-0 grow flex-col">
-    <div class="mb-2 flex flex-row items-center border-b border-gray-200 pb-2 dark:border-neutral-600">
-      <i-mdi-ferry v-if="stop.type === 'ferry-stop'" />
-      <i-mdi-sign-real-estate v-else />
-      <h1 class="ml-2 text-lg">{{ stop.name }}</h1>
+    <div class="mb-4 flex flex-row items-center">
+      <i-mdi-ferry v-if="stop.type === 'ferry-stop'" class="text-xl" />
+      <i-mdi-sign-real-estate v-else class="text-xl" />
+      <h1 class="ml-2 text-xl font-semibold">{{ stop.name }}</h1>
       <Button
         v-if="isFavorite(stop)"
-        class="ml-auto border-0 text-yellow-300"
+        class="ml-auto border-0 text-yellow-400"
         :title="t('remove_favorite')"
         @click="removeFavorite(stop)"
       >
-        <i-ph-star-fill />
+        <i-ph-star-fill class="text-xl" />
       </Button>
       <Button v-else class="ml-auto border-0" :title="t('add_favorite')" @click="addFavorite(stop)">
-        <i-ph-star-bold />
+        <i-ph-star-bold class="text-xl" />
       </Button>
     </div>
 
@@ -63,7 +63,7 @@
             <span>{{ t('next_stop') }}</span>
             <span>{{ arrival.nextStopName }}</span>
           </template>
-          <!-- <div v-else class="w-1/3 mb-1 bg-gray-500 dark:bg-gray-400 rounded-lg animate-pulse opacity-10" /> -->
+          <!-- <div v-else class="w-1/3 mb-1 bg-gray-500 dark:bg-gray-600 rounded-lg animate-pulse opacity-10" /> -->
           <span class="ml-auto">{{ arrival.platform }}</span>
         </div>
       </router-link>
