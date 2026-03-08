@@ -69,6 +69,7 @@ func main() {
 							Indexes: []memdb.Indexer{
 								&memdb.StringFieldIndex{Field: "TripID"},
 								&memdb.StringFieldIndex{Field: "StopID"},
+								&memdb.UintFieldIndex{Field: "StopSeq"},
 							},
 						},
 					},
@@ -308,6 +309,7 @@ func main() {
 
 					now := time.Now()
 					departureDate := time.Date(now.Year(), now.Month(), now.Day(), departureTime.Hour(), departureTime.Minute(), departureTime.Second(), 0, time.Local)
+
 					if departureDate.Before(now) || departureDate.After(now.Add(4*time.Hour)) {
 						continue
 					}
