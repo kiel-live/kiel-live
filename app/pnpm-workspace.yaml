@@ -8,4 +8,7 @@ strictPeerDependencies: true
 
 trustPolicy: no-downgrade
 
+trustPolicyExclude:
+  - rollup@2.80.0
+
 trustPolicyIgnoreAfter: 262980 # 6 months
