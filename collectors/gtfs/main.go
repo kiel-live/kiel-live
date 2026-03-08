@@ -310,11 +310,6 @@ func main() {
 					now := time.Now()
 					departureDate := time.Date(now.Year(), now.Month(), now.Day(), departureTime.Hour(), departureTime.Minute(), departureTime.Second(), 0, time.Local)
 
-					// If departure is in the past, check if it should be considered for tomorrow
-					if departureDate.Before(now) {
-						departureDate = departureDate.Add(24 * time.Hour)
-					}
-
 					if departureDate.Before(now) || departureDate.After(now.Add(4*time.Hour)) {
 						continue
 					}
