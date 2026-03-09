@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"sync"
+	"time"
 
 	aisstream "github.com/aisstream/ais-message-models/golang/aisStream"
 	"github.com/gorilla/websocket"
@@ -13,7 +16,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const IDPrefix = "ais-"
+const (
+	IDPrefix   = "ais-"
+	pongWait   = 60 * time.Second
+	pingPeriod = (pongWait * 9) / 10
+	writeWait  = 10 * time.Second
+)
+
+var wsWriteMutex sync.Mutex
+var keepAliveCancelMu sync.Mutex
+var keepAliveCancel context.CancelFunc
 
 func wsConnect() (*websocket.Conn, error) {
 	url := "wss://stream.aisstream.io/v0/stream"
@@ -26,12 +38,57 @@ func wsConnect() (*websocket.Conn, error) {
 	return ws, nil
 }
 
+func configureConnection(ws *websocket.Conn) {
+	_ = ws.SetReadDeadline(time.Now().Add(pongWait))
+	ws.SetPongHandler(func(string) error {
+		_ = ws.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
+
+	// cancel any previous keep-alive goroutine
+	keepAliveCancelMu.Lock()
+	if keepAliveCancel != nil {
+		keepAliveCancel()
+		keepAliveCancel = nil
+	}
+	var ctx context.Context
+	ctx, keepAliveCancel = context.WithCancel(context.Background())
+	keepAliveCancelMu.Unlock()
+
+	go startKeepAlive(ctx, ws)
+}
+
+func startKeepAlive(ctx context.Context, ws *websocket.Conn) {
+	ticker := time.NewTicker(pingPeriod)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			wsWriteMutex.Lock()
+			if err := ws.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+				wsWriteMutex.Unlock()
+				log.Errorln("Error setting write deadline:", err)
+				return
+			}
+			if err := ws.WriteMessage(websocket.PingMessage, nil); err != nil {
+				wsWriteMutex.Unlock()
+				return
+			}
+			wsWriteMutex.Unlock()
+		}
+	}
+}
+
 func subscribeToStream(ws *websocket.Conn, subMsg aisstream.SubscriptionMessage) error {
 	subMsgBytes, err := json.Marshal(subMsg)
 	if err != nil {
 		return err
 	}
 
+	wsWriteMutex.Lock()
+	defer wsWriteMutex.Unlock()
 	if err := ws.WriteMessage(websocket.TextMessage, subMsgBytes); err != nil {
 		return err
 	}
@@ -87,6 +144,8 @@ func main() {
 	log.Infoln("Connected to AIS stream")
 	defer ws.Close()
 
+	configureConnection(ws)
+
 	subMsg := aisstream.SubscriptionMessage{
 		APIKey:        apiKey,
 		BoundingBoxes: [][][]float64{{{54.0, 10.0}, {55.0, 11.0}}},
@@ -111,22 +170,22 @@ func main() {
 
 	for {
 		_, p, err := ws.ReadMessage()
-		if err != nil {
-			if websocket.IsCloseError(err, websocket.CloseAbnormalClosure) {
-				// reconnect
-				log.Warnln("Websocket connection closed, reconnecting...")
-				ws, err = wsConnect()
-				if err != nil {
-					log.Fatalln(err)
-				}
-				log.Infoln("Reconnected to AIS stream")
-				err = subscribeToStream(ws, subMsg)
-				if err != nil {
-					log.Fatalln(err)
-				}
-				log.Infoln("Resubscribed to AIS stream")
-				continue
+		if websocket.IsCloseError(err, websocket.CloseAbnormalClosure) {
+			// reconnect
+			log.Warnln("Websocket connection closed, reconnecting...")
+			ws, err = wsConnect()
+			if err != nil {
+				log.Fatalln(err)
 			}
+			log.Infoln("Reconnected to AIS stream")
+			configureConnection(ws)
+			err = subscribeToStream(ws, subMsg)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			log.Infoln("Resubscribed to AIS stream")
+			continue
+		} else if err != nil {
 			log.Fatalln(err)
 		}
 		var packet aisstream.AisStreamMessage

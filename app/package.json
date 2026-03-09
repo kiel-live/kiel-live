@@ -1,15 +1,16 @@
 {
   "name": "@kiel-live/app",
-  "author": "kiel-live.github.io Team",
+  "author": "Kiel-Live Team",
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": "24.13.0",
-    "pnpm": "10.28.2"
+    "node": "24.14.0",
+    "pnpm": "10.30.3"
   },
   "scripts": {
     "dev": "VITE_BUILD_DATE=$(date '+%d.%m.%Y %H:%M:%S') vite",
     "build": "VITE_BUILD_DATE=$(date '+%d.%m.%Y %H:%M:%S') vite build",
+    "build:test": "VITE_BUILD_DATE='01.01.1970 00:00:00' vite build",
     "preview": "vite preview",
     "lint": "eslint --max-warnings 0 .",
     "formatcheck": "prettier -c .",
@@ -17,43 +18,43 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:update": "docker run --rm -it -v $(pwd):/app --network=host mcr.microsoft.com/playwright:v1.58.1 bash -c \"npm i -g corepack && cd /app && pnpm run test:e2e -u\" && sudo chown -R $USER:$USER tests test-results dist",
+    "test:e2e:update": "docker run --rm -it -v $(pwd):/app --network=host mcr.microsoft.com/playwright:v1.58.2 bash -c \"npm i -g corepack && cd /app && pnpm run test:e2e -u\" && sudo chown -R $USER:$USER tests test-results dist",
     "translate": "pnpx @geprog/translator translate ./src/locales"
   },
   "dependencies": {
-    "@vueuse/core": "14.1.0",
+    "@vueuse/core": "14.2.1",
     "canvas-confetti": "1.9.4",
     "fuse.js": "7.1.0",
-    "maplibre-gl": "5.15.0",
+    "maplibre-gl": "5.19.0",
     "micromark": "4.0.2",
     "nats.ws": "1.30.3",
-    "vue": "3.5.27",
+    "vue": "3.5.28",
     "vue-i18n": "11.2.8",
-    "vue-router": "4.6.4"
+    "vue-router": "5.0.2"
   },
   "devDependencies": {
     "@antfu/eslint-config": "6.7.3",
-    "@eslint/js": "9.39.2",
-    "@iconify-json/carbon": "1.2.18",
+    "@eslint/js": "9.39.3",
+    "@iconify-json/carbon": "1.2.19",
     "@iconify-json/mdi": "1.2.3",
     "@iconify-json/ph": "1.2.2",
     "@intlify/eslint-plugin-vue-i18n": "4.1.1",
     "@intlify/unplugin-vue-i18n": "11.0.3",
-    "@playwright/test": "1.58.1",
-    "@tailwindcss/vite": "4.1.18",
+    "@playwright/test": "1.58.2",
+    "@tailwindcss/vite": "4.2.1",
     "@types/canvas-confetti": "1.9.0",
     "@types/geojson": "7946.0.16",
-    "@types/node": "24.10.9",
-    "@vitejs/plugin-vue": "6.0.3",
-    "eslint": "9.39.2",
+    "@types/node": "24.11.0",
+    "@vitejs/plugin-vue": "6.0.4",
+    "eslint": "9.39.3",
     "eslint-plugin-promise": "7.2.1",
     "eslint-plugin-vue-scoped-css": "2.12.0",
     "prettier": "3.8.1",
     "prettier-plugin-tailwindcss": "0.7.2",
-    "tailwindcss": "4.1.18",
+    "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
-    "unplugin-icons": "22.5.0",
-    "unplugin-vue-components": "30.0.0",
+    "unplugin-icons": "23.0.1",
+    "unplugin-vue-components": "31.0.0",
     "vite": "7.3.1",
     "vite-plugin-pwa": "1.2.0",
     "vitest": "4.0.18",
@@ -61,5 +62,5 @@
     "workbox-build": "7.4.0",
     "workbox-window": "7.4.0"
   },
-  "packageManager": "pnpm@10.28.2+sha512.41872f037ad22f7348e3b1debbaf7e867cfd448f2726d9cf74c08f19507c31d2c8e7a11525b983febc2df640b5438dee6023ebb1f84ed43cc2d654d2bc326264"
+  "packageManager": "pnpm@10.30.3"
 }

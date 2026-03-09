@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-co-op/gocron"
+	"github.com/go-co-op/gocron/v2"
 	"github.com/joho/godotenv"
 	"github.com/kiel-live/kiel-live/collectors/kvg/collector"
 	"github.com/kiel-live/kiel-live/pkg/client"
@@ -95,19 +95,34 @@ func main() {
 		}
 	})
 
-	s := gocron.NewScheduler(time.UTC)
-	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
-	_, err = s.Every(5).Seconds().Do(func() {
-		if !c.IsConnected() {
-			return
+	s, err := gocron.NewScheduler(
+		gocron.WithLocation(time.UTC),
+		gocron.WithLimitConcurrentJobs(1, gocron.LimitModeReschedule),
+	)
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
+	defer func() {
+		if err := s.Shutdown(); err != nil {
+			log.Error(err)
 		}
+	}()
 
-		for name, c := range collectors {
-			// TODO maybe run in go routine
-			log.Debugf("Running %s collector ...", name)
-			c.Run()
-		}
-	})
+	_, err = s.NewJob(
+		gocron.DurationJob(5*time.Second),
+		gocron.NewTask(func() {
+			if !c.IsConnected() {
+				return
+			}
+
+			for name, c := range collectors {
+				// TODO maybe run in go routine
+				log.Debugf("Running %s collector ...", name)
+				c.Run()
+			}
+		}),
+	)
 	if err != nil {
 		log.Errorln(err)
 		return
@@ -115,5 +130,6 @@ func main() {
 
 	log.Infoln("⚡ KVG collector started")
 
-	s.StartBlocking()
+	s.Start()
+	select {}
 }
