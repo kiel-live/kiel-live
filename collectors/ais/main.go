@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"sync"
 	"time"
@@ -26,6 +27,24 @@ const (
 var wsWriteMutex sync.Mutex
 var keepAliveCancelMu sync.Mutex
 var keepAliveCancel context.CancelFunc
+
+type shipPosition struct {
+	lat float64
+	lon float64
+}
+
+var lastPositions = make(map[int]shipPosition)
+var lastPositionsMu sync.Mutex
+
+func calculateBearing(lat1, lon1, lat2, lon2 float64) int {
+	lat1R := lat1 * math.Pi / 180
+	lat2R := lat2 * math.Pi / 180
+	dLonR := (lon2 - lon1) * math.Pi / 180
+	x := math.Sin(dLonR) * math.Cos(lat2R)
+	y := math.Cos(lat1R)*math.Sin(lat2R) - math.Sin(lat1R)*math.Cos(lat2R)*math.Cos(dLonR)
+	bearing := math.Atan2(x, y) * 180 / math.Pi
+	return int(math.Mod(bearing+360, 360))
+}
 
 func wsConnect() (*websocket.Conn, error) {
 	url := "wss://stream.aisstream.io/v0/stream"
@@ -206,8 +225,29 @@ func main() {
 		case aisstream.POSITION_REPORT:
 			var positionReport aisstream.PositionReport
 			positionReport = *packet.Message.PositionReport
-			log.Debugf("MMSI: %d Ship Name: %s Latitude: %f Longitude: %f",
-				positionReport.UserID, shipName, positionReport.Latitude, positionReport.Longitude)
+			log.Debugf("MMSI: %d Ship Name: %s Latitude: %f Longitude: %f True Heading: %d",
+				positionReport.UserID, shipName, positionReport.Latitude, positionReport.Longitude, positionReport.TrueHeading)
+			location := &models.Location{
+				Longitude: int(positionReport.Longitude * 3600000),
+				Latitude:  int(positionReport.Latitude * 3600000),
+			}
+			mmsi := int(positionReport.UserID)
+			if positionReport.TrueHeading != 511 { // 511 means "not available"
+				heading := int(positionReport.TrueHeading)
+				location.Heading = &heading
+			} else {
+				lastPositionsMu.Lock()
+				prev, ok := lastPositions[mmsi]
+				lastPositionsMu.Unlock()
+				if ok && (prev.lat != positionReport.Latitude || prev.lon != positionReport.Longitude) {
+					heading := calculateBearing(prev.lat, prev.lon, positionReport.Latitude, positionReport.Longitude)
+					location.Heading = &heading
+				}
+			}
+			lastPositionsMu.Lock()
+			lastPositions[mmsi] = shipPosition{lat: positionReport.Latitude, lon: positionReport.Longitude}
+			lastPositionsMu.Unlock()
+
 			vehicle := &models.Vehicle{
 				ID:          IDPrefix + fmt.Sprint(positionReport.UserID),
 				Provider:    "ais",
@@ -215,11 +255,7 @@ func main() {
 				Description: fmt.Sprintf("Die Live-Position der Fähre \"%s\".\n\nDie Position wird regelmäßig über AIS aktualisiert.", shipName),
 				Type:        models.VehicleTypeFerry,
 				State:       "onfire", // TODO
-				Location: &models.Location{
-					Longitude: int(positionReport.Longitude * 3600000),
-					Latitude:  int(positionReport.Latitude * 3600000),
-					Heading:   int(positionReport.TrueHeading),
-				},
+				Location:    location,
 			}
 
 			err = c.UpdateVehicle(vehicle)
