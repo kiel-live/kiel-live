@@ -232,7 +232,7 @@ func main() {
 				Latitude:  int(positionReport.Latitude * 3600000),
 			}
 			mmsi := int(positionReport.UserID)
-			if positionReport.TrueHeading != 511 {
+			if positionReport.TrueHeading != 511 { // 511 means "not available"
 				heading := int(positionReport.TrueHeading)
 				location.Heading = &heading
 			} else {
