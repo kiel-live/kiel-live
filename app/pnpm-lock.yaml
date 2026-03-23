@@ -18,8 +18,8 @@ importers:
         specifier: 7.1.0
         version: 7.1.0
       maplibre-gl:
-        specifier: 5.20.1
-        version: 5.20.1
+        specifier: 5.20.2
+        version: 5.20.2
       micromark:
         specifier: 4.0.2
         version: 4.0.2
@@ -1252,8 +1252,8 @@ packages:
   '@maplibre/geojson-vt@5.0.4':
     resolution: {integrity: sha512-KGg9sma45S+stfH9vPCJk1J0lSDLWZgCT9Y8u8qWZJyjFlP8MNP1WGTxIMYJZjDvVT3PDn05kN1C95Sut1HpgQ==}
 
-  '@maplibre/geojson-vt@6.0.2':
-    resolution: {integrity: sha512-OnXnV2m1yBULKOlUanNFTiOeXCktvWYY4yWoHVETlp6ShJGUhY3DNt9XzPByL24h4JcoJRccPBlMhH1o8cvmyQ==}
+  '@maplibre/geojson-vt@6.0.4':
+    resolution: {integrity: sha512-HYv3POhMRCdhP3UPPATM/hfcy6/WuVIf5FKboH8u/ZuFMTnAIcSVlq5nfOqroLokd925w2QtE7YwquFOIacwVQ==}
 
   '@maplibre/maplibre-gl-style-spec@24.7.0':
     resolution: {integrity: sha512-Ed7rcKYU5iELfablg9Mj+TVCsXsPBgdMyXPRAxb2v7oWg9YJnpQdZ5msDs1LESu/mtXy3Z48Vdppv2t/x5kAhw==}
@@ -3126,8 +3126,8 @@ packages:
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
-  maplibre-gl@5.20.1:
-    resolution: {integrity: sha512-57YIgfRct+rrk78ldoWRuLWRnXV/1vM2Rk0QYfEDQmsXdpgbACwvGoREIOZtyDIaq/GJK/ORYEriaAdVZuNfvw==}
+  maplibre-gl@5.20.2:
+    resolution: {integrity: sha512-0UzMWOe+GZmIUmOA99yTI1vRh15YcGnHxADVB2s+JF3etpjj2/MBCqbPEuu4BP9mLsJWJcpHH0Nzr9uuimmbuQ==}
     engines: {node: '>=16.14.0', npm: '>=8.1.0'}
 
   markdown-table@3.0.4:
@@ -5531,7 +5531,7 @@ snapshots:
 
   '@maplibre/geojson-vt@5.0.4': {}
 
-  '@maplibre/geojson-vt@6.0.2':
+  '@maplibre/geojson-vt@6.0.4':
     dependencies:
       kdbush: 4.0.2
 
@@ -7509,7 +7509,7 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  maplibre-gl@5.20.1:
+  maplibre-gl@5.20.2:
     dependencies:
       '@mapbox/jsonlint-lines-primitives': 2.0.2
       '@mapbox/point-geometry': 1.1.0
@@ -7517,7 +7517,7 @@ snapshots:
       '@mapbox/unitbezier': 0.0.1
       '@mapbox/vector-tile': 2.0.4
       '@mapbox/whoots-js': 3.1.0
-      '@maplibre/geojson-vt': 6.0.2
+      '@maplibre/geojson-vt': 6.0.4
       '@maplibre/maplibre-gl-style-spec': 24.7.0
       '@maplibre/mlt': 1.1.7
       '@maplibre/vt-pbf': 4.3.0
