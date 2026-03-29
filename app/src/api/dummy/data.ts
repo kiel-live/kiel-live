@@ -1,11 +1,5 @@
 import type { Stop, Trip, Vehicle } from '../types';
 
-function todayTime(hours: number, minutes: number): string {
-  const now = new Date();
-  now.setHours(hours, minutes, 0, 0);
-  return now.toISOString();
-}
-
 function inMinutes(minutes: number): string {
   const future = new Date(Date.now() + minutes * 60 * 1000);
   return future.toISOString();
@@ -174,8 +168,8 @@ export const DUMMY_STOPS: Stop[] = [
     provider: 'kvg',
     name: 'Hauptbahnhof',
     type: 'bus-stop',
-    routes: null,
-    alerts: [],
+    routes: ['80', '11', '12', '51', '91'],
+    alerts: ['Alert 1', 'Alert 2'],
     departures: [
       {
         name: 'Strande',
@@ -201,6 +195,32 @@ export const DUMMY_STOPS: Stop[] = [
         state: 'predicted',
         planned: inMinutes(15),
         actual: inMinutes(15 + 23), // 23 minutes delay
+        platform: '',
+      },
+      {
+        name: 'Hassee',
+        type: 'bus',
+        vehicleId: 'bus-3',
+        tripId: 'trip-3',
+        routeId: '1610073983892324369',
+        routeName: '51',
+        direction: 'Hassee',
+        state: 'predicted',
+        planned: inMinutes(10),
+        actual: inMinutes(10 - 2), // 2 minutes early
+        platform: '',
+      },
+      {
+        name: 'Wik',
+        type: 'bus',
+        vehicleId: 'bus-2',
+        tripId: 'trip-2',
+        routeId: '1610073983892324385',
+        routeName: '80',
+        direction: 'Wik',
+        state: 'predicted',
+        planned: inMinutes(78),
+        actual: inMinutes(78 + 3), // 3 minutes delay
         platform: '',
       },
     ],
@@ -278,7 +298,7 @@ export const DUMMY_TRIPS: Trip[] = [
         id: 'stop-2',
         name: 'Dummy Stop 2',
         state: 'predicted',
-        planned: todayTime(19, 0),
+        planned: inMinutes(19),
       },
     ],
   },
@@ -291,19 +311,25 @@ export const DUMMY_TRIPS: Trip[] = [
         id: 'kvg-1256',
         name: 'Andreas-Gayk-Straße',
         state: 'departed',
-        planned: todayTime(19, 23),
+        planned: inMinutes(-4),
       },
       {
         id: 'kvg-2387',
         name: 'Hauptbahnhof',
-        state: 'predicted',
-        planned: todayTime(19, 26),
+        state: 'stopping',
+        planned: inMinutes(0),
       },
       {
         id: 'stop-3',
         name: 'Kirchhofallee',
         state: 'predicted',
-        planned: todayTime(19, 28),
+        planned: inMinutes(5),
+      },
+      {
+        id: 'kvg-1610077840790697737',
+        name: 'Strande',
+        state: 'predicted',
+        planned: inMinutes(15),
       },
     ],
     path: [],
@@ -317,13 +343,13 @@ export const DUMMY_TRIPS: Trip[] = [
         id: 'kvg-2387',
         name: 'Hauptbahnhof',
         state: 'departed',
-        planned: todayTime(11, 53),
+        planned: inMinutes(-6),
       },
       {
         id: 'kvg-1256',
         name: 'Andreas-Gayk-Straße',
         state: 'stopping',
-        planned: todayTime(11, 55),
+        planned: inMinutes(0),
       },
     ],
     path: [],
@@ -337,13 +363,13 @@ export const DUMMY_TRIPS: Trip[] = [
         id: 'kvg-2387',
         name: 'Hauptbahnhof',
         state: 'predicted',
-        planned: todayTime(12, 5),
+        planned: inMinutes(12),
       },
       {
         id: 'kvg-1256',
         name: 'Andreas-Gayk-Straße',
         state: 'predicted',
-        planned: todayTime(12, 7),
+        planned: inMinutes(18),
       },
     ],
     path: [],
