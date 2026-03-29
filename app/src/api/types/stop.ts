@@ -1,7 +1,7 @@
 import type { Action } from './action';
-import type { StopDeparture } from './departure';
+import type { DepartureState } from './departure';
 import type { GpsLocation } from './location';
-import type { Vehicle } from './vehicle';
+import type { Vehicle, VehicleType } from './vehicle';
 
 export type StopType =
   | 'bus-stop'
@@ -26,4 +26,18 @@ export interface Stop {
   location: GpsLocation;
   vehicles?: Vehicle[];
   actions?: Action[];
+}
+
+export interface StopDeparture {
+  name: string;
+  type: VehicleType;
+  vehicleId: string;
+  tripId: string;
+  routeId: string;
+  routeName: string;
+  direction: string;
+  state: DepartureState;
+  planned: string; // iso datetime string
+  actual: string; // iso datetime string
+  platform: string;
 }

@@ -1,4 +1,4 @@
-import type { TripDeparture } from './departure';
+import type { DepartureState } from './departure';
 import type { GpsLocation } from './location';
 
 export interface Trip {
@@ -7,4 +7,12 @@ export interface Trip {
   direction: string;
   departures?: TripDeparture[];
   path?: GpsLocation[];
+}
+
+export interface TripDeparture {
+  id: string;
+  name: string;
+  state: DepartureState;
+  planned: string;
+  actual?: string;
 }

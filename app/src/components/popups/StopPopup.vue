@@ -106,6 +106,7 @@ import { useI18n } from 'vue-i18n';
 import { api } from '~/api';
 import Button from '~/components/atomic/Button.vue';
 import NoData from '~/components/NoData.vue';
+import { get24hTime } from '~/compositions/date';
 import { useFavorites } from '~/compositions/useFavorites';
 
 const props = defineProps<{
@@ -118,12 +119,6 @@ const { t } = useI18n();
 const marker = toRef(props, 'marker');
 
 const { stop, unsubscribe: unsubscribeStop } = api.useStop(computed(() => props.marker.id));
-
-function get24hTime(date: string) {
-  const d = new Date(date);
-  const pad = (n: number) => n.toString().padStart(2, '0');
-  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
 
 function getBoardTime(departure: StopDeparture) {
   if (!departure.actual) {

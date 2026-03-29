@@ -30,7 +30,7 @@
             'mt-6': i === 0 && departure.state === 'predicted',
           }"
         >
-          <span class="w-14 min-w-12">{{ departure.planned }}</span>
+          <span class="w-14 min-w-12">{{ get24hTime(departure.actual ?? departure.planned) }}</span>
           <div
             class="marker relative mx-4 flex h-12 w-8 min-w-4 items-center justify-center after:absolute after:top-0 after:h-full"
             :class="{
@@ -77,6 +77,7 @@ import { useI18n } from 'vue-i18n';
 import { api } from '~/api';
 import NoData from '~/components/NoData.vue';
 import Actions from '~/components/popups/Actions.vue';
+import { get24hTime } from '~/compositions/date';
 
 const props = defineProps<{
   marker: Marker;
