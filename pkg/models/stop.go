@@ -21,7 +21,7 @@ type Stop struct {
 	Type       StopType          `json:"type"`             // Deprecated: use departures[].type or vehicles[].type instead
 	Routes     []*Route          `json:"routes,omitempty"` // list of routes using this stop
 	Alerts     []string          `json:"alerts,omitempty"` // general alerts for this stop
-	Arrivals   []*StopArrival    `json:"arrivals"`         // Deprecated: use arrivals and departures instead
+	Arrivals   []*StopArrival    `json:"arrivals"`         // Deprecated: use departures instead
 	Departures []*StopDepartures `json:"departures"`       // omitempty is avoided as null / [] is used to check if data was loaded
 	Vehicles   []*Vehicle        `json:"vehicles,omitempty"`
 	Location   *Location         `json:"location"`
