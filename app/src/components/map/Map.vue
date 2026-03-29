@@ -124,7 +124,7 @@ const stopsGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
 const selectedMarker = toRef(props, 'selectedMarker');
 
 const { vehicle: selectedVehicle, unsubscribe: unsubscribeSelectedVehicle } = api.useVehicle(
-  computed(() => selectedMarker.value.id),
+  computed(() => (selectedMarker.value.type === 'vehicle' ? selectedMarker.value.id : undefined)),
 );
 
 const { trip, unsubscribe: unsubscribeTrip } = api.useTrip(computed(() => selectedVehicle.value?.tripId));
@@ -163,7 +163,7 @@ const stopsLayer: Ref<SymbolLayerSpecification> = computed(() => ({
       ['get', 'number'],
       selectedVehicle.value?.name.split(' ')[0] ?? '',
       1,
-      selectedMarker.value.type === 'bus' ? 0.3 : 1,
+      selectedVehicle.value?.type === 'bus' ? 0.3 : 1,
     ],
   },
   layout: {
@@ -191,7 +191,7 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
       ['get', 'number'],
       selectedVehicle.value?.name.split(' ')[0] ?? '',
       1,
-      selectedMarker.value.type === 'bus' ? 0.3 : 1,
+      selectedVehicle.value?.type === 'bus' ? 0.3 : 1,
     ],
   },
   filter: ['==', 'kind', 'vehicle'],
