@@ -48,7 +48,13 @@ const selectedMarker = computed<Marker | undefined>({
       void router.replace({ name: 'home' });
       return;
     }
-    void router.replace({ name: 'map-marker', params: { markerType: marker.type, markerId: marker.id } });
+    void router.replace({
+      name: 'map-marker',
+      params: {
+        markerType: marker.type.includes('stop') ? 'stop' : 'vehicle', // TODO find a better way determine type
+        markerId: marker.id,
+      },
+    });
   },
 });
 

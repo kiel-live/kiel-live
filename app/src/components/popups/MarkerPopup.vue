@@ -1,5 +1,5 @@
 <template>
-  <StopPopup v-if="marker.type.endsWith('-stop')" :marker="marker" />
+  <StopPopup v-if="marker.type.includes('stop')" :marker="marker" />
   <VehiclePopup v-else :marker="marker" />
 </template>
 
