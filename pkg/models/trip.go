@@ -6,6 +6,7 @@ type Trip struct {
 	Provider   string           `json:"provider"`
 	VehicleID  string           `json:"vehicleId"`
 	Direction  string           `json:"direction"`
+	Arrivals   []*TripArrival   `json:"arrivals,omitempty"`
 	Departures []*TripDeparture `json:"departures,omitempty"`
 	Path       []*Location      `json:"path,omitempty"`
 }
@@ -21,5 +22,14 @@ type TripDeparture struct {
 	ID      string         `json:"id"`
 	Name    string         `json:"name"`
 	State   DepartureState `json:"state"`
+	Actual  string         `json:"actual"`
 	Planned string         `json:"planned"`
+}
+
+// Deprecated: use TripDeparture instead
+type TripArrival struct {
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	State   string `json:"state"`
+	Planned string `json:"planned"`
 }

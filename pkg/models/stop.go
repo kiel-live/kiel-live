@@ -21,6 +21,7 @@ type Stop struct {
 	Type       StopType          `json:"type"`             // Deprecated: use departures[].type or vehicles[].type instead
 	Routes     []*Route          `json:"routes,omitempty"` // list of routes using this stop
 	Alerts     []string          `json:"alerts,omitempty"` // general alerts for this stop
+	Arrivals   []*StopArrival    `json:"arrivals"`         // Deprecated: use arrivals and departures instead
 	Departures []*StopDepartures `json:"departures"`       // omitempty is avoided as null / [] is used to check if data was loaded
 	Vehicles   []*Vehicle        `json:"vehicles,omitempty"`
 	Location   *Location         `json:"location"`
@@ -53,8 +54,22 @@ type StopDepartures struct {
 	RouteName string         `json:"routeName"`
 	Direction string         `json:"direction"`
 	State     DepartureState `json:"state"`
+	Platform  string         `json:"platform"`
 	Planned   string         `json:"planned"`
 	Actual    string         `json:"actual,omitempty"`
-	// Eta       int            `json:"eta"`
-	Platform string `json:"platform"`
+}
+
+// Deprecated: use StopDepartures instead
+type StopArrival struct {
+	Name      string      `json:"name"`
+	Type      VehicleType `json:"type"`
+	VehicleID string      `json:"vehicleId"`
+	TripID    string      `json:"tripId"`
+	RouteID   string      `json:"routeId"`
+	RouteName string      `json:"routeName"`
+	Direction string      `json:"direction"`
+	State     string      `json:"state"`
+	Planned   string      `json:"planned"`
+	Eta       int         `json:"eta"`
+	Platform  string      `json:"platform"`
 }

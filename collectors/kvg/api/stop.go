@@ -87,26 +87,14 @@ type routes struct {
 	ShortName  string   `json:"shortName"`
 }
 
-func timeToIsoDateTime(timeStr string) (string, error) {
-	t, err := time.Parse("15:04", timeStr)
-	if err != nil {
-		return "", err
-	}
-
-	now := time.Now()
-	dateTime := time.Date(now.Year(), now.Month(), now.Day(), t.Hour(), t.Minute(), t.Second(), 0, time.Local)
-
-	return dateTime.Format(time.RFC3339), nil
-}
-
 func (d *departure) parse() *models.StopDepartures {
-	actual, err := timeToIsoDateTime(d.ActualTime)
+	actual, err := timeToIsoDateTime(d.ActualTime, time.Now())
 	if err != nil {
 		actual = ""
 		log.Printf("Error parsing actual time: %v", err)
 	}
 
-	planned, err := timeToIsoDateTime(d.PlannedTime)
+	planned, err := timeToIsoDateTime(d.PlannedTime, time.Now())
 	if err != nil {
 		planned = ""
 		log.Printf("Error parsing planned time: %v", err)

@@ -65,7 +65,7 @@
         class="flex w-full flex-col border-gray-200 py-2 not-last:border-b dark:border-neutral-700"
         :to="{
           name: 'map-marker',
-          params: { markerType: 'vehicle', markerId: vehicle.id },
+          params: { markerType: vehicle.type, markerId: vehicle.id },
         }"
       >
         <div class="flex flex-row">
@@ -157,8 +157,8 @@ const sortedDepartures = computed(() => {
 
   return departures
     .toSorted((a, b) => {
-      const aTime = a.actual ? new Date(a.actual).getTime() : new Date(a.planned).getTime();
-      const bTime = b.actual ? new Date(b.actual).getTime() : new Date(b.planned).getTime();
+      const aTime = new Date(a.actual ?? a.planned).getTime();
+      const bTime = new Date(b.actual ?? b.planned).getTime();
       return aTime - bTime;
     })
 

@@ -324,7 +324,7 @@ func main() {
 						Type:      models.VehicleType(gtfsRouteTypeToProtocolStopType(route.Type)),
 						TripID:    IDPrefix + stopTime.TripID,
 						Actual:    "", // TODO: get from gtfs-rt
-						Planned:   departureDate.Format("15:04"),
+						Planned:   departureDate.Format(time.RFC3339),
 						RouteName: route.ShortName,
 						Direction: trip.Headsign,
 						State:     models.Planned,
