@@ -40,7 +40,7 @@
         class="flex w-full flex-col border-gray-200 py-2 not-last:border-b dark:border-neutral-700"
         :to="{
           name: 'map-marker',
-          params: { markerType: 'vehicle', markerId: departure.vehicleId ?? '-' },
+          params: { markerType: departure.type, markerId: departure.vehicleId ?? '-' },
         }"
       >
         <div class="flex flex-row items-center">
@@ -65,7 +65,7 @@
         class="flex w-full flex-col border-gray-200 py-2 not-last:border-b dark:border-neutral-700"
         :to="{
           name: 'map-marker',
-          params: { markerType: 'vehicle', markerId: vehicle.id },
+          params: { markerType: vehicle.type, markerId: vehicle.id },
         }"
       >
         <div class="flex flex-row">
