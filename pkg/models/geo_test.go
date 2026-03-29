@@ -47,10 +47,11 @@ func TestGetCellIDs(t *testing.T) {
 		West:  10.709999024470449,
 	}).GetCellIDs()
 
+	heading := 0
 	poiID := (&models.Location{
 		Latitude:  toDegreesInt(54.31981897337084),
 		Longitude: toDegreesInt(10.182968719044112),
-		Heading:   0,
+		Heading:   &heading,
 	}).GetCellID()
 
 	found := slices.Contains(ids, poiID)
