@@ -40,7 +40,7 @@
         class="flex w-full flex-col border-gray-200 py-2 not-last:border-b dark:border-neutral-700"
         :to="{
           name: 'map-marker',
-          params: { markerType: departure.type, markerId: departure.vehicleId ?? '-' },
+          params: { markerType: 'vehicle', markerId: departure.vehicleId ?? '-' },
         }"
       >
         <div class="flex flex-row items-center">
@@ -65,7 +65,7 @@
         class="flex w-full flex-col border-gray-200 py-2 not-last:border-b dark:border-neutral-700"
         :to="{
           name: 'map-marker',
-          params: { markerType: vehicle.type, markerId: vehicle.id },
+          params: { markerType: 'vehicle', markerId: vehicle.id },
         }"
       >
         <div class="flex flex-row">
@@ -135,13 +135,14 @@ function getBoardTime(departure: StopDeparture) {
   }
 
   const actual = new Date(departure.actual);
+  const diffMinutes = Math.round((actual.getTime() - new Date().getTime()) / 60_000);
 
-  if (actual.getMinutes() < 1) {
+  if (diffMinutes < 1) {
     return t('immediately');
   }
 
-  if (actual.getMinutes() < 60) {
-    return t('minutes', { minutes: actual.getMinutes() });
+  if (diffMinutes < 60) {
+    return t('minutes', { minutes: diffMinutes });
   }
 
   return get24hTime(departure.actual);

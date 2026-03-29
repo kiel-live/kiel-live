@@ -2,7 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/url"
+	"time"
 
 	"github.com/kiel-live/kiel-live/pkg/models"
 )
@@ -43,7 +45,7 @@ const (
 	departed  DepartureStatus = "DEPARTED"
 )
 
-func (d *DepartureStatus) parse() models.ArrivalState {
+func (d *DepartureStatus) parse() models.DepartureState {
 	switch *d {
 	case planned:
 		return models.Planned
@@ -61,7 +63,7 @@ func (d *DepartureStatus) parse() models.ArrivalState {
 type departure struct {
 	TripID             string          `json:"tripId"`
 	Status             DepartureStatus `json:"status"`
-	Stop               string          `json:"plannedTime"`
+	PlannedTime        string          `json:"plannedTime"`
 	ActualTime         string          `json:"actualTime"`
 	ActualRelativeTime int             `json:"actualRelativeTime"`
 	VehicleID          string          `json:"vehicleId"`
@@ -85,8 +87,32 @@ type routes struct {
 	ShortName  string   `json:"shortName"`
 }
 
-func (d *departure) parse() *models.StopArrival {
-	return &models.StopArrival{
+func timeToIsoDateTime(timeStr string) (string, error) {
+	t, err := time.Parse("15:04", timeStr)
+	if err != nil {
+		return "", err
+	}
+
+	now := time.Now()
+	dateTime := time.Date(now.Year(), now.Month(), now.Day(), t.Hour(), t.Minute(), t.Second(), 0, time.Local)
+
+	return dateTime.Format(time.RFC3339), nil
+}
+
+func (d *departure) parse() *models.StopDepartures {
+	actual, err := timeToIsoDateTime(d.ActualTime)
+	if err != nil {
+		actual = ""
+		log.Printf("Error parsing actual time: %v", err)
+	}
+
+	planned, err := timeToIsoDateTime(d.PlannedTime)
+	if err != nil {
+		planned = ""
+		log.Printf("Error parsing planned time: %v", err)
+	}
+
+	return &models.StopDepartures{
 		Name:      d.Direction,
 		VehicleID: IDPrefix + d.VehicleID,
 		TripID:    IDPrefix + d.TripID,
@@ -94,8 +120,8 @@ func (d *departure) parse() *models.StopArrival {
 		RouteName: d.RouteName,
 		Direction: d.Direction,
 		State:     d.Status.parse(),
-		Eta:       d.ActualRelativeTime,
-		Planned:   d.ActualTime,
+		Actual:    actual,
+		Planned:   planned,
 		Platform:  d.Platform,
 	}
 }
@@ -132,7 +158,7 @@ func GetStops() (res map[string]*models.Stop, err error) {
 }
 
 type StopDetails struct {
-	Departures []*models.StopArrival
+	Departures []*models.StopDepartures
 	Alerts     []string
 }
 
@@ -170,7 +196,7 @@ func GetStopDetails(stopShortName string) (*StopDetails, error) {
 	// 	}
 	// }
 
-	departures := []*models.StopArrival{}
+	departures := []*models.StopDepartures{}
 	for _, departure := range stop.Departures {
 		departures = append(departures, departure.parse())
 	}
