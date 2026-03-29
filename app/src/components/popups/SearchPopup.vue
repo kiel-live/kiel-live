@@ -14,7 +14,13 @@
       <router-link
         v-for="searchResult in searchResults"
         :key="searchResult.id"
-        :to="{ name: 'map-marker', params: { markerType: searchResult.type, markerId: searchResult.id } }"
+        :to="{
+          name: 'map-marker',
+          params: {
+            markerType: searchResult.type.includes('stop') ? 'stop' : 'vehicle', // TODO find a better way determine type
+            markerId: searchResult.id,
+          },
+        }"
         class="flex max-w-full border-gray-200 py-2 not-last:border-b dark:border-neutral-700"
         @click="searchInput = ''"
       >
