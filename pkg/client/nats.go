@@ -170,7 +170,7 @@ func (n *natsClient) UpdateStop(stop *models.Stop) error {
 
 		eta := int(actual.Sub(planned).Seconds())
 
-		arrival := &models.StopArrival{
+		arrival := &models.StopArrival{ //nolint:staticcheck
 			Name:      departure.Name,
 			Type:      departure.Type,
 			VehicleID: departure.VehicleID,
@@ -211,7 +211,7 @@ func (n *natsClient) UpdateTrip(trip *models.Trip) error {
 			return err
 		}
 
-		arrival := &models.TripArrival{
+		arrival := &models.TripArrival{ //nolint:staticcheck
 			Name:    departure.Name,
 			State:   string(departure.State),
 			Planned: planned.Format("15:04"),

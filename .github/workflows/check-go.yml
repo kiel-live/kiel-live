@@ -37,6 +37,8 @@ jobs:
         with:
           go-version-file: "go.mod"
       - name: Run unit tests
+        env:
+          TZ: "Europe/Berlin"
         run: |
           go test ./... -coverprofile=coverage.out -covermode=atomic
       - name: Comment PR with coverage
