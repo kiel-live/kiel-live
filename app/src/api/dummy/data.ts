@@ -2,6 +2,7 @@ import type { Stop, Trip, Vehicle } from '../types';
 
 function inMinutes(minutes: number): string {
   const future = new Date(Date.now() + minutes * 60 * 1000);
+  future.setSeconds(59, 0); // Set to end of minute for better testing with fixed time
   return future.toISOString();
 }
 
