@@ -36,6 +36,23 @@ type shipPosition struct {
 var lastPositions = make(map[int]shipPosition)
 var lastPositionsMu sync.Mutex
 
+func calculateDistanceMeters(lat1, lon1, lat2, lon2 float64) float64 {
+	const earthRadiusMeters = 6371000.0
+
+	lat1R := lat1 * math.Pi / 180
+	lon1R := lon1 * math.Pi / 180
+	lat2R := lat2 * math.Pi / 180
+	lon2R := lon2 * math.Pi / 180
+
+	dLat := lat2R - lat1R
+	dLon := lon2R - lon1R
+
+	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Cos(lat1R)*math.Cos(lat2R)*math.Sin(dLon/2)*math.Sin(dLon/2)
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+	return earthRadiusMeters * c
+}
+
 func calculateBearing(lat1, lon1, lat2, lon2 float64) int {
 	lat1R := lat1 * math.Pi / 180
 	lat2R := lat2 * math.Pi / 180
@@ -225,7 +242,7 @@ func main() {
 		case aisstream.POSITION_REPORT:
 			var positionReport aisstream.PositionReport
 			positionReport = *packet.Message.PositionReport
-			log.Debugf("MMSI: %d Ship Name: %s Latitude: %f Longitude: %f True Heading: %d",
+			log.Debugf("MMSI: %d, Ship Name: %s, Latitude: %f, Longitude: %f, True Heading: %d",
 				positionReport.UserID, shipName, positionReport.Latitude, positionReport.Longitude, positionReport.TrueHeading)
 			location := &models.Location{
 				Longitude: int(positionReport.Longitude * 3600000),
@@ -237,10 +254,10 @@ func main() {
 				location.Heading = &heading
 			} else {
 				lastPositionsMu.Lock()
-				prev, ok := lastPositions[mmsi]
+				previousPosition, ok := lastPositions[mmsi]
 				lastPositionsMu.Unlock()
-				if ok && (prev.lat != positionReport.Latitude || prev.lon != positionReport.Longitude) {
-					heading := calculateBearing(prev.lat, prev.lon, positionReport.Latitude, positionReport.Longitude)
+				if ok && calculateDistanceMeters(previousPosition.lat, previousPosition.lon, positionReport.Latitude, positionReport.Longitude) > 10 {
+					heading := calculateBearing(previousPosition.lat, previousPosition.lon, positionReport.Latitude, positionReport.Longitude)
 					location.Heading = &heading
 				}
 			}
