@@ -281,7 +281,7 @@ onMounted(async () => {
   }
 
   type IconData =
-    | { kind: 'vehicle'; type: string; name: string; focused: boolean; heading: number }
+    | { kind: 'vehicle'; type: string; name: string; focused: boolean; heading?: number }
     | { kind: 'stop'; type: string; name: string; focused: boolean };
 
   map.on('styleimagemissing', (e) => {
