@@ -214,13 +214,13 @@ func main() {
 		case aisstream.POSITION_REPORT:
 			var positionReport aisstream.PositionReport
 			positionReport = *packet.Message.PositionReport
+			mmsi := int(positionReport.UserID)
 			log.Debugf("MMSI: %d, Ship Name: %s, Latitude: %f, Longitude: %f, True Heading: %d",
-				positionReport.UserID, shipName, positionReport.Latitude, positionReport.Longitude, positionReport.TrueHeading)
+				mmsi, shipName, positionReport.Latitude, positionReport.Longitude, positionReport.TrueHeading)
 			location := &models.Location{
 				Longitude: int(positionReport.Longitude * 3600000),
 				Latitude:  int(positionReport.Latitude * 3600000),
 			}
-			mmsi := int(positionReport.UserID)
 			if positionReport.TrueHeading != 511 { // 511 means "not available"
 				heading := int(positionReport.TrueHeading)
 				location.Heading = &heading
