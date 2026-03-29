@@ -149,18 +149,11 @@ const sortedDepartures = computed(() => {
     return null;
   }
 
-  return departures
-    .toSorted((a, b) => {
-      const aTime = new Date(a.actual ?? a.planned).getTime();
-      const bTime = new Date(b.actual ?? b.planned).getTime();
-      return aTime - bTime;
-    })
-
-    .map((a) => {
-      return {
-        ...a,
-      };
-    });
+  return departures.toSorted((a, b) => {
+    const aTime = new Date(a.actual ?? a.planned).getTime();
+    const bTime = new Date(b.actual ?? b.planned).getTime();
+    return aTime - bTime;
+  });
 });
 
 onBeforeUnmount(async () => {
