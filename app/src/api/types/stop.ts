@@ -1,5 +1,5 @@
 import type { Action } from './action';
-import type { StopArrival } from './arrival';
+import type { StopDeparture } from './departure';
 import type { GpsLocation } from './location';
 import type { Vehicle } from './vehicle';
 
@@ -17,12 +17,12 @@ export interface Stop {
   provider: string;
   name: string;
   /**
-   * @deprecated use arrivals[].type or vehicles[].type instead
+   * @deprecated use departures[].type or vehicles[].type instead
    */
   type: StopType;
   routes?: string[] | null; // list of routes using this stop
   alerts?: string[] | null; // general alerts for this stop
-  arrivals?: StopArrival[];
+  departures?: StopDeparture[];
   location: GpsLocation;
   vehicles?: Vehicle[];
   actions?: Action[];

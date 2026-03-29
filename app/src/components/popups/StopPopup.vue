@@ -35,36 +35,28 @@
       </div>
 
       <router-link
-        v-for="arrival in augmentedArrivals"
-        :key="arrival.tripId"
+        v-for="departure in sortedDepartures"
+        :key="departure.tripId"
         class="flex w-full flex-col border-gray-200 py-2 not-last:border-b dark:border-neutral-700"
         :to="{
           name: 'map-marker',
-          params: { markerType: stop.type.replace('-stop', ''), markerId: arrival.vehicleId },
+          params: { markerType: 'vehicle', markerId: departure.vehicleId ?? '-' },
         }"
       >
         <div class="flex flex-row items-center">
-          <i-mdi-bus v-if="arrival.type === 'bus'" class="mr-2 h-6 w-6" />
-          <i-mdi-ferry v-else-if="arrival.type === 'ferry'" class="mr-2" />
-          <i-carbon-tram v-else-if="arrival.type === 'tram'" class="mr-2 h-6 w-6" />
-          <i-carbon-train-profile v-else-if="arrival.type === 'train'" class="mr-2" />
+          <i-mdi-bus v-if="departure.type === 'bus'" class="mr-2 h-6 w-6" />
+          <i-mdi-ferry v-else-if="departure.type === 'ferry'" class="mr-2" />
+          <i-carbon-tram v-else-if="departure.type === 'tram'" class="mr-2 h-6 w-6" />
+          <i-carbon-train-profile v-else-if="departure.type === 'train'" class="mr-2" />
 
-          <span class="mr-2">{{ arrival.routeName }}</span>
-          <span class="grow">{{ arrival.direction }}</span>
-          <span>{{ arrival.eta ?? arrival.planned }}</span>
+          <span class="mr-2">{{ departure.routeName }}</span>
+          <span class="grow">{{ departure.direction }}</span>
+          <span>{{ getBoardTime(departure) }}</span>
           <div class="ml-2 flex items-center">
-            <i-ph-clock-fill v-if="arrival.state === 'planned'" />
-            <i-ph-hand-fill v-if="arrival.state === 'stopping'" />
-            <i-ph-person-simple-run-bold v-if="arrival.state === 'predicted'" />
+            <i-ph-clock-fill v-if="departure.state === 'planned'" />
+            <i-ph-hand-fill v-if="departure.state === 'stopping'" />
+            <i-ph-person-simple-run-bold v-if="departure.state === 'predicted'" />
           </div>
-        </div>
-        <div class="flex flex-row gap-1 text-xs text-gray-500 dark:text-gray-400">
-          <template v-if="arrival.nextStopName">
-            <span>{{ t('next_stop') }}</span>
-            <span>{{ arrival.nextStopName }}</span>
-          </template>
-          <!-- <div v-else class="w-1/3 mb-1 bg-gray-500 dark:bg-gray-400 rounded-lg animate-pulse opacity-10" /> -->
-          <span class="ml-auto">{{ arrival.platform }}</span>
         </div>
       </router-link>
       <router-link
@@ -73,7 +65,7 @@
         class="flex w-full flex-col border-gray-200 py-2 not-last:border-b dark:border-neutral-700"
         :to="{
           name: 'map-marker',
-          params: { markerType: vehicle.type, markerId: vehicle.id },
+          params: { markerType: 'vehicle', markerId: vehicle.id },
         }"
       >
         <div class="flex flex-row">
@@ -83,10 +75,10 @@
           <span class="mr-2">{{ vehicle.name }}</span>
         </div>
       </router-link>
-      <NoData v-if="augmentedArrivals && augmentedArrivals.length === 0">
+      <NoData v-if="sortedDepartures && sortedDepartures.length === 0">
         {{ t('no_bus_wants_to_stop_here_right_now') }}
       </NoData>
-      <i-ph-circle-notch v-if="!augmentedArrivals && !stop.vehicles" class="m-auto animate-spin text-3xl" />
+      <i-ph-circle-notch v-if="!sortedDepartures && !stop.vehicles" class="m-auto animate-spin text-3xl" />
     </div>
   </div>
   <NoData v-else>
@@ -107,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Marker, StopArrival } from '~/api/types';
+import type { Marker, StopDeparture } from '~/api/types';
 import { computed, onBeforeUnmount, toRef } from 'vue';
 
 import { useI18n } from 'vue-i18n';
@@ -127,83 +119,54 @@ const marker = toRef(props, 'marker');
 
 const { stop, unsubscribe: unsubscribeStop } = api.useStop(computed(() => props.marker.id));
 
-const eta = (arrival: StopArrival) => {
-  if (arrival.eta === 0) {
-    return null;
+function get24hTime(date: string) {
+  const d = new Date(date);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function getBoardTime(departure: StopDeparture) {
+  if (!departure.actual) {
+    return get24hTime(departure.planned);
   }
 
-  const minutes = Math.round(arrival.eta / 60);
-
-  if (arrival.state === 'stopping') {
+  if (departure.state === 'stopping') {
     return t('stopping');
   }
-  if (minutes < 1) {
+
+  const actual = new Date(departure.actual);
+
+  if (actual.getMinutes() < 1) {
     return t('immediately');
   }
 
-  return t('minutes', { minutes });
-};
+  if (actual.getMinutes() < 60) {
+    return t('minutes', { minutes: actual.getMinutes() });
+  }
 
-const augmentedArrivals = computed<(Omit<StopArrival, 'eta'> & { nextStopName?: string; eta: string | null })[] | null>(
-  () => {
-    if (!stop.value?.arrivals) {
-      return null;
-    }
+  return get24hTime(departure.actual);
+}
 
-    return stop.value.arrivals
-      .toSorted((a, b) => {
-        if (a.eta === 0 || b.eta === 0) {
-          return a.planned.localeCompare(b.planned);
-        }
-        return a.eta - b.eta;
-      })
+const sortedDepartures = computed(() => {
+  const departures = stop.value?.departures ?? stop.value?.departures;
 
-      .map((a) => {
-        // const trip = trips.value[a.tripId];
+  if (!departures) {
+    return null;
+  }
 
-        // let nextStopName: string | undefined;
-        // if (trip !== undefined && trip.arrivals !== undefined) {
-        //   const nextStopIndex = trip.arrivals.findIndex((s) => s.id === props.marker.id);
-        //   if (nextStopIndex !== -1) {
-        //     nextStopName = trip.arrivals[nextStopIndex + 1]?.name;
-        //   }
-        // }
+  return departures
+    .toSorted((a, b) => {
+      const aTime = a.actual ? new Date(a.actual).getTime() : new Date(a.planned).getTime();
+      const bTime = b.actual ? new Date(b.actual).getTime() : new Date(b.planned).getTime();
+      return aTime - bTime;
+    })
 
-        return {
-          ...a,
-          nextStopName: undefined,
-          eta: eta(a),
-        };
-      });
-  },
-);
-
-// const tripSubscriptions = new Set<string>();
-
-// watch arrivals and subscribe to trips
-// watch(
-//   stop,
-//   async (newStop, oldStop) => {
-//     if (!newStop || newStop.arrivals === null || newStop.arrivals === oldStop?.arrivals) {
-//       return;
-//     }
-
-//     oldStop?.arrivals?.forEach((arrival) => {
-//       if (!newStop.arrivals?.some((a) => a.tripId === arrival.tripId)) {
-//         tripSubscriptions.delete(arrival.tripId);
-//         void unsubscribe(`data.map.trip.${arrival.tripId}`);
-//       }
-//     });
-
-//     newStop.arrivals?.forEach((arrival) => {
-//       if (!tripSubscriptions.has(arrival.tripId)) {
-//         tripSubscriptions.add(arrival.tripId);
-//         void subscribe(`data.map.trip.${arrival.tripId}`, trips);
-//       }
-//     });
-//   },
-//   { immediate: true },
-// );
+    .map((a) => {
+      return {
+        ...a,
+      };
+    });
+});
 
 onBeforeUnmount(async () => {
   await unsubscribeStop();

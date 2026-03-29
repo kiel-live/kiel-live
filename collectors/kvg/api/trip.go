@@ -26,8 +26,8 @@ type tripPaths struct {
 	Paths []tripPath `json:"paths"`
 }
 
-func (t *tripStop) parse() *models.TripArrival {
-	return &models.TripArrival{
+func (t *tripStop) parse() *models.TripDeparture {
+	return &models.TripDeparture{
 		ID:      IDPrefix + t.Stop.ShortName,
 		Name:    t.Stop.Name,
 		State:   t.Status.parse(),
@@ -44,18 +44,18 @@ type trip struct {
 
 // trip parser to protocol trip
 func (t *trip) parse() *models.Trip {
-	var arrivals []*models.TripArrival
+	var departures []*models.TripDeparture
 	for _, stop := range t.OldStops {
-		arrivals = append(arrivals, stop.parse())
+		departures = append(departures, stop.parse())
 	}
 	for _, stop := range t.Stops {
-		arrivals = append(arrivals, stop.parse())
+		departures = append(departures, stop.parse())
 	}
 
 	return &models.Trip{
-		Provider:  "kvg", // TODO
-		Direction: t.DirectionText,
-		Arrivals:  arrivals,
+		Provider:   "kvg", // TODO
+		Direction:  t.DirectionText,
+		Departures: departures,
 	}
 }
 

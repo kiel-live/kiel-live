@@ -1,5 +1,17 @@
 import type { Stop, Trip, Vehicle } from '../types';
 
+function todayTime(hours: number, minutes: number): string {
+  const now = new Date();
+  now.setHours(hours, minutes, 0, 0);
+  return now.toISOString();
+}
+
+function eta(minutes: number): string {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() + minutes);
+  return now.toISOString();
+}
+
 export const DUMMY_VEHICLES: Vehicle[] = [
   {
     id: 'bus-1',
@@ -76,7 +88,7 @@ export const DUMMY_STOPS: Stop[] = [
     alerts: ['Alert 1'],
     location: { latitude: 54.3233 * 3600000, longitude: 10.1228 * 3600000, heading: 0 },
     actions: [],
-    arrivals: [
+    departures: [
       {
         name: 'Dummy Vehicle 1',
         type: 'bus',
@@ -86,8 +98,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: 'Route 1',
         direction: 'North',
         state: 'predicted',
-        planned: '18:50',
-        eta: 300,
+        planned: todayTime(18, 50),
+        actual: eta(300),
         platform: '',
       },
     ],
@@ -101,7 +113,7 @@ export const DUMMY_STOPS: Stop[] = [
     alerts: ['Alert 2'],
     location: { latitude: 54.3234 * 3600000, longitude: 10.1229 * 3600000, heading: 0 },
     actions: [],
-    arrivals: [
+    departures: [
       {
         name: 'Dummy Vehicle 2',
         type: 'bus',
@@ -111,8 +123,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: 'Route 2',
         direction: 'South',
         state: 'predicted',
-        planned: '19:00',
-        eta: 600,
+        planned: todayTime(19, 0),
+        actual: eta(600),
         platform: '',
       },
     ],
@@ -124,7 +136,7 @@ export const DUMMY_STOPS: Stop[] = [
     type: 'bus-stop',
     routes: null,
     alerts: [],
-    arrivals: [
+    departures: [
       {
         name: 'Hassee',
         type: 'bus',
@@ -134,8 +146,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '51',
         direction: 'Hassee',
         state: 'predicted',
-        planned: '19:23',
-        eta: 145,
+        planned: todayTime(19, 23),
+        actual: eta(145),
         platform: '',
       },
       {
@@ -147,8 +159,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '91',
         direction: 'Bf. Melsdorf',
         state: 'predicted',
-        planned: '19:29',
-        eta: 505,
+        planned: todayTime(19, 29),
+        actual: eta(505),
         platform: '',
       },
     ],
@@ -165,7 +177,7 @@ export const DUMMY_STOPS: Stop[] = [
     type: 'bus-stop',
     routes: null,
     alerts: [],
-    arrivals: [
+    departures: [
       {
         name: 'Strande',
         type: 'bus',
@@ -175,8 +187,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '12',
         direction: 'Strande',
         state: 'predicted',
-        planned: '11:52',
-        eta: 9,
+        planned: todayTime(11, 52),
+        actual: eta(9),
         platform: '',
       },
       {
@@ -188,8 +200,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '11',
         direction: 'Wik Kanal',
         state: 'predicted',
-        planned: '12:05',
-        eta: 789,
+        planned: todayTime(12, 5),
+        actual: eta(789),
         platform: '',
       },
     ],
@@ -206,7 +218,7 @@ export const DUMMY_STOPS: Stop[] = [
     type: 'bus-stop',
     routes: null,
     alerts: [],
-    arrivals: [
+    departures: [
       {
         name: 'Strande',
         type: 'bus',
@@ -216,8 +228,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '12',
         direction: 'Strande',
         state: 'predicted',
-        planned: '11:54',
-        eta: 90,
+        planned: todayTime(11, 54),
+        actual: eta(90),
         platform: '',
       },
       {
@@ -229,8 +241,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '11',
         direction: 'Wik Kanal',
         state: 'predicted',
-        planned: '12:07',
-        eta: 870,
+        planned: todayTime(12, 7),
+        actual: eta(870),
         platform: '',
       },
     ],
@@ -248,7 +260,7 @@ export const DUMMY_TRIPS: Trip[] = [
     provider: 'dummy',
     direction: 'North',
     path: [{ latitude: 54.3233 * 3600000, longitude: 10.1228 * 3600000, heading: 0 }],
-    arrivals: [
+    departures: [
       {
         id: 'stop-1',
         name: 'Dummy Stop 1',
@@ -262,12 +274,12 @@ export const DUMMY_TRIPS: Trip[] = [
     provider: 'dummy',
     direction: 'South',
     path: [{ latitude: 54.3234 * 3600000, longitude: 10.1229 * 3600000, heading: 0 }],
-    arrivals: [
+    departures: [
       {
         id: 'stop-2',
         name: 'Dummy Stop 2',
         state: 'predicted',
-        planned: '19:00',
+        planned: todayTime(19, 0),
       },
     ],
   },
@@ -275,24 +287,24 @@ export const DUMMY_TRIPS: Trip[] = [
     id: 'trip-3',
     provider: 'kvg',
     direction: 'Uni/Botan. Garten',
-    arrivals: [
+    departures: [
       {
         id: 'kvg-1256',
         name: 'Andreas-Gayk-Straße',
         state: 'departed',
-        planned: '19:23',
+        planned: todayTime(19, 23),
       },
       {
         id: 'kvg-2387',
         name: 'Hauptbahnhof',
         state: 'predicted',
-        planned: '19:26',
+        planned: todayTime(19, 26),
       },
       {
         id: 'stop-3',
         name: 'Kirchhofallee',
         state: 'predicted',
-        planned: '19:28',
+        planned: todayTime(19, 28),
       },
     ],
     path: [],
@@ -301,18 +313,18 @@ export const DUMMY_TRIPS: Trip[] = [
     id: 'kvg-1610077840790697737',
     provider: 'kvg',
     direction: 'Strande',
-    arrivals: [
+    departures: [
       {
         id: 'kvg-2387',
         name: 'Hauptbahnhof',
         state: 'departed',
-        planned: '11:53',
+        planned: todayTime(11, 53),
       },
       {
         id: 'kvg-1256',
         name: 'Andreas-Gayk-Straße',
         state: 'stopping',
-        planned: '11:55',
+        planned: todayTime(11, 55),
       },
     ],
     path: [],
@@ -321,18 +333,18 @@ export const DUMMY_TRIPS: Trip[] = [
     id: 'kvg-1610077840790681351',
     provider: 'kvg',
     direction: 'Wik Kanal',
-    arrivals: [
+    departures: [
       {
         id: 'kvg-2387',
         name: 'Hauptbahnhof',
         state: 'predicted',
-        planned: '12:05',
+        planned: todayTime(12, 5),
       },
       {
         id: 'kvg-1256',
         name: 'Andreas-Gayk-Straße',
         state: 'predicted',
-        planned: '12:07',
+        planned: todayTime(12, 7),
       },
     ],
     path: [],

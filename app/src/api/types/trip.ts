@@ -1,10 +1,10 @@
-import type { TripArrival } from './arrival';
+import type { TripDeparture } from './departure';
 import type { GpsLocation } from './location';
 
 export interface Trip {
   id: string;
   provider: string;
   direction: string;
-  arrivals?: TripArrival[];
+  departures?: TripDeparture[];
   path?: GpsLocation[];
 }

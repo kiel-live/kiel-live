@@ -17,7 +17,7 @@ type TripCollector struct {
 	sync.Mutex
 }
 
-func isSameTripArrivals(a1, a2 []*models.TripArrival) bool {
+func isSameTripDepartures(a1, a2 []*models.TripDeparture) bool {
 	if len(a1) != len(a2) {
 		return false
 	}
@@ -33,7 +33,7 @@ func isSameTripArrivals(a1, a2 []*models.TripArrival) bool {
 }
 
 func isSameTrip(a, b *models.Trip) bool {
-	return a != nil && b != nil && a.ID == b.ID && a.Provider == b.Provider && a.Direction == b.Direction && isSameTripArrivals(a.Arrivals, b.Arrivals)
+	return a != nil && b != nil && a.ID == b.ID && a.Provider == b.Provider && a.Direction == b.Direction && isSameTripDepartures(a.Departures, b.Departures)
 }
 
 // returns list of changed or newly added trips
