@@ -6,7 +6,7 @@ type Trip struct {
 	Provider   string           `json:"provider"`
 	VehicleID  string           `json:"vehicleId"`
 	Direction  string           `json:"direction"`
-	Arrivals   []*TripArrival   `json:"arrivals,omitempty"`
+	Arrivals   []*TripArrival   `json:"arrivals,omitempty"` // Deprecated: use departures instead
 	Departures []*TripDeparture `json:"departures,omitempty"`
 	Path       []*Location      `json:"path,omitempty"`
 }
