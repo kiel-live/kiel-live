@@ -316,20 +316,14 @@ export const DUMMY_TRIPS: Trip[] = [
       {
         id: 'kvg-2387',
         name: 'Hauptbahnhof',
-        state: 'stopping',
-        planned: inMinutes(0),
+        state: 'predicted',
+        planned: inMinutes(1),
       },
       {
         id: 'stop-3',
         name: 'Kirchhofallee',
         state: 'predicted',
         planned: inMinutes(5),
-      },
-      {
-        id: 'kvg-1610077840790697737',
-        name: 'Strande',
-        state: 'predicted',
-        planned: inMinutes(15),
       },
     ],
     path: [],
