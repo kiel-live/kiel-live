@@ -6,10 +6,9 @@ function todayTime(hours: number, minutes: number): string {
   return now.toISOString();
 }
 
-function eta(minutes: number): string {
-  const now = new Date();
-  now.setMinutes(now.getMinutes() + minutes);
-  return now.toISOString();
+function inMinutes(minutes: number): string {
+  const future = new Date(Date.now() + minutes * 60 * 1000);
+  return future.toISOString();
 }
 
 export const DUMMY_VEHICLES: Vehicle[] = [
@@ -98,8 +97,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: 'Route 1',
         direction: 'North',
         state: 'predicted',
-        planned: todayTime(18, 50),
-        actual: eta(300),
+        planned: inMinutes(5),
+        actual: inMinutes(5 + 3), // 3 minutes delay
         platform: '',
       },
     ],
@@ -123,8 +122,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: 'Route 2',
         direction: 'South',
         state: 'predicted',
-        planned: todayTime(19, 0),
-        actual: eta(600),
+        planned: inMinutes(7),
+        actual: inMinutes(7 + 1), // 1 minute delay
         platform: '',
       },
     ],
@@ -146,8 +145,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '51',
         direction: 'Hassee',
         state: 'predicted',
-        planned: todayTime(19, 23),
-        actual: eta(145),
+        planned: inMinutes(0),
+        actual: inMinutes(0 + 1), // 1 minute delay
         platform: '',
       },
       {
@@ -159,8 +158,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '91',
         direction: 'Bf. Melsdorf',
         state: 'predicted',
-        planned: todayTime(19, 29),
-        actual: eta(505),
+        planned: inMinutes(6),
+        actual: inMinutes(6 - 2), // 2 minutes early
         platform: '',
       },
     ],
@@ -187,8 +186,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '12',
         direction: 'Strande',
         state: 'predicted',
-        planned: todayTime(11, 52),
-        actual: eta(9),
+        planned: inMinutes(8),
+        actual: inMinutes(8 + 1), // 1 minute delay
         platform: '',
       },
       {
@@ -200,8 +199,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '11',
         direction: 'Wik Kanal',
         state: 'predicted',
-        planned: todayTime(12, 5),
-        actual: eta(789),
+        planned: inMinutes(15),
+        actual: inMinutes(15 + 23), // 23 minutes delay
         platform: '',
       },
     ],
@@ -228,8 +227,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '12',
         direction: 'Strande',
         state: 'predicted',
-        planned: todayTime(11, 54),
-        actual: eta(90),
+        planned: inMinutes(1),
+        actual: inMinutes(1),
         platform: '',
       },
       {
@@ -241,8 +240,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '11',
         direction: 'Wik Kanal',
         state: 'predicted',
-        planned: todayTime(12, 7),
-        actual: eta(870),
+        planned: inMinutes(90), // in 1.5 hours
+        actual: inMinutes(90 + 5), // 5 minutes delay
         platform: '',
       },
     ],
