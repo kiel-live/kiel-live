@@ -144,8 +144,7 @@ function getBoardTime(departure: StopDeparture) {
 }
 
 const sortedDepartures = computed(() => {
-  const departures = stop.value?.departures ?? stop.value?.departures;
-
+  const departures = stop.value?.departures;
   if (!departures) {
     return null;
   }
