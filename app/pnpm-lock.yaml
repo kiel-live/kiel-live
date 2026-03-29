@@ -18,8 +18,8 @@ importers:
         specifier: 7.1.0
         version: 7.1.0
       maplibre-gl:
-        specifier: 5.21.0
-        version: 5.21.0
+        specifier: 5.21.1
+        version: 5.21.1
       micromark:
         specifier: 4.0.2
         version: 4.0.2
@@ -3113,8 +3113,8 @@ packages:
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
-  maplibre-gl@5.21.0:
-    resolution: {integrity: sha512-n0v4J/Ge0EG8ix/z3TY3ragtJYMqzbtSnj1riOC0OwQbzwp0lUF2maS1ve1z8HhitQCKtZZiZJhb8to36aMMfQ==}
+  maplibre-gl@5.21.1:
+    resolution: {integrity: sha512-zto1RTnFkOpOO1bm93ElCXF1huey2N4LvXaGLMFcYAu9txh0OhGIdX1q3LZLkrMKgMxMeYduaQo+DVNzg098fg==}
     engines: {node: '>=16.14.0', npm: '>=8.1.0'}
 
   markdown-table@3.0.4:
@@ -7477,7 +7477,7 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  maplibre-gl@5.21.0:
+  maplibre-gl@5.21.1:
     dependencies:
       '@mapbox/jsonlint-lines-primitives': 2.0.2
       '@mapbox/point-geometry': 1.1.0
