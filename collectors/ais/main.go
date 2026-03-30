@@ -27,6 +27,14 @@ var wsWriteMutex sync.Mutex
 var keepAliveCancelMu sync.Mutex
 var keepAliveCancel context.CancelFunc
 
+type shipPosition struct {
+	lat float64
+	lon float64
+}
+
+var lastPositions = make(map[int]shipPosition)
+var lastPositionsMu sync.Mutex
+
 func wsConnect() (*websocket.Conn, error) {
 	url := "wss://stream.aisstream.io/v0/stream"
 	ws, http, err := websocket.DefaultDialer.Dial(url, nil)
@@ -206,8 +214,29 @@ func main() {
 		case aisstream.POSITION_REPORT:
 			var positionReport aisstream.PositionReport
 			positionReport = *packet.Message.PositionReport
-			log.Debugf("MMSI: %d Ship Name: %s Latitude: %f Longitude: %f",
-				positionReport.UserID, shipName, positionReport.Latitude, positionReport.Longitude)
+			mmsi := int(positionReport.UserID)
+			log.Debugf("MMSI: %d, Ship Name: %s, Latitude: %f, Longitude: %f, True Heading: %d",
+				mmsi, shipName, positionReport.Latitude, positionReport.Longitude, positionReport.TrueHeading)
+			location := &models.Location{
+				Longitude: int(positionReport.Longitude * 3600000),
+				Latitude:  int(positionReport.Latitude * 3600000),
+			}
+			if positionReport.TrueHeading != 511 { // 511 means "not available"
+				heading := int(positionReport.TrueHeading)
+				location.Heading = &heading
+			} else {
+				lastPositionsMu.Lock()
+				previousPosition, ok := lastPositions[mmsi]
+				lastPositionsMu.Unlock()
+				if ok && calculateDistanceMeters(previousPosition.lat, previousPosition.lon, positionReport.Latitude, positionReport.Longitude) > 10 {
+					heading := calculateBearing(previousPosition.lat, previousPosition.lon, positionReport.Latitude, positionReport.Longitude)
+					location.Heading = &heading
+				}
+			}
+			lastPositionsMu.Lock()
+			lastPositions[mmsi] = shipPosition{lat: positionReport.Latitude, lon: positionReport.Longitude}
+			lastPositionsMu.Unlock()
+
 			vehicle := &models.Vehicle{
 				ID:          IDPrefix + fmt.Sprint(positionReport.UserID),
 				Provider:    "ais",
@@ -215,11 +244,7 @@ func main() {
 				Description: fmt.Sprintf("Die Live-Position der Fähre \"%s\".\n\nDie Position wird regelmäßig über AIS aktualisiert.", shipName),
 				Type:        models.VehicleTypeFerry,
 				State:       "onfire", // TODO
-				Location: &models.Location{
-					Longitude: int(positionReport.Longitude * 3600000),
-					Latitude:  int(positionReport.Latitude * 3600000),
-					Heading:   int(positionReport.TrueHeading),
-				},
+				Location:    location,
 			}
 
 			err = c.UpdateVehicle(vehicle)

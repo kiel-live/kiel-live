@@ -16,13 +16,13 @@ export default class PulsingDot {
 
   route: string;
 
-  heading: number;
+  heading?: number;
 
   rendered = false;
 
   context: CanvasRenderingContext2D | undefined;
 
-  constructor(map: maplibregl.Map, focused: boolean, route: string, heading: number) {
+  constructor(map: maplibregl.Map, focused: boolean, route: string, heading?: number) {
     this.map = map;
     this.focused = focused;
     this.route = route;
@@ -61,7 +61,7 @@ export default class PulsingDot {
 
     context.translate(this.width / 2, this.height / 2);
 
-    if (this.focused) {
+    if (this.focused && this.heading !== undefined) {
       // draw arrow
       context.rotate((this.heading * Math.PI) / 180);
       const lineWidth = 6;
@@ -83,7 +83,7 @@ export default class PulsingDot {
       context.rotate((-this.heading * Math.PI) / 180);
     } else {
       // draw heading nose
-      if (typeof this.heading !== 'undefined' && this.heading !== null) {
+      if (this.heading !== undefined) {
         context.rotate((this.heading * Math.PI) / 180);
         context.beginPath();
         context.fillStyle = colorSecondary;

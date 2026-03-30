@@ -4,12 +4,11 @@ This app allows you to view Kiels public transport (busses, bus-stops) in realti
 
 [![build](https://img.shields.io/github/actions/workflow/status/kiel-live/kiel-live/app.yml)](https://github.com/kiel-live/kiel-live/actions?query=branch%3Amain)
 [![release](https://img.shields.io/github/v/release/kiel-live/kiel-live)](https://github.com/kiel-live/kiel-live/releases)
-[![gitpod](https://img.shields.io/badge/gitpod-available-f09439)](https://gitpod.io/#https://github.com/kiel-live/kiel-live)
 
 ## Features
 
 - View realtime bus positions and bus-stops on map
-- Get realtime information (route, direction, eta) of bus arrivals of a specific bus-stop
+- Get realtime information (route, direction, eta) of bus departures of a specific bus-stop
 - Add bus-stops to favorites
 - View trip stops of a bus
 
@@ -28,10 +27,6 @@ The project contains following parts:
 - `android-app/`: A native android app wrapper of the PWA
 - `collectors/*`: Multiple agents to scrape data from different apis
 - `nats/`: The NATS server used as message broker to stream data from collectors to the PWA clients
-
-### Gitpod
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/kiel-live/kiel-live)
 
 ### PWA development
 
