@@ -1,5 +1,11 @@
 import type { Stop, Trip, Vehicle } from '../types';
 
+function inMinutes(minutes: number): string {
+  const future = new Date(Date.now() + minutes * 60 * 1000);
+  future.setSeconds(59, 0); // Set to end of minute for better testing with fixed time
+  return future.toISOString();
+}
+
 export const DUMMY_VEHICLES: Vehicle[] = [
   {
     id: 'bus-1',
@@ -76,7 +82,7 @@ export const DUMMY_STOPS: Stop[] = [
     alerts: ['Alert 1'],
     location: { latitude: 54.3233 * 3600000, longitude: 10.1228 * 3600000, heading: 0 },
     actions: [],
-    arrivals: [
+    departures: [
       {
         name: 'Dummy Vehicle 1',
         type: 'bus',
@@ -86,8 +92,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: 'Route 1',
         direction: 'North',
         state: 'predicted',
-        planned: '18:50',
-        eta: 300,
+        planned: inMinutes(5),
+        actual: inMinutes(5 + 3), // 3 minutes delay
         platform: '',
       },
     ],
@@ -101,7 +107,7 @@ export const DUMMY_STOPS: Stop[] = [
     alerts: ['Alert 2'],
     location: { latitude: 54.3234 * 3600000, longitude: 10.1229 * 3600000, heading: 0 },
     actions: [],
-    arrivals: [
+    departures: [
       {
         name: 'Dummy Vehicle 2',
         type: 'bus',
@@ -111,8 +117,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: 'Route 2',
         direction: 'South',
         state: 'predicted',
-        planned: '19:00',
-        eta: 600,
+        planned: inMinutes(7),
+        actual: inMinutes(7 + 1), // 1 minute delay
         platform: '',
       },
     ],
@@ -124,7 +130,7 @@ export const DUMMY_STOPS: Stop[] = [
     type: 'bus-stop',
     routes: null,
     alerts: [],
-    arrivals: [
+    departures: [
       {
         name: 'Hassee',
         type: 'bus',
@@ -134,8 +140,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '51',
         direction: 'Hassee',
         state: 'predicted',
-        planned: '19:23',
-        eta: 145,
+        planned: inMinutes(0),
+        actual: inMinutes(0 + 1), // 1 minute delay
         platform: '',
       },
       {
@@ -147,8 +153,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '91',
         direction: 'Bf. Melsdorf',
         state: 'predicted',
-        planned: '19:29',
-        eta: 505,
+        planned: inMinutes(6),
+        actual: inMinutes(6 - 2), // 2 minutes early
         platform: '',
       },
     ],
@@ -163,9 +169,9 @@ export const DUMMY_STOPS: Stop[] = [
     provider: 'kvg',
     name: 'Hauptbahnhof',
     type: 'bus-stop',
-    routes: null,
-    alerts: [],
-    arrivals: [
+    routes: ['80', '11', '12', '51', '91'],
+    alerts: ['Alert 1', 'Alert 2'],
+    departures: [
       {
         name: 'Strande',
         type: 'bus',
@@ -175,8 +181,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '12',
         direction: 'Strande',
         state: 'predicted',
-        planned: '11:52',
-        eta: 9,
+        planned: inMinutes(8),
+        actual: inMinutes(8 + 1), // 1 minute delay
         platform: '',
       },
       {
@@ -188,8 +194,34 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '11',
         direction: 'Wik Kanal',
         state: 'predicted',
-        planned: '12:05',
-        eta: 789,
+        planned: inMinutes(15),
+        actual: inMinutes(15 + 23), // 23 minutes delay
+        platform: '',
+      },
+      {
+        name: 'Hassee',
+        type: 'bus',
+        vehicleId: 'bus-3',
+        tripId: 'trip-3',
+        routeId: '1610073983892324369',
+        routeName: '51',
+        direction: 'Hassee',
+        state: 'predicted',
+        planned: inMinutes(10),
+        actual: inMinutes(10 - 2), // 2 minutes early
+        platform: '',
+      },
+      {
+        name: 'Wik',
+        type: 'bus',
+        vehicleId: 'bus-2',
+        tripId: 'trip-2',
+        routeId: '1610073983892324385',
+        routeName: '80',
+        direction: 'Wik',
+        state: 'predicted',
+        planned: inMinutes(78),
+        actual: inMinutes(78 + 3), // 3 minutes delay
         platform: '',
       },
     ],
@@ -206,7 +238,7 @@ export const DUMMY_STOPS: Stop[] = [
     type: 'bus-stop',
     routes: null,
     alerts: [],
-    arrivals: [
+    departures: [
       {
         name: 'Strande',
         type: 'bus',
@@ -216,8 +248,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '12',
         direction: 'Strande',
         state: 'predicted',
-        planned: '11:54',
-        eta: 90,
+        planned: inMinutes(1),
+        actual: inMinutes(1),
         platform: '',
       },
       {
@@ -229,8 +261,8 @@ export const DUMMY_STOPS: Stop[] = [
         routeName: '11',
         direction: 'Wik Kanal',
         state: 'predicted',
-        planned: '12:07',
-        eta: 870,
+        planned: inMinutes(90), // in 1.5 hours
+        actual: inMinutes(90 + 5), // 5 minutes delay
         platform: '',
       },
     ],
@@ -248,7 +280,7 @@ export const DUMMY_TRIPS: Trip[] = [
     provider: 'dummy',
     direction: 'North',
     path: [{ latitude: 54.3233 * 3600000, longitude: 10.1228 * 3600000, heading: 0 }],
-    arrivals: [
+    departures: [
       {
         id: 'stop-1',
         name: 'Dummy Stop 1',
@@ -262,12 +294,12 @@ export const DUMMY_TRIPS: Trip[] = [
     provider: 'dummy',
     direction: 'South',
     path: [{ latitude: 54.3234 * 3600000, longitude: 10.1229 * 3600000, heading: 0 }],
-    arrivals: [
+    departures: [
       {
         id: 'stop-2',
         name: 'Dummy Stop 2',
         state: 'predicted',
-        planned: '19:00',
+        planned: inMinutes(19),
       },
     ],
   },
@@ -275,24 +307,24 @@ export const DUMMY_TRIPS: Trip[] = [
     id: 'trip-3',
     provider: 'kvg',
     direction: 'Uni/Botan. Garten',
-    arrivals: [
+    departures: [
       {
         id: 'kvg-1256',
         name: 'Andreas-Gayk-Straße',
         state: 'departed',
-        planned: '19:23',
+        planned: inMinutes(-4),
       },
       {
         id: 'kvg-2387',
         name: 'Hauptbahnhof',
         state: 'predicted',
-        planned: '19:26',
+        planned: inMinutes(1),
       },
       {
         id: 'stop-3',
         name: 'Kirchhofallee',
         state: 'predicted',
-        planned: '19:28',
+        planned: inMinutes(5),
       },
     ],
     path: [],
@@ -301,18 +333,18 @@ export const DUMMY_TRIPS: Trip[] = [
     id: 'kvg-1610077840790697737',
     provider: 'kvg',
     direction: 'Strande',
-    arrivals: [
+    departures: [
       {
         id: 'kvg-2387',
         name: 'Hauptbahnhof',
         state: 'departed',
-        planned: '11:53',
+        planned: inMinutes(-6),
       },
       {
         id: 'kvg-1256',
         name: 'Andreas-Gayk-Straße',
         state: 'stopping',
-        planned: '11:55',
+        planned: inMinutes(0),
       },
     ],
     path: [],
@@ -321,18 +353,18 @@ export const DUMMY_TRIPS: Trip[] = [
     id: 'kvg-1610077840790681351',
     provider: 'kvg',
     direction: 'Wik Kanal',
-    arrivals: [
+    departures: [
       {
         id: 'kvg-2387',
         name: 'Hauptbahnhof',
         state: 'predicted',
-        planned: '12:05',
+        planned: inMinutes(12),
       },
       {
         id: 'kvg-1256',
         name: 'Andreas-Gayk-Straße',
         state: 'predicted',
-        planned: '12:07',
+        planned: inMinutes(18),
       },
     ],
     path: [],

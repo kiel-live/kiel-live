@@ -19,44 +19,44 @@
     </header>
 
     <template v-if="trip">
-      <div v-if="trip.arrivals?.length" class="overflow-y-auto">
+      <div v-if="trip.departures?.length" class="overflow-y-auto">
         <router-link
-          v-for="(arrival, i) in trip.arrivals"
-          :key="arrival.id"
-          :to="{ name: 'map-marker', params: { markerType: `${vehicle.type}-stop`, markerId: arrival.id } }"
+          v-for="(departure, i) in trip.departures"
+          :key="departure.id"
+          :to="{ name: 'map-marker', params: { markerType: `${vehicle.type}-stop`, markerId: departure.id } }"
           class="flex w-full items-center"
           :class="{
-            'text-gray-500 dark:text-gray-400': arrival.state === 'departed',
-            'mt-6': i === 0 && arrival.state === 'predicted',
+            'text-gray-500 dark:text-gray-400': departure.state === 'departed',
+            'mt-6': i === 0 && departure.state === 'predicted',
           }"
         >
-          <span class="w-14 min-w-12">{{ arrival.planned }}</span>
+          <span class="w-14 min-w-12">{{ get24hTime(departure.actual ?? departure.planned) }}</span>
           <div
             class="marker relative mx-4 flex h-12 w-8 min-w-4 items-center justify-center after:absolute after:top-0 after:h-full"
             :class="{
-              'after:bg-neutral-800 dark:after:bg-gray-300': arrival.state !== 'departed',
-              'after:bg-gray-500 dark:after:bg-gray-400': arrival.state === 'departed',
+              'after:bg-neutral-800 dark:after:bg-gray-300': departure.state !== 'departed',
+              'after:bg-gray-500 dark:after:bg-gray-400': departure.state === 'departed',
             }"
           >
             <div
               v-if="
-                arrival.state !== 'departed' &&
-                (trip.arrivals[i - 1] === undefined || trip.arrivals[i - 1].state === 'departed')
+                departure.state !== 'departed' &&
+                (trip.departures[i - 1] === undefined || trip.departures[i - 1].state === 'departed')
               "
               class="vehicle before:h-4 before:w-4 before:rounded-full before:bg-red-700"
-              :class="{ driving: arrival.state === 'predicted' }"
+              :class="{ driving: departure.state === 'predicted' }"
             >
               <div class="pulsating rounded-full border-3 border-solid border-red-700" />
             </div>
             <div
               v-if="
-                (arrival.state !== 'departed' && trip.arrivals[i - 1]?.state !== 'departed') ||
-                arrival.state === 'predicted'
+                (departure.state !== 'departed' && trip.departures[i - 1]?.state !== 'departed') ||
+                departure.state === 'predicted'
               "
               class="flex h-4 w-4 items-center justify-center rounded-full bg-neutral-800 dark:bg-gray-300"
             />
           </div>
-          <span class="w-full">{{ arrival.name }}</span>
+          <span class="w-full">{{ departure.name }}</span>
         </router-link>
       </div>
       <NoData v-else>{{ t('trip_expired') }}</NoData>
@@ -77,6 +77,7 @@ import { useI18n } from 'vue-i18n';
 import { api } from '~/api';
 import NoData from '~/components/NoData.vue';
 import Actions from '~/components/popups/Actions.vue';
+import { get24hTime } from '~/compositions/date';
 
 const props = defineProps<{
   marker: Marker;

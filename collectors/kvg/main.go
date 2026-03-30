@@ -21,6 +21,14 @@ func main() {
 		log.Debug("No .env file found")
 	}
 
+	if tz := os.Getenv("TZ"); tz != "" {
+		var err error
+		time.Local, err = time.LoadLocation(tz)
+		if err != nil {
+			log.Fatalf("error loading location '%s': %v\n", tz, err)
+		}
+	}
+
 	if os.Getenv("LOG") == "debug" {
 		log.SetLevel(log.DebugLevel)
 	}
