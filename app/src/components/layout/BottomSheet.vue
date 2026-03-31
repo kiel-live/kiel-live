@@ -12,7 +12,7 @@
     <!-- Drag handle bar -->
     <div
       class="relative flex shrink-0 select-none items-center px-2 pt-2 pb-3 touch-none"
-      @pointerdown="onDragStart"
+      @pointerdown="onHandlePointerDown"
     >
       <div class="absolute left-1/2 top-2 h-1.5 w-12 -translate-x-1/2 rounded-full bg-gray-400 dark:bg-gray-600" />
       <div class="flex-1" />
@@ -35,7 +35,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+
+const HEADER_SNAP_PX = 96;
+const VELOCITY_THRESHOLD = 0.35; // px/ms
 
 const props = defineProps<{
   isOpen: boolean;
@@ -53,16 +56,17 @@ const contentRef = ref<HTMLElement>();
 const isDragging = ref(false);
 const dragCurrentHeight = ref(0);
 
-/** Height in px of each snap point */
+// ── Snap height calculations ────────────────────────────────────────────────
+
 function getSnapHeights(): Record<'header' | 'half' | 'full', number> {
-  const safeAreaTop =
-    parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')) || 0;
-  const appBarSpace =
-    parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-bar-space')) || 64;
+  // Measure the actual app-bar bottom so we never overlap it
+  const appBar = document.getElementById('app-bar');
+  const topOffset = appBar ? appBar.getBoundingClientRect().bottom + 8 : 72;
+
   return {
-    header: 96,
+    header: HEADER_SNAP_PX,
     half: Math.round(window.innerHeight * 0.5),
-    full: window.innerHeight - safeAreaTop - appBarSpace,
+    full: window.innerHeight - topOffset,
   };
 }
 
@@ -72,49 +76,36 @@ const currentHeightPx = computed(() => {
   return getSnapHeights()[snapPoint.value];
 });
 
-// ── Drag state ──────────────────────────────────────────────────────────────
+// ── Shared drag helpers ─────────────────────────────────────────────────────
+
 let lastClientY = 0;
 let lastTime = 0;
-/** Rolling window of px/ms velocities (positive = finger moving down) */
 const recentVelocities: number[] = [];
-const VELOCITY_THRESHOLD = 0.35; // px/ms
 
-function onDragStart(e: PointerEvent) {
-  isDragging.value = true;
-  dragCurrentHeight.value = getSnapHeights()[snapPoint.value];
-  lastClientY = e.clientY;
+function resetDragTracking(clientY: number) {
+  lastClientY = clientY;
   lastTime = Date.now();
   recentVelocities.length = 0;
-
-  window.addEventListener('pointermove', onDragMove, { passive: true });
-  window.addEventListener('pointerup', onDragEnd);
-  window.addEventListener('pointercancel', onDragEnd);
 }
 
-function onDragMove(e: PointerEvent) {
+/** Record a sample and return the screen-space delta (positive = finger down). */
+function trackVelocity(clientY: number): number {
   const now = Date.now();
   const dt = now - lastTime;
-  const dy = e.clientY - lastClientY; // positive = finger moves down = sheet shrinks
+  const dy = clientY - lastClientY;
 
   if (dt > 0) {
     recentVelocities.push(dy / dt);
     if (recentVelocities.length > 6) recentVelocities.shift();
   }
-  lastClientY = e.clientY;
+
+  lastClientY = clientY;
   lastTime = now;
-
-  // Content-scroll priority: when dragging down and content is still scrolled,
-  // consume the gesture as a content scroll rather than resizing the sheet.
-  if (dy > 0 && contentRef.value && contentRef.value.scrollTop > 0) {
-    contentRef.value.scrollTop = Math.max(0, contentRef.value.scrollTop - dy);
-    return;
-  }
-
-  const { header, full } = getSnapHeights();
-  dragCurrentHeight.value = Math.max(header, Math.min(full, dragCurrentHeight.value - dy));
+  return dy; // positive = finger moved down
 }
 
-function onDragEnd() {
+/** Snap to the right point based on position + velocity, then exit drag mode. */
+function finishDrag() {
   if (!isDragging.value) return;
 
   const avgVelocity =
@@ -145,14 +136,121 @@ function onDragEnd() {
 
   snapPoint.value = newSnap;
   isDragging.value = false;
-  removeListeners();
 }
 
-function removeListeners() {
-  window.removeEventListener('pointermove', onDragMove);
-  window.removeEventListener('pointerup', onDragEnd);
-  window.removeEventListener('pointercancel', onDragEnd);
+function applyDragDelta(dy: number) {
+  const { header, full } = getSnapHeights();
+  dragCurrentHeight.value = Math.max(header, Math.min(full, dragCurrentHeight.value - dy));
 }
 
-onUnmounted(removeListeners);
+// ── Handle-bar drag (pointer events, touch-none) ────────────────────────────
+
+function onHandlePointerDown(e: PointerEvent) {
+  isDragging.value = true;
+  dragCurrentHeight.value = getSnapHeights()[snapPoint.value];
+  resetDragTracking(e.clientY);
+
+  window.addEventListener('pointermove', onHandlePointerMove, { passive: true });
+  window.addEventListener('pointerup', onHandlePointerEnd);
+  window.addEventListener('pointercancel', onHandlePointerEnd);
+}
+
+function onHandlePointerMove(e: PointerEvent) {
+  const dy = trackVelocity(e.clientY);
+
+  // Content-scroll priority: scroll content to top before shrinking
+  if (dy > 0 && contentRef.value && contentRef.value.scrollTop > 0) {
+    contentRef.value.scrollTop = Math.max(0, contentRef.value.scrollTop - dy);
+    return;
+  }
+
+  applyDragDelta(dy);
+}
+
+function onHandlePointerEnd() {
+  finishDrag();
+  window.removeEventListener('pointermove', onHandlePointerMove);
+  window.removeEventListener('pointerup', onHandlePointerEnd);
+  window.removeEventListener('pointercancel', onHandlePointerEnd);
+}
+
+// ── Content-area drag (touch events, scroll-first) ──────────────────────────
+//
+// On the content div the user's finger scrolls content normally.  Only when
+// the content reaches a scroll limit (top or bottom) does the gesture switch
+// to resizing the sheet.  Once in resize mode the gesture stays there until
+// the finger lifts.
+
+let contentResizeActive = false;
+
+function onContentTouchStart(e: TouchEvent) {
+  resetDragTracking(e.touches[0].clientY);
+  contentResizeActive = false;
+}
+
+function onContentTouchMove(e: TouchEvent) {
+  const el = contentRef.value;
+  if (!el) return;
+
+  const clientY = e.touches[0].clientY;
+  const dy = clientY - lastClientY; // positive = finger down
+
+  const atTop = el.scrollTop <= 0;
+  const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+
+  // Switch from scroll → resize when a scroll limit is reached
+  if (!contentResizeActive) {
+    if ((dy > 0 && atTop) || (dy < 0 && atBottom)) {
+      contentResizeActive = true;
+      isDragging.value = true;
+      dragCurrentHeight.value = getSnapHeights()[snapPoint.value];
+      el.style.overflowY = 'hidden';
+    }
+  }
+
+  if (contentResizeActive) {
+    e.preventDefault();
+    const trackedDy = trackVelocity(clientY);
+    applyDragDelta(trackedDy);
+  } else {
+    // Keep tracking position so velocity is fresh at the moment we switch
+    lastClientY = clientY;
+    lastTime = Date.now();
+  }
+}
+
+function onContentTouchEnd() {
+  if (contentResizeActive) {
+    contentResizeActive = false;
+    if (contentRef.value) {
+      contentRef.value.style.overflowY = '';
+    }
+    finishDrag();
+  }
+}
+
+// ── Lifecycle ───────────────────────────────────────────────────────────────
+
+onMounted(() => {
+  const el = contentRef.value;
+  if (el) {
+    el.addEventListener('touchstart', onContentTouchStart, { passive: true });
+    el.addEventListener('touchmove', onContentTouchMove, { passive: false });
+    el.addEventListener('touchend', onContentTouchEnd, { passive: true });
+    el.addEventListener('touchcancel', onContentTouchEnd, { passive: true });
+  }
+});
+
+onUnmounted(() => {
+  const el = contentRef.value;
+  if (el) {
+    el.removeEventListener('touchstart', onContentTouchStart);
+    el.removeEventListener('touchmove', onContentTouchMove);
+    el.removeEventListener('touchend', onContentTouchEnd);
+    el.removeEventListener('touchcancel', onContentTouchEnd);
+  }
+  window.removeEventListener('pointermove', onHandlePointerMove);
+  window.removeEventListener('pointerup', onHandlePointerEnd);
+  window.removeEventListener('pointercancel', onHandlePointerEnd);
+});
 </script>
