@@ -3,6 +3,10 @@ package api
 import "time"
 
 func timeToIsoDateTime(timeStr string, now time.Time) (string, error) {
+	if timeStr == "" {
+		return "", nil
+	}
+
 	t, err := time.Parse("15:04", timeStr)
 	if err != nil {
 		return "", err
