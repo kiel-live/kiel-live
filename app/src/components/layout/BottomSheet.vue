@@ -28,14 +28,14 @@
     </div>
 
     <!-- Scrollable content -->
-    <div ref="contentRef" class="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+    <div ref="contentRef" class="min-h-0 flex-1 px-4 pb-4" :style="{ overflowY: contentOverflowY }">
       <slot />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 const HEADER_SNAP_PX = 96;
 const VELOCITY_THRESHOLD = 0.35; // px/ms
@@ -55,6 +55,18 @@ const snapPoint = defineModel<'header' | 'half' | 'full'>('snapPoint', {
 const contentRef = ref<HTMLElement>();
 const isDragging = ref(false);
 const dragCurrentHeight = ref(0);
+
+// Disable content scrolling at header snap (nothing to see) and during any
+// active drag (prevents accidental scrollTop changes that confuse the
+// scroll-priority logic).
+const contentOverflowY = ref<'auto' | 'hidden'>('auto');
+watch(
+  snapPoint,
+  (val) => {
+    contentOverflowY.value = val === 'header' ? 'hidden' : 'auto';
+  },
+  { immediate: true },
+);
 
 // ── Snap height calculations ────────────────────────────────────────────────
 
@@ -148,6 +160,7 @@ function applyDragDelta(dy: number) {
 function onHandlePointerDown(e: PointerEvent) {
   isDragging.value = true;
   dragCurrentHeight.value = getSnapHeights()[snapPoint.value];
+  contentOverflowY.value = 'hidden'; // prevent accidental scrollTop changes while dragging
   resetDragTracking(e.clientY);
 
   window.addEventListener('pointermove', onHandlePointerMove, { passive: true });
@@ -204,7 +217,7 @@ function onContentTouchMove(e: TouchEvent) {
       contentResizeActive = true;
       isDragging.value = true;
       dragCurrentHeight.value = getSnapHeights()[snapPoint.value];
-      el.style.overflowY = 'hidden';
+      contentOverflowY.value = 'hidden';
     }
   }
 
@@ -222,10 +235,7 @@ function onContentTouchMove(e: TouchEvent) {
 function onContentTouchEnd() {
   if (contentResizeActive) {
     contentResizeActive = false;
-    if (contentRef.value) {
-      contentRef.value.style.overflowY = '';
-    }
-    finishDrag();
+    finishDrag(); // sets snapPoint → watch restores contentOverflowY
   }
 }
 
