@@ -13,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/pkg/models"
+	"github.com/kiel-live/kiel-live/pkg/version"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -105,7 +106,7 @@ func subscribeToStream(ws *websocket.Conn, subMsg aisstream.SubscriptionMessage)
 }
 
 func main() {
-	log.Infof("Kiel-Live AIS collector version %s", "1.0.0") // TODO use proper version
+	log.Infof("Kiel-Live AIS collector version %s", version.Version)
 
 	err := godotenv.Load()
 	if err != nil {
