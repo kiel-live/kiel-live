@@ -5,7 +5,7 @@
   "type": "module",
   "engines": {
     "node": "24.14.1",
-    "pnpm": "10.32.1"
+    "pnpm": "10.33.0"
   },
   "scripts": {
     "dev": "VITE_BUILD_DATE=$(date '+%d.%m.%Y %H:%M:%S') vite",
@@ -25,10 +25,10 @@
     "@vueuse/core": "14.2.1",
     "canvas-confetti": "1.9.4",
     "fuse.js": "7.1.0",
-    "maplibre-gl": "5.21.0",
+    "maplibre-gl": "5.21.1",
     "micromark": "4.0.2",
     "nats.ws": "1.30.3",
-    "vue": "3.5.30",
+    "vue": "3.5.31",
     "vue-i18n": "11.3.0",
     "vue-router": "5.0.4"
   },
@@ -54,13 +54,13 @@
     "tailwindcss": "4.2.2",
     "typescript": "5.9.3",
     "unplugin-icons": "23.0.1",
-    "unplugin-vue-components": "31.0.0",
+    "unplugin-vue-components": "31.1.0",
     "vite": "7.3.1",
     "vite-plugin-pwa": "1.2.0",
-    "vitest": "4.1.1",
+    "vitest": "4.1.2",
     "vue-tsc": "3.2.6",
     "workbox-build": "7.4.0",
     "workbox-window": "7.4.0"
   },
-  "packageManager": "pnpm@10.32.1"
+  "packageManager": "pnpm@10.33.0"
 }
