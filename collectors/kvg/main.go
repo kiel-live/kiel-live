@@ -8,17 +8,26 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/kiel-live/kiel-live/collectors/kvg/collector"
 	"github.com/kiel-live/kiel-live/pkg/client"
+	"github.com/kiel-live/kiel-live/pkg/version"
 	log "github.com/sirupsen/logrus"
 )
 
 var collectors map[string]collector.Collector
 
 func main() {
-	log.Infof("🚌 Kiel-Live KVG collector version %s", "1.0.0") // TODO use proper version
+	log.Infof("🚌 Kiel-Live KVG collector version %s", version.Version)
 
 	err := godotenv.Load()
 	if err != nil {
 		log.Debug("No .env file found")
+	}
+
+	if tz := os.Getenv("TZ"); tz != "" {
+		var err error
+		time.Local, err = time.LoadLocation(tz)
+		if err != nil {
+			log.Fatalf("error loading location '%s': %v\n", tz, err)
+		}
 	}
 
 	if os.Getenv("LOG") == "debug" {

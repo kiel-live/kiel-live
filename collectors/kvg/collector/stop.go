@@ -19,7 +19,7 @@ type StopCollector struct {
 	lastFullUpdate int64
 }
 
-func isSameArrivals(a, b []*models.StopArrival) bool {
+func isSameDepartures(a, b []*models.StopDepartures) bool {
 	if len(a) != len(b) {
 		return false
 	}
@@ -41,7 +41,7 @@ func isSameStop(a *models.Stop, b *models.Stop) bool {
 		a.ID == b.ID &&
 		isSameLocation(a.Location, b.Location) &&
 		a.Type == b.Type &&
-		isSameArrivals(a.Arrivals, b.Arrivals)
+		isSameDepartures(a.Departures, b.Departures)
 }
 
 // returns list of changed or newly added stops
@@ -101,7 +101,7 @@ func (c *StopCollector) Run() {
 			log.Error(err)
 			continue
 		}
-		stops[api.IDPrefix+stopID].Arrivals = details.Departures
+		stops[api.IDPrefix+stopID].Departures = details.Departures
 		stops[api.IDPrefix+stopID].Alerts = details.Alerts
 	}
 
@@ -170,7 +170,7 @@ func (c *StopCollector) RunSingle(stopID string) {
 		log.Error(err)
 		return
 	}
-	stop.Arrivals = details.Departures
+	stop.Departures = details.Departures
 	stop.Alerts = details.Alerts
 
 	// publish stop
