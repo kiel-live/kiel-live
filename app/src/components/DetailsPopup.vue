@@ -16,7 +16,7 @@
     </div>
   </Transition>
 
-  <BottomSheet v-else :is-open="isOpen" :size="size" @close="$emit('close')">
+  <BottomSheet v-else :is-open="isOpen" v-model:snap-point="snapPoint" @close="$emit('close')">
     <slot />
   </BottomSheet>
 </template>
@@ -28,12 +28,15 @@ import { useUserSettings } from '~/compositions/useUserSettings';
 
 defineProps<{
   isOpen: boolean;
-  size: '3/4' | '1/2' | '1';
 }>();
 
 defineEmits<{
   (event: 'close'): void;
 }>();
+
+const snapPoint = defineModel<'header' | 'half' | 'full'>('snapPoint', {
+  default: 'half',
+});
 
 const { liteMode } = useUserSettings();
 
