@@ -1,128 +1,266 @@
 <template>
   <div
     v-show="isOpen"
-    class="shadow-top absolute right-0 bottom-0 left-0 z-10 flex w-full flex-col rounded-t-2xl bg-white px-4 pt-2 pb-0 transition dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
-    :class="{
-      'max-h-0 overflow-hidden': actualSize === 'closed',
-      'max-h-[calc(100%-var(--safe-area-top)-var(--app-bar-space))]': actualSize !== 'closed',
-      'h-full shadow-none': actualSize === 'full',
-      'h-1/2': size === '1/2' && actualSize === 'default',
-      'h-3/4': size === '3/4' && actualSize === 'default',
-      'rounded-none': actualSize === 'full',
-      'opacity-80': actualSize === 'closing',
-      fade: !dragging,
+    class="shadow-top absolute right-0 bottom-0 left-0 z-10 flex w-full flex-col rounded-t-2xl bg-white dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
+    :style="{
+      height: `${currentHeightPx}px`,
+      transitionProperty: 'height',
+      transitionDuration: isDragging ? '0ms' : '200ms',
+      transitionTimingFunction: 'ease-out',
     }"
-    :style="{ height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0 }"
   >
-    <button type="button" class="-mt-4 w-full touch-none pt-4 pb-4" :title="$t('drag_to_resize')" @pointerdown="drag">
-      <div class="mx-auto h-1.5 w-12 shrink-0 rounded-full bg-gray-500" />
-    </button>
-    <slot />
+    <!-- Drag handle bar -->
+    <div
+      class="relative flex shrink-0 select-none items-center px-2 pt-2 pb-3 touch-none"
+      @pointerdown="onHandlePointerDown"
+    >
+      <div class="absolute left-1/2 top-2 h-1.5 w-12 -translate-x-1/2 rounded-full bg-gray-400 dark:bg-gray-600" />
+      <div class="flex-1" />
+      <button
+        type="button"
+        class="rounded-full p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-neutral-700"
+        :title="$t('close')"
+        @click.stop="$emit('close')"
+        @pointerdown.stop
+      >
+        <i-ph-x-bold class="h-4 w-4" />
+      </button>
+    </div>
+
+    <!-- Scrollable content -->
+    <div ref="contentRef" class="min-h-0 flex-1 px-4 pb-4" :style="{ overflowY: contentOverflowY }">
+      <slot />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, onUnmounted, ref, toRef } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+
+const HEADER_SNAP_PX = 96;
+const VELOCITY_THRESHOLD = 0.35; // px/ms
 
 const props = defineProps<{
   isOpen: boolean;
-  size: '3/4' | '1/2' | '1';
 }>();
 
-const emit = defineEmits<{
-  (event: 'close'): void;
+defineEmits<{
+  close: [];
 }>();
 
-const dragging = ref(false);
-const height = ref<number>();
-const isOpen = toRef(props, 'isOpen');
-const size = toRef(props, 'size');
-
-const actualSize = computed(() => {
-  if (size.value === '1') {
-    return 'full';
-  }
-
-  if (!isOpen.value) {
-    return 'closed';
-  }
-
-  if (dragging.value) {
-    if (height.value === undefined) {
-      return 'closed';
-    }
-
-    const percentage = height.value / window.innerHeight;
-    if ((size.value === '1/2' && percentage > 0.6) || (size.value === '3/4' && percentage > 0.85)) {
-      return 'maximizing';
-    }
-
-    if ((size.value === '1/2' && percentage < 0.4) || (size.value === '3/4' && percentage < 0.65)) {
-      return 'closing';
-    }
-
-    return 'defaulting';
-  }
-
-  if (height.value === 0) {
-    return 'closed';
-  }
-
-  if (height.value === window.innerHeight) {
-    return 'full';
-  }
-
-  return 'default';
+const snapPoint = defineModel<'header' | 'half' | 'full'>('snapPoint', {
+  default: 'half',
 });
 
-function drag(e: PointerEvent) {
-  dragging.value = true;
-  height.value = window.innerHeight - e.clientY;
+const contentRef = ref<HTMLElement>();
+const isDragging = ref(false);
+const dragCurrentHeight = ref(0);
 
-  window.addEventListener('pointermove', move);
-  window.addEventListener('pointerup', drop);
-  window.addEventListener('pointercancel', drop);
+// Disable content scrolling at header snap (nothing to see) and during any
+// active drag (prevents accidental scrollTop changes that confuse the
+// scroll-priority logic).
+const contentOverflowY = ref<'auto' | 'hidden'>('auto');
+watch(
+  snapPoint,
+  (val) => {
+    contentOverflowY.value = val === 'header' ? 'hidden' : 'auto';
+  },
+  { immediate: true },
+);
+
+// ── Snap height calculations ────────────────────────────────────────────────
+
+function getSnapHeights(): Record<'header' | 'half' | 'full', number> {
+  // Measure the actual app-bar bottom so we never overlap it
+  const appBar = document.getElementById('app-bar');
+  const topOffset = appBar ? appBar.getBoundingClientRect().bottom + 8 : 72;
+
+  return {
+    header: HEADER_SNAP_PX,
+    half: Math.round(window.innerHeight * 0.5),
+    full: window.innerHeight - topOffset,
+  };
 }
 
-function move(e: PointerEvent) {
-  if (!dragging.value) {
+const currentHeightPx = computed(() => {
+  if (!props.isOpen) return 0;
+  if (isDragging.value) return dragCurrentHeight.value;
+  return getSnapHeights()[snapPoint.value];
+});
+
+// ── Shared drag helpers ─────────────────────────────────────────────────────
+
+let lastClientY = 0;
+let lastTime = 0;
+const recentVelocities: number[] = [];
+
+function resetDragTracking(clientY: number) {
+  lastClientY = clientY;
+  lastTime = Date.now();
+  recentVelocities.length = 0;
+}
+
+/** Record a sample and return the screen-space delta (positive = finger down). */
+function trackVelocity(clientY: number): number {
+  const now = Date.now();
+  const dt = now - lastTime;
+  const dy = clientY - lastClientY;
+
+  if (dt > 0) {
+    recentVelocities.push(dy / dt);
+    if (recentVelocities.length > 6) recentVelocities.shift();
+  }
+
+  lastClientY = clientY;
+  lastTime = now;
+  return dy; // positive = finger moved down
+}
+
+/** Snap to the right point based on position + velocity, then exit drag mode. */
+function finishDrag() {
+  if (!isDragging.value) return;
+
+  const avgVelocity =
+    recentVelocities.length > 0
+      ? recentVelocities.reduce((a, b) => a + b, 0) / recentVelocities.length
+      : 0;
+
+  const { header, half, full } = getSnapHeights();
+  let newSnap: 'header' | 'half' | 'full';
+
+  if (avgVelocity > VELOCITY_THRESHOLD) {
+    // Fast swipe down → collapse to header
+    newSnap = 'header';
+  } else if (avgVelocity < -VELOCITY_THRESHOLD) {
+    // Fast swipe up → expand to full
+    newSnap = 'full';
+  } else {
+    // Snap to nearest point
+    const h = dragCurrentHeight.value;
+    const distances: [number, 'header' | 'half' | 'full'][] = [
+      [Math.abs(h - header), 'header'],
+      [Math.abs(h - half), 'half'],
+      [Math.abs(h - full), 'full'],
+    ];
+    distances.sort((a, b) => a[0] - b[0]);
+    newSnap = distances[0][1];
+  }
+
+  snapPoint.value = newSnap;
+  isDragging.value = false;
+}
+
+function applyDragDelta(dy: number) {
+  const { header, full } = getSnapHeights();
+  dragCurrentHeight.value = Math.max(header, Math.min(full, dragCurrentHeight.value - dy));
+}
+
+// ── Handle-bar drag (pointer events, touch-none) ────────────────────────────
+
+function onHandlePointerDown(e: PointerEvent) {
+  isDragging.value = true;
+  dragCurrentHeight.value = getSnapHeights()[snapPoint.value];
+  contentOverflowY.value = 'hidden'; // prevent accidental scrollTop changes while dragging
+  resetDragTracking(e.clientY);
+
+  window.addEventListener('pointermove', onHandlePointerMove, { passive: true });
+  window.addEventListener('pointerup', onHandlePointerEnd);
+  window.addEventListener('pointercancel', onHandlePointerEnd);
+}
+
+function onHandlePointerMove(e: PointerEvent) {
+  const dy = trackVelocity(e.clientY);
+
+  // Content-scroll priority: scroll content to top before shrinking
+  if (dy > 0 && contentRef.value && contentRef.value.scrollTop > 0) {
+    contentRef.value.scrollTop = Math.max(0, contentRef.value.scrollTop - dy);
     return;
   }
-  height.value = window.innerHeight - e.clientY;
+
+  applyDragDelta(dy);
 }
 
-function removeEventListeners() {
-  window.removeEventListener('pointermove', move);
-  window.removeEventListener('pointerup', drop);
-  window.removeEventListener('pointercancel', drop);
+function onHandlePointerEnd() {
+  finishDrag();
+  window.removeEventListener('pointermove', onHandlePointerMove);
+  window.removeEventListener('pointerup', onHandlePointerEnd);
+  window.removeEventListener('pointercancel', onHandlePointerEnd);
 }
 
-function drop() {
-  if (!dragging.value) {
-    return;
+// ── Content-area drag (touch events, scroll-first) ──────────────────────────
+//
+// On the content div the user's finger scrolls content normally.  Only when
+// the content reaches a scroll limit (top or bottom) does the gesture switch
+// to resizing the sheet.  Once in resize mode the gesture stays there until
+// the finger lifts.
+
+let contentResizeActive = false;
+
+function onContentTouchStart(e: TouchEvent) {
+  resetDragTracking(e.touches[0].clientY);
+  contentResizeActive = false;
+}
+
+function onContentTouchMove(e: TouchEvent) {
+  const el = contentRef.value;
+  if (!el) return;
+
+  const clientY = e.touches[0].clientY;
+  const dy = clientY - lastClientY; // positive = finger down
+
+  const atTop = el.scrollTop <= 0;
+  const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+
+  // Switch from scroll → resize when a scroll limit is reached
+  if (!contentResizeActive) {
+    if ((dy > 0 && atTop) || (dy < 0 && atBottom)) {
+      contentResizeActive = true;
+      isDragging.value = true;
+      dragCurrentHeight.value = getSnapHeights()[snapPoint.value];
+      contentOverflowY.value = 'hidden';
+    }
   }
 
-  if (actualSize.value === 'maximizing') {
-    height.value = window.innerHeight;
-  } else if (actualSize.value === 'closing') {
-    height.value = undefined;
-    emit('close');
-  } else if (actualSize.value === 'defaulting') {
-    height.value = undefined;
+  if (contentResizeActive) {
+    e.preventDefault();
+    const trackedDy = trackVelocity(clientY);
+    applyDragDelta(trackedDy);
+  } else {
+    // Keep tracking position so velocity is fresh at the moment we switch
+    lastClientY = clientY;
+    lastTime = Date.now();
   }
-
-  dragging.value = false;
-
-  removeEventListeners();
 }
+
+function onContentTouchEnd() {
+  if (contentResizeActive) {
+    contentResizeActive = false;
+    finishDrag(); // sets snapPoint → watch restores contentOverflowY
+  }
+}
+
+// ── Lifecycle ───────────────────────────────────────────────────────────────
+
+onMounted(() => {
+  const el = contentRef.value;
+  if (el) {
+    el.addEventListener('touchstart', onContentTouchStart, { passive: true });
+    el.addEventListener('touchmove', onContentTouchMove, { passive: false });
+    el.addEventListener('touchend', onContentTouchEnd, { passive: true });
+    el.addEventListener('touchcancel', onContentTouchEnd, { passive: true });
+  }
+});
 
 onUnmounted(() => {
-  removeEventListeners();
+  const el = contentRef.value;
+  if (el) {
+    el.removeEventListener('touchstart', onContentTouchStart);
+    el.removeEventListener('touchmove', onContentTouchMove);
+    el.removeEventListener('touchend', onContentTouchEnd);
+    el.removeEventListener('touchcancel', onContentTouchEnd);
+  }
+  window.removeEventListener('pointermove', onHandlePointerMove);
+  window.removeEventListener('pointerup', onHandlePointerEnd);
+  window.removeEventListener('pointercancel', onHandlePointerEnd);
 });
 </script>
-
-<style scoped>
-.fade {
-  transition: height 0.15s ease;
-}
-</style>
