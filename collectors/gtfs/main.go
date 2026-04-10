@@ -14,12 +14,13 @@ import (
 	"github.com/kiel-live/kiel-live/collectors/gtfs/loader"
 	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/pkg/models"
+	"github.com/kiel-live/kiel-live/pkg/version"
 )
 
 const IDPrefix = "gtfs-"
 
 func main() {
-	log.Infof("Kiel-Live GTFS collector version %s", "1.0.0") // TODO use proper version
+	log.Infof("Kiel-Live GTFS collector version %s", version.Version)
 
 	if tz := os.Getenv("TZ"); tz != "" {
 		var err error
