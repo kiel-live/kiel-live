@@ -20,7 +20,12 @@
           <span>{{ t('theme') }}</span>
           <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('theme_description') }}</span>
         </label>
-        <Select id="theme" v-model="theme" :options="options" />
+        <Select
+          id="theme"
+          v-model="theme"
+          :options="options"
+          @update:model-value="track('setting:theme', { theme: $event })"
+        />
       </div>
     </div>
   </SettingsContainer>

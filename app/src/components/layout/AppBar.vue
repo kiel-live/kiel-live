@@ -25,7 +25,7 @@
       <span>{{ t('no_connection') }}</span>
       <i-carbon-cloud-offline class="text-red-600" />
     </div>
-    <Button v-if="needRefresh" class="h-full gap-x-1" @click="updateServiceWorker(true)">
+    <Button v-if="needRefresh" class="h-full gap-x-1" @click="updateApp">
       <i-carbon-cloud-download />
       <span>{{ t('update') }}</span>
     </Button>
@@ -33,13 +33,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useRegisterSW } from 'virtual:pwa-register/vue';
 import { computed, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
 import { api } from '~/api';
 import Button from '~/components/atomic/Button.vue';
+import { useVersion } from '~/compositions/useVersion';
 
 const props = defineProps<{
   searchInput: string;
@@ -54,7 +54,7 @@ const { isConnected } = api;
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const { needRefresh, updateServiceWorker } = useRegisterSW();
+const { needRefresh, updateApp } = useVersion();
 
 const searchInput = toRef(props, 'searchInput');
 const internalSearchInput = computed({

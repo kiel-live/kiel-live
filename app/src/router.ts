@@ -2,7 +2,9 @@ import type { Component } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHistory } from 'vue-router';
 
+import { useTrack } from '~/compositions/useTrack';
 import { useUserSettings } from '~/compositions/useUserSettings';
+import { useVersion } from '~/compositions/useVersion';
 
 let firstStartOfApp = true;
 
@@ -76,23 +78,31 @@ const router = createRouter({
 });
 
 const { liteMode } = useUserSettings();
+const { version } = useVersion();
 
-router.beforeEach((to, from, next): void => {
+router.beforeEach((to) => {
   // Handle github pages 404.html redirect
   const redirect = sessionStorage.getItem('redirect');
   if (redirect) {
     sessionStorage.removeItem('redirect');
-    return next(redirect);
+    return { path: redirect };
   }
 
   if (to.name === 'home' && (firstStartOfApp || liteMode.value)) {
     firstStartOfApp = false;
-    next({ name: 'favorites' });
-    return;
+    return { name: 'favorites' };
   }
 
+  useTrack().track((props) => ({
+    ...props,
+    tag: version.value,
+    data: {
+      ...(props.data ?? {}),
+      // androidVersion: '', // TODO: get android version from native code
+    },
+  }));
+
   firstStartOfApp = false;
-  next();
 });
 
 export default router;
