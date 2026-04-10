@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 
@@ -116,17 +117,26 @@ func GetStops() (map[string]*StopWithProviderID, error) {
 }
 
 // mergeNearbyStops combines stops that share the same name and are within
-// 200 m of each other into a single entry. The first-seen stop's ID and
-// location are kept; duplicate provider IDs are appended so departures can
-// be fetched from all underlying MOTIS feeds.
+// 200 m of each other into a single entry. The lexicographically smallest ID
+// is always chosen as the canonical one so the result is stable across calls —
+// non-deterministic map iteration would otherwise cause a different stop to
+// "win" each time, making previously-published IDs disappear.
 func mergeNearbyStops(stops map[string]*StopWithProviderID) map[string]*StopWithProviderID {
 	const mergeRadiusMeters = 200.0
+
+	// Sort IDs so the canonical winner is always the same stop.
+	ids := make([]string, 0, len(stops))
+	for id := range stops {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
 
 	// canonical[name] = the representative stop for that name
 	canonical := make(map[string]*StopWithProviderID)
 	result := make(map[string]*StopWithProviderID)
 
-	for id, s := range stops {
+	for _, id := range ids {
+		s := stops[id]
 		rep, exists := canonical[s.Name]
 		if exists && rep.Location.DistanceToMeters(s.Location) <= mergeRadiusMeters {
 			// Merge: append provider IDs to the representative stop.
@@ -161,10 +171,9 @@ type stopTimesResponse struct {
 // GetStopDepartures fetches the next departures for one or more MOTIS stop IDs
 // (merged stops may map to multiple provider IDs). Results are deduplicated by
 // trip ID so the same service is not shown twice. Only non-bus modes are requested.
-func GetStopDepartures(providerIDs []string) ([]*models.StopArrival, error) {
+func GetStopDepartures(providerIDs []string) ([]*models.StopDepartures, error) {
 	seen := make(map[string]bool)
-	now := time.Now()
-	var arrivals []*models.StopArrival
+	var departures []*models.StopDepartures
 
 	for _, stopID := range providerIDs {
 		params := url.Values{}
@@ -184,21 +193,6 @@ func GetStopDepartures(providerIDs []string) ([]*models.StopArrival, error) {
 			}
 			seen[st.TripID] = true
 
-			// Prefer realtime departure time, fall back to scheduled
-			var depTime *time.Time
-			if st.RealTime && st.Place.Departure != nil {
-				depTime = st.Place.Departure
-			} else if st.Place.ScheduledDeparture != nil {
-				depTime = st.Place.ScheduledDeparture
-			}
-
-			eta := 0
-			planned := ""
-			if depTime != nil {
-				eta = int(depTime.Sub(now).Seconds())
-				planned = depTime.Format("15:04")
-			}
-
 			state := models.Planned
 			if st.RealTime {
 				state = models.Predicted
@@ -217,20 +211,20 @@ func GetStopDepartures(providerIDs []string) ([]*models.StopArrival, error) {
 				routeName = st.RouteShortName
 			}
 
-			arrivals = append(arrivals, &models.StopArrival{
+			departures = append(departures, &models.StopDepartures{
 				Name:      st.Headsign,
 				Type:      modeToVehicleType(st.Mode),
 				TripID:    FormatMotisID(st.TripID),
-				VehicleID: "", // map to some vehicle / trip?
+				VehicleID: "zz", // map to some vehicle / trip?
 				RouteName: routeName,
 				Direction: st.Headsign,
 				State:     state,
-				Eta:       eta,
-				Planned:   planned,
+				Actual:    st.Place.Departure.Format(time.RFC3339),
+				Planned:   st.Place.ScheduledDeparture.Format(time.RFC3339),
 				Platform:  platform,
 			})
 		}
 	}
 
-	return arrivals, nil
+	return departures, nil
 }

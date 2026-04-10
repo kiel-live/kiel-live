@@ -13,16 +13,17 @@ import (
 
 const IDPrefix = "motis-"
 
-var baseURL = "https://api.transitous.org"
+const defaultBaseURL = "https://api.transitous.org"
 
-func init() {
+func getBaseURL() string {
 	if u := os.Getenv("MOTIS_URL"); u != "" {
-		baseURL = u
+		return u
 	}
+	return defaultBaseURL
 }
 
 func get(path string, params url.Values) ([]byte, error) {
-	u := baseURL + path
+	u := getBaseURL() + path
 	if len(params) > 0 {
 		u += "?" + params.Encode()
 	}
