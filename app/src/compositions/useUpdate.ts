@@ -3,7 +3,7 @@ import { ref } from 'vue';
 
 import { useTrack } from './useTrack';
 
-export function useVersion() {
+export function useUpdate() {
   const { needRefresh, updateServiceWorker } = useRegisterSW();
   const version = ref(import.meta.env.VITE_BUILD_DATE);
 

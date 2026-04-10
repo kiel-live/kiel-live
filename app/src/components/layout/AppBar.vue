@@ -39,7 +39,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { api } from '~/api';
 import Button from '~/components/atomic/Button.vue';
-import { useVersion } from '~/compositions/useVersion';
+import { useUpdate } from '~/compositions/useUpdate';
 
 const props = defineProps<{
   searchInput: string;
@@ -54,7 +54,7 @@ const { isConnected } = api;
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const { needRefresh, updateApp } = useVersion();
+const { needRefresh, updateApp } = useUpdate();
 
 const searchInput = toRef(props, 'searchInput');
 const internalSearchInput = computed({

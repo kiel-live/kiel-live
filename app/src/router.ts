@@ -2,9 +2,7 @@ import type { Component } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHistory } from 'vue-router';
 
-import { useTrack } from '~/compositions/useTrack';
 import { useUserSettings } from '~/compositions/useUserSettings';
-import { useVersion } from '~/compositions/useVersion';
 
 let firstStartOfApp = true;
 
@@ -78,7 +76,6 @@ const router = createRouter({
 });
 
 const { liteMode } = useUserSettings();
-const { version } = useVersion();
 
 router.beforeEach((to) => {
   // Handle github pages 404.html redirect
@@ -92,15 +89,6 @@ router.beforeEach((to) => {
     firstStartOfApp = false;
     return { name: 'favorites' };
   }
-
-  useTrack().track((props) => ({
-    ...props,
-    tag: version.value,
-    data: {
-      ...(props.data ?? {}),
-      // androidVersion: '', // TODO: get android version from native code
-    },
-  }));
 
   firstStartOfApp = false;
 });
