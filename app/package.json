@@ -49,7 +49,7 @@
     "eslint": "9.39.4",
     "eslint-plugin-promise": "7.2.1",
     "eslint-plugin-vue-scoped-css": "2.12.0",
-    "prettier": "3.8.1",
+    "prettier": "3.8.2",
     "prettier-plugin-tailwindcss": "0.7.2",
     "tailwindcss": "4.2.2",
     "typescript": "5.9.3",
