@@ -100,8 +100,8 @@ importers:
         specifier: 23.0.1
         version: 23.0.1(@vue/compiler-sfc@3.5.32)
       unplugin-vue-components:
-        specifier: 31.1.0
-        version: 31.1.0(vue@3.5.32(typescript@5.9.3))
+        specifier: 32.0.0
+        version: 32.0.0(vue@3.5.32(typescript@5.9.3))
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.32.0)(stylus@0.57.0)(terser@5.39.0)(yaml@2.8.2)
@@ -4064,8 +4064,8 @@ packages:
     resolution: {integrity: sha512-5lWVjgi6vuHhJ526bI4nlCOmkCIF3nnfXkCMDeMJrtdvxTs6ZFCM8oNufGTsDbKv/tJ/xj8RpvXjRuPBZJuJog==}
     engines: {node: '>=20.19.0'}
 
-  unplugin-vue-components@31.1.0:
-    resolution: {integrity: sha512-9EbV5ark21A4BOBt6RJGJXCVD2I1eoxTZL1TAvNgYTokcrFIiuxpufb8owyWn7n+z2x8daz/ltZq6IRRKL3ydQ==}
+  unplugin-vue-components@32.0.0:
+    resolution: {integrity: sha512-uLdccgS7mf3pv1bCCP20y/hm+u1eOjAmygVkh+Oa70MPkzgl1eQv1L0CwdHNM3gscO8/GDMGIET98Ja47CBbZg==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
       '@nuxt/kit': ^3.2.2 || ^4.0.0
@@ -5364,13 +5364,13 @@ snapshots:
     dependencies:
       '@antfu/install-pkg': 1.1.0
       '@iconify/types': 2.0.0
-      mlly: 1.8.0
+      mlly: 1.8.2
 
   '@intlify/bundle-utils@11.0.7(vue-i18n@11.3.2(vue@3.5.32(typescript@5.9.3)))':
     dependencies:
       '@intlify/message-compiler': 11.3.0
       '@intlify/shared': 11.3.0
-      acorn: 8.15.0
+      acorn: 8.16.0
       esbuild: 0.25.12
       escodegen: 2.1.0
       estree-walker: 2.0.2
@@ -6187,6 +6187,10 @@ snapshots:
     dependencies:
       acorn: 8.15.0
 
+  acorn-jsx@5.3.2(acorn@8.16.0):
+    dependencies:
+      acorn: 8.16.0
+
   acorn@8.15.0: {}
 
   acorn@8.16.0: {}
@@ -6941,8 +6945,8 @@ snapshots:
 
   espree@9.6.1:
     dependencies:
-      acorn: 8.15.0
-      acorn-jsx: 5.3.2(acorn@8.15.0)
+      acorn: 8.16.0
+      acorn-jsx: 5.3.2(acorn@8.16.0)
       eslint-visitor-keys: 3.4.3
 
   esprima@4.0.1: {}
@@ -7394,7 +7398,7 @@ snapshots:
 
   jsonc-eslint-parser@2.4.2:
     dependencies:
-      acorn: 8.15.0
+      acorn: 8.16.0
       eslint-visitor-keys: 3.4.3
       espree: 9.6.1
       semver: 7.7.3
@@ -8494,7 +8498,7 @@ snapshots:
   terser@5.39.0:
     dependencies:
       '@jridgewell/source-map': 0.3.6
-      acorn: 8.15.0
+      acorn: 8.16.0
       commander: 2.20.3
       source-map-support: 0.5.21
 
@@ -8647,7 +8651,7 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.3
 
-  unplugin-vue-components@31.1.0(vue@3.5.32(typescript@5.9.3)):
+  unplugin-vue-components@32.0.0(vue@3.5.32(typescript@5.9.3)):
     dependencies:
       chokidar: 5.0.0
       local-pkg: 1.1.2
@@ -8656,14 +8660,14 @@ snapshots:
       obug: 2.1.1
       picomatch: 4.0.3
       tinyglobby: 0.2.15
-      unplugin: 2.3.11
+      unplugin: 3.0.0
       unplugin-utils: 0.3.1
       vue: 3.5.32(typescript@5.9.3)
 
   unplugin@2.3.11:
     dependencies:
       '@jridgewell/remapping': 2.3.5
-      acorn: 8.15.0
+      acorn: 8.16.0
       picomatch: 4.0.3
       webpack-virtual-modules: 0.6.2
 
