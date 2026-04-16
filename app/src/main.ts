@@ -4,7 +4,10 @@ import App from '~/App.vue';
 import i18n from '~/i18n';
 import router from '~/router';
 
+import { setupTracker } from './compositions/useTrack';
 import './style.css';
+
+setupTracker();
 
 const app = createApp(App);
 

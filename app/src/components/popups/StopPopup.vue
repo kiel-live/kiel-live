@@ -1,8 +1,7 @@
 <template>
   <div v-if="stop" class="flex min-h-0 grow flex-col">
     <div class="mb-2 flex flex-row items-center border-b border-gray-200 pb-2 dark:border-neutral-600">
-      <i-mdi-ferry v-if="stop.type === 'ferry-stop'" />
-      <i-mdi-sign-real-estate v-else />
+      <i-mdi-sign-real-estate />
       <h1 class="ml-2 text-lg">{{ stop.name }}</h1>
       <Button
         v-if="isFavorite(stop)"
@@ -17,7 +16,7 @@
       </Button>
     </div>
 
-    <Actions :actions="stop.actions ?? []" />
+    <Actions v-if="stop.actions" :actions="stop.actions" />
 
     <div class="flex grow flex-col overflow-y-auto">
       <div
@@ -34,14 +33,19 @@
         </ul>
       </div>
 
-      <router-link
+      <component
+        :is="departure.vehicleId ? 'RouterLink' : 'div'"
         v-for="departure in sortedDepartures"
         :key="departure.tripId"
         class="flex w-full flex-col border-gray-200 py-2 not-last:border-b dark:border-neutral-700"
-        :to="{
-          name: 'map-marker',
-          params: { markerType: stop.type.replace('-stop', ''), markerId: departure.vehicleId ?? '-' },
-        }"
+        :to="
+          departure.vehicleId
+            ? {
+                name: 'map-marker',
+                params: { markerType: stop.type.replace('-stop', ''), markerId: departure.vehicleId },
+              }
+            : undefined
+        "
       >
         <div class="flex flex-row items-center">
           <i-mdi-bus v-if="departure.type === 'bus'" class="mr-2 h-6 w-6" />
@@ -58,7 +62,8 @@
             <i-ph-person-simple-run-bold v-if="departure.state === 'predicted'" />
           </div>
         </div>
-      </router-link>
+      </component>
+
       <router-link
         v-for="vehicle in stop.vehicles"
         :key="vehicle.id"
@@ -75,6 +80,7 @@
           <span class="mr-2">{{ vehicle.name }}</span>
         </div>
       </router-link>
+
       <NoData v-if="sortedDepartures && sortedDepartures.length === 0">
         {{ t('no_bus_wants_to_stop_here_right_now') }}
       </NoData>
