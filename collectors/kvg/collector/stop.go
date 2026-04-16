@@ -2,6 +2,7 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 	"sync"
 	"time"
@@ -9,7 +10,6 @@ import (
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
 	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/pkg/models"
-	"github.com/sirupsen/logrus"
 )
 
 type StopCollector struct {
@@ -73,7 +73,7 @@ func (c *StopCollector) TopicToID(topic string) string {
 }
 
 func (c *StopCollector) Run() {
-	log := logrus.WithField("collector", "stop")
+	log := slog.With("collector", "stop")
 
 	c.Lock()
 	defer c.Unlock()
@@ -89,16 +89,16 @@ func (c *StopCollector) Run() {
 
 	stops, err := api.GetStops()
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		return
 	}
 
 	// load further details only for explicitly subscribed stops
-	log.Debugf("loading details for %d stops: %s", len(stopIDs), strings.Join(stopIDs, ", "))
+	log.Debug("loading details for stops", "count", len(stopIDs), "stop_ids", strings.Join(stopIDs, ", "))
 	for _, stopID := range stopIDs {
 		details, err := api.GetStopDetails(stopID)
 		if err != nil {
-			log.Error(err)
+			log.Error(err.Error())
 			continue
 		}
 		stops[api.IDPrefix+stopID].Departures = details.Departures
@@ -118,31 +118,31 @@ func (c *StopCollector) Run() {
 		stopsToPublish = c.getChangedStops(stops)
 	}
 	for _, stop := range stopsToPublish {
-		log.Tracef("publish updated stop: %v", stop)
+		log.Debug("publish updated stop", "stop", stop)
 		err := c.client.UpdateStop(stop)
 		if err != nil {
-			log.Error(err)
+			log.Error(err.Error())
 		}
 	}
 
 	// publish all removed stops
 	removed := c.getRemovedStops(stops)
 	for _, stop := range removed {
-		log.Debugf("publish removed stop: %v", stop)
+		log.Debug("publish removed stop", "stop", stop)
 		err := c.client.DeleteStop(stop.ID)
 		if err != nil {
-			log.Error(err)
+			log.Error(err.Error())
 		}
 	}
 
-	log.Debugf("changed %d stops and removed %d", len(stopsToPublish), len(removed))
+	log.Debug("collector run complete", "changed", len(stopsToPublish), "removed", len(removed))
 
 	// update list of stops
 	c.stops = stops
 }
 
 func (c *StopCollector) RunSingle(stopID string) {
-	log := logrus.WithField("collector", "stop").WithField("stop-id", stopID)
+	log := slog.With("collector", "stop", "stop_id", stopID)
 
 	c.Lock()
 	defer c.Unlock()
@@ -150,16 +150,16 @@ func (c *StopCollector) RunSingle(stopID string) {
 	// get stop from cache
 	stop, ok := c.stops[api.IDPrefix+stopID]
 	if !ok {
-		log.Debugf("stop %s not found in cache, fetching stops list", stopID)
+		log.Debug("stop not found in cache, fetching stops list")
 		stops, err := api.GetStops()
 		if err != nil {
-			log.Error(err)
+			log.Error(err.Error())
 			return
 		}
 
 		stop, ok = stops[api.IDPrefix+stopID]
 		if !ok {
-			log.Errorf("stop %s not found in stops list", stopID)
+			log.Error("stop not found in stops list")
 			return
 		}
 	}
@@ -167,7 +167,7 @@ func (c *StopCollector) RunSingle(stopID string) {
 	// get stop details
 	details, err := api.GetStopDetails(stopID)
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		return
 	}
 	stop.Departures = details.Departures
@@ -176,10 +176,10 @@ func (c *StopCollector) RunSingle(stopID string) {
 	// publish stop
 	err = c.client.UpdateStop(stop)
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 	}
 
-	log.Debugf("published single stop: %v", stop)
+	log.Debug("published single stop", "stop", stop)
 	// update cache
 	c.stops[api.IDPrefix+stopID] = stop
 }

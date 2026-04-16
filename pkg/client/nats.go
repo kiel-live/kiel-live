@@ -3,13 +3,13 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"sync"
 	"time"
 
 	"github.com/kiel-live/kiel-live/pkg/models"
 
 	"github.com/nats-io/nats.go"
-	"github.com/sirupsen/logrus"
 )
 
 type natsClient struct {
@@ -56,7 +56,7 @@ func (n *natsClient) Connect() (err error) {
 		nats.ConnectHandler(func(conn *nats.Conn) {
 			if conn.IsConnected() {
 				n.initTopics()
-				logrus.Debugf("Connected to NATS server at %s", n.host)
+				slog.Debug("Connected to NATS server", "host", n.host)
 			}
 			if n.connectionHandler != nil {
 				n.connectionHandler(conn.IsConnected())

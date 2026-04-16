@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 	"time"
@@ -8,51 +11,27 @@ import (
 	"github.com/artonge/go-gtfs"
 	"github.com/go-co-op/gocron/v2"
 	"github.com/hashicorp/go-memdb"
-	"github.com/joho/godotenv"
-	log "github.com/sirupsen/logrus"
 
+	"github.com/kiel-live/kiel-live/collectors/collector"
 	"github.com/kiel-live/kiel-live/collectors/gtfs/loader"
 	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/pkg/models"
-	"github.com/kiel-live/kiel-live/pkg/version"
 )
 
 const IDPrefix = "gtfs-"
 
 func main() {
-	log.Infof("Kiel-Live GTFS collector version %s", version.Version)
+	collector.New(collector.Options{
+		Name:    "GTFS",
+		Execute: run,
+	}).Run()
+}
 
-	if tz := os.Getenv("TZ"); tz != "" {
-		var err error
-		time.Local, err = time.LoadLocation(tz)
-		if err != nil {
-			log.Fatalf("error loading location '%s': %v\n", tz, err)
-		}
-	}
-
-	err := godotenv.Load()
-	if err != nil {
-		log.Debug("No .env file found")
-	}
-
-	if os.Getenv("LOG") == "debug" {
-		log.SetLevel(log.DebugLevel)
-	}
-
-	server := os.Getenv("COLLECTOR_SERVER")
-	if server == "" {
-		log.Fatalln("Please provide a server address for the collector with COLLECTOR_SERVER")
-	}
-
-	token := os.Getenv("COLLECTOR_TOKEN")
-	if token == "" {
-		log.Fatalln("Please provide a token for the collector with MANAGER_TOKEN")
-	}
-
+func run(_ context.Context, c client.Client) error {
 	// Example: https://github.com/lukashass/nok-gtfs/raw/main/adler.zip
 	gtfsPath := os.Getenv("GTFS_PATH")
 	if gtfsPath == "" {
-		log.Fatalln("Please provide a GTFS path with GTFS_PATH")
+		return fmt.Errorf("please provide a GTFS path with GTFS_PATH")
 	}
 
 	// ; separated list of alerts
@@ -127,57 +106,38 @@ func main() {
 
 	db, err := memdb.NewMemDB(schema)
 	if err != nil {
-		log.Panic("Failed opening db", err)
+		return fmt.Errorf("failed opening db: %w", err)
 	}
-
-	c := client.NewClient(server, token)
-	err = c.Connect()
-	if err != nil {
-		log.Fatalln(err)
-		return
-	}
-	defer func() {
-		err := c.Disconnect()
-		if err != nil {
-			log.Error(err)
-		}
-	}()
 
 	g, err := loader.LoadGTFS(gtfsPath)
 	if err != nil {
-		log.Error(err)
-		return
+		return err
 	}
 
 	agency := g.Agency
 	if len(g.Agencies) > 1 {
-		log.Fatal("Multiple agencies are not supported")
+		return fmt.Errorf("multiple agencies are not supported")
 	}
 
 	// create stop times table
 	txn := db.Txn(true)
 
 	for _, stopTime := range g.StopsTimes {
-		err = txn.Insert("stop_times", stopTime)
-		if err != nil {
-			log.Error(err)
-			return
+		if err = txn.Insert("stop_times", stopTime); err != nil {
+			return err
 		}
 	}
 
 	for _, trip := range g.Trips {
-		err = txn.Insert("trips", trip)
-		if err != nil {
-			log.Error(err)
-			return
+		if err = txn.Insert("trips", trip); err != nil {
+			return err
 		}
 
 		// delete the last stop time for each trip (highest stop_sequence),
 		// because the vehicle does not depart in this trip anymore, the trip is finished
 		stopTimesIt, err := txn.Get("stop_times", "trip_id", trip.ID)
 		if err != nil {
-			log.Error(err)
-			return
+			return err
 		}
 
 		var lastStopTime *gtfs.StopTime
@@ -192,27 +152,21 @@ func main() {
 		}
 
 		if lastStopTime != nil {
-			err = txn.Delete("stop_times", lastStopTime)
-			if err != nil {
-				log.Error(err)
-				return
+			if err = txn.Delete("stop_times", lastStopTime); err != nil {
+				return err
 			}
 		}
 	}
 
 	for _, route := range g.Routes {
-		err = txn.Insert("routes", route)
-		if err != nil {
-			log.Error(err)
-			return
+		if err = txn.Insert("routes", route); err != nil {
+			return err
 		}
 	}
 
 	for _, calendar := range g.Calendars {
-		err = txn.Insert("calendars", calendar)
-		if err != nil {
-			log.Error(err)
-			return
+		if err = txn.Insert("calendars", calendar); err != nil {
+			return err
 		}
 	}
 
@@ -223,12 +177,11 @@ func main() {
 		gocron.WithLimitConcurrentJobs(1, gocron.LimitModeReschedule),
 	)
 	if err != nil {
-		log.Errorln(err)
-		return
+		return err
 	}
 	defer func() {
 		if err := s.Shutdown(); err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 		}
 	}()
 
@@ -263,7 +216,7 @@ func main() {
 
 				stopTimesIt, err := txn.Get("stop_times", "stop_id", gtfsStop.ID)
 				if err != nil {
-					log.Error(err)
+					slog.Error(err.Error())
 					continue
 				}
 
@@ -277,14 +230,14 @@ func main() {
 				for _, stopTime := range stopTimes {
 					_trip, err := txn.First("trips", "id", stopTime.TripID)
 					if err != nil {
-						log.Error(err)
+						slog.Error(err.Error())
 						continue
 					}
 					trip := _trip.(gtfs.Trip)
 
 					_calendar, err := txn.First("calendars", "id", trip.ServiceID)
 					if err != nil {
-						log.Error(err)
+						slog.Error(err.Error())
 						continue
 					}
 					calendar := _calendar.(gtfs.Calendar)
@@ -296,7 +249,7 @@ func main() {
 
 					_route, err := txn.First("routes", "id", trip.RouteID)
 					if err != nil {
-						log.Error(err)
+						slog.Error(err.Error())
 						continue
 					}
 					route := _route.(gtfs.Route)
@@ -304,7 +257,7 @@ func main() {
 					// convert departure time to unix timestamp
 					departureTime, err := time.Parse("15:04:05", stopTime.Departure)
 					if err != nil {
-						log.Error(err)
+						slog.Error(err.Error())
 						continue
 					}
 
@@ -335,29 +288,27 @@ func main() {
 					})
 				}
 				if stop.Type == "" {
-					log.Warnf("Stop %s has no type and is therefore skipped", stop.ID)
+					slog.Warn("Stop has no type and is therefore skipped", "stop_id", stop.ID)
 					continue
 				}
 
 				if len(stop.Departures) == 0 {
-					log.Warnf("Stop %s has no departures and is therefore skipped", stop.ID)
+					slog.Warn("Stop has no departures and is therefore skipped", "stop_id", stop.ID)
 					continue
 				}
 
-				err = c.UpdateStop(stop)
-				if err != nil {
-					log.Error(err)
+				if err = c.UpdateStop(stop); err != nil {
+					slog.Error(err.Error())
 					continue
 				}
 			}
 		}),
 	)
 	if err != nil {
-		log.Errorln(err)
-		return
+		return err
 	}
 
-	log.Infoln("⚡ GTFS collector started")
+	slog.Info("GTFS collector started")
 
 	s.Start()
 	select {}
