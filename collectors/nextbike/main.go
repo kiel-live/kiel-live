@@ -1,74 +1,44 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
-	"github.com/joho/godotenv"
+	"github.com/kiel-live/kiel-live/collectors/collector"
 	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/pkg/models"
-	"github.com/kiel-live/kiel-live/pkg/version"
-	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	log.Infof("🚴‍♀️ Nextbike collector version %s", version.Version)
+	collector.New(collector.Options{
+		Name:    "Nextbike",
+		Execute: run,
+	}).Run()
+}
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Debug("No .env file found")
-	}
-
-	if os.Getenv("LOG") == "debug" {
-		log.SetLevel(log.DebugLevel)
-	}
-
-	server := os.Getenv("COLLECTOR_SERVER")
-	if server == "" {
-		log.Fatalln("Please provide a server address for the collector with COLLECTOR_SERVER")
-	}
-
-	log.Println("🚀 Connecting to server...", server)
-
-	token := os.Getenv("COLLECTOR_TOKEN")
-	if token == "" {
-		log.Fatalln("Please provide a token for the collector with COLLECTOR_TOKEN")
-	}
-
+func run(_ context.Context, c client.Client) error {
 	cityIDs := os.Getenv("NEXT_BIKE_CITY_IDS")
-	if token == "" {
-		log.Fatalln("Please provide a comma separated list of next-bike city ids with NEXT_BIKE_CITY_IDS (exp: '613,195' for Kiel & Mannheim)")
+	if cityIDs == "" {
+		return fmt.Errorf("please provide a comma separated list of next-bike city ids with NEXT_BIKE_CITY_IDS (exp: '613,195' for Kiel & Mannheim)")
 	}
-
-	c := client.NewClient(server, token)
-	err = c.Connect()
-	if err != nil {
-		log.Fatalln(err)
-		return
-	}
-	defer func() {
-		err := c.Disconnect()
-		if err != nil {
-			log.Error(err)
-		}
-	}()
 
 	s, err := gocron.NewScheduler(
 		gocron.WithLocation(time.UTC),
 		gocron.WithLimitConcurrentJobs(1, gocron.LimitModeReschedule),
 	)
 	if err != nil {
-		log.Errorln(err)
-		return
+		return err
 	}
 	defer func() {
 		if err := s.Shutdown(); err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 		}
 	}()
 
@@ -90,8 +60,7 @@ func main() {
 			}
 
 			nextbikeResp := NextbikeResponse{}
-			err = json.Unmarshal(data, &nextbikeResp)
-			if err != nil {
+			if err = json.Unmarshal(data, &nextbikeResp); err != nil {
 				return err
 			}
 
@@ -140,14 +109,12 @@ func main() {
 
 							stop.Vehicles = append(stop.Vehicles, vehicle)
 
-							err = c.UpdateVehicle(vehicle)
-							if err != nil {
+							if err = c.UpdateVehicle(vehicle); err != nil {
 								return err
 							}
 						}
 
-						err = c.UpdateStop(stop)
-						if err != nil {
+						if err = c.UpdateStop(stop); err != nil {
 							return err
 						}
 					}
@@ -158,11 +125,10 @@ func main() {
 		}),
 	)
 	if err != nil {
-		log.Errorln(err)
-		return
+		return err
 	}
 
-	log.Infoln("⚡ Nextbike collector started")
+	slog.Info("Nextbike collector started")
 
 	s.Start()
 	select {}

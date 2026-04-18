@@ -1,12 +1,12 @@
 package collector
 
 import (
+	"log/slog"
 	"sync"
 
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
 	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/pkg/models"
-	"github.com/sirupsen/logrus"
 )
 
 type VehicleCollector struct {
@@ -60,34 +60,34 @@ func (c *VehicleCollector) Run() {
 	c.Lock()
 	defer c.Unlock()
 
-	log := logrus.WithField("collector", "vehicle")
+	log := slog.With("collector", "vehicle")
 	vehicles, err := api.GetVehicles()
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		return
 	}
 
 	// publish all changed vehicles
 	changed := c.getChangedVehicles(vehicles)
 	for _, vehicle := range changed {
-		log.Tracef("publish updated vehicle: %v", vehicle)
+		log.Debug("publish updated vehicle", "vehicle", vehicle)
 		err := c.client.UpdateVehicle(vehicle)
 		if err != nil {
-			log.Error(err)
+			log.Error(err.Error())
 		}
 	}
 
 	// publish all removed vehicles
 	removed := c.getRemovedVehicles(vehicles)
 	for _, vehicle := range removed {
-		log.Debugf("publish removed vehicle: %v", vehicle)
+		log.Debug("publish removed vehicle", "vehicle", vehicle)
 		err := c.client.DeleteVehicle(vehicle.ID)
 		if err != nil {
-			log.Error(err)
+			log.Error(err.Error())
 		}
 	}
 
-	log.Debugf("changed %d vehicles and removed %d", len(changed), len(removed))
+	log.Debug("collector run complete", "changed", len(changed), "removed", len(removed))
 
 	// update list of vehicles
 	c.vehicles = vehicles
