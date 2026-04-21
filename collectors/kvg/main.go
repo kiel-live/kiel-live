@@ -58,9 +58,9 @@ func run(_ context.Context, c client.Client) error {
 			return
 		}
 
-		for name, c := range collectors {
+		for name, collector := range collectors {
 			slog.Debug("Resetting collector", "name", name)
-			c.Reset()
+			collector.Reset()
 		}
 	})
 
@@ -84,10 +84,10 @@ func run(_ context.Context, c client.Client) error {
 				return
 			}
 
-			for name, c := range collectors {
+			for name, collector := range collectors {
 				// TODO maybe run in go routine
 				slog.Debug("Running collector ...", "name", name)
-				c.Run()
+				collector.Run()
 			}
 		}),
 	)

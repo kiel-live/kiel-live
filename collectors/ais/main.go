@@ -77,7 +77,7 @@ func startKeepAlive(ctx context.Context, ws *websocket.Conn) {
 			wsWriteMutex.Lock()
 			if err := ws.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
 				wsWriteMutex.Unlock()
-				slog.Error("Error setting write deadline", "err", err)
+				slog.Error("Error setting write deadline", "error", err)
 				return
 			}
 			if err := ws.WriteMessage(websocket.PingMessage, nil); err != nil {
@@ -163,7 +163,7 @@ func run(_ context.Context, c client.Client) error {
 
 		var packet aisstream.AisStreamMessage
 		if err = json.Unmarshal(p, &packet); err != nil {
-			slog.Error(err.Error())
+			slog.Error("failed to decode AIS packet", "error", err)
 			continue
 		}
 

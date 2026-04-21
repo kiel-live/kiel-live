@@ -181,7 +181,7 @@ func run(_ context.Context, c client.Client) error {
 	}
 	defer func() {
 		if err := s.Shutdown(); err != nil {
-			slog.Error(err.Error())
+			slog.Error("failed to shutdown scheduler", "error", err)
 		}
 	}()
 
@@ -230,7 +230,11 @@ func run(_ context.Context, c client.Client) error {
 				for _, stopTime := range stopTimes {
 					_trip, err := txn.First("trips", "id", stopTime.TripID)
 					if err != nil {
-						slog.Error(err.Error())
+						slog.Error("Can't load trip", "error", err.Error())
+						continue
+					}
+					if _trip == nil {
+						slog.Error("Can't load trip", "error", "Trip is nil")
 						continue
 					}
 					trip := _trip.(gtfs.Trip)
