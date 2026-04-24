@@ -58,7 +58,7 @@
     "vite": "7.3.2",
     "vite-plugin-pwa": "1.2.0",
     "vitest": "4.1.4",
-    "vue-tsc": "3.2.6",
+    "vue-tsc": "3.2.7",
     "workbox-build": "7.4.0",
     "workbox-window": "7.4.0"
   },
