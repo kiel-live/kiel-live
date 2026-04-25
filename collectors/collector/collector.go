@@ -40,7 +40,7 @@ func New(opt Options) *Collector {
 // Run starts the collector and exits with code 1 on error.
 func (c *Collector) Run() {
 	if err := c.run(); err != nil {
-		slog.Error(err.Error())
+		slog.Error("collector failed", "error", err)
 		os.Exit(1)
 	}
 }
@@ -83,7 +83,7 @@ func (c *Collector) run() error {
 	}
 	defer func() {
 		if err := cl.Disconnect(); err != nil {
-			slog.Error(err.Error())
+			slog.Error("failed to disconnect", "error", err)
 		}
 	}()
 

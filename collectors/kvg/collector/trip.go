@@ -83,7 +83,7 @@ func (c *TripCollector) Run() {
 	for _, tripID := range tripIDs {
 		trip, err := api.GetTrip(tripID)
 		if err != nil {
-			log.Error(err.Error())
+			log.Error("failed to get trip", "error", err)
 			continue
 		}
 		trips[trip.ID] = trip
@@ -95,7 +95,7 @@ func (c *TripCollector) Run() {
 		log.Debug("publish changed trip", "trip", trip)
 		err := c.client.UpdateTrip(trip)
 		if err != nil {
-			log.Error(err.Error())
+			log.Error("failed to update trip", "error", err)
 		}
 	}
 
@@ -104,7 +104,7 @@ func (c *TripCollector) Run() {
 		log.Debug("publish removed trip", "trip", trip)
 		err := c.client.DeleteTrip(trip.ID)
 		if err != nil {
-			log.Error(err.Error())
+			log.Error("failed to delete trip", "error", err)
 		}
 	}
 
@@ -121,14 +121,14 @@ func (c *TripCollector) RunSingle(tripID string) {
 
 	trip, err := api.GetTrip(tripID)
 	if err != nil {
-		log.Error(err.Error())
+		log.Error("failed to get trip", "error", err)
 		return
 	}
 
 	// publish changed trip
 	err = c.client.UpdateTrip(trip)
 	if err != nil {
-		log.Error(err.Error())
+		log.Error("failed to update trip", "error", err)
 		return
 	}
 

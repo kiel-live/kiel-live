@@ -63,7 +63,7 @@ func (c *VehicleCollector) Run() {
 	log := slog.With("collector", "vehicle")
 	vehicles, err := api.GetVehicles()
 	if err != nil {
-		log.Error(err.Error())
+		log.Error("failed to get vehicles", "error", err)
 		return
 	}
 
@@ -73,7 +73,7 @@ func (c *VehicleCollector) Run() {
 		log.Debug("publish updated vehicle", "vehicle", vehicle)
 		err := c.client.UpdateVehicle(vehicle)
 		if err != nil {
-			log.Error(err.Error())
+			log.Error("failed to update vehicle", "error", err)
 		}
 	}
 
@@ -83,7 +83,7 @@ func (c *VehicleCollector) Run() {
 		log.Debug("publish removed vehicle", "vehicle", vehicle)
 		err := c.client.DeleteVehicle(vehicle.ID)
 		if err != nil {
-			log.Error(err.Error())
+			log.Error("failed to delete vehicle", "error", err)
 		}
 	}
 

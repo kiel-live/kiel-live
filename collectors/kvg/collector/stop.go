@@ -89,7 +89,7 @@ func (c *StopCollector) Run() {
 
 	stops, err := api.GetStops()
 	if err != nil {
-		log.Error(err.Error())
+		log.Error("failed to get stops", "error", err)
 		return
 	}
 
@@ -98,7 +98,7 @@ func (c *StopCollector) Run() {
 	for _, stopID := range stopIDs {
 		details, err := api.GetStopDetails(stopID)
 		if err != nil {
-			log.Error(err.Error())
+			log.Error("failed to get stop details", "error", err)
 			continue
 		}
 		stops[api.IDPrefix+stopID].Departures = details.Departures
@@ -121,7 +121,7 @@ func (c *StopCollector) Run() {
 		log.Debug("publish updated stop", "stop", stop)
 		err := c.client.UpdateStop(stop)
 		if err != nil {
-			log.Error(err.Error())
+			log.Error("failed to update stop", "error", err)
 		}
 	}
 
@@ -131,7 +131,7 @@ func (c *StopCollector) Run() {
 		log.Debug("publish removed stop", "stop", stop)
 		err := c.client.DeleteStop(stop.ID)
 		if err != nil {
-			log.Error(err.Error())
+			log.Error("failed to delete stop", "error", err)
 		}
 	}
 
@@ -153,7 +153,7 @@ func (c *StopCollector) RunSingle(stopID string) {
 		log.Debug("stop not found in cache, fetching stops list")
 		stops, err := api.GetStops()
 		if err != nil {
-			log.Error(err.Error())
+			log.Error("failed to get stops", "error", err)
 			return
 		}
 
@@ -167,7 +167,7 @@ func (c *StopCollector) RunSingle(stopID string) {
 	// get stop details
 	details, err := api.GetStopDetails(stopID)
 	if err != nil {
-		log.Error(err.Error())
+		log.Error("failed to get stop details", "error", err)
 		return
 	}
 	stop.Departures = details.Departures
@@ -176,7 +176,7 @@ func (c *StopCollector) RunSingle(stopID string) {
 	// publish stop
 	err = c.client.UpdateStop(stop)
 	if err != nil {
-		log.Error(err.Error())
+		log.Error("failed to update stop", "error", err)
 	}
 
 	log.Debug("published single stop", "stop", stop)

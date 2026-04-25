@@ -73,7 +73,7 @@ func run(_ context.Context, c client.Client) error {
 	}
 	defer func() {
 		if err := s.Shutdown(); err != nil {
-			slog.Error(err.Error())
+			slog.Error("failed to shutdown scheduler", "error", err)
 		}
 	}()
 

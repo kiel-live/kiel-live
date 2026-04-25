@@ -216,7 +216,7 @@ func run(_ context.Context, c client.Client) error {
 
 				stopTimesIt, err := txn.Get("stop_times", "stop_id", gtfsStop.ID)
 				if err != nil {
-					slog.Error(err.Error())
+					slog.Error("failed to get stop times", "error", err)
 					continue
 				}
 
@@ -230,7 +230,7 @@ func run(_ context.Context, c client.Client) error {
 				for _, stopTime := range stopTimes {
 					_trip, err := txn.First("trips", "id", stopTime.TripID)
 					if err != nil {
-						slog.Error("Can't load trip", "error", err.Error())
+						slog.Error("failed to get trip", "error", err)
 						continue
 					}
 					if _trip == nil {
@@ -241,7 +241,7 @@ func run(_ context.Context, c client.Client) error {
 
 					_calendar, err := txn.First("calendars", "id", trip.ServiceID)
 					if err != nil {
-						slog.Error(err.Error())
+						slog.Error("failed to get calendar", "error", err)
 						continue
 					}
 					calendar := _calendar.(gtfs.Calendar)
@@ -253,7 +253,7 @@ func run(_ context.Context, c client.Client) error {
 
 					_route, err := txn.First("routes", "id", trip.RouteID)
 					if err != nil {
-						slog.Error(err.Error())
+						slog.Error("failed to get route", "error", err)
 						continue
 					}
 					route := _route.(gtfs.Route)
@@ -261,7 +261,7 @@ func run(_ context.Context, c client.Client) error {
 					// convert departure time to unix timestamp
 					departureTime, err := time.Parse("15:04:05", stopTime.Departure)
 					if err != nil {
-						slog.Error(err.Error())
+						slog.Error("failed to parse departure time", "error", err)
 						continue
 					}
 
@@ -302,7 +302,7 @@ func run(_ context.Context, c client.Client) error {
 				}
 
 				if err = c.UpdateStop(stop); err != nil {
-					slog.Error(err.Error())
+					slog.Error("failed to update stop", "error", err)
 					continue
 				}
 			}

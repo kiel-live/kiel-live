@@ -210,7 +210,7 @@ func run(_ context.Context, c client.Client) error {
 			}
 
 			if err = c.UpdateVehicle(vehicle); err != nil {
-				slog.Error(err.Error())
+				slog.Error("failed to update vehicle", "error", err)
 				continue
 			}
 		}
