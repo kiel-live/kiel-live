@@ -2,9 +2,8 @@ package client
 
 import (
 	"encoding/json"
+	"log/slog"
 	"slices"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type consumerEvent struct {
@@ -70,12 +69,12 @@ func (n *natsClient) initTopics() {
 	err := n.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.CREATED.>", func(msg *Message) {
 		var consumerEvent consumerEvent
 		if err := json.Unmarshal([]byte(*msg.Data), &consumerEvent); err != nil {
-			log.Errorf("Parse response failed, reason: %v \n", err)
+			slog.Error("Parse response failed", "error", err)
 			return
 		}
 		consumerInfo, err := n.JS.ConsumerInfo(consumerEvent.Stream, consumerEvent.Consumer)
 		if err != nil {
-			log.Errorf("Can't find consumer-info: %v", err)
+			slog.Error("Can't find consumer-info", "error", err)
 			return
 		}
 		topic := consumerInfo.Config.FilterSubject
@@ -87,14 +86,14 @@ func (n *natsClient) initTopics() {
 		}
 	})
 	if err != nil {
-		log.Errorf("Subscribe failed, reason: %v \n", err)
+		slog.Error("Subscribe failed", "error", err)
 	}
 
 	// remove consumer
 	err = n.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.DELETED.>", func(msg *Message) {
 		var consumerEvent consumerEvent
 		if err := json.Unmarshal([]byte(*msg.Data), &consumerEvent); err != nil {
-			log.Errorf("Parse response failed, reason: %v \n", err)
+			slog.Error("Parse response failed", "error", err)
 			return
 		}
 
@@ -110,7 +109,7 @@ func (n *natsClient) initTopics() {
 		}
 	})
 	if err != nil {
-		log.Errorf("Subscribe failed, reason: %v \n", err)
+		slog.Error("Subscribe failed", "error", err)
 	}
 }
 
