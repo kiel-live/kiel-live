@@ -42,15 +42,15 @@ func New(opt Options) *Collector {
 
 // Run starts the collector and exits with code 1 on error.
 func (c *Collector) Run() {
-	if err := godotenv.Load(); err != nil {
-		slog.Debug("No .env file found")
-	}
-
 	level := slog.LevelInfo
 	if os.Getenv("LOG") == "debug" {
 		level = slog.LevelDebug
 	}
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level})))
+
+	if err := godotenv.Load(); err != nil {
+		slog.Debug("No .env file found")
+	}
 
 	if err := c.run(); err != nil {
 		slog.Error("collector failed", "error", err)
