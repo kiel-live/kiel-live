@@ -234,7 +234,7 @@ func run(_ context.Context, c client.Client) error {
 						continue
 					}
 					if _trip == nil {
-						slog.Error("Can't load trip", "trip_id", stopTime.TripID, "error", fmt.Errorf("trip is nil"))
+						slog.Error("trip not found", "trip_id", stopTime.TripID)
 						continue
 					}
 					trip := _trip.(gtfs.Trip)

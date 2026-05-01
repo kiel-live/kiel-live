@@ -31,6 +31,9 @@ type Collector struct {
 
 // New creates a new Collector from the given options.
 func New(opt Options) *Collector {
+	if opt.Execute == nil {
+		panic("collector execute function is not set")
+	}
 	return &Collector{
 		execute: opt.Execute,
 		name:    opt.Name,
@@ -39,15 +42,6 @@ func New(opt Options) *Collector {
 
 // Run starts the collector and exits with code 1 on error.
 func (c *Collector) Run() {
-	if err := c.run(); err != nil {
-		slog.Error("collector failed", "error", err)
-		os.Exit(1)
-	}
-}
-
-func (c *Collector) run() error {
-	slog.Info(c.name+" collector", "version", version.Version)
-
 	if err := godotenv.Load(); err != nil {
 		slog.Debug("No .env file found")
 	}
@@ -57,6 +51,15 @@ func (c *Collector) run() error {
 		level = slog.LevelDebug
 	}
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level})))
+
+	if err := c.run(); err != nil {
+		slog.Error("collector failed", "error", err)
+		os.Exit(1)
+	}
+}
+
+func (c *Collector) run() error {
+	slog.Info(c.name+" collector", "version", version.Version)
 
 	if tz := os.Getenv("TZ"); tz != "" {
 		var err error
@@ -86,10 +89,6 @@ func (c *Collector) run() error {
 			slog.Error("failed to disconnect", "error", err)
 		}
 	}()
-
-	if c.execute == nil {
-		panic("collector execute function is not set")
-	}
 
 	return c.execute(context.Background(), cl)
 }

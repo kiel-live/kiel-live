@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
-	c "github.com/kiel-live/kiel-live/collectors/collector"
+	basecollector "github.com/kiel-live/kiel-live/collectors/collector"
 	"github.com/kiel-live/kiel-live/collectors/kvg/collector"
 	"github.com/kiel-live/kiel-live/pkg/client"
 )
 
 func main() {
-	c.New(c.Options{
+	basecollector.New(basecollector.Options{
 		Name:    "KVG",
 		Execute: run,
 	}).Run()
