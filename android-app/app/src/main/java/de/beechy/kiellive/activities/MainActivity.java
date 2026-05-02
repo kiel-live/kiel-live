@@ -12,6 +12,7 @@ import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.activity.OnBackPressedCallback;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,11 +54,6 @@ public class MainActivity extends AppCompatActivity {
         MyWebViewClient webViewClient = new MyWebViewClient(this);
 
         myWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        myWebView.setOnApplyWindowInsetsListener((view, insets) -> {
-            webViewClient.setStatusBarHeight(insets.getStableInsetTop());
-            return insets.consumeSystemWindowInsets();
-        });
-
         myWebView.setWebViewClient(webViewClient);
         myWebView.setWebChromeClient(new MyWebChromeClient(this));
 
@@ -66,15 +62,19 @@ public class MainActivity extends AppCompatActivity {
         extraHeaders.put("app-name", getApplication().getPackageName());
         extraHeaders.put("app-version", BuildConfig.VERSION_NAME);
         myWebView.loadUrl(Config.APP_URL + path, extraHeaders);
-    }
 
-    @Override
-    public void onBackPressed() {
-        if (myWebView.canGoBack()) {
-            myWebView.goBack();
-        } else {
-            super.onBackPressed();
-        }
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (myWebView.canGoBack()) {
+                    myWebView.goBack();
+                } else {
+                    setEnabled(false);
+                    MainActivity.this.getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     @Override

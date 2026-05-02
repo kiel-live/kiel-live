@@ -2,15 +2,24 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/url"
+	"time"
 
 	"github.com/kiel-live/kiel-live/pkg/models"
 )
 
+type tripItem struct {
+	Stop         tripStop        `json:"stop"`
+	Status       DepartureStatus `json:"status"`
+	ActualTime   string          `json:"actualTime"`
+	StopSequence string          `json:"stop_seq_num"`
+}
+
 type tripStop struct {
-	Stop       stop            `json:"stop"`
-	Status     DepartureStatus `json:"status"`
-	ActualTime string          `json:"actualTime"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	ShortName string `json:"shortName"`
 }
 
 type waypoint struct {
@@ -26,36 +35,43 @@ type tripPaths struct {
 	Paths []tripPath `json:"paths"`
 }
 
-func (t *tripStop) parse() *models.TripArrival {
-	return &models.TripArrival{
+func (t *tripItem) parse() *models.TripDeparture {
+	actual, err := timeToIsoDateTime(t.ActualTime, time.Now())
+	if err != nil {
+		actual = ""
+		log.Printf("Error parsing time for trip departure: %v", err)
+	}
+
+	return &models.TripDeparture{
 		ID:      IDPrefix + t.Stop.ShortName,
 		Name:    t.Stop.Name,
 		State:   t.Status.parse(),
-		Planned: t.ActualTime,
+		Planned: actual, // KVG API does not provide planned time, using actual time as fallback
+		Actual:  actual,
 	}
 }
 
 type trip struct {
-	Stops         []tripStop `json:"actual"`
-	OldStops      []tripStop `json:"old"`
+	Stops         []tripItem `json:"actual"`
+	OldStops      []tripItem `json:"old"`
 	DirectionText string     `json:"directionText"`
 	RouteName     string     `json:"routeName"`
 }
 
 // trip parser to protocol trip
 func (t *trip) parse() *models.Trip {
-	var arrivals []*models.TripArrival
+	var departures []*models.TripDeparture
 	for _, stop := range t.OldStops {
-		arrivals = append(arrivals, stop.parse())
+		departures = append(departures, stop.parse())
 	}
 	for _, stop := range t.Stops {
-		arrivals = append(arrivals, stop.parse())
+		departures = append(departures, stop.parse())
 	}
 
 	return &models.Trip{
-		Provider:  "kvg", // TODO
-		Direction: t.DirectionText,
-		Arrivals:  arrivals,
+		Provider:   "kvg", // TODO
+		Direction:  t.DirectionText,
+		Departures: departures,
 	}
 }
 

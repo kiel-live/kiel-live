@@ -1,7 +1,7 @@
 <template>
   <PopupNotice :show="show" @close="close">
-    <div class="flex flex-col text-center gap-4">
-      <span class="text-xl mb-2">{{ t('update_title') }}</span>
+    <div class="flex flex-col gap-4 text-center">
+      <span class="mb-2 text-xl">{{ t('update_title') }}</span>
       <span>{{ t('update_msg') }}</span>
       <i18n-t keypath="feedback" tag="span">
         <template #email>
@@ -13,7 +13,7 @@
       </i18n-t>
     </div>
 
-    <div class="flex flex-row w-full justify-center mt-8">
+    <div class="mt-8 flex w-full flex-row justify-center">
       <Button @click="close">{{ t('nice') }}</Button>
     </div>
   </PopupNotice>
@@ -27,6 +27,7 @@ import { useI18n } from 'vue-i18n';
 
 import Button from '~/components/atomic/Button.vue';
 import PopupNotice from '~/components/PopupNotice.vue';
+import { useTrack } from '~/compositions/useTrack';
 import { localStoragePrefix } from '~/compositions/useUserSettings';
 import { feedbackMail } from '~/config';
 
@@ -69,5 +70,9 @@ watch(
 
 function close() {
   version.value = latestVersion;
+  useTrack().track('update-popup:close', {
+    from: version.value,
+    to: latestVersion,
+  });
 }
 </script>

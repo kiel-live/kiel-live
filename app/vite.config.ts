@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
       }),
       VitePWA({
         workbox: {
-          globPatterns: ['**/*.{js,css,html,png}'],
+          cleanupOutdatedCaches: true,
         },
         includeAssets: ['favicon.ico'],
         manifest: {

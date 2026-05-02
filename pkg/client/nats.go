@@ -3,13 +3,13 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"sync"
 	"time"
 
 	"github.com/kiel-live/kiel-live/pkg/models"
 
 	"github.com/nats-io/nats.go"
-	"github.com/sirupsen/logrus"
 )
 
 type natsClient struct {
@@ -56,7 +56,7 @@ func (n *natsClient) Connect() (err error) {
 		nats.ConnectHandler(func(conn *nats.Conn) {
 			if conn.IsConnected() {
 				n.initTopics()
-				logrus.Debugf("Connected to NATS server at %s", n.host)
+				slog.Debug("Connected to NATS server", "host", n.host)
 			}
 			if n.connectionHandler != nil {
 				n.connectionHandler(conn.IsConnected())
@@ -156,6 +156,36 @@ func (n *natsClient) SetOnTopicsChanged(topicSubscriptionHandler func(topic stri
 }
 
 func (n *natsClient) UpdateStop(stop *models.Stop) error {
+	// TODO: remove once majority of clients updated (added 29.03.2026)
+	for _, departure := range stop.Departures {
+		planned, err := time.Parse(time.RFC3339, departure.Planned)
+		if err != nil {
+			return err
+		}
+
+		actual, err := time.Parse(time.RFC3339, departure.Actual)
+		if err != nil {
+			return err
+		}
+
+		eta := int(actual.Sub(planned).Seconds())
+
+		arrival := &models.StopArrival{ //nolint:staticcheck
+			Name:      departure.Name,
+			Type:      departure.Type,
+			VehicleID: departure.VehicleID,
+			TripID:    departure.TripID,
+			RouteID:   departure.RouteID,
+			RouteName: departure.RouteName,
+			Direction: departure.Direction,
+			State:     string(departure.State),
+			Platform:  departure.Platform,
+			Planned:   planned.Format("15:04"),
+			Eta:       eta,
+		}
+		stop.Arrivals = append(stop.Arrivals, arrival)
+	}
+
 	jsonData, err := json.Marshal(stop)
 	if err != nil {
 		return err
@@ -174,6 +204,21 @@ func (n *natsClient) UpdateVehicle(vehicle *models.Vehicle) error {
 }
 
 func (n *natsClient) UpdateTrip(trip *models.Trip) error {
+	// TODO: remove once majority of clients updated (added 29.03.2026)
+	for _, departure := range trip.Departures {
+		planned, err := time.Parse(time.RFC3339, departure.Planned)
+		if err != nil {
+			return err
+		}
+
+		arrival := &models.TripArrival{ //nolint:staticcheck
+			Name:    departure.Name,
+			State:   string(departure.State),
+			Planned: planned.Format("15:04"),
+		}
+		trip.Arrivals = append(trip.Arrivals, arrival)
+	}
+
 	jsonData, err := json.Marshal(trip)
 	if err != nil {
 		return err

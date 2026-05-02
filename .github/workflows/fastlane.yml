@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Setup JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: "zulu"
           java-version: 17
@@ -34,14 +34,9 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.4.8"
+          ruby-version: "4.0.3"
           bundler-cache: true
           working-directory: fastlane
-
-      - name: Install bundler & Fastlane
-        run: |
-          cd fastlane
-          bundle install --jobs 4 --retry 3
 
       - name: Generate gplay-key.json file
         if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
@@ -53,11 +48,13 @@ jobs:
 
       - name: Build and submit to Google Play
         if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
-        run: fastlane ${{ inputs.track || 'beta' }}
+        run: bundle exec fastlane ${{ inputs.track || 'beta' }}
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{secrets.ANDROID_KEYSTORE_PASSWORD}}
           ANDROID_KEY_PASSWORD: ${{secrets.ANDROID_KEY_PASSWORD}}
+        working-directory: fastlane
 
       - name: Build bundle
         if: github.event_name == 'pull_request'
-        run: fastlane build
+        run: bundle exec fastlane build
+        working-directory: fastlane

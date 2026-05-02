@@ -1,7 +1,7 @@
 <template>
   <select
     v-model="model"
-    class="bg-transparent p-2 w-full max-w-64 h-12 border border-gray-300 dark:border-gray-400 rounded-md"
+    class="h-12 w-full max-w-64 rounded-md border border-gray-300 bg-transparent p-2 dark:border-gray-400"
   >
     <option v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</option>
   </select>

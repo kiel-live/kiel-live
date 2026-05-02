@@ -1,9 +1,9 @@
 <template>
-  <div class="app flex flex-col m-auto w-full h-full bg-white text-black dark:bg-neutral-800 dark:text-gray-300">
-    <main class="flex grow min-h-0">
+  <div class="app m-auto flex h-full w-full flex-col bg-white text-black dark:bg-neutral-800 dark:text-gray-300">
+    <main class="flex min-h-0 grow">
       <router-view />
     </main>
-    <AppBarBottom class="mt-auto shrink-0" />
+    <AppBarBottom class="mt-auto mb-(--safe-area-bottom) shrink-0" />
     <UpdateNotice />
     <GeneralNotice />
   </div>

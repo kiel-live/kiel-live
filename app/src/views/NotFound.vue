@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col h-full w-full items-center justify-center p-4">
-    <div class="flex flex-col m-auto">
-      <p class="text-2xl mb-8">{{ t('not_found_error') }}</p>
+  <div class="flex h-full w-full flex-col items-center justify-center p-4">
+    <div class="m-auto flex flex-col">
+      <p class="mb-8 text-2xl">{{ t('not_found_error') }}</p>
       <i18n-t keypath="not_found_back_to" tag="span" class="mx-auto">
         <template #link>
           <router-link class="text-blue-700 dark:text-blue-400" replace :to="{ name: 'home' }">

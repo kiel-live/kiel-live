@@ -3,7 +3,7 @@
     <h1 class="mb-2 text-xl font-bold">{{ t('settings') }}</h1>
 
     <div class="flex flex-col gap-2">
-      <div class="flex gap-4 items-center justify-between">
+      <div class="flex items-center justify-between gap-4">
         <label class="flex flex-col" for="lite-mode">
           <span>{{ t('lite_mode') }}</span>
           <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('lite_mode_description') }}</span>
@@ -15,12 +15,17 @@
         />
       </div>
 
-      <div class="flex gap-4 items-center justify-between">
+      <div class="flex items-center justify-between gap-4">
         <label class="flex flex-col" for="theme">
           <span>{{ t('theme') }}</span>
           <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('theme_description') }}</span>
         </label>
-        <Select id="theme" v-model="theme" :options="options" />
+        <Select
+          id="theme"
+          v-model="theme"
+          :options="options"
+          @update:model-value="track('setting:theme', { theme: $event })"
+        />
       </div>
     </div>
   </SettingsContainer>

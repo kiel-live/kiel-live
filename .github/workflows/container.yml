@@ -25,9 +25,19 @@ jobs:
           - nextbike
           - donkey
           - gtfs
+          - ais
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v6
+
+      - name: Set version
+        id: version
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "value=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "value=next-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          fi
 
       - name: Docker meta
         id: meta
@@ -57,3 +67,4 @@ jobs:
           file: collectors/Containerfile
           build-args: |
             COLLECTOR_NAME=${{ matrix.collector }}
+            VERSION=${{ steps.version.outputs.value }}

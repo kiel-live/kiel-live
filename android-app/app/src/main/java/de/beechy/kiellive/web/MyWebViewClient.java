@@ -10,7 +10,6 @@ import de.beechy.kiellive.Config;
 
 public class MyWebViewClient extends WebViewClient {
     private final Context context;
-    private int statusBarHeight;
 
     public MyWebViewClient(Context context) {
         this.context = context;
@@ -27,31 +26,5 @@ public class MyWebViewClient extends WebViewClient {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         context.startActivity(intent);
         return true;
-    }
-
-    /**
-     * Injects the safe area top inset as a CSS custom property (CSS variable).
-     * https://stackoverflow.com/a/30270803
-     */
-    void injectCssIntoWebView(WebView webView, int statusBarHeight) {
-        // Calculate the pixel value accounting for device pixel ratio
-        String jsCode = "javascript:{"
-                + "const pixel = " + statusBarHeight + " / window.devicePixelRatio;"
-                + "document.documentElement.style.setProperty('--safe-area-top', pixel + 'px');"
-                + "}";
-
-        webView.loadUrl(jsCode);
-    }
-
-    public void setStatusBarHeight(int statusBarHeight) {
-        this.statusBarHeight = statusBarHeight;
-    }
-
-    @Override
-    public void onPageFinished(WebView webView, String url) {
-        injectCssIntoWebView(
-                webView,
-                statusBarHeight
-        );
     }
 }

@@ -10,13 +10,18 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:4173',
-    trace: 'on-first-retry',
+    trace: 'retain-on-first-failure',
   },
 
   projects: [
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'Desktop Chrome',
+      use: { ...devices['Desktop Chrome'] },
+      grepInvert: /@mobile-only/,
     },
   ],
 
@@ -28,7 +33,7 @@ export default defineConfig({
   },
 
   webServer: {
-    command: 'VITE_USE_DUMMY_API=true pnpm run build && pnpm run preview',
+    command: 'VITE_USE_DUMMY_API=true pnpm run build:test && pnpm run preview',
     url: 'http://localhost:4173',
     reuseExistingServer: !process.env.CI,
   },
