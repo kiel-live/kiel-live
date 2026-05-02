@@ -1,70 +1,39 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
-	"github.com/joho/godotenv"
+	"github.com/kiel-live/kiel-live/collectors/collector"
 	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/pkg/models"
-	"github.com/kiel-live/kiel-live/pkg/version"
-	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	log.Infof("🚴‍♀️ Donkey collector version %s", version.Version)
+	collector.New(collector.Options{
+		Name:    "🚴‍♀️ Donkey",
+		Execute: run,
+	}).Run()
+}
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Debug("No .env file found")
-	}
-
-	if os.Getenv("LOG") == "debug" {
-		log.SetLevel(log.DebugLevel)
-	}
-
-	server := os.Getenv("COLLECTOR_SERVER")
-	if server == "" {
-		log.Fatalln("Please provide a server address for the collector with COLLECTOR_SERVER")
-	}
-
-	log.Println("🚀 Connecting to server...", server)
-
-	token := os.Getenv("COLLECTOR_TOKEN")
-	if token == "" {
-		log.Fatalln("Please provide a token for the collector with COLLECTOR_TOKEN")
-	}
-
-	c := client.NewClient(server, token)
-	err = c.Connect()
-	if err != nil {
-		log.Fatalln(err)
-		return
-	}
-	defer func() {
-		err := c.Disconnect()
-		if err != nil {
-			log.Error(err)
-		}
-	}()
-
+func run(_ context.Context, c client.Client) error {
 	s, err := gocron.NewScheduler(
 		gocron.WithLocation(time.UTC),
 		gocron.WithLimitConcurrentJobs(1, gocron.LimitModeReschedule),
 	)
 	if err != nil {
-		log.Errorln(err)
-		return
+		return err
 	}
 	defer func() {
 		if err := s.Shutdown(); err != nil {
-			log.Error(err)
+			slog.Error("failed to shutdown scheduler", "error", err)
 		}
 	}()
 
@@ -82,18 +51,17 @@ func main() {
 			bottom := "54.19533"
 			url := fmt.Sprintf("https://stables.donkey.bike/api/public/nearby?top_right=%s%%2C%s&bottom_left=%s%%2C%s&filter_type=box", top, right, bottom, left)
 
-			client := &http.Client{}
+			httpClient := &http.Client{}
 			req, err := http.NewRequest("GET", url, nil)
 			if err != nil {
 				return err
 			}
 			req.Header.Set("User-Agent", "donkey/1.0.0")
 			req.Header.Set("Accept", "application/com.donkeyrepublic.v7")
-			resp, err := client.Do(req)
+			resp, err := httpClient.Do(req)
 			if err != nil {
 				return err
 			}
-
 			defer resp.Body.Close()
 
 			data, err := io.ReadAll(resp.Body)
@@ -102,8 +70,7 @@ func main() {
 			}
 
 			donkeyResp := DonkeyResponse{}
-			err = json.Unmarshal(data, &donkeyResp)
-			if err != nil {
+			if err = json.Unmarshal(data, &donkeyResp); err != nil {
 				return err
 			}
 
@@ -131,8 +98,7 @@ func main() {
 					},
 				}
 
-				err = c.UpdateStop(stop)
-				if err != nil {
+				if err = c.UpdateStop(stop); err != nil {
 					return err
 				}
 			}
@@ -141,11 +107,10 @@ func main() {
 		}),
 	)
 	if err != nil {
-		log.Errorln(err)
-		return
+		return err
 	}
 
-	log.Infoln("⚡ Donkey collector started")
+	slog.Info("Donkey collector started")
 
 	s.Start()
 	select {}
