@@ -15,7 +15,7 @@
         <h1 class="text-lg">{{ vehicle.name }}</h1>
       </div>
 
-      <Actions :actions="vehicle.actions ?? []" />
+      <Actions v-if="vehicle.actions" :actions="vehicle.actions" />
     </header>
 
     <template v-if="trip">
