@@ -26,7 +26,7 @@ export default defineConfig({
     }),
     VitePWA({
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png}'],
+        cleanupOutdatedCaches: true,
       },
       includeAssets: ['favicon.ico'],
       manifest: {

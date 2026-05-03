@@ -25,7 +25,7 @@
             :model-value="featureFlag.enabled.value"
             @update:model-value="
               featureFlag.enabled.value = $event;
-              track('feature-flag', { enabled: $event, id: featureFlag.id });
+              track(`feature-flag:${featureFlag.id}`, { enabled: $event });
             "
           />
         </div>
