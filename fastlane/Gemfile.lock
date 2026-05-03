@@ -234,7 +234,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  fastlane (~> 2.232, >= 2.232.1)
+  fastlane (= 2.232.1)
 
 BUNDLED WITH
    2.5.3
