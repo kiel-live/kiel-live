@@ -10,6 +10,8 @@ on:
     branches:
       - main
 
+permissions: {}
+
 env:
   REGISTRY: ghcr.io
   IMAGE_OWNER: ${{ github.repository_owner }}
