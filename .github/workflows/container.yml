@@ -10,7 +10,8 @@ on:
     branches:
       - main
 
-permissions: {}
+permissions:
+  packages: write
 
 env:
   REGISTRY: ghcr.io
