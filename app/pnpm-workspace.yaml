@@ -1,8 +1,7 @@
-minimumReleaseAge: 1440 # 1 day
+allowBuilds:
+  esbuild: true
 
-onlyBuiltDependencies:
-  - '@tailwindcss/oxide'
-  - esbuild
+minimumReleaseAge: 1440 # 1 day
 
 strictPeerDependencies: true
 
@@ -12,6 +11,3 @@ trustPolicyExclude:
   - rollup@2.80.0
 
 trustPolicyIgnoreAfter: 262980 # 6 months
-minimumReleaseAgeExclude:
-  # Renovate security update: vite@7.3.2
-  - vite@7.3.2
