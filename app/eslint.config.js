@@ -27,6 +27,7 @@ export default antfu(
     },
   },
 
+  // @ts-expect-error see https://github.com/future-architect/eslint-plugin-vue-scoped-css/issues/471
   ...eslintPluginVueScopedCSS.configs.recommended,
 
   // Vue
