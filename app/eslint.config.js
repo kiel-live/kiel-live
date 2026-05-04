@@ -27,7 +27,7 @@ export default antfu(
     },
   },
 
-  ...eslintPluginVueScopedCSS.configs['flat/recommended'],
+  ...eslintPluginVueScopedCSS.configs['recommended'],
 
   // Vue
   {
