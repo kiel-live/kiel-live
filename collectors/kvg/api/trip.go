@@ -38,7 +38,6 @@ type tripPaths struct {
 func (t *tripItem) parse() *models.TripDeparture {
 	actual, err := timeToIsoDateTime(t.ActualTime, time.Now())
 	if err != nil {
-		actual = ""
 		log.Printf("Error parsing time for trip departure: %v", err)
 	}
 
