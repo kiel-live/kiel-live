@@ -176,7 +176,7 @@ func (n *natsClient) UpdateStop(stop *models.Stop) error {
 			}
 		}
 
-		if !planned.IsZero() {
+		if planned.IsZero() {
 			slog.Warn("Departure has no planned time, skipping",
 				"stop_id", stop.ID,
 				"trip_id", departure.TripID,
