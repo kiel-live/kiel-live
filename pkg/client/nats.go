@@ -177,7 +177,7 @@ func (n *natsClient) UpdateStop(stop *models.Stop) error {
 		}
 
 		if planned.IsZero() {
-			slog.Warn("Departure has no planned time, skipping",
+			slog.Warn("Stop departure has no planned time, skipping",
 				"stop_id", stop.ID,
 				"trip_id", departure.TripID,
 				"route_name", departure.RouteName,
@@ -227,9 +227,22 @@ func (n *natsClient) UpdateVehicle(vehicle *models.Vehicle) error {
 func (n *natsClient) UpdateTrip(trip *models.Trip) error {
 	// TODO: remove once majority of clients updated (added 29.03.2026)
 	for _, departure := range trip.Departures {
-		planned, err := time.Parse(time.RFC3339, departure.Planned)
-		if err != nil {
-			return err
+		var planned time.Time
+
+		if departure.Planned != "" {
+			var err error
+			planned, err = time.Parse(time.RFC3339, departure.Planned)
+			if err != nil {
+				return err
+			}
+		}
+
+		if planned.IsZero() {
+			slog.Warn("Trip departure has no planned time, skipping",
+				"trip_id", trip.ID,
+				"name", departure.Name,
+			)
+			continue
 		}
 
 		arrival := &models.TripArrival{ //nolint:staticcheck

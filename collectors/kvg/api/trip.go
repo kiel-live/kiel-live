@@ -107,12 +107,15 @@ func GetTrip(tripID string) (*models.Trip, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var trip trip
 	if err := json.Unmarshal(resp, &trip); err != nil {
 		return nil, err
 	}
+
 	protocolTrip := trip.parse()
 	protocolTrip.ID = IDPrefix + tripID
 	protocolTrip.Path = GetTripPath(tripID)
+
 	return protocolTrip, nil
 }
