@@ -2,7 +2,6 @@ import type { JetStreamManager } from '@nats-io/jetstream';
 import type { NatsConnection } from '@nats-io/nats-core';
 import { jetstreamManager } from '@nats-io/jetstream';
 import { wsconnect } from '@nats-io/nats-core';
-
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
 import { NatsApi } from './nats';
