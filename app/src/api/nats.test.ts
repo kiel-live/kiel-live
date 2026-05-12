@@ -23,7 +23,9 @@ vi.mock('~/config', () => ({
   natsServerUrl: 'ws://test',
 }));
 
-async function createApi(unsubscribeFn = vi.fn(), addFn = vi.fn(async () => ({}))) {
+async function createApi() {
+  const unsubscribeFn = vi.fn();
+  const addFn = vi.fn(async () => ({}));
   vi.mocked(wsconnect).mockResolvedValue({
     subscribe: vi.fn(() => ({
       unsubscribe: unsubscribeFn,
@@ -58,17 +60,14 @@ describe('api', () => {
   });
 
   it('should unsubscribe immediately after subscribing', async () => {
-    const unsubscribeFn = vi.fn();
-    const { api } = await createApi(unsubscribeFn);
+    const { api, unsubscribeFn } = await createApi();
     const state = ref({});
     await Promise.all([api.subscribe('test', state), api.unsubscribe('test')]);
     expect(unsubscribeFn).toHaveBeenCalledOnce();
   });
 
   it('should subscribe after unsubscribing', async () => {
-    const unsubscribeFn = vi.fn();
-    const addFn = vi.fn(async () => ({}));
-    const { api } = await createApi(unsubscribeFn, addFn);
+    const { api, unsubscribeFn, addFn } = await createApi();
     const state = ref({});
     await api.subscribe('test', state);
     await api.unsubscribe('test');
