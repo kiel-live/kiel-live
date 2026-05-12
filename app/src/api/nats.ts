@@ -1,13 +1,13 @@
-import type { JetStreamClient, JetStreamSubscription, NatsConnection } from 'nats.ws';
+import type { JetStreamManager } from '@nats-io/jetstream';
+import type { NatsConnection, Subscription } from '@nats-io/nats-core';
 import type { Ref } from 'vue';
 import type { Api, Bounds, Models, Stop, Trip, Vehicle } from '~/api/types';
+import { AckPolicy, DeliverPolicy, jetstreamManager, ReplayPolicy } from '@nats-io/jetstream';
+import { createInbox, wsconnect } from '@nats-io/nats-core';
 import Fuse from 'fuse.js';
-import { connect, consumerOpts, createInbox, Events, StringCodec } from 'nats.ws';
 import { computed, ref, watch } from 'vue';
 
 import { natsServerUrl } from '~/config';
-
-const sc = StringCodec();
 
 export const DeletePayload = '---';
 
@@ -20,13 +20,13 @@ export class NatsApi implements Api {
 
   private trips = ref<Record<string, Trip>>({});
 
-  private subscriptions = ref<Record<string, { subscription?: JetStreamSubscription; pending?: Promise<void> }>>({});
+  private subscriptions = ref<Record<string, { subscription?: Subscription; pending?: Promise<void> }>>({});
 
   private subscriptionsQueue: Record<string, Ref<Record<string, Models>>> = {};
 
   private nc: NatsConnection | undefined;
 
-  js: Ref<JetStreamClient | undefined> = ref();
+  private jsm: JetStreamManager | undefined;
 
   constructor(autoLoad = true) {
     if (autoLoad) {
@@ -39,13 +39,13 @@ export class NatsApi implements Api {
       throw new Error('NATS_URL is invalid!');
     }
 
-    this.nc = await connect({
+    this.nc = await wsconnect({
       servers: [natsServerUrl],
       waitOnFirstConnect: true,
       maxReconnectAttempts: -1,
     });
     this.isConnected.value = true;
-    this.js.value = this.nc.jetstream();
+    this.jsm = await jetstreamManager(this.nc, { checkAPI: false });
 
     await this.processSubscriptionsQueue();
 
@@ -55,10 +55,10 @@ export class NatsApi implements Api {
       }
 
       for await (const s of this.nc.status()) {
-        if (s.type === Events.Disconnect) {
+        if (s.type === 'disconnect') {
           this.isConnected.value = false;
         }
-        if (s.type === Events.Reconnect) {
+        if (s.type === 'reconnect') {
           this.isConnected.value = true;
 
           await this.processSubscriptionsQueue();
@@ -72,7 +72,7 @@ export class NatsApi implements Api {
       return;
     }
 
-    if (!this.isConnected.value || !this.js.value) {
+    if (!this.isConnected.value || !this.jsm || !this.nc) {
       this.subscriptionsQueue[topic] = state;
       return;
     }
@@ -84,19 +84,23 @@ export class NatsApi implements Api {
       }),
     };
 
-    const opts = consumerOpts();
-    opts.deliverTo(createInbox());
-    opts.deliverAll();
-    opts.ackNone();
-    opts.replayInstantly();
-    const sub = await this.js.value.subscribe(topic, opts);
+    const streamName = await this.jsm.streams.find(topic);
+    const inbox = createInbox();
+    const sub = this.nc.subscribe(inbox);
 
+    await this.jsm.consumers.add(streamName, {
+      deliver_subject: inbox,
+      deliver_policy: DeliverPolicy.All,
+      ack_policy: AckPolicy.None,
+      replay_policy: ReplayPolicy.Instant,
+      filter_subject: topic,
+    });
     this.subscriptions.value[topic].subscription = sub;
     resolvePendingSubscription();
 
     void (async () => {
       for await (const m of sub) {
-        const raw = sc.decode(m.data);
+        const raw = m.string();
         if (raw === DeletePayload) {
           // TODO
           // delete vehicles.value[''];
