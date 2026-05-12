@@ -1,82 +1,80 @@
 import type { JetStreamManager } from '@nats-io/jetstream';
-import type { NatsConnection, Subscription } from '@nats-io/nats-core';
+import type { NatsConnection } from '@nats-io/nats-core';
+import { jetstreamManager } from '@nats-io/jetstream';
+import { wsconnect } from '@nats-io/nats-core';
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
+import { NatsApi } from './nats';
 
-function makeSubscription(unsubscribeFn = vi.fn()): Subscription {
-  return {
-    unsubscribe: unsubscribeFn,
-    [Symbol.asyncIterator]() {
-      return {
-        next: async () =>
-          new Promise((resolve) => {
-            resolve({ done: true, value: undefined });
-          }),
-      };
-    },
-  } as unknown as Subscription;
-}
+vi.mock('@nats-io/nats-core', () => ({
+  wsconnect: vi.fn(),
+  createInbox: vi.fn(() => '_INBOX.test'),
+}));
 
-function makeJsm(addFn = vi.fn(async () => ({}))): JetStreamManager {
-  return {
+vi.mock('@nats-io/jetstream', () => ({
+  jetstreamManager: vi.fn(),
+  DeliverPolicy: { All: 'all' },
+  AckPolicy: { None: 'none' },
+  ReplayPolicy: { Instant: 'instant' },
+}));
+
+vi.mock('~/config', () => ({
+  natsServerUrl: 'ws://test',
+}));
+
+async function createApi(unsubscribeFn = vi.fn(), addFn = vi.fn(async () => ({}))) {
+  vi.mocked(wsconnect).mockResolvedValue({
+    subscribe: vi.fn(() => ({
+      unsubscribe: unsubscribeFn,
+      [Symbol.asyncIterator]() {
+        return { next: async () => ({ done: true as const, value: undefined }) };
+      },
+    })),
+    async *status() {},
+  } as unknown as NatsConnection);
+
+  vi.mocked(jetstreamManager).mockResolvedValue({
     streams: { find: vi.fn(async () => 'test-stream') },
     consumers: { add: addFn },
-  } as unknown as JetStreamManager;
-}
+  } as unknown as JetStreamManager);
 
-function makeNc(sub: Subscription): NatsConnection {
-  return { subscribe: vi.fn(() => sub) } as unknown as NatsConnection;
+  const api = new NatsApi(false);
+  await api.load();
+
+  return { api, addFn, unsubscribeFn };
 }
 
 describe('api', () => {
   beforeEach(() => {
-    vi.resetModules();
+    vi.clearAllMocks();
   });
 
   it('should only subscribe once when called multiple times', async () => {
-    const { NatsApi } = await import('./nats');
-    const api = new NatsApi(false);
+    const { api, addFn } = await createApi();
     const state = ref({});
-    const addMock = vi.fn(async () => ({}));
-    api.jsm = makeJsm(addMock);
-    api.nc = makeNc(makeSubscription());
-    api.isConnected.value = true;
-
     await Promise.all([api.subscribe('test', state), api.subscribe('test', state), api.subscribe('test', state)]);
-
-    expect(addMock).toBeCalledTimes(1);
+    expect(addFn).toHaveBeenCalledOnce();
   });
 
   it('should unsubscribe immediately after subscribing', async () => {
-    const { NatsApi } = await import('./nats');
-    const api = new NatsApi(false);
-    const unsubscribeMock = vi.fn();
-    api.jsm = makeJsm();
-    api.nc = makeNc(makeSubscription(unsubscribeMock));
-    api.isConnected.value = true;
-
+    const unsubscribeFn = vi.fn();
+    const { api } = await createApi(unsubscribeFn);
     const state = ref({});
     await Promise.all([api.subscribe('test', state), api.unsubscribe('test')]);
-
-    expect(unsubscribeMock).toBeCalledTimes(1);
+    expect(unsubscribeFn).toHaveBeenCalledOnce();
   });
 
   it('should subscribe after unsubscribing', async () => {
-    const { NatsApi } = await import('./nats');
-    const api = new NatsApi(false);
-    const unsubscribeMock = vi.fn();
-    const addMock = vi.fn(async () => ({}));
-    api.jsm = makeJsm(addMock);
-    api.nc = makeNc(makeSubscription(unsubscribeMock));
-    api.isConnected.value = true;
-
+    const unsubscribeFn = vi.fn();
+    const addFn = vi.fn(async () => ({}));
+    const { api } = await createApi(unsubscribeFn, addFn);
     const state = ref({});
     await api.subscribe('test', state);
     await api.unsubscribe('test');
     await api.subscribe('test', state);
     await api.unsubscribe('test');
-
-    expect(addMock).toBeCalledTimes(2);
-    expect(unsubscribeMock).toBeCalledTimes(2);
+    expect(addFn).toHaveBeenCalledTimes(2);
+    expect(unsubscribeFn).toHaveBeenCalledTimes(2);
   });
 });

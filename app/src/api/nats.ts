@@ -24,9 +24,9 @@ export class NatsApi implements Api {
 
   private subscriptionsQueue: Record<string, Ref<Record<string, Models>>> = {};
 
-  nc: NatsConnection | undefined;
+  private nc: NatsConnection | undefined;
 
-  jsm: JetStreamManager | undefined;
+  private jsm: JetStreamManager | undefined;
 
   constructor(autoLoad = true) {
     if (autoLoad) {
