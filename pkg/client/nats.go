@@ -158,17 +158,38 @@ func (n *natsClient) SetOnTopicsChanged(topicSubscriptionHandler func(topic stri
 func (n *natsClient) UpdateStop(stop *models.Stop) error {
 	// TODO: remove once majority of clients updated (added 29.03.2026)
 	for _, departure := range stop.Departures {
-		planned, err := time.Parse(time.RFC3339, departure.Planned)
-		if err != nil {
-			return err
+		var planned time.Time
+		if departure.Planned != "" {
+			var err error
+			planned, err = time.Parse(time.RFC3339, departure.Planned)
+			if err != nil {
+				return err
+			}
 		}
 
-		actual, err := time.Parse(time.RFC3339, departure.Actual)
-		if err != nil {
-			return err
+		var actual time.Time
+		if departure.Actual != "" {
+			var err error
+			actual, err = time.Parse(time.RFC3339, departure.Actual)
+			if err != nil {
+				return err
+			}
 		}
 
-		eta := int(actual.Sub(planned).Seconds())
+		if planned.IsZero() {
+			slog.Warn("Stop departure has no planned time, skipping",
+				"stop_id", stop.ID,
+				"trip_id", departure.TripID,
+				"route_name", departure.RouteName,
+				"name", departure.Name,
+			)
+			continue
+		}
+
+		eta := 0
+		if !actual.IsZero() && !planned.IsZero() {
+			eta = int(actual.Sub(planned).Seconds())
+		}
 
 		arrival := &models.StopArrival{ //nolint:staticcheck
 			Name:      departure.Name,
@@ -206,9 +227,22 @@ func (n *natsClient) UpdateVehicle(vehicle *models.Vehicle) error {
 func (n *natsClient) UpdateTrip(trip *models.Trip) error {
 	// TODO: remove once majority of clients updated (added 29.03.2026)
 	for _, departure := range trip.Departures {
-		planned, err := time.Parse(time.RFC3339, departure.Planned)
-		if err != nil {
-			return err
+		var planned time.Time
+
+		if departure.Planned != "" {
+			var err error
+			planned, err = time.Parse(time.RFC3339, departure.Planned)
+			if err != nil {
+				return err
+			}
+		}
+
+		if planned.IsZero() {
+			slog.Warn("Trip departure has no planned time, skipping",
+				"trip_id", trip.ID,
+				"name", departure.Name,
+			)
+			continue
 		}
 
 		arrival := &models.TripArrival{ //nolint:staticcheck

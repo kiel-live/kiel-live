@@ -90,13 +90,11 @@ type routes struct {
 func (d *departure) parse() *models.StopDepartures {
 	actual, err := timeToIsoDateTime(d.ActualTime, time.Now())
 	if err != nil {
-		actual = ""
 		log.Printf("Error parsing actual time: %v", err)
 	}
 
 	planned, err := timeToIsoDateTime(d.PlannedTime, time.Now())
 	if err != nil {
-		planned = ""
 		log.Printf("Error parsing planned time: %v", err)
 	}
 
