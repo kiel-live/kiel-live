@@ -55,7 +55,7 @@
     "tailwindcss": "4.2.4",
     "typescript": "6.0.3",
     "unplugin-icons": "23.0.1",
-    "unplugin-vue-components": "32.0.0",
+    "unplugin-vue-components": "32.1.0",
     "vite": "7.3.2",
     "vite-plugin-pwa": "1.2.0",
     "vitest": "4.1.5",
