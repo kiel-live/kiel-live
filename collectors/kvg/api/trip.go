@@ -38,7 +38,6 @@ type tripPaths struct {
 func (t *tripItem) parse() *models.TripDeparture {
 	actual, err := timeToIsoDateTime(t.ActualTime, time.Now())
 	if err != nil {
-		actual = ""
 		log.Printf("Error parsing time for trip departure: %v", err)
 	}
 
@@ -107,12 +106,15 @@ func GetTrip(tripID string) (*models.Trip, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var trip trip
 	if err := json.Unmarshal(resp, &trip); err != nil {
 		return nil, err
 	}
+
 	protocolTrip := trip.parse()
 	protocolTrip.ID = IDPrefix + tripID
 	protocolTrip.Path = GetTripPath(tripID)
+
 	return protocolTrip, nil
 }
