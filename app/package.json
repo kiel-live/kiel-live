@@ -22,7 +22,7 @@
     "translate": "pnpx @geprog/translator translate ./src/locales"
   },
   "dependencies": {
-    "@nats-io/jetstream": "3.3.1",
+    "@nats-io/jetstream": "3.4.0",
     "@nats-io/nats-core": "3.3.1",
     "@vueuse/core": "14.3.0",
     "canvas-confetti": "1.9.4",
