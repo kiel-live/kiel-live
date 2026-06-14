@@ -123,8 +123,8 @@ func (n *natsClient) Subscribe(topic string, cb SubscribeCallback) error {
 }
 
 func (n *natsClient) Unsubscribe(topic string) error {
-	sub := n.subscriptions[topic]
-	if sub != nil {
+	sub, ok := n.subscriptions[topic]
+	if !ok || sub == nil {
 		return fmt.Errorf("you have not subscribed to that topic '%s'", topic)
 	}
 
