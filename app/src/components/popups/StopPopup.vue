@@ -136,7 +136,7 @@ function getBoardTime(departure: StopDeparture) {
   }
 
   const actual = new Date(departure.actual);
-  const diffMinutes = Math.round((actual.getTime() - new Date().getTime()) / 60_000);
+  const diffMinutes = Math.round((actual.getTime() - Date.now()) / 60_000);
 
   if (diffMinutes < 1) {
     return t('immediately');
