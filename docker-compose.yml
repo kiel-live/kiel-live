@@ -24,3 +24,25 @@ services:
     command: /setup.sh
     depends_on:
       - server
+  # Optional hub service — enable by setting COLLECTOR_TOKEN in your .env.
+  # Collectors point at the hub by setting COLLECTOR_CLIENT=hub and COLLECTOR_SERVER=ws://hub:8080.
+  hub:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM golang:1.25 AS build
+        WORKDIR /src
+        COPY go.mod go.sum ./
+        RUN go mod download
+        COPY . .
+        RUN CGO_ENABLED=0 go build -o /hub ./hub
+        FROM scratch
+        COPY --from=build /hub /hub
+        ENTRYPOINT ["/hub"]
+    ports:
+      - 127.0.0.1:8090:8080
+    environment:
+      - COLLECTOR_TOKEN=${COLLECTOR_TOKEN}
+      - HUB_LISTEN=:8080
+    profiles:
+      - hub

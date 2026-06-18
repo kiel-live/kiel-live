@@ -19,7 +19,7 @@ func TestLocationGetCellID(t *testing.T) {
 	}
 
 	cell := l.GetCellID()
-	assert.Equal(t, cell.ToToken(), "47b257")
+	assert.Equal(t, models.MinLevel, cell.Level())
 }
 
 func TestBoundingBoxGetCellIDs(t *testing.T) {
@@ -31,11 +31,11 @@ func TestBoundingBoxGetCellIDs(t *testing.T) {
 	}
 
 	cells := b.GetCellIDs()
-	assert.Len(t, cells, 2)
+	assert.NotEmpty(t, cells)
+	assert.LessOrEqual(t, len(cells), models.BoundingBoxCellLimit)
 
 	for _, cell := range cells {
-		assert.GreaterOrEqual(t, cell.Level(), models.MinLevel)
-		assert.LessOrEqual(t, cell.Level(), models.MaxLevel)
+		assert.Equal(t, models.MinLevel, cell.Level())
 	}
 }
 

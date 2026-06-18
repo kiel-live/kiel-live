@@ -5,9 +5,9 @@ import (
 )
 
 const (
-	MinLevel             = 10
-	MaxLevel             = 10
-	BoundingBoxCellLimit = 10 // max number of cells in a bounding box
+	MinLevel             = 12
+	MaxLevel             = 12
+	BoundingBoxCellLimit = 20 // max number of cells in a bounding box
 )
 
 type Location struct {
@@ -18,13 +18,19 @@ type Location struct {
 	// Longitude float64 `json:"longitude"` // exp: 10.149
 }
 
+func (l *Location) DistanceToMeters(location *Location) float64 {
+	p1 := s2.LatLngFromDegrees(toDegreesFloat(l.Latitude), toDegreesFloat(l.Longitude))
+	p2 := s2.LatLngFromDegrees(toDegreesFloat(location.Latitude), toDegreesFloat(location.Longitude))
+	return p1.Distance(p2).Radians() * 6371000.0 // Earth radius in meters
+}
+
 func toDegreesFloat(value int) float64 {
 	return float64(value) / 3600000.0
 }
 
 func (l *Location) GetCellID() s2.CellID {
 	p := s2.LatLngFromDegrees(toDegreesFloat(l.Latitude), toDegreesFloat(l.Longitude))
-	return s2.CellIDFromLatLng(p).Parent(10)
+	return s2.CellIDFromLatLng(p).Parent(MinLevel)
 }
 
 type BoundingBox struct {
