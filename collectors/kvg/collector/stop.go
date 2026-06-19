@@ -96,13 +96,18 @@ func (c *StopCollector) Run() {
 	// load further details only for explicitly subscribed stops
 	log.Debug("loading details for stops", "count", len(stopIDs), "stop_ids", strings.Join(stopIDs, ", "))
 	for _, stopID := range stopIDs {
+		stop, ok := stops[api.IDPrefix+stopID]
+		if !ok {
+			log.Warn("subscribed stop not found in stops list", "stop_id", stopID)
+			continue
+		}
 		details, err := api.GetStopDetails(stopID)
 		if err != nil {
 			log.Error("failed to get stop details", "error", err)
 			continue
 		}
-		stops[api.IDPrefix+stopID].Departures = details.Departures
-		stops[api.IDPrefix+stopID].Alerts = details.Alerts
+		stop.Departures = details.Departures
+		stop.Alerts = details.Alerts
 	}
 
 	var stopsToPublish []*models.Stop
