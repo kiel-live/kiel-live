@@ -47,7 +47,7 @@
     "@types/geojson": "7946.0.16",
     "@types/node": "24.13.2",
     "@vitejs/plugin-vue": "6.0.6",
-    "eslint": "10.4.1",
+    "eslint": "10.5.0",
     "eslint-plugin-promise": "7.3.0",
     "eslint-plugin-vue-scoped-css": "3.1.1",
     "prettier": "3.8.4",
