@@ -36,5 +36,5 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.7.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
-    implementation 'androidx.webkit:webkit:1.15.0'
+    implementation 'androidx.webkit:webkit:1.16.0'
 }
