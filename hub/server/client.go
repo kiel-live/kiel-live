@@ -53,6 +53,7 @@ func (s *Server) handleClientWS(w http.ResponseWriter, r *http.Request) {
 	}
 	s.clientCount.Add(1)
 	c.log.Info("client connected")
+	startKeepalive(ws, s.pingInterval, s.pongWait, c.done)
 	c.run()
 	s.clientCount.Add(-1)
 	c.log.Info("client disconnected")

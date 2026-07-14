@@ -19,6 +19,7 @@ type collectorConn struct {
 	log    *slog.Logger
 
 	writeMu sync.Mutex
+	done    chan struct{}
 }
 
 func (s *Server) handleCollectorWS(w http.ResponseWriter, r *http.Request) {
@@ -40,9 +41,11 @@ func (s *Server) handleCollectorWS(w http.ResponseWriter, r *http.Request) {
 		st:     s.store,
 		subMgr: s.subMgr,
 		log:    slog.With("role", "collector", "remote", r.RemoteAddr),
+		done:   make(chan struct{}),
 	}
 	s.collectorCount.Add(1)
 	c.log.Info("collector connected")
+	startKeepalive(ws, s.pingInterval, s.pongWait, c.done)
 	c.run()
 	s.collectorCount.Add(-1)
 	c.log.Info("collector disconnected")
@@ -121,6 +124,7 @@ func (c *collectorConn) handleEnvelope(env protocol.Envelope) {
 }
 
 func (c *collectorConn) cleanup() {
+	close(c.done)
 	c.subMgr.unregisterCollector(c)
 	c.ws.Close()
 }

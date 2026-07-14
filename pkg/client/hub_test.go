@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gorilla/websocket"
 	"github.com/kiel-live/kiel-live/hub/server"
 	"github.com/kiel-live/kiel-live/hub/store"
 	"github.com/kiel-live/kiel-live/pkg/client"
@@ -94,4 +95,55 @@ func TestHubClientDeleteStop(t *testing.T) {
 	require.NoError(t, c.UpdateStop(stop))
 	time.Sleep(20 * time.Millisecond) // let server process
 	require.NoError(t, c.DeleteStop("kvg-2"))
+}
+
+// TestHubClientDetectsServerClosedConnection verifies the reconnect loop
+// engages when the hub-side connection disappears. This is what the
+// collector observes when the hub's WS keepalive decides a connection is
+// dead and tears it down from its side — from the collector's perspective,
+// a keepalive-triggered close is indistinguishable from any other
+// server-initiated close, so a minimal fake endpoint that upgrades and then
+// closes exercises the same hubClient code path deterministically, without
+// waiting out real ping/pong timers (which a healthy hubClient would always
+// answer anyway, since its read loop auto-responds to pings).
+func TestHubClientDetectsServerClosedConnection(t *testing.T) {
+	closeNow := make(chan struct{})
+	upgrader := websocket.Upgrader{}
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer "+testToken {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			return
+		}
+		<-closeNow
+		conn.Close()
+	}))
+	defer ts.Close()
+
+	c := client.NewHubClient(hubWSURL(ts), testToken)
+	require.NoError(t, c.Connect())
+	defer func() { _ = c.Disconnect() }()
+	require.True(t, c.IsConnected())
+
+	disconnected := make(chan struct{}, 1)
+	c.SetOnConnectionChanged(func(connected bool) {
+		if !connected {
+			select {
+			case disconnected <- struct{}{}:
+			default:
+			}
+		}
+	})
+
+	close(closeNow) // simulate the hub's keepalive deciding this connection is dead
+
+	select {
+	case <-disconnected:
+	case <-time.After(2 * time.Second):
+		t.Fatal("expected connection-lost callback to fire after server closed the connection")
+	}
+	assert.False(t, c.IsConnected())
 }

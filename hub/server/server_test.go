@@ -128,13 +128,40 @@ type testServer struct {
 
 func newTestServer(t *testing.T) *testServer {
 	t.Helper()
+	return newTestServerWithKeepalive(t, 0, 0)
+}
+
+// newTestServerWithKeepalive overrides the WS ping interval / pong wait so
+// dead-connection tests don't need to wait out production-sized timers.
+// Pass zero values to keep the server defaults (effectively disabling the
+// keepalive within a normal test's lifetime).
+func newTestServerWithKeepalive(t *testing.T, pingInterval, pongWait time.Duration) *testServer {
+	t.Helper()
 	st := store.New()
 	srv := server.New(st, testToken)
+	if pingInterval > 0 {
+		srv.SetKeepalive(pingInterval, pongWait)
+	}
 	mux := http.NewServeMux()
 	srv.RegisterRoutes(mux)
 	hs := httptest.NewServer(mux)
 	t.Cleanup(hs.Close)
 	return &testServer{Server: hs, store: st}
+}
+
+// statusGauge fetches a top-level numeric gauge from /api/status (e.g. "clients", "collectors").
+func statusGauge(t *testing.T, ts *testServer, key string) float64 {
+	t.Helper()
+	resp, err := http.Get(ts.URL + "/api/status")
+	require.NoError(t, err)
+	defer resp.Body.Close()
+	var snap map[string]any
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&snap))
+	v, ok := snap[key]
+	require.True(t, ok, "missing %q in /api/status: %v", key, snap)
+	f, ok := v.(float64)
+	require.True(t, ok, "%q is not numeric: %v", key, v)
+	return f
 }
 
 func wsURL(ts *testServer, path string) string {
@@ -622,4 +649,80 @@ func TestTripDetailSubscription(t *testing.T) {
 	var rt models.Trip
 	require.NoError(t, json.Unmarshal(*e.Data, &rt))
 	assert.Len(t, rt.Departures, 1)
+}
+
+// ── keepalive ────────────────────────────────────────────────────────────────
+
+// TestClientDeadConnectionDetectedAndCleanedUp verifies a client that never
+// reads (and so never auto-responds to pings) is detected as dead and torn
+// down, rather than lingering forever with no read deadline.
+func TestClientDeadConnectionDetectedAndCleanedUp(t *testing.T) {
+	ts := newTestServerWithKeepalive(t, 20*time.Millisecond, 60*time.Millisecond)
+
+	ws, _, err := websocket.DefaultDialer.Dial(wsURL(ts, "/ws/client"), nil)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = ws.Close() })
+
+	require.Eventually(t, func() bool {
+		return statusGauge(t, ts, "clients") == 1
+	}, time.Second, 5*time.Millisecond, "client should be counted as connected")
+
+	// Deliberately never call ws.ReadMessage — gorilla only auto-responds to
+	// incoming pings while the read loop is running, so this connection will
+	// never send a pong back.
+
+	require.Eventually(t, func() bool {
+		return statusGauge(t, ts, "clients") == 0
+	}, 2*time.Second, 10*time.Millisecond, "dead client should be cleaned up")
+}
+
+// TestClientRespondingToPingsStaysConnected verifies the keepalive doesn't
+// spuriously disconnect a client that keeps reading (and so keeps
+// auto-responding to pings) across several ping/pongWait cycles.
+func TestClientRespondingToPingsStaysConnected(t *testing.T) {
+	ts := newTestServerWithKeepalive(t, 20*time.Millisecond, 60*time.Millisecond)
+	cli := connectClient(t, ts)
+
+	require.Eventually(t, func() bool {
+		return statusGauge(t, ts, "clients") == 1
+	}, time.Second, 5*time.Millisecond)
+
+	time.Sleep(250 * time.Millisecond) // several ping/pongWait cycles
+
+	assert.Equal(t, float64(1), statusGauge(t, ts, "clients"))
+	cli.noRecv(t) // pings/pongs are control frames, never surfaced as envelopes
+}
+
+// TestCollectorDeadConnectionDetectedAndCleanedUp mirrors the client test for
+// /ws/collector: a collector that never reads is detected as dead and cleaned up.
+func TestCollectorDeadConnectionDetectedAndCleanedUp(t *testing.T) {
+	ts := newTestServerWithKeepalive(t, 20*time.Millisecond, 60*time.Millisecond)
+
+	hdr := http.Header{"Authorization": {"Bearer " + testToken}}
+	ws, _, err := websocket.DefaultDialer.Dial(wsURL(ts, "/ws/collector"), hdr)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = ws.Close() })
+
+	require.Eventually(t, func() bool {
+		return statusGauge(t, ts, "collectors") == 1
+	}, time.Second, 5*time.Millisecond, "collector should be counted as connected")
+
+	require.Eventually(t, func() bool {
+		return statusGauge(t, ts, "collectors") == 0
+	}, 2*time.Second, 10*time.Millisecond, "dead collector should be cleaned up")
+}
+
+// TestCollectorRespondingToPingsStaysConnected verifies a collector that
+// keeps reading (and so keeps auto-responding to pings) is not disconnected.
+func TestCollectorRespondingToPingsStaysConnected(t *testing.T) {
+	ts := newTestServerWithKeepalive(t, 20*time.Millisecond, 60*time.Millisecond)
+	connectCollector(t, ts)
+
+	require.Eventually(t, func() bool {
+		return statusGauge(t, ts, "collectors") == 1
+	}, time.Second, 5*time.Millisecond)
+
+	time.Sleep(250 * time.Millisecond) // several ping/pongWait cycles
+
+	assert.Equal(t, float64(1), statusGauge(t, ts, "collectors"))
 }
