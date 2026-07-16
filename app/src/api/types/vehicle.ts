@@ -2,16 +2,7 @@ import type { Action } from './action';
 import type { GpsLocation } from './location';
 
 export type VehicleType =
-  | 'bus'
-  | 'bike'
-  | 'car'
-  | 'e-scooter'
-  | 'ferry'
-  | 'train'
-  | 'subway'
-  | 'tram'
-  | 'moped'
-  | 'e-moped';
+  'bus' | 'bike' | 'car' | 'e-scooter' | 'ferry' | 'train' | 'subway' | 'tram' | 'moped' | 'e-moped';
 
 export interface Vehicle {
   id: string;
