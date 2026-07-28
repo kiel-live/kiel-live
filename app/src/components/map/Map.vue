@@ -258,6 +258,11 @@ onMounted(async () => {
     attributionControl: false,
   });
 
+  // disable map rotation
+  map.dragRotate.disable();
+  map.keyboard.disable();
+  map.touchZoomRotate.disableRotation();
+
   const attributionControl = new AttributionControl({ compact: true });
   map.addControl(attributionControl, 'bottom-left');
 
@@ -270,7 +275,12 @@ onMounted(async () => {
 
   map.addControl(geolocateControl, 'bottom-right');
 
-  map.addControl(new NavigationControl({}), 'bottom-right');
+  map.addControl(
+    new NavigationControl({
+      showCompass: false,
+    }),
+    'bottom-right',
+  );
 
   // Trigger geolocation if permission has been granted
   if (navigator.permissions) {
