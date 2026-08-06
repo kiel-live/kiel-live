@@ -4,13 +4,7 @@ import type { GpsLocation } from './location';
 import type { Vehicle, VehicleType } from './vehicle';
 
 export type StopType =
-  | 'bus-stop'
-  | 'parking-spot'
-  | 'ferry-stop'
-  | 'train-stop'
-  | 'subway-stop'
-  | 'bike-stop'
-  | 'tram-stop';
+  'bus-stop' | 'parking-spot' | 'ferry-stop' | 'train-stop' | 'subway-stop' | 'bike-stop' | 'tram-stop';
 
 export interface Stop {
   id: string;
