@@ -10,7 +10,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-memdb v1.3.5
 	github.com/joho/godotenv v1.5.1
-	github.com/nats-io/nats.go v1.50.0
+	github.com/nats-io/nats.go v1.53.1
 	github.com/stretchr/testify v1.11.1
 	github.com/thoas/go-funk v0.9.3
 )
