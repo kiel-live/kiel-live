@@ -20,7 +20,7 @@ const OUTLINE_COLOR = '#ffffff';
 const RADIUS_RATIO = 0.6;
 
 // radius of the (unselected) badge circle, in canvas pixels — shared with the
-// nose so its pointer starts flush against the badge's edge
+// nose so its pointer is positioned relative to the badge's actual edge
 const BADGE_RADIUS = (BADGE_SIZE / 2) * RADIUS_RATIO;
 
 export interface VehicleBadgeIconOptions {
@@ -90,12 +90,13 @@ export function createVehicleNoseIcon(color: string) {
   }
 
   const center = NOSE_CANVAS_SIZE / 2;
-  const noseHeight = BADGE_RADIUS * 1.4;
-  const noseWidth = BADGE_RADIUS;
-  // start a couple of pixels inside the badge's edge so the badge (drawn on
-  // top) cleanly covers the seam instead of leaving an antialiasing gap
-  const baseY = -BADGE_RADIUS + 3;
-  const tipY = -BADGE_RADIUS - noseHeight;
+  const noseHeight = BADGE_RADIUS * 0.75;
+  const noseWidth = BADGE_RADIUS * 0.7;
+  // a small visible gap between the badge's edge and the nose, so it reads as
+  // a separate direction indicator rather than an extension of the badge
+  const gap = BADGE_RADIUS * 0.25;
+  const baseY = -BADGE_RADIUS - gap;
+  const tipY = baseY - noseHeight;
 
   context.translate(center, center);
 
