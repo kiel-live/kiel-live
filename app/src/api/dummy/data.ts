@@ -70,6 +70,39 @@ export const DUMMY_VEHICLES: Vehicle[] = [
     tripId: 'kvg-1610077840790681351',
     description: '',
   },
+  {
+    id: 'tram-1',
+    provider: 'dummy',
+    name: '5 Schulen am Langsee',
+    type: 'tram',
+    state: 'active',
+    location: { latitude: 54.3245 * 3600000, longitude: 10.1235 * 3600000, heading: 135 },
+  },
+  {
+    id: 'train-1',
+    provider: 'dummy',
+    name: 'RB75 Rendsburg',
+    type: 'train',
+    state: 'active',
+    location: { latitude: 54.322 * 3600000, longitude: 10.1215 * 3600000, heading: 320 },
+  },
+  {
+    id: 'ferry-1',
+    provider: 'dummy',
+    name: 'F1 Reventlou',
+    type: 'ferry',
+    state: 'active',
+    location: { latitude: 54.325 * 3600000, longitude: 10.1255 * 3600000, heading: 200 },
+  },
+  {
+    id: 'escooter-1',
+    provider: 'dummy',
+    name: 'E-Scooter 4711',
+    type: 'e-scooter',
+    state: 'active',
+    battery: '72',
+    location: { latitude: 54.3228 * 3600000, longitude: 10.1245 * 3600000 },
+  },
 ];
 
 export const DUMMY_STOPS: Stop[] = [
