@@ -14,3 +14,5 @@ trustPolicyIgnoreAfter: 262980 # 6 months
 minimumReleaseAgeExclude:
   # Renovate security update: vite@7.3.5
   - vite@7.3.5
+  # Renovate security update: maplibre-gl@6.4.1
+  - maplibre-gl@6.4.1
