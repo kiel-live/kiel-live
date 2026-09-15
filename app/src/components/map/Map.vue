@@ -26,7 +26,7 @@ import { AttributionControl, GeolocateControl, Map, NavigationControl } from 'ma
 import { computed, onBeforeUnmount, onMounted, ref, toRef, useTemplateRef, watch } from 'vue';
 import { api } from '~/api';
 import { labeledVehicleTypes, stopColor, vehicleColors } from '~/components/map/markerColors';
-import { createVehicleIcon } from '~/components/map/vehicleIcon';
+import { createVehicleBadgeIcon, createVehicleNoseIcon } from '~/components/map/vehicleIcon';
 import { useColorMode } from '~/compositions/useColorMode';
 import { useUserSettings } from '~/compositions/useUserSettings';
 import { brightMapStyle, darkMapStyle } from '~/config';
@@ -72,8 +72,6 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
   Object.values(vehicles.value).map((v) => {
     const heading = v.location.heading;
     const hasHeading = heading !== undefined && heading !== null;
-    // vehicles with a known heading get a "nose" pointing in their direction of travel
-    const iconKey = hasHeading ? `${v.type}-arrow` : v.type;
 
     return {
       type: 'Feature',
@@ -84,8 +82,10 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
         id: v.id,
         number: labeledVehicleTypes.has(v.type) ? v.name.split(' ')[0] : '',
         to: v.name.split(' ').slice(1).join(' '),
-        iconName: iconKey,
-        iconNameFocused: `${iconKey}-selected`,
+        iconName: v.type,
+        iconNameFocused: `${v.type}-selected`,
+        // vehicles with a known heading get a "nose" pointing in their direction of travel
+        noseIcon: hasHeading ? `${v.type}-nose` : '',
         heading: heading ?? 0,
       },
 
@@ -188,8 +188,26 @@ const stopsLabelLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   },
 }));
 
-// vehicles use a small icon (with a "nose" pointing towards their heading, when
-// known) plus a label showing their line/route number next to the marker
+// vehicles are drawn from two layers sharing the same icon-size so they line up:
+// a "nose" pointing towards the vehicle's heading (when known), rotated via
+// icon-rotate, and — on top — a badge (icon in a colored circle) that is
+// always upright, never rotated, plus a label with the line/route number.
+const vehicleIconSize = 1.2;
+
+const vehiclesNoseLayer: Ref<SymbolLayerSpecification> = computed(() => ({
+  id: 'vehicles-nose',
+  type: 'symbol',
+  source: 'geojson',
+  filter: ['==', 'kind', 'vehicle'],
+  layout: {
+    'icon-image': ['get', 'noseIcon'],
+    'icon-size': vehicleIconSize,
+    'icon-rotate': ['get', 'heading'],
+    'icon-rotation-alignment': 'map',
+    'icon-allow-overlap': true,
+  },
+}));
+
 const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   id: 'vehicles',
   type: 'symbol',
@@ -215,14 +233,12 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
       ['get', 'iconNameFocused'],
       ['get', 'iconName'],
     ],
-    'icon-size': 0.9,
-    'icon-rotate': ['get', 'heading'],
-    'icon-rotation-alignment': 'map',
+    'icon-size': vehicleIconSize,
     'icon-allow-overlap': true,
     'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
     'text-field': ['get', 'number'],
     'text-size': 13,
-    'text-offset': [0, 1.9],
+    'text-offset': [0, 2.2],
     'text-anchor': 'top',
     'text-allow-overlap': false,
     'text-optional': true,
@@ -304,16 +320,11 @@ onMounted(async () => {
       (Object.keys(vehicleColors) as VehicleType[]).flatMap((type) => {
         const color = vehicleColors[type];
         return [
-          createVehicleIcon({ type, color }).then((icon) => map.addImage(type, icon, { pixelRatio: 2 })),
-          createVehicleIcon({ type, color, selected: true }).then((icon) =>
+          createVehicleBadgeIcon({ type, color }).then((icon) => map.addImage(type, icon, { pixelRatio: 2 })),
+          createVehicleBadgeIcon({ type, color, selected: true }).then((icon) =>
             map.addImage(`${type}-selected`, icon, { pixelRatio: 2 }),
           ),
-          createVehicleIcon({ type, color, nose: true }).then((icon) =>
-            map.addImage(`${type}-arrow`, icon, { pixelRatio: 2 }),
-          ),
-          createVehicleIcon({ type, color, nose: true, selected: true }).then((icon) =>
-            map.addImage(`${type}-arrow-selected`, icon, { pixelRatio: 2 }),
-          ),
+          map.addImage(`${type}-nose`, createVehicleNoseIcon(color), { pixelRatio: 2 }),
         ];
       }),
     );
@@ -330,6 +341,7 @@ onMounted(async () => {
     map.addLayer(stopsLayer.value);
     map.addLayer(stopsLabelLayer.value);
     map.addLayer(tripsLayer.value);
+    map.addLayer(vehiclesNoseLayer.value);
     map.addLayer(vehiclesLayer.value);
 
     bounds.value = {
