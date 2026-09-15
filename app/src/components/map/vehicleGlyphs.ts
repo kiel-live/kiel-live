@@ -1,9 +1,7 @@
 import type { VehicleType } from '~/api/types';
 
-// Inline SVG bodies for the same icon set already used elsewhere in the app
-// (see VehiclePopup.vue), so map markers match the icons shown in popups.
-// Extracted once from the @iconify-json/{mdi,ph,carbon} packages to avoid
-// bundling those (multi-MB) icon sets at runtime.
+// Same icons as VehiclePopup.vue, copied from @iconify-json/{mdi,ph,carbon}
+// rather than imported so those (multi-MB) packages aren't bundled at runtime.
 interface VehicleGlyph {
   viewBox: number;
   body: string;

@@ -2,9 +2,8 @@ import type { VehicleType } from '~/api/types';
 
 export const defaultMarkerColor = '#495057';
 
-// a stop can serve multiple vehicle types at once (e.g. Hauptbahnhof is a bus,
-// train and bike stop), so stops all share one neutral color rather than being
-// colored per type.
+// one shared color: a stop can serve multiple vehicle types at once (e.g.
+// Hauptbahnhof is a bus, train and bike stop), so coloring by type doesn't work
 export const stopColor = '#33414d';
 
 export const vehicleColors: Record<VehicleType, string> = {
@@ -20,5 +19,5 @@ export const vehicleColors: Record<VehicleType, string> = {
   'e-moped': defaultMarkerColor,
 };
 
-// vehicle types for which showing a route/line number label next to the marker is useful
+// types with a meaningful route/line number to label the marker with
 export const labeledVehicleTypes = new Set<VehicleType>(['bus', 'tram', 'train', 'subway', 'ferry']);

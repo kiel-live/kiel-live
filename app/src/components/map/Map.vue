@@ -84,7 +84,6 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
         to: v.name.split(' ').slice(1).join(' '),
         iconName: v.type,
         iconNameFocused: `${v.type}-selected`,
-        // vehicles with a known heading get a "nose" pointing in their direction of travel
         noseIcon: hasHeading ? `${v.type}-nose` : '',
         heading: heading ?? 0,
       },
@@ -144,13 +143,11 @@ const geojson = computed<FeatureCollection<Geometry, GeoJsonProperties>>(() => (
   features: [...vehiclesGeoJson.value, ...stopsGeoJson.value, ...tripsGeoJson.value],
 }));
 
-// text readable on both bright and dark basemap tiles; a full page reload already
-// happens on color scheme change (see the `colorScheme` watcher below), so this
-// does not need to be reactive across that transition.
+// not reactive: a color scheme change already triggers a full page reload (see
+// the `colorScheme` watcher below)
 const labelTextColor = colorScheme.value === 'light' ? '#1a1a1a' : '#f5f5f5';
 const labelHaloColor = colorScheme.value === 'light' ? '#ffffff' : '#1a1a1a';
 
-// stops are rendered as plain, colored dots with a light outline
 const stopsLayer: Ref<CircleLayerSpecification> = computed(() => ({
   id: 'stops',
   type: 'circle',
@@ -188,10 +185,8 @@ const stopsLabelLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   },
 }));
 
-// vehicles are drawn from two layers sharing the same icon-size so they line up:
-// a "nose" pointing towards the vehicle's heading (when known), rotated via
-// icon-rotate, and — on top — a badge (icon in a colored circle) that is
-// always upright, never rotated, plus a label with the line/route number.
+// two layers so the nose can rotate with the heading while the badge (icon +
+// label) stays upright; see vehicleIcon.ts for how they stay aligned
 const vehicleIconSize = 1.2;
 
 const vehiclesNoseLayer: Ref<SymbolLayerSpecification> = computed(() => ({
@@ -355,12 +350,9 @@ onMounted(async () => {
   });
 
   function addPointerOnHover(layerName: string) {
-    // Change the cursor to a pointer when it enters a feature in the layer.
     map.on('mouseenter', layerName, () => {
       map.getCanvas().style.cursor = 'pointer';
     });
-
-    // Change it back when it leaves.
     map.on('mouseleave', layerName, () => {
       map.getCanvas().style.cursor = '';
     });
