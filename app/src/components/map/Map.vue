@@ -25,7 +25,7 @@ import { refThrottled, useElementSize } from '@vueuse/core';
 import { AttributionControl, GeolocateControl, Map, NavigationControl } from 'maplibre-gl';
 import { computed, onBeforeUnmount, onMounted, ref, toRef, useTemplateRef, watch } from 'vue';
 import { api } from '~/api';
-import { defaultMarkerColor, labeledVehicleTypes, stopColors, vehicleColors } from '~/components/map/markerColors';
+import { labeledVehicleTypes, stopColor, vehicleColors } from '~/components/map/markerColors';
 import { createVehicleIcon } from '~/components/map/vehicleIcon';
 import { useColorMode } from '~/compositions/useColorMode';
 import { useUserSettings } from '~/compositions/useUserSettings';
@@ -105,7 +105,6 @@ const stopsGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
       type: s.type,
       name: s.name,
       id: s.id,
-      color: stopColors[s.type] ?? defaultMarkerColor,
     },
     geometry: {
       type: 'Point',
@@ -158,7 +157,7 @@ const stopsLayer: Ref<CircleLayerSpecification> = computed(() => ({
   source: 'geojson',
   filter: ['==', 'kind', 'stop'],
   paint: {
-    'circle-color': ['get', 'color'],
+    'circle-color': stopColor,
     'circle-radius': ['match', ['get', 'id'], selectedMarker.value.id || '', 8, 5],
     'circle-stroke-width': ['match', ['get', 'id'], selectedMarker.value.id || '', 3, 1.5],
     'circle-stroke-color': '#ffffff',
@@ -300,20 +299,28 @@ onMounted(async () => {
     }
   }
 
-  function loadVehicleIcons() {
-    (Object.keys(vehicleColors) as VehicleType[]).forEach((type) => {
-      const color = vehicleColors[type];
-      map.addImage(type, createVehicleIcon({ color }), { pixelRatio: 2 });
-      map.addImage(`${type}-selected`, createVehicleIcon({ color, selected: true }), { pixelRatio: 2 });
-      map.addImage(`${type}-arrow`, createVehicleIcon({ color, nose: true }), { pixelRatio: 2 });
-      map.addImage(`${type}-arrow-selected`, createVehicleIcon({ color, nose: true, selected: true }), {
-        pixelRatio: 2,
-      });
-    });
+  async function loadVehicleIcons() {
+    await Promise.all(
+      (Object.keys(vehicleColors) as VehicleType[]).flatMap((type) => {
+        const color = vehicleColors[type];
+        return [
+          createVehicleIcon({ type, color }).then((icon) => map.addImage(type, icon, { pixelRatio: 2 })),
+          createVehicleIcon({ type, color, selected: true }).then((icon) =>
+            map.addImage(`${type}-selected`, icon, { pixelRatio: 2 }),
+          ),
+          createVehicleIcon({ type, color, nose: true }).then((icon) =>
+            map.addImage(`${type}-arrow`, icon, { pixelRatio: 2 }),
+          ),
+          createVehicleIcon({ type, color, nose: true, selected: true }).then((icon) =>
+            map.addImage(`${type}-arrow-selected`, icon, { pixelRatio: 2 }),
+          ),
+        ];
+      }),
+    );
   }
 
   map.on('load', () => {
-    loadVehicleIcons();
+    void loadVehicleIcons();
 
     map.addSource('geojson', {
       type: 'geojson',
