@@ -176,7 +176,7 @@ const stopsLabelLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   layout: {
     'text-field': ['get', 'name'],
     'text-size': 12,
-    'text-offset': [0, 1.3],
+    'text-offset': [0, 1],
     'text-anchor': 'top',
     'text-allow-overlap': false,
     'text-optional': true,
@@ -238,7 +238,7 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
     'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
     'text-field': ['get', 'number'],
     'text-size': 13,
-    'text-offset': [0, 2.2],
+    'text-offset': [0, 1.3],
     'text-anchor': 'top',
     'text-allow-overlap': false,
     'text-optional': true,
