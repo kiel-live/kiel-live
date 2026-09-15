@@ -193,6 +193,7 @@ const vehiclesNoseLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   id: 'vehicles-nose',
   type: 'symbol',
   source: 'geojson',
+  minzoom: 12,
   filter: ['==', 'kind', 'vehicle'],
   layout: {
     'icon-image': ['get', 'noseIcon'],
@@ -215,9 +216,6 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
       1,
       selectedMarker.value.type === 'bus' ? 0.3 : 1,
     ],
-    'text-color': labelTextColor,
-    'text-halo-color': labelHaloColor,
-    'text-halo-width': 1.2,
   },
   filter: ['==', 'kind', 'vehicle'],
   layout: {
@@ -231,12 +229,28 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
     'icon-size': vehicleIconSize,
     'icon-allow-overlap': true,
     'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
+  },
+}));
+
+// route/line number, only shown once zoomed in far enough to avoid cluttering the map
+const vehiclesLabelLayer: Ref<SymbolLayerSpecification> = computed(() => ({
+  id: 'vehicles-labels',
+  type: 'symbol',
+  source: 'geojson',
+  minzoom: 14,
+  filter: ['==', 'kind', 'vehicle'],
+  layout: {
     'text-field': ['get', 'number'],
     'text-size': 13,
     'text-offset': [0, 1.3],
     'text-anchor': 'top',
     'text-allow-overlap': false,
     'text-optional': true,
+  },
+  paint: {
+    'text-color': labelTextColor,
+    'text-halo-color': labelHaloColor,
+    'text-halo-width': 1.2,
   },
 }));
 
@@ -338,6 +352,7 @@ onMounted(async () => {
     map.addLayer(tripsLayer.value);
     map.addLayer(vehiclesNoseLayer.value);
     map.addLayer(vehiclesLayer.value);
+    map.addLayer(vehiclesLabelLayer.value);
 
     bounds.value = {
       north: map.getBounds().getNorth(),
@@ -359,12 +374,13 @@ onMounted(async () => {
   }
 
   addPointerOnHover('vehicles');
+  addPointerOnHover('vehicles-labels');
   addPointerOnHover('stops');
   addPointerOnHover('stops-labels');
 
   map.on('click', (e) => {
     const features = map.queryRenderedFeatures(e.point, {
-      layers: ['stops', 'stops-labels', 'vehicles'],
+      layers: ['stops', 'stops-labels', 'vehicles', 'vehicles-labels'],
     });
 
     // Deselect marker when the map is clicked
