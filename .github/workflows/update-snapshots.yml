@@ -87,17 +87,13 @@ jobs:
         continue-on-error: true
 
       - name: Commit and push changes
-        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          if git diff --cached --quiet; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
+          if ! git diff --cached --quiet; then
             git commit -m "chore: update snapshots and formatting"
             git push
-            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: React with result
@@ -105,11 +101,7 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
-            const content = '${{ job.status }}' !== 'success'
-              ? '-1'
-              : '${{ steps.commit.outputs.changed }}' === 'true'
-                ? 'rocket'
-                : '+1';
+            const content = '${{ job.status }}' === 'success' ? 'rocket' : '-1';
 
             await github.rest.reactions.createForIssueComment({
               owner: context.repo.owner,
