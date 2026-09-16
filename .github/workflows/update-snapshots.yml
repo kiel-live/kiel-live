@@ -41,13 +41,12 @@ jobs:
 
             core.setOutput('ref', pr.head.ref);
 
-            const { data: reaction } = await github.rest.reactions.createForIssueComment({
+            await github.rest.reactions.createForIssueComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               comment_id: context.payload.comment.id,
               content: 'eyes',
             });
-            core.setOutput('reactionId', reaction.id);
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -101,16 +100,25 @@ jobs:
         if: github.event_name == 'issue_comment' && !cancelled()
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
-          REACTION_ID: ${{ steps.pr.outputs.reactionId }}
           JOB_STATUS: ${{ job.status }}
         with:
           script: |
-            if (process.env.REACTION_ID) {
+            const { data: self } = await github.rest.users.getAuthenticated();
+
+            const { data: reactions } = await github.rest.reactions.listForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+            });
+
+            const eyesReaction = reactions.find((r) => r.content === 'eyes' && r.user?.id === self.id);
+
+            if (eyesReaction) {
               await github.rest.reactions.deleteForIssueComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: context.payload.comment.id,
-                reaction_id: Number(process.env.REACTION_ID),
+                reaction_id: eyesReaction.id,
               });
             }
 
