@@ -12,6 +12,8 @@ import type {
   Point,
 } from 'geojson';
 import type {
+  AllLayoutProperties,
+  AllPaintProperties,
   CircleLayerSpecification,
   GeoJSONSource,
   LineLayerSpecification,
@@ -22,7 +24,8 @@ import type { Ref } from 'vue';
 import type { Bounds, Marker, StopType, VehicleType } from '~/api/types';
 import { refThrottled, useElementSize } from '@vueuse/core';
 
-import { AttributionControl, GeolocateControl, Map, NavigationControl } from 'maplibre-gl';
+import { AttributionControl, GeolocateControl, Map, NavigationControl, setWorkerUrl } from 'maplibre-gl';
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import { computed, onBeforeUnmount, onMounted, ref, toRef, useTemplateRef, watch } from 'vue';
 import { api } from '~/api';
 import { labeledVehicleTypes, stopColor, vehicleColors } from '~/components/map/markerColors';
@@ -287,6 +290,8 @@ function flyTo(center: [number, number]) {
 onMounted(async () => {
   const { lastLocation } = useUserSettings();
 
+  setWorkerUrl(maplibreWorkerUrl);
+
   map = new Map({
     container: 'map',
     // style: 'https://demotiles.maplibre.org/style.json',
@@ -466,13 +471,13 @@ function syncMapLayer(layerId: string, layer: { layout?: Record<string, unknown>
 
   if (layer.layout) {
     Object.entries(layer.layout).forEach(([key, value]) => {
-      map.setLayoutProperty(layerId, key, value);
+      map.setLayoutProperty(layerId, key as keyof AllLayoutProperties, value as never);
     });
   }
 
   if (layer.paint) {
     Object.entries(layer.paint).forEach(([key, value]) => {
-      map.setPaintProperty(layerId, key, value);
+      map.setPaintProperty(layerId, key as keyof AllPaintProperties, value as never);
     });
   }
 }
