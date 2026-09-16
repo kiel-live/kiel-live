@@ -17,9 +17,9 @@ import type { Bounds, Marker, StopType, VehicleType } from '~/api/types';
 import { refThrottled, useElementSize } from '@vueuse/core';
 
 import { AttributionControl, GeolocateControl, Map, NavigationControl, setWorkerUrl } from 'maplibre-gl';
-// maplibre-gl's worker is loaded via a real URL rather than bundled, so it must be
-// referenced explicitly for the bundler to emit it (and its shared chunk) as assets.
-import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
+// maplibre-gl v6 loads its worker via a real URL rather than bundling it inline; `?worker&url`
+// routes it through Vite's worker pipeline so its own internal import is bundled correctly.
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import { computed, onBeforeUnmount, onMounted, ref, toRef, useTemplateRef, watch } from 'vue';
 import { api } from '~/api';
 import BusIcon from '~/components/map/busIcon';
@@ -27,7 +27,6 @@ import { useColorMode } from '~/compositions/useColorMode';
 import { useUserSettings } from '~/compositions/useUserSettings';
 import { brightMapStyle, darkMapStyle } from '~/config';
 
-import 'maplibre-gl/dist/maplibre-gl-shared.mjs?url';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const props = withDefaults(
