@@ -1,4 +1,4 @@
-import type maplibregl from 'maplibre-gl';
+import type * as maplibregl from 'maplibre-gl';
 
 const colorPrimary = 'rgb(170, 0, 0)';
 const colorSecondary = '#aaa';
