@@ -16,7 +16,10 @@ import type { Ref } from 'vue';
 import type { Bounds, Marker, StopType, VehicleType } from '~/api/types';
 import { refThrottled, useElementSize } from '@vueuse/core';
 
-import { AttributionControl, GeolocateControl, Map, NavigationControl } from 'maplibre-gl';
+import { AttributionControl, GeolocateControl, Map, NavigationControl, setWorkerUrl } from 'maplibre-gl';
+// maplibre-gl's worker is loaded via a real URL rather than bundled, so it must be
+// referenced explicitly for the bundler to emit it (and its shared chunk) as assets.
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { computed, onBeforeUnmount, onMounted, ref, toRef, useTemplateRef, watch } from 'vue';
 import { api } from '~/api';
 import BusIcon from '~/components/map/busIcon';
@@ -24,6 +27,7 @@ import { useColorMode } from '~/compositions/useColorMode';
 import { useUserSettings } from '~/compositions/useUserSettings';
 import { brightMapStyle, darkMapStyle } from '~/config';
 
+import 'maplibre-gl/dist/maplibre-gl-shared.mjs?url';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const props = withDefaults(
@@ -243,6 +247,8 @@ function flyTo(center: [number, number]) {
 onMounted(async () => {
   const { lastLocation } = useUserSettings();
 
+  setWorkerUrl(maplibreWorkerUrl);
+
   map = new Map({
     container: 'map',
     // style: 'https://demotiles.maplibre.org/style.json',
@@ -284,14 +290,14 @@ onMounted(async () => {
     | { kind: 'vehicle'; type: string; name: string; focused: boolean; heading?: number }
     | { kind: 'stop'; type: string; name: string; focused: boolean };
 
-  map.on('styleimagemissing', (e) => {
-    if (e.id[0] !== '{') {
+  map.setMissingStyleImageResolver((id) => {
+    if (id[0] !== '{') {
       return;
     }
 
-    const iconData = JSON.parse(e.id) as IconData;
+    const iconData = JSON.parse(id) as IconData;
     if (iconData.kind === 'vehicle' && (iconData.type === 'bus' || iconData.type === 'ferry')) {
-      map.addImage(e.id, new BusIcon(map, iconData.focused, iconData.name, iconData.heading), {
+      map.addImage(id, new BusIcon(map, iconData.focused, iconData.name, iconData.heading), {
         pixelRatio: 2,
       });
     }
@@ -457,17 +463,19 @@ watch(stopsLayer, () => {
   }
 
   if (stopsLayer.value.layout) {
-    Object.keys(stopsLayer.value.layout).forEach((key) => {
+    Object.keys(stopsLayer.value.layout).forEach((rawKey) => {
+      const key = rawKey as keyof typeof stopsLayer.value.layout;
       if (stopsLayer.value.layout) {
-        map.setLayoutProperty('stops', key, stopsLayer.value.layout[key as keyof typeof stopsLayer.value.layout]);
+        map.setLayoutProperty('stops', key, stopsLayer.value.layout[key]);
       }
     });
   }
 
   if (stopsLayer.value.paint) {
-    Object.keys(stopsLayer.value.paint).forEach((key) => {
+    Object.keys(stopsLayer.value.paint).forEach((rawKey) => {
+      const key = rawKey as keyof typeof stopsLayer.value.paint;
       if (stopsLayer.value.paint) {
-        map.setPaintProperty('stops', key, stopsLayer.value.paint[key as keyof typeof stopsLayer.value.paint]);
+        map.setPaintProperty('stops', key, stopsLayer.value.paint[key]);
       }
     });
   }
@@ -479,21 +487,19 @@ watch(vehiclesLayer, () => {
   }
 
   if (vehiclesLayer.value.layout) {
-    Object.keys(vehiclesLayer.value.layout).forEach((key) => {
+    Object.keys(vehiclesLayer.value.layout).forEach((rawKey) => {
+      const key = rawKey as keyof typeof vehiclesLayer.value.layout;
       if (vehiclesLayer.value.layout) {
-        map.setLayoutProperty(
-          'vehicles',
-          key,
-          vehiclesLayer.value.layout[key as keyof typeof vehiclesLayer.value.layout],
-        );
+        map.setLayoutProperty('vehicles', key, vehiclesLayer.value.layout[key]);
       }
     });
   }
 
   if (vehiclesLayer.value.paint) {
-    Object.keys(vehiclesLayer.value.paint).forEach((key) => {
+    Object.keys(vehiclesLayer.value.paint).forEach((rawKey) => {
+      const key = rawKey as keyof typeof vehiclesLayer.value.paint;
       if (vehiclesLayer.value.paint) {
-        map.setPaintProperty('vehicles', key, vehiclesLayer.value.paint[key as keyof typeof vehiclesLayer.value.paint]);
+        map.setPaintProperty('vehicles', key, vehiclesLayer.value.paint[key]);
       }
     });
   }

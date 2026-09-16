@@ -13,6 +13,19 @@ export default defineConfig({
   envDir: '../',
   build: {
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        // maplibre-gl's worker script references its shared chunk via a
+        // hardcoded relative import (`./maplibre-gl-shared.mjs`), so both
+        // files must keep their original names to stay resolvable at runtime.
+        assetFileNames: (assetInfo) => {
+          const names = assetInfo.names ?? (assetInfo.name ? [assetInfo.name] : []);
+          return names.includes('maplibre-gl-worker.mjs') || names.includes('maplibre-gl-shared.mjs')
+            ? 'assets/[name][extname]'
+            : 'assets/[name]-[hash][extname]';
+        },
+      },
+    },
   },
   plugins: [
     vue(),
