@@ -41,12 +41,13 @@ jobs:
 
             core.setOutput('ref', pr.head.ref);
 
-            await github.rest.reactions.createForIssueComment({
+            const { data: reaction } = await github.rest.reactions.createForIssueComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               comment_id: context.payload.comment.id,
               content: 'eyes',
             });
+            core.setOutput('reactionId', reaction.id);
 
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -99,13 +100,23 @@ jobs:
       - name: React with result
         if: github.event_name == 'issue_comment' && !cancelled()
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          REACTION_ID: ${{ steps.pr.outputs.reactionId }}
+          JOB_STATUS: ${{ job.status }}
         with:
           script: |
-            const content = '${{ job.status }}' === 'success' ? 'rocket' : '-1';
+            if (process.env.REACTION_ID) {
+              await github.rest.reactions.deleteForIssueComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: context.payload.comment.id,
+                reaction_id: Number(process.env.REACTION_ID),
+              });
+            }
 
             await github.rest.reactions.createForIssueComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               comment_id: context.payload.comment.id,
-              content,
+              content: process.env.JOB_STATUS === 'success' ? 'rocket' : '-1',
             });
