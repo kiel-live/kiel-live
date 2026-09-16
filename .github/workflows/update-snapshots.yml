@@ -45,7 +45,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               comment_id: context.payload.comment.id,
-              content: 'rocket',
+              content: 'eyes',
             });
 
       - name: Checkout
@@ -100,19 +100,20 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Comment result
+      - name: React with result
         if: github.event_name == 'issue_comment' && !cancelled()
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
-            const changed = '${{ steps.commit.outputs.changed }}' === 'true';
-            const body = changed
-              ? '✅ Pushed updated snapshots/formatting to this branch.'
-              : 'ℹ️ Ran snapshot update and formatting, but nothing changed.';
+            const content = '${{ job.status }}' !== 'success'
+              ? '-1'
+              : '${{ steps.commit.outputs.changed }}' === 'true'
+                ? 'rocket'
+                : '+1';
 
-            await github.rest.issues.createComment({
+            await github.rest.reactions.createForIssueComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body,
+              comment_id: context.payload.comment.id,
+              content,
             });
