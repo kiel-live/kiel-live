@@ -72,7 +72,11 @@ export async function createVehicleBadgeIcon({ type, color, selected = false }: 
   return context.getImageData(0, 0, size, size);
 }
 
-export function createVehicleNoseIcon(color: string) {
+// scales up with the badge so the selected vehicle's nose reads as
+// highlighted too, and clears the badge's selected halo ring
+const NOSE_SELECTED_SCALE = BADGE_SELECTED_SIZE / BADGE_SIZE;
+
+export function createVehicleNoseIcon(color: string, selected = false) {
   const canvas = document.createElement('canvas');
   canvas.width = NOSE_CANVAS_SIZE;
   canvas.height = NOSE_CANVAS_SIZE;
@@ -82,11 +86,12 @@ export function createVehicleNoseIcon(color: string) {
     throw new Error('Could not create 2d canvas context for vehicle nose icon');
   }
 
+  const radius = selected ? BADGE_RADIUS * NOSE_SELECTED_SCALE : BADGE_RADIUS;
   const center = NOSE_CANVAS_SIZE / 2;
-  const noseHeight = BADGE_RADIUS * 0.75;
-  const noseWidth = BADGE_RADIUS * 0.7;
-  const gap = BADGE_RADIUS * 0.25;
-  const baseY = -BADGE_RADIUS - gap;
+  const noseHeight = radius * 0.75;
+  const noseWidth = radius * 0.7;
+  const gap = radius * 0.25;
+  const baseY = -radius - gap;
   const tipY = baseY - noseHeight;
 
   context.translate(center, center);
@@ -98,7 +103,7 @@ export function createVehicleNoseIcon(color: string) {
   context.closePath();
   context.fillStyle = color;
   context.fill();
-  context.lineWidth = 2;
+  context.lineWidth = selected ? 3 : 2;
   context.lineJoin = 'round';
   context.strokeStyle = OUTLINE_COLOR;
   context.stroke();

@@ -88,6 +88,7 @@ const vehiclesGeoJson = computed<Feature<Point, GeoJsonProperties>[]>(() =>
         iconName: v.type,
         iconNameFocused: `${v.type}-selected`,
         noseIcon: hasHeading ? `${v.type}-nose` : '',
+        noseIconFocused: hasHeading ? `${v.type}-nose-selected` : '',
         heading: heading ?? 0,
       },
 
@@ -198,12 +199,28 @@ const vehiclesNoseLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   source: 'geojson',
   minzoom: 12,
   filter: ['==', 'kind', 'vehicle'],
+  paint: {
+    'icon-opacity': [
+      'match',
+      ['get', 'number'],
+      selectedVehicle.value?.name.split(' ')[0] ?? '',
+      1,
+      selectedMarker.value.type === 'bus' ? 0.3 : 1,
+    ],
+  },
   layout: {
-    'icon-image': ['get', 'noseIcon'],
+    'icon-image': [
+      'match',
+      ['get', 'id'],
+      selectedMarker.value.id || '',
+      ['get', 'noseIconFocused'],
+      ['get', 'noseIcon'],
+    ],
     'icon-size': vehicleIconSize,
     'icon-rotate': ['get', 'heading'],
     'icon-rotation-alignment': 'map',
     'icon-allow-overlap': true,
+    'symbol-sort-key': ['match', ['get', 'number'], selectedVehicle.value?.name.split(' ')[0] ?? '', 2, 1],
   },
 }));
 
@@ -339,6 +356,7 @@ onMounted(async () => {
             map.addImage(`${type}-selected`, icon, { pixelRatio: 2 }),
           ),
           map.addImage(`${type}-nose`, createVehicleNoseIcon(color), { pixelRatio: 2 }),
+          map.addImage(`${type}-nose-selected`, createVehicleNoseIcon(color, true), { pixelRatio: 2 }),
         ];
       }),
     );
@@ -358,6 +376,7 @@ onMounted(async () => {
     map.addLayer(vehiclesNoseLayer.value);
     map.addLayer(vehiclesLayer.value);
     map.addLayer(vehiclesLabelLayer.value);
+    applyLayerOrder();
 
     bounds.value = {
       north: map.getBounds().getNorth(),
@@ -484,6 +503,7 @@ function syncMapLayer(layerId: string, layer: { layout?: Record<string, unknown>
 
 watch(stopsLayer, () => syncMapLayer('stops', stopsLayer.value));
 watch(vehiclesLayer, () => syncMapLayer('vehicles', vehiclesLayer.value));
+watch(vehiclesNoseLayer, () => syncMapLayer('vehicles-nose', vehiclesNoseLayer.value));
 
 const selectedMarkerItem = computed(() => {
   const marker = selectedMarker.value;
@@ -499,6 +519,24 @@ watch(selectedMarkerItem, (newSelectedMarkerItem, oldSelectedMarkerItem) => {
 
   flyTo((newSelectedMarkerItem.geometry as Point)?.coordinates as [number, number]);
 });
+
+// stops normally sit behind vehicles, but a selected stop is brought to the
+// front so it isn't hidden by vehicle markers on top of it
+const defaultLayerOrder = ['stops', 'stops-labels', 'trips', 'vehicles-nose', 'vehicles', 'vehicles-labels'];
+const stopSelectedLayerOrder = ['trips', 'vehicles-nose', 'vehicles', 'vehicles-labels', 'stops', 'stops-labels'];
+
+const layerOrder = computed(() =>
+  selectedMarkerItem.value?.properties.kind === 'stop' ? stopSelectedLayerOrder : defaultLayerOrder,
+);
+
+function applyLayerOrder() {
+  if (!map) {
+    return;
+  }
+  layerOrder.value.forEach((id) => map.moveLayer(id));
+}
+
+watch(layerOrder, applyLayerOrder);
 </script>
 
 <style scoped>
