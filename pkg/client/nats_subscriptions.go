@@ -65,6 +65,12 @@ func (n *natsClient) initTopics() {
 		n.addSubscription(topic, consumerInfo.Name)
 	}
 
+	// the nats client restores subscriptions itself on a reconnect, so the
+	// advisories only ever need to be subscribed once
+	n.advisoryOnce.Do(n.subscribeConsumerAdvisories)
+}
+
+func (n *natsClient) subscribeConsumerAdvisories() {
 	// new consumer
 	err := n.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.CREATED.>", func(msg *Message) {
 		var consumerEvent consumerEvent

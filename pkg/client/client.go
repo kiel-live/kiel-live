@@ -11,6 +11,8 @@ type Client interface {
 	Connect() error
 	Disconnect() error
 	IsConnected() bool
+	// Closed is closed once the connection is terminated for good and won't come back.
+	Closed() <-chan struct{}
 	SetOnConnectionChanged(handler func(connected bool))
 
 	GetSubscribedTopics() []string
