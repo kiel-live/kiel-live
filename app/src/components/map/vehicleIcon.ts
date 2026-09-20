@@ -10,7 +10,6 @@ import { vehicleGlyphDataUrl } from '~/components/map/vehicleGlyphs';
 const BADGE_SIZE = 64;
 const BADGE_SELECTED_SIZE = 84;
 const NOSE_CANVAS_SIZE = 128;
-const OUTLINE_COLOR = '#ffffff';
 const RADIUS_RATIO = 0.6;
 
 // unselected badge circle radius, in canvas pixels — shared with the nose
@@ -19,6 +18,8 @@ const BADGE_RADIUS = (BADGE_SIZE / 2) * RADIUS_RATIO;
 export interface VehicleBadgeIconOptions {
   type: VehicleType;
   color: string;
+  // dimmed in dark mode so the outline doesn't glare against the dark basemap
+  outlineColor: string;
   selected?: boolean;
 }
 
@@ -31,7 +32,7 @@ function loadImage(url: string): Promise<HTMLImageElement> {
   });
 }
 
-export async function createVehicleBadgeIcon({ type, color, selected = false }: VehicleBadgeIconOptions) {
+export async function createVehicleBadgeIcon({ type, color, outlineColor, selected = false }: VehicleBadgeIconOptions) {
   const size = selected ? BADGE_SELECTED_SIZE : BADGE_SIZE;
   const canvas = document.createElement('canvas');
   canvas.width = size;
@@ -46,7 +47,7 @@ export async function createVehicleBadgeIcon({ type, color, selected = false }: 
   const radius = center * RADIUS_RATIO;
   const strokeWidth = selected ? 5 : 4;
 
-  const glyph = await loadImage(vehicleGlyphDataUrl(type, OUTLINE_COLOR));
+  const glyph = await loadImage(vehicleGlyphDataUrl(type, outlineColor));
 
   context.translate(center, center);
 
@@ -55,7 +56,7 @@ export async function createVehicleBadgeIcon({ type, color, selected = false }: 
   context.fillStyle = color;
   context.fill();
   context.lineWidth = strokeWidth;
-  context.strokeStyle = OUTLINE_COLOR;
+  context.strokeStyle = outlineColor;
   context.stroke();
 
   if (selected) {
@@ -76,7 +77,7 @@ export async function createVehicleBadgeIcon({ type, color, selected = false }: 
 // highlighted too, and clears the badge's selected halo ring
 const NOSE_SELECTED_SCALE = BADGE_SELECTED_SIZE / BADGE_SIZE;
 
-export function createVehicleNoseIcon(color: string, selected = false) {
+export function createVehicleNoseIcon(color: string, outlineColor: string, selected = false) {
   const canvas = document.createElement('canvas');
   canvas.width = NOSE_CANVAS_SIZE;
   canvas.height = NOSE_CANVAS_SIZE;
@@ -105,7 +106,7 @@ export function createVehicleNoseIcon(color: string, selected = false) {
   context.fill();
   context.lineWidth = selected ? 3 : 2;
   context.lineJoin = 'round';
-  context.strokeStyle = OUTLINE_COLOR;
+  context.strokeStyle = outlineColor;
   context.stroke();
 
   return context.getImageData(0, 0, NOSE_CANVAS_SIZE, NOSE_CANVAS_SIZE);
