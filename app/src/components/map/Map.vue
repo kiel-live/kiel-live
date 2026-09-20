@@ -156,6 +156,7 @@ const stopsLayer: Ref<CircleLayerSpecification> = computed(() => ({
   id: 'stops',
   type: 'circle',
   source: 'geojson',
+  minzoom: 10,
   filter: ['==', 'kind', 'stop'],
   paint: {
     'circle-color': stopColor,
@@ -197,7 +198,7 @@ const vehiclesNoseLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   id: 'vehicles-nose',
   type: 'symbol',
   source: 'geojson',
-  minzoom: 12,
+  minzoom: 14,
   filter: ['==', 'kind', 'vehicle'],
   paint: {
     'icon-opacity': [
@@ -228,6 +229,7 @@ const vehiclesLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   id: 'vehicles',
   type: 'symbol',
   source: 'geojson',
+  minzoom: 6,
   paint: {
     'icon-opacity': [
       'match',
