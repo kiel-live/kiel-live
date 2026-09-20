@@ -151,7 +151,8 @@ const geojson = computed<FeatureCollection<Geometry, GeoJsonProperties>>(() => (
 // the `colorScheme` watcher below)
 const labelTextColor = colorScheme.value === 'light' ? '#1a1a1a' : '#f5f5f5';
 const labelHaloColor = colorScheme.value === 'light' ? '#ffffff' : '#1a1a1a';
-const vehicleOutlineColor = colorScheme.value === 'light' ? '#ffffff' : '#cbd5e1';
+// same as the popup's dark-mode text color (DetailsPopup.vue's dark:text-gray-300)
+const markerOutlineColor = colorScheme.value === 'light' ? '#ffffff' : '#d1d5db';
 
 const stopsLayer: Ref<CircleLayerSpecification> = computed(() => ({
   id: 'stops',
@@ -163,7 +164,7 @@ const stopsLayer: Ref<CircleLayerSpecification> = computed(() => ({
     'circle-color': stopColor,
     'circle-radius': ['match', ['get', 'id'], selectedMarker.value.id || '', 10, 7],
     'circle-stroke-width': ['match', ['get', 'id'], selectedMarker.value.id || '', 3, 2],
-    'circle-stroke-color': '#ffffff',
+    'circle-stroke-color': markerOutlineColor,
     'circle-opacity': selectedMarker.value.type === 'bus' ? 0.4 : 1,
     'circle-stroke-opacity': selectedMarker.value.type === 'bus' ? 0.4 : 1,
   },
@@ -354,14 +355,14 @@ onMounted(async () => {
       (Object.keys(vehicleColors) as VehicleType[]).flatMap((type) => {
         const color = vehicleColors[type];
         return [
-          createVehicleBadgeIcon({ type, color, outlineColor: vehicleOutlineColor }).then((icon) =>
+          createVehicleBadgeIcon({ type, color, outlineColor: markerOutlineColor }).then((icon) =>
             map.addImage(type, icon, { pixelRatio: 2 }),
           ),
-          createVehicleBadgeIcon({ type, color, outlineColor: vehicleOutlineColor, selected: true }).then((icon) =>
+          createVehicleBadgeIcon({ type, color, outlineColor: markerOutlineColor, selected: true }).then((icon) =>
             map.addImage(`${type}-selected`, icon, { pixelRatio: 2 }),
           ),
-          map.addImage(`${type}-nose`, createVehicleNoseIcon(color, vehicleOutlineColor), { pixelRatio: 2 }),
-          map.addImage(`${type}-nose-selected`, createVehicleNoseIcon(color, vehicleOutlineColor, true), {
+          map.addImage(`${type}-nose`, createVehicleNoseIcon(color, markerOutlineColor), { pixelRatio: 2 }),
+          map.addImage(`${type}-nose-selected`, createVehicleNoseIcon(color, markerOutlineColor, true), {
             pixelRatio: 2,
           }),
         ];
