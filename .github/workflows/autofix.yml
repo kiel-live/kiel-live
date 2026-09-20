@@ -103,15 +103,14 @@ jobs:
           JOB_STATUS: ${{ job.status }}
         with:
           script: |
-            const { data: self } = await github.rest.users.getAuthenticated();
-
             const { data: reactions } = await github.rest.reactions.listForIssueComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               comment_id: context.payload.comment.id,
+              per_page: 100,
             });
 
-            const eyesReaction = reactions.find((r) => r.content === 'eyes' && r.user?.id === self.id);
+            const eyesReaction = reactions.find((r) => r.content === 'eyes' && r.user?.login === 'github-actions[bot]');
 
             if (eyesReaction) {
               await github.rest.reactions.deleteForIssueComment({
