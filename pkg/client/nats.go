@@ -24,6 +24,11 @@ type natsClient struct {
 
 	topicSubscriptions map[string][]string // topics on the server subscribed to by some client
 	subscriptionsMu    sync.Mutex
+
+	closed    chan struct{} // closed once the connection is gone for good
+	closeOnce sync.Once
+
+	advisoryOnce sync.Once // guards the one-time consumer advisory subscriptions
 }
 
 type NatsOption func(c *natsClient)
@@ -34,6 +39,7 @@ func NewNatsClient(host string, opts ...NatsOption) Client {
 		host:          host,
 		username:      "",
 		password:      "",
+		closed:        make(chan struct{}),
 	}
 
 	for _, opt := range opts {
@@ -51,18 +57,35 @@ func NatsWithAuth(username string, password string) NatsOption {
 }
 
 func (n *natsClient) Connect() (err error) {
+	onConnected := func(conn *nats.Conn) {
+		if conn.IsConnected() {
+			n.initTopics()
+		}
+		if n.connectionHandler != nil {
+			n.connectionHandler(conn.IsConnected())
+		}
+	}
+
 	opts := []nats.Option{
 		nats.Name("Kiel Live Collector"),
+		nats.MaxReconnects(-1),
+		nats.ReconnectWait(2 * time.Second),
+		nats.ReconnectJitter(500*time.Millisecond, time.Second),
 		nats.ConnectHandler(func(conn *nats.Conn) {
-			if conn.IsConnected() {
-				n.initTopics()
-				slog.Debug("Connected to NATS server", "host", n.host)
-			}
-			if n.connectionHandler != nil {
-				n.connectionHandler(conn.IsConnected())
-			}
+			slog.Debug("Connected to NATS server", "host", n.host)
+			onConnected(conn)
+		}),
+		nats.DisconnectErrHandler(func(_ *nats.Conn, err error) {
+			slog.Warn("Disconnected from NATS server, reconnecting ...", "host", n.host, "error", err)
+		}),
+		nats.ReconnectHandler(func(conn *nats.Conn) {
+			slog.Info("Reconnected to NATS server", "host", n.host)
+			onConnected(conn)
 		}),
 		nats.ClosedHandler(func(conn *nats.Conn) {
+			n.closeOnce.Do(func() {
+				close(n.closed)
+			})
 			if n.connectionHandler != nil {
 				n.connectionHandler(conn.IsConnected())
 			}
@@ -87,8 +110,16 @@ func (n *natsClient) IsConnected() bool {
 	return n.nc.IsConnected()
 }
 
+func (n *natsClient) Closed() <-chan struct{} {
+	return n.closed
+}
+
 // Close will unsubscribe all topics and shutdown connection
 func (n *natsClient) Disconnect() error {
+	if n.nc.IsClosed() {
+		return nil
+	}
+
 	for topic := range n.subscriptions {
 		err := n.Unsubscribe(topic)
 		if err != nil {
