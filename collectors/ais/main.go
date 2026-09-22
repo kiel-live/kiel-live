@@ -37,11 +37,15 @@ var lastPositionsMu sync.Mutex
 
 func wsConnect() (*websocket.Conn, error) {
 	url := "wss://stream.aisstream.io/v0/stream"
-	ws, http, err := websocket.DefaultDialer.Dial(url, nil)
+
+	// Enables compression, which aisstream.io requires to serve full message bandwidth.
+	dialer := *websocket.DefaultDialer
+	dialer.EnableCompression = true
+
+	ws, _, err := dialer.Dial(url, nil)
 	if err != nil {
 		return nil, err
 	}
-	_ = http
 
 	return ws, nil
 }
