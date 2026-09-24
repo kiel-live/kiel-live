@@ -186,40 +186,52 @@ func (n *natsClient) SetOnTopicsChanged(topicSubscriptionHandler func(topic stri
 	n.topicSubscriptionHandler = topicSubscriptionHandler
 }
 
+// parseOptionalTime parses an optional RFC3339 timestamp. An empty string yields the zero time without an error.
+func parseOptionalTime(value string) (time.Time, error) {
+	if value == "" {
+		return time.Time{}, nil
+	}
+
+	return time.Parse(time.RFC3339, value)
+}
+
 func (n *natsClient) UpdateStop(stop *models.Stop) error {
 	// TODO: remove once majority of clients updated (added 29.03.2026)
+	stop.Arrivals = nil
 	for _, departure := range stop.Departures {
-		var planned time.Time
-		if departure.Planned != "" {
-			var err error
-			planned, err = time.Parse(time.RFC3339, departure.Planned)
-			if err != nil {
-				return err
-			}
-		}
+		log := slog.With(
+			"stop_id", stop.ID,
+			"trip_id", departure.TripID,
+			"route_name", departure.RouteName,
+			"name", departure.Name,
+		)
 
-		var actual time.Time
-		if departure.Actual != "" {
-			var err error
-			actual, err = time.Parse(time.RFC3339, departure.Actual)
-			if err != nil {
-				return err
-			}
-		}
-
-		if planned.IsZero() {
-			slog.Warn("Stop departure has no planned time, skipping",
-				"stop_id", stop.ID,
-				"trip_id", departure.TripID,
-				"route_name", departure.RouteName,
-				"name", departure.Name,
-			)
+		planned, err := parseOptionalTime(departure.Planned)
+		if err != nil {
+			log.Warn("Stop departure has an invalid planned time, skipping", "planned", departure.Planned, "error", err)
 			continue
 		}
 
+		actual, err := parseOptionalTime(departure.Actual)
+		if err != nil {
+			log.Warn("Stop departure has an invalid actual time, skipping", "actual", departure.Actual, "error", err)
+			continue
+		}
+
+		// not every departure comes with a planned time, fall back to the actual one
+		if planned.IsZero() {
+			planned = actual
+		}
+
+		if planned.IsZero() {
+			log.Warn("Stop departure has neither a planned nor an actual time, skipping")
+			continue
+		}
+
+		// legacy clients expect the seconds until arrival, 0 means "unknown"
 		eta := 0
-		if !actual.IsZero() && !planned.IsZero() {
-			eta = int(actual.Sub(planned).Seconds())
+		if !actual.IsZero() {
+			eta = int(time.Until(actual).Seconds())
 		}
 
 		arrival := &models.StopArrival{ //nolint:staticcheck
@@ -257,22 +269,29 @@ func (n *natsClient) UpdateVehicle(vehicle *models.Vehicle) error {
 
 func (n *natsClient) UpdateTrip(trip *models.Trip) error {
 	// TODO: remove once majority of clients updated (added 29.03.2026)
+	trip.Arrivals = nil
 	for _, departure := range trip.Departures {
-		var planned time.Time
+		log := slog.With("trip_id", trip.ID, "name", departure.Name)
 
-		if departure.Planned != "" {
-			var err error
-			planned, err = time.Parse(time.RFC3339, departure.Planned)
+		planned, err := parseOptionalTime(departure.Planned)
+		if err != nil {
+			log.Warn("Trip departure has an invalid planned time, skipping", "planned", departure.Planned, "error", err)
+			continue
+		}
+
+		// not every departure comes with a planned time, fall back to the actual one
+		if planned.IsZero() {
+			actual, err := parseOptionalTime(departure.Actual)
 			if err != nil {
-				return err
+				log.Warn("Trip departure has an invalid actual time, skipping", "actual", departure.Actual, "error", err)
+				continue
 			}
+
+			planned = actual
 		}
 
 		if planned.IsZero() {
-			slog.Warn("Trip departure has no planned time, skipping",
-				"trip_id", trip.ID,
-				"name", departure.Name,
-			)
+			log.Warn("Trip departure has neither a planned nor an actual time, skipping")
 			continue
 		}
 
