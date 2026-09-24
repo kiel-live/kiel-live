@@ -45,7 +45,7 @@
     "@tailwindcss/vite": "4.3.3",
     "@types/canvas-confetti": "1.9.0",
     "@types/geojson": "7946.0.16",
-    "@types/node": "24.13.4",
+    "@types/node": "24.13.6",
     "@vitejs/plugin-vue": "6.0.9",
     "eslint": "10.10.0",
     "eslint-plugin-promise": "7.3.0",
