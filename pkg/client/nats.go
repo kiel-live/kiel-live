@@ -296,6 +296,7 @@ func (n *natsClient) UpdateTrip(trip *models.Trip) error {
 		}
 
 		arrival := &models.TripArrival{ //nolint:staticcheck
+			ID:      departure.ID,
 			Name:    departure.Name,
 			State:   string(departure.State),
 			Planned: planned.Format("15:04"),
