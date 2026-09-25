@@ -65,7 +65,7 @@ type departure struct {
 	Status             DepartureStatus `json:"status"`
 	PlannedTime        string          `json:"plannedTime"`
 	ActualTime         string          `json:"actualTime"`
-	ActualRelativeTime int             `json:"actualRelativeTime"`
+	ActualRelativeTime *int            `json:"actualRelativeTime"`
 	VehicleID          string          `json:"vehicleId"`
 	RouteID            string          `json:"routeId"`
 	RouteName          string          `json:"patternText"`
@@ -87,13 +87,20 @@ type routes struct {
 	ShortName  string   `json:"shortName"`
 }
 
-func (d *departure) parse() *models.StopDepartures {
-	actual, err := timeToIsoDateTime(d.ActualTime, time.Now())
-	if err != nil {
-		log.Printf("Error parsing actual time: %v", err)
+func (d *departure) parse(serverTime time.Time) *models.StopDepartures {
+	var actual string
+	if d.ActualTime != "" && d.ActualRelativeTime != nil {
+		// The relative time is unambiguous regarding sign and day, unlike the clock string.
+		actual = relativeToIsoDateTime(serverTime, *d.ActualRelativeTime)
+	} else {
+		var err error
+		actual, err = timeToIsoDateTime(d.ActualTime, serverTime)
+		if err != nil {
+			log.Printf("Error parsing actual time: %v", err)
+		}
 	}
 
-	planned, err := timeToIsoDateTime(d.PlannedTime, time.Now())
+	planned, err := timeToIsoDateTime(d.PlannedTime, serverTime)
 	if err != nil {
 		log.Printf("Error parsing planned time: %v", err)
 	}
@@ -152,7 +159,7 @@ func GetStopDetails(stopShortName string) (*StopDetails, error) {
 	data := url.Values{}
 	data.Set("stop", stopShortName)
 
-	resp, err := post(stopURL, data)
+	resp, serverTime, err := postWithServerTime(stopURL, data)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +191,7 @@ func GetStopDetails(stopShortName string) (*StopDetails, error) {
 
 	departures := []*models.StopDepartures{}
 	for _, departure := range stop.Departures {
-		departures = append(departures, departure.parse())
+		departures = append(departures, departure.parse(serverTime))
 	}
 
 	alerts := []string{}

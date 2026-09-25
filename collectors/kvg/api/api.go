@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 const (
@@ -20,11 +21,24 @@ const (
 
 const IDPrefix = "kvg-"
 
-func post(url string, data url.Values) ([]byte, error) {
+// The KVG API computes relative times against its own clock, so the Date header is the right anchor for converting them to absolute timestamps.
+func postWithServerTime(url string, data url.Values) ([]byte, time.Time, error) {
 	resp, err := http.Post(url, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
 	if err != nil {
-		return nil, err
+		return nil, time.Time{}, err
 	}
 	defer resp.Body.Close()
-	return io.ReadAll(resp.Body)
+
+	serverTime := time.Now()
+	if t, err := http.ParseTime(resp.Header.Get("Date")); err == nil {
+		serverTime = t
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	return body, serverTime, err
+}
+
+func post(url string, data url.Values) ([]byte, error) {
+	body, _, err := postWithServerTime(url, data)
+	return body, err
 }
