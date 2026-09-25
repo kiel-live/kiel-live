@@ -35,8 +35,8 @@ type tripPaths struct {
 	Paths []tripPath `json:"paths"`
 }
 
-func (t *tripItem) parse() *models.TripDeparture {
-	actual, err := timeToIsoDateTime(t.ActualTime, time.Now())
+func (t *tripItem) parse(serverTime time.Time) *models.TripDeparture {
+	actual, err := timeToIsoDateTime(t.ActualTime, serverTime)
 	if err != nil {
 		log.Printf("Error parsing time for trip departure: %v", err)
 	}
@@ -58,13 +58,13 @@ type trip struct {
 }
 
 // trip parser to protocol trip
-func (t *trip) parse() *models.Trip {
+func (t *trip) parse(serverTime time.Time) *models.Trip {
 	var departures []*models.TripDeparture
 	for _, stop := range t.OldStops {
-		departures = append(departures, stop.parse())
+		departures = append(departures, stop.parse(serverTime))
 	}
 	for _, stop := range t.Stops {
-		departures = append(departures, stop.parse())
+		departures = append(departures, stop.parse(serverTime))
 	}
 
 	return &models.Trip{
@@ -102,7 +102,7 @@ func GetTrip(tripID string) (*models.Trip, error) {
 	data := url.Values{}
 	data.Set("tripId", tripID)
 
-	resp, err := post(tripURL, data)
+	resp, serverTime, err := postWithServerTime(tripURL, data)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func GetTrip(tripID string) (*models.Trip, error) {
 		return nil, err
 	}
 
-	protocolTrip := trip.parse()
+	protocolTrip := trip.parse(serverTime)
 	protocolTrip.ID = IDPrefix + tripID
 	protocolTrip.Path = GetTripPath(tripID)
 
