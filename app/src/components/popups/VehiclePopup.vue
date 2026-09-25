@@ -13,6 +13,10 @@
         <i-mdi-moped v-else-if="vehicle.type === 'moped'" />
         <i-mdi-moped-electric v-else-if="vehicle.type === 'e-moped'" />
         <h1 class="text-lg">{{ vehicle.name }}</h1>
+        <Button class="ml-auto border-0" :title="t('share')" @click="share({ title: vehicle.name, url: shareUrl })">
+          <i-ph-check-bold v-if="copied" />
+          <i-ph-share-fat-bold v-else />
+        </Button>
       </div>
 
       <Actions v-if="vehicle.actions" :actions="vehicle.actions" />
@@ -75,20 +79,25 @@ import { computed, onUnmounted, toRef } from 'vue';
 
 import { useI18n } from 'vue-i18n';
 import { api } from '~/api';
+import Button from '~/components/atomic/Button.vue';
 import NoData from '~/components/NoData.vue';
 import Actions from '~/components/popups/Actions.vue';
 import { get24hTime } from '~/compositions/date';
+import { useShare } from '~/compositions/useShare';
 
 const props = defineProps<{
   marker: Marker;
 }>();
 
 const { t } = useI18n();
+const { share, copied } = useShare();
 
 const marker = toRef(props, 'marker');
 
 const { vehicle, unsubscribe: unsubscribeVehicle } = api.useVehicle(computed(() => marker.value.id));
 const { trip, unsubscribe: unsubscribeTrip } = api.useTrip(computed(() => vehicle.value?.tripId));
+
+const shareUrl = computed(() => window.location.href);
 
 const vehicleDescription = computed(() =>
   vehicle.value?.description ? micromark(vehicle.value.description.trim()) : null,
