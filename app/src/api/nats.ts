@@ -1,13 +1,13 @@
-import type { JetStreamClient, JetStreamSubscription, NatsConnection } from 'nats.ws';
+import type { JetStreamManager } from '@nats-io/jetstream';
+import type { NatsConnection, Subscription } from '@nats-io/nats-core';
 import type { Ref } from 'vue';
 import type { Api, Bounds, Models, Stop, Trip, Vehicle } from '~/api/types';
+import { AckPolicy, DeliverPolicy, jetstreamManager, ReplayPolicy } from '@nats-io/jetstream';
+import { createInbox, wsconnect } from '@nats-io/nats-core';
 import Fuse from 'fuse.js';
-import { connect, consumerOpts, createInbox, Events, StringCodec } from 'nats.ws';
 import { computed, ref, watch } from 'vue';
 
 import { natsServerUrl } from '~/config';
-
-const sc = StringCodec();
 
 export const DeletePayload = '---';
 
@@ -20,13 +20,16 @@ export class NatsApi implements Api {
 
   private trips = ref<Record<string, Trip>>({});
 
-  private subscriptions = ref<Record<string, { subscription?: JetStreamSubscription; pending?: Promise<void> }>>({});
+  private subscriptions: Record<
+    string,
+    { subscription?: Subscription; pending?: Promise<void>; state: Ref<Record<string, Models>> }
+  > = {};
 
   private subscriptionsQueue: Record<string, Ref<Record<string, Models>>> = {};
 
   private nc: NatsConnection | undefined;
 
-  js: Ref<JetStreamClient | undefined> = ref();
+  private jsm: JetStreamManager | undefined;
 
   constructor(autoLoad = true) {
     if (autoLoad) {
@@ -39,13 +42,13 @@ export class NatsApi implements Api {
       throw new Error('NATS_URL is invalid!');
     }
 
-    this.nc = await connect({
+    this.nc = await wsconnect({
       servers: [natsServerUrl],
       waitOnFirstConnect: true,
       maxReconnectAttempts: -1,
     });
     this.isConnected.value = true;
-    this.js.value = this.nc.jetstream();
+    this.jsm = await jetstreamManager(this.nc, { checkAPI: false });
 
     await this.processSubscriptionsQueue();
 
@@ -55,48 +58,65 @@ export class NatsApi implements Api {
       }
 
       for await (const s of this.nc.status()) {
-        if (s.type === Events.Disconnect) {
+        if (s.type === 'disconnect') {
           this.isConnected.value = false;
         }
-        if (s.type === Events.Reconnect) {
+        if (s.type === 'reconnect') {
           this.isConnected.value = true;
 
-          await this.processSubscriptionsQueue();
+          void this.resubscribeAll();
         }
       }
     })();
   }
 
   async subscribe(topic: string, state: Ref<Record<string, Models>>) {
-    if (this.subscriptions.value[topic]) {
+    if (this.subscriptions[topic]) {
       return;
     }
 
-    if (!this.isConnected.value || !this.js.value) {
+    if (!this.isConnected.value || !this.jsm || !this.nc) {
       this.subscriptionsQueue[topic] = state;
       return;
     }
 
     let resolvePendingSubscription: () => void = () => {};
-    this.subscriptions.value[topic] = {
+    this.subscriptions[topic] = {
       pending: new Promise((resolve) => {
         resolvePendingSubscription = resolve;
       }),
+      state,
     };
 
-    const opts = consumerOpts();
-    opts.deliverTo(createInbox());
-    opts.deliverAll();
-    opts.ackNone();
-    opts.replayInstantly();
-    const sub = await this.js.value.subscribe(topic, opts);
+    const inbox = createInbox();
+    const sub = this.nc.subscribe(inbox);
 
-    this.subscriptions.value[topic].subscription = sub;
+    try {
+      const streamName = await this.jsm.streams.find(topic);
+      await this.jsm.consumers.add(streamName, {
+        deliver_subject: inbox,
+        deliver_policy: DeliverPolicy.All,
+        ack_policy: AckPolicy.None,
+        replay_policy: ReplayPolicy.Instant,
+        filter_subject: topic,
+      });
+    } catch (error) {
+      // Most likely the connection dropped while setting up the consumer.
+      // Clean up and queue the topic so it is retried on the next reconnect.
+      sub.unsubscribe();
+      delete this.subscriptions[topic];
+      resolvePendingSubscription();
+      this.subscriptionsQueue[topic] = state;
+      console.error(`Failed to subscribe to ${topic}`, error);
+      return;
+    }
+
+    this.subscriptions[topic].subscription = sub;
     resolvePendingSubscription();
 
     void (async () => {
       for await (const m of sub) {
-        const raw = sc.decode(m.data);
+        const raw = m.string();
         if (raw === DeletePayload) {
           // TODO
           // delete vehicles.value[''];
@@ -114,13 +134,13 @@ export class NatsApi implements Api {
   }
 
   async unsubscribe(topic: string) {
-    if (this.subscriptions.value[topic]) {
-      const { pending } = this.subscriptions.value[topic];
+    if (this.subscriptions[topic]) {
+      const { pending } = this.subscriptions[topic];
       if (pending) {
         await pending;
       }
-      this.subscriptions.value[topic]?.subscription?.unsubscribe();
-      delete this.subscriptions.value[topic];
+      this.subscriptions[topic]?.subscription?.unsubscribe();
+      delete this.subscriptions[topic];
     }
     if (this.subscriptionsQueue[topic]) {
       delete this.subscriptionsQueue[topic];
@@ -130,10 +150,38 @@ export class NatsApi implements Api {
   private async processSubscriptionsQueue() {
     await Promise.all(
       Object.keys(this.subscriptionsQueue).map(async (topic) => {
-        await this.subscribe(topic, this.subscriptionsQueue[topic]);
+        const state = this.subscriptionsQueue[topic];
         delete this.subscriptionsQueue[topic];
+        await this.subscribe(topic, state);
       }),
     );
+  }
+
+  /**
+   * Drop all active subscriptions and re-create them (including their
+   * JetStream consumers) on the current connection.
+   */
+  private async resubscribeAll() {
+    await Promise.all(
+      Object.keys(this.subscriptions).map(async (topic) => {
+        const entry = this.subscriptions[topic];
+        if (!entry) {
+          return;
+        }
+        // remember the state ref before waiting, so a topic unsubscribed in
+        // the meantime is not re-added by accident
+        const { state } = entry;
+        await entry.pending;
+        if (!this.subscriptions[topic]) {
+          return;
+        }
+        this.subscriptions[topic]?.subscription?.unsubscribe();
+        delete this.subscriptions[topic];
+        this.subscriptionsQueue[topic] = state;
+      }),
+    );
+
+    await this.processSubscriptionsQueue();
   }
 
   useStops() {

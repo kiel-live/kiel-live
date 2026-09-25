@@ -10,7 +10,6 @@ import de.beechy.kiellive.Config;
 
 public class MyWebViewClient extends WebViewClient {
     private final Context context;
-    private int statusBarHeight;
 
     public MyWebViewClient(Context context) {
         this.context = context;
@@ -27,40 +26,5 @@ public class MyWebViewClient extends WebViewClient {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         context.startActivity(intent);
         return true;
-    }
-
-    /**
-     * Injects the safe area top inset as a CSS custom property (CSS variable).
-     * https://stackoverflow.com/a/30270803
-     */
-    void injectCssIntoWebView(WebView webView, int statusBarHeight) {
-        // determine navigation bar height (if present)
-        int navBarHeight = 0;
-        int resourceId = context.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            navBarHeight = context.getResources().getDimensionPixelSize(resourceId);
-        }
-        
-        // Calculate the pixel value accounting for device pixel ratio
-        String jsCode = "javascript:{"
-                + "const top = " + statusBarHeight + " / window.devicePixelRatio;"
-                + "const bottom = " + navBarHeight + " / window.devicePixelRatio;"
-                + "document.documentElement.style.setProperty('--safe-area-top', top + 'px');"
-                + "document.documentElement.style.setProperty('--safe-area-bottom', bottom + 'px');"
-                + "}";
-
-        webView.loadUrl(jsCode);
-    }
-
-    public void setStatusBarHeight(int statusBarHeight) {
-        this.statusBarHeight = statusBarHeight;
-    }
-
-    @Override
-    public void onPageFinished(WebView webView, String url) {
-        injectCssIntoWebView(
-                webView,
-                statusBarHeight
-        );
     }
 }

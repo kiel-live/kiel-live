@@ -27,6 +27,7 @@ import { useI18n } from 'vue-i18n';
 
 import Button from '~/components/atomic/Button.vue';
 import PopupNotice from '~/components/PopupNotice.vue';
+import { useTrack } from '~/compositions/useTrack';
 import { localStoragePrefix } from '~/compositions/useUserSettings';
 import { feedbackMail } from '~/config';
 
@@ -69,5 +70,9 @@ watch(
 
 function close() {
   version.value = latestVersion;
+  useTrack().track('update-popup:close', {
+    from: version.value,
+    to: latestVersion,
+  });
 }
 </script>

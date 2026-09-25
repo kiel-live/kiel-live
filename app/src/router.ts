@@ -77,15 +77,20 @@ const router = createRouter({
 
 const { liteMode } = useUserSettings();
 
-router.beforeEach((to, from, next): void => {
+router.beforeEach((to) => {
+  // Handle github pages 404.html redirect
+  const redirect = sessionStorage.getItem('redirect');
+  if (redirect) {
+    sessionStorage.removeItem('redirect');
+    return { path: redirect };
+  }
+
   if (to.name === 'home' && (firstStartOfApp || liteMode.value)) {
     firstStartOfApp = false;
-    next({ name: 'favorites' });
-    return;
+    return { name: 'favorites' };
   }
 
   firstStartOfApp = false;
-  next();
 });
 
 export default router;

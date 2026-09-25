@@ -15,15 +15,16 @@ const (
 
 // Stop is a fixed point where for example a bus stops or a car-sharing parking spot is located
 type Stop struct {
-	ID       string         `json:"id"`
-	Provider string         `json:"provider"`
-	Name     string         `json:"name"`
-	Type     StopType       `json:"type"`             // Deprecated: use arrivals[].type or vehicles[].type instead
-	Routes   []*Route       `json:"routes,omitempty"` // list of routes using this stop
-	Alerts   []string       `json:"alerts,omitempty"` // general alerts for this stop
-	Arrivals []*StopArrival `json:"arrivals"`         // omitempty is avoided as null / [] is used to check if data was loaded
-	Vehicles []*Vehicle     `json:"vehicles,omitempty"`
-	Location *Location      `json:"location"`
+	ID         string            `json:"id"`
+	Provider   string            `json:"provider"`
+	Name       string            `json:"name"`
+	Type       StopType          `json:"type"`             // Deprecated: use departures[].type or vehicles[].type instead
+	Routes     []*Route          `json:"routes,omitempty"` // list of routes using this stop
+	Alerts     []string          `json:"alerts,omitempty"` // general alerts for this stop
+	Arrivals   []*StopArrival    `json:"arrivals"`         // Deprecated: use departures instead
+	Departures []*StopDepartures `json:"departures"`       // omitempty is avoided as null / [] is used to check if data was loaded
+	Vehicles   []*Vehicle        `json:"vehicles,omitempty"`
+	Location   *Location         `json:"location"`
 }
 
 func (s *Stop) String() string {
@@ -33,27 +34,42 @@ func (s *Stop) String() string {
 	return fmt.Sprintf("Stop(%s, %s, %s)", s.ID, s.Provider, s.Name)
 }
 
-type ArrivalState string
+type DepartureState string
 
-// State of an arrival
+// State of a departure
 const (
-	Undefined ArrivalState = ""
-	Stopping  ArrivalState = "stopping"
-	Predicted ArrivalState = "predicted"
-	Planned   ArrivalState = "planned"
-	Departed  ArrivalState = "departed"
+	Undefined DepartureState = ""
+	Stopping  DepartureState = "stopping"
+	Predicted DepartureState = "predicted"
+	Planned   DepartureState = "planned"
+	Departed  DepartureState = "departed"
 )
 
+type StopDepartures struct {
+	Name      string         `json:"name"`
+	Type      VehicleType    `json:"type"`
+	VehicleID string         `json:"vehicleId"`
+	TripID    string         `json:"tripId"`
+	RouteID   string         `json:"routeId"`
+	RouteName string         `json:"routeName"`
+	Direction string         `json:"direction"`
+	State     DepartureState `json:"state"`
+	Platform  string         `json:"platform"`
+	Planned   string         `json:"planned"`
+	Actual    string         `json:"actual,omitempty"`
+}
+
+// Deprecated: use StopDepartures instead
 type StopArrival struct {
-	Name      string       `json:"name"`
-	Type      VehicleType  `json:"type"`
-	VehicleID string       `json:"vehicleId"`
-	TripID    string       `json:"tripId"`
-	RouteID   string       `json:"routeId"`
-	RouteName string       `json:"routeName"`
-	Direction string       `json:"direction"`
-	State     ArrivalState `json:"state"`
-	Planned   string       `json:"planned"`
-	Eta       int          `json:"eta"`
-	Platform  string       `json:"platform"`
+	Name      string      `json:"name"`
+	Type      VehicleType `json:"type"`
+	VehicleID string      `json:"vehicleId"`
+	TripID    string      `json:"tripId"`
+	RouteID   string      `json:"routeId"`
+	RouteName string      `json:"routeName"`
+	Direction string      `json:"direction"`
+	State     string      `json:"state"`
+	Planned   string      `json:"planned"`
+	Eta       int         `json:"eta"`
+	Platform  string      `json:"platform"`
 }

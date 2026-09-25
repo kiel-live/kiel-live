@@ -9,10 +9,10 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Safe area top inset - injected by Android app or defaults to 0 for web */
-  --safe-area-top: 0px;
+  /* Safe area top inset (for android status bar) */
+  --safe-area-top: env(safe-area-inset-top, 0px);
   /* Safe area bottom inset (for android navigation) */
-  --safe-area-bottom: 0px;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   /* define the space the popup should leave for the app bar */
   --app-bar-space: 64px;
 }

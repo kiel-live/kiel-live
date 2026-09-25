@@ -5,7 +5,8 @@
     ":maintainLockFilesWeekly",
     ":enablePreCommit",
     "schedule:automergeDaily",
-    "schedule:daily"
+    "schedule:daily",
+    "helpers:pinGitHubActionDigests"
   ],
   "timezone": "Europe/Berlin",
   "dependencyDashboard": true,

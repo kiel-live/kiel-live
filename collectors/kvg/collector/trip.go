@@ -2,13 +2,13 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 	"sync"
 
 	"github.com/kiel-live/kiel-live/collectors/kvg/api"
 	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/pkg/models"
-	"github.com/sirupsen/logrus"
 )
 
 type TripCollector struct {
@@ -17,7 +17,7 @@ type TripCollector struct {
 	sync.Mutex
 }
 
-func isSameTripArrivals(a1, a2 []*models.TripArrival) bool {
+func isSameTripDepartures(a1, a2 []*models.TripDeparture) bool {
 	if len(a1) != len(a2) {
 		return false
 	}
@@ -33,7 +33,7 @@ func isSameTripArrivals(a1, a2 []*models.TripArrival) bool {
 }
 
 func isSameTrip(a, b *models.Trip) bool {
-	return a != nil && b != nil && a.ID == b.ID && a.Provider == b.Provider && a.Direction == b.Direction && isSameTripArrivals(a.Arrivals, b.Arrivals)
+	return a != nil && b != nil && a.ID == b.ID && a.Provider == b.Provider && a.Direction == b.Direction && isSameTripDepartures(a.Departures, b.Departures)
 }
 
 // returns list of changed or newly added trips
@@ -65,7 +65,7 @@ func (c *TripCollector) TopicToID(topic string) string {
 }
 
 func (c *TripCollector) Run() {
-	log := logrus.WithField("collector", "trip")
+	log := slog.With("collector", "trip")
 	trips := map[string]*models.Trip{}
 
 	c.Lock()
@@ -83,7 +83,7 @@ func (c *TripCollector) Run() {
 	for _, tripID := range tripIDs {
 		trip, err := api.GetTrip(tripID)
 		if err != nil {
-			log.Error(err)
+			log.Error("failed to get trip", "error", err)
 			continue
 		}
 		trips[trip.ID] = trip
@@ -92,47 +92,47 @@ func (c *TripCollector) Run() {
 	// publish all changed trips
 	changed := c.getChangedTrips(trips)
 	for _, trip := range changed {
-		log.Debugf("publish changed trip: %v", trip)
+		log.Debug("publish changed trip", "trip", trip)
 		err := c.client.UpdateTrip(trip)
 		if err != nil {
-			log.Error(err)
+			log.Error("failed to update trip", "error", err)
 		}
 	}
 
 	removed := c.getRemovedTrips(trips)
 	for _, trip := range removed {
-		log.Debugf("publish removed trip: %v", trip)
+		log.Debug("publish removed trip", "trip", trip)
 		err := c.client.DeleteTrip(trip.ID)
 		if err != nil {
-			log.Error(err)
+			log.Error("failed to delete trip", "error", err)
 		}
 	}
 
-	log.Debugf("changed %d trips and removed %d", len(changed), len(removed))
+	log.Debug("collector run complete", "changed", len(changed), "removed", len(removed))
 	// update list of trips
 	c.trips = trips
 }
 
 func (c *TripCollector) RunSingle(tripID string) {
-	log := logrus.WithField("collector", "trip").WithField("trip-id", tripID)
+	log := slog.With("collector", "trip", "trip_id", tripID)
 
 	c.Lock()
 	defer c.Unlock()
 
 	trip, err := api.GetTrip(tripID)
 	if err != nil {
-		log.Error(err)
+		log.Error("failed to get trip", "error", err)
 		return
 	}
 
 	// publish changed trip
 	err = c.client.UpdateTrip(trip)
 	if err != nil {
-		log.Error(err)
+		log.Error("failed to update trip", "error", err)
 		return
 	}
 
-	log.Debugf("published single trip: %v", trip)
+	log.Debug("published single trip", "trip", trip)
 	// update cache
 	c.trips[trip.ID] = trip
 }

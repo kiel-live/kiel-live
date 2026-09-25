@@ -1,70 +1,39 @@
 package main
 
 import (
-	"os"
+	"context"
+	"log/slog"
 	"time"
 
-	"github.com/go-co-op/gocron"
-	"github.com/joho/godotenv"
+	"github.com/go-co-op/gocron/v2"
+	basecollector "github.com/kiel-live/kiel-live/collectors/collector"
 	"github.com/kiel-live/kiel-live/collectors/kvg/collector"
 	"github.com/kiel-live/kiel-live/pkg/client"
-	log "github.com/sirupsen/logrus"
 )
 
-var collectors map[string]collector.Collector
-
 func main() {
-	log.Infof("🚌 Kiel-Live KVG collector version %s", "1.0.0") // TODO use proper version
+	basecollector.New(basecollector.Options{
+		Name:    "KVG",
+		Execute: run,
+	}).Run()
+}
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Debug("No .env file found")
-	}
+func run(_ context.Context, c client.Client) error {
+	collectors := make(map[string]collector.Collector)
 
-	if os.Getenv("LOG") == "debug" {
-		log.SetLevel(log.DebugLevel)
-	}
+	var err error
 
-	server := os.Getenv("COLLECTOR_SERVER")
-	if server == "" {
-		log.Fatalln("Please provide a server address for the collector with COLLECTOR_SERVER")
-	}
-
-	token := os.Getenv("COLLECTOR_TOKEN")
-	if token == "" {
-		log.Fatalln("Please provide a token for the collector with COLLECTOR_TOKEN")
-	}
-
-	c := client.NewClient(server, token)
-	err = c.Connect()
-	if err != nil {
-		log.Fatalln(err)
-		return
-	}
-	defer func() {
-		err := c.Disconnect()
-		if err != nil {
-			log.Error(err)
-		}
-	}()
-
-	collectors = make(map[string]collector.Collector)
-
-	// auto load following collectors
 	collectors["vehicles"], err = collector.NewCollector(c, "vehicles")
 	if err != nil {
-		log.Errorln(err)
-		return
+		return err
 	}
 	collectors["stops"], err = collector.NewCollector(c, "stops")
 	if err != nil {
-		log.Errorln(err)
-		return
+		return err
 	}
 	collectors["trips"], err = collector.NewCollector(c, "trips")
 	if err != nil {
-		log.Errorln(err)
-		return
+		return err
 	}
 
 	c.SetOnTopicsChanged(func(topic string, subscribed bool) {
@@ -89,31 +58,45 @@ func main() {
 			return
 		}
 
-		for name, c := range collectors {
-			log.Debugf("Resetting %s collector", name)
-			c.Reset()
+		for name, collector := range collectors {
+			slog.Debug("Resetting collector", "name", name)
+			collector.Reset()
 		}
 	})
 
-	s := gocron.NewScheduler(time.UTC)
-	s.SetMaxConcurrentJobs(1, gocron.RescheduleMode)
-	_, err = s.Every(5).Seconds().Do(func() {
-		if !c.IsConnected() {
-			return
-		}
-
-		for name, c := range collectors {
-			// TODO maybe run in go routine
-			log.Debugf("Running %s collector ...", name)
-			c.Run()
-		}
-	})
+	s, err := gocron.NewScheduler(
+		gocron.WithLocation(time.UTC),
+		gocron.WithLimitConcurrentJobs(1, gocron.LimitModeReschedule),
+	)
 	if err != nil {
-		log.Errorln(err)
-		return
+		return err
+	}
+	defer func() {
+		if err := s.Shutdown(); err != nil {
+			slog.Error("failed to shutdown scheduler", "error", err)
+		}
+	}()
+
+	_, err = s.NewJob(
+		gocron.DurationJob(5*time.Second),
+		gocron.NewTask(func() {
+			if !c.IsConnected() {
+				return
+			}
+
+			for name, collector := range collectors {
+				// TODO maybe run in go routine
+				slog.Debug("Running collector ...", "name", name)
+				collector.Run()
+			}
+		}),
+	)
+	if err != nil {
+		return err
 	}
 
-	log.Infoln("⚡ KVG collector started")
+	slog.Info("KVG collector started")
 
-	s.StartBlocking()
+	s.Start()
+	select {}
 }

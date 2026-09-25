@@ -3,7 +3,10 @@
     <AppBar v-model:search-input="searchInput" />
 
     <DetailsPopup :is-open="isPopupOpen" :size="popupSize" @close="$router.replace({ name: 'home' })">
-      <MarkerPopup v-if="selectedMarker" :marker="selectedMarker" />
+      <template v-if="selectedMarker">
+        <StopPopup v-if="selectedMarker.type.endsWith('-stop')" :marker="selectedMarker" />
+        <VehiclePopup v-else :marker="selectedMarker" />
+      </template>
       <SearchPopup v-if="route.name === 'search'" v-model:search-input="searchInput" />
       <FavoritesPopup v-if="route.name === 'favorites'" />
     </DetailsPopup>
@@ -26,8 +29,9 @@ import DetailsPopup from '~/components/DetailsPopup.vue';
 import AppBar from '~/components/layout/AppBar.vue';
 import Map from '~/components/map/Map.vue';
 import FavoritesPopup from '~/components/popups/FavoritesPopup.vue';
-import MarkerPopup from '~/components/popups/MarkerPopup.vue';
 import SearchPopup from '~/components/popups/SearchPopup.vue';
+import StopPopup from '~/components/popups/StopPopup.vue';
+import VehiclePopup from '~/components/popups/VehiclePopup.vue';
 import { useUserSettings } from '~/compositions/useUserSettings';
 
 const { liteMode } = useUserSettings();

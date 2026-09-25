@@ -32,7 +32,7 @@ func (v *vehicle) parse() *models.Vehicle {
 		TripID:   IDPrefix + v.TripID,
 		State:    "onfire", // TODO
 		Location: &models.Location{
-			Heading:   v.Heading,
+			Heading:   &v.Heading,
 			Longitude: v.Longitude,
 			Latitude:  v.Latitude,
 		},

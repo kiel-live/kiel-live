@@ -4,16 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"sync"
 	"time"
 
 	aisstream "github.com/aisstream/ais-message-models/golang/aisStream"
 	"github.com/gorilla/websocket"
-	"github.com/joho/godotenv"
+	"github.com/kiel-live/kiel-live/collectors/collector"
 	"github.com/kiel-live/kiel-live/pkg/client"
 	"github.com/kiel-live/kiel-live/pkg/models"
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -27,13 +27,25 @@ var wsWriteMutex sync.Mutex
 var keepAliveCancelMu sync.Mutex
 var keepAliveCancel context.CancelFunc
 
+type shipPosition struct {
+	lat float64
+	lon float64
+}
+
+var lastPositions = make(map[int]shipPosition)
+var lastPositionsMu sync.Mutex
+
 func wsConnect() (*websocket.Conn, error) {
 	url := "wss://stream.aisstream.io/v0/stream"
-	ws, http, err := websocket.DefaultDialer.Dial(url, nil)
+
+	// Enables compression, which aisstream.io requires to serve full message bandwidth.
+	dialer := *websocket.DefaultDialer
+	dialer.EnableCompression = true
+
+	ws, _, err := dialer.Dial(url, nil)
 	if err != nil {
 		return nil, err
 	}
-	_ = http
 
 	return ws, nil
 }
@@ -69,7 +81,7 @@ func startKeepAlive(ctx context.Context, ws *websocket.Conn) {
 			wsWriteMutex.Lock()
 			if err := ws.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
 				wsWriteMutex.Unlock()
-				log.Errorln("Error setting write deadline:", err)
+				slog.Error("Error setting write deadline", "error", err)
 				return
 			}
 			if err := ws.WriteMessage(websocket.PingMessage, nil); err != nil {
@@ -89,59 +101,27 @@ func subscribeToStream(ws *websocket.Conn, subMsg aisstream.SubscriptionMessage)
 
 	wsWriteMutex.Lock()
 	defer wsWriteMutex.Unlock()
-	if err := ws.WriteMessage(websocket.TextMessage, subMsgBytes); err != nil {
-		return err
-	}
-
-	return nil
+	return ws.WriteMessage(websocket.TextMessage, subMsgBytes)
 }
 
 func main() {
-	log.Infof("Kiel-Live AIS collector version %s", "1.0.0") // TODO use proper version
+	collector.New(collector.Options{
+		Name:    "🚢 AIS",
+		Execute: run,
+	}).Run()
+}
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Debug("No .env file found")
-	}
-
-	if os.Getenv("LOG") == "debug" {
-		log.SetLevel(log.DebugLevel)
-	}
-
+func run(_ context.Context, c client.Client) error {
 	apiKey := os.Getenv("AISSTREAM_API_KEY")
 	if apiKey == "" {
-		log.Fatalln("Please provide an API key for the AIS stream with AISSTREAM_API_KEY")
+		return fmt.Errorf("please provide an API key for the AIS stream with AISSTREAM_API_KEY")
 	}
-
-	server := os.Getenv("COLLECTOR_SERVER")
-	if server == "" {
-		log.Fatalln("Please provide a server address for the collector with COLLECTOR_SERVER")
-	}
-
-	token := os.Getenv("COLLECTOR_TOKEN")
-	if token == "" {
-		log.Fatalln("Please provide a token for the collector with MANAGER_TOKEN")
-	}
-
-	c := client.NewClient(server, token)
-	err = c.Connect()
-	if err != nil {
-		log.Fatalln(err)
-		return
-	}
-	defer func() {
-		err := c.Disconnect()
-		if err != nil {
-			log.Error(err)
-		}
-	}()
 
 	ws, err := wsConnect()
 	if err != nil {
-		log.Fatalln(err)
-		return
+		return err
 	}
-	log.Infoln("Connected to AIS stream")
+	slog.Info("Connected to AIS stream")
 	defer ws.Close()
 
 	configureConnection(ws)
@@ -161,38 +141,33 @@ func main() {
 		},
 	}
 
-	err = subscribeToStream(ws, subMsg)
-	if err != nil {
-		log.Fatalln(err)
-		return
+	if err := subscribeToStream(ws, subMsg); err != nil {
+		return err
 	}
-	log.Infoln("Subscribed to AIS stream")
+	slog.Info("Subscribed to AIS stream")
 
 	for {
 		_, p, err := ws.ReadMessage()
 		if websocket.IsCloseError(err, websocket.CloseAbnormalClosure) {
-			// reconnect
-			log.Warnln("Websocket connection closed, reconnecting...")
+			slog.Warn("Websocket connection closed, reconnecting...")
 			ws, err = wsConnect()
 			if err != nil {
-				log.Fatalln(err)
+				return err
 			}
-			log.Infoln("Reconnected to AIS stream")
+			slog.Info("Reconnected to AIS stream")
 			configureConnection(ws)
-			err = subscribeToStream(ws, subMsg)
-			if err != nil {
-				log.Fatalln(err)
+			if err = subscribeToStream(ws, subMsg); err != nil {
+				return err
 			}
-			log.Infoln("Resubscribed to AIS stream")
+			slog.Info("Resubscribed to AIS stream")
 			continue
 		} else if err != nil {
-			log.Fatalln(err)
+			return err
 		}
-		var packet aisstream.AisStreamMessage
 
-		err = json.Unmarshal(p, &packet)
-		if err != nil {
-			log.Errorln(err)
+		var packet aisstream.AisStreamMessage
+		if err = json.Unmarshal(p, &packet); err != nil {
+			slog.Error("failed to decode AIS packet", "error", err)
 			continue
 		}
 
@@ -206,8 +181,28 @@ func main() {
 		case aisstream.POSITION_REPORT:
 			var positionReport aisstream.PositionReport
 			positionReport = *packet.Message.PositionReport
-			log.Debugf("MMSI: %d Ship Name: %s Latitude: %f Longitude: %f",
-				positionReport.UserID, shipName, positionReport.Latitude, positionReport.Longitude)
+			mmsi := int(positionReport.UserID)
+			slog.Debug("position report", "mmsi", mmsi, "ship_name", shipName, "latitude", positionReport.Latitude, "longitude", positionReport.Longitude, "true_heading", positionReport.TrueHeading)
+			location := &models.Location{
+				Longitude: int(positionReport.Longitude * 3600000),
+				Latitude:  int(positionReport.Latitude * 3600000),
+			}
+			if positionReport.TrueHeading != 511 { // 511 means "not available"
+				heading := int(positionReport.TrueHeading)
+				location.Heading = &heading
+			} else {
+				lastPositionsMu.Lock()
+				previousPosition, ok := lastPositions[mmsi]
+				lastPositionsMu.Unlock()
+				if ok && calculateDistanceMeters(previousPosition.lat, previousPosition.lon, positionReport.Latitude, positionReport.Longitude) > 10 {
+					heading := calculateBearing(previousPosition.lat, previousPosition.lon, positionReport.Latitude, positionReport.Longitude)
+					location.Heading = &heading
+				}
+			}
+			lastPositionsMu.Lock()
+			lastPositions[mmsi] = shipPosition{lat: positionReport.Latitude, lon: positionReport.Longitude}
+			lastPositionsMu.Unlock()
+
 			vehicle := &models.Vehicle{
 				ID:          IDPrefix + fmt.Sprint(positionReport.UserID),
 				Provider:    "ais",
@@ -215,16 +210,11 @@ func main() {
 				Description: fmt.Sprintf("Die Live-Position der Fähre \"%s\".\n\nDie Position wird regelmäßig über AIS aktualisiert.", shipName),
 				Type:        models.VehicleTypeFerry,
 				State:       "onfire", // TODO
-				Location: &models.Location{
-					Longitude: int(positionReport.Longitude * 3600000),
-					Latitude:  int(positionReport.Latitude * 3600000),
-					Heading:   int(positionReport.TrueHeading),
-				},
+				Location:    location,
 			}
 
-			err = c.UpdateVehicle(vehicle)
-			if err != nil {
-				log.Error(err)
+			if err = c.UpdateVehicle(vehicle); err != nil {
+				slog.Error("failed to update vehicle", "error", err)
 				continue
 			}
 		}

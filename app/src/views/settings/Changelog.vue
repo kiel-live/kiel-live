@@ -17,9 +17,9 @@
         <h2 class="mb-2 font-semibold text-gray-900 dark:text-gray-100">
           {{ new Date('2019-05-20').toLocaleDateString() }}
         </h2>
-        <span class="text-gray-600 dark:text-gray-400"
-          ><i-ph-cake-fill class="inline align-text-bottom" /> {{ t('changelog_project_started') }}</span
-        >
+        <span class="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+          <i-ph-cake-fill /> {{ t('changelog_project_started') }}
+        </span>
       </div>
     </div>
   </SettingsContainer>
