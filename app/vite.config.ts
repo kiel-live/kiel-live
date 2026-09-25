@@ -73,9 +73,10 @@ export default defineConfig(({ mode }) => {
             "'unsafe-inline'", // needed for useColorMode and DetailsPopup
           ],
           'connect-src': ["'self'", env.VITE_NATS_URL || '', 'https://tiles.ju60.de'],
-          'worker-src': ["'self'", 'blob:'],
+          'worker-src': ["'self'"],
           'img-src': [
             "'self'",
+            'blob:', // required as per https://github.com/maplibre/maplibre-gl-js/blob/v6.11.2/docs/index.md#csp-directives
             'data:', // needed for maplibre-gl icons
           ],
         },
