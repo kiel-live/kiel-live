@@ -90,5 +90,19 @@ func (c *Collector) run() error {
 		}
 	}()
 
-	return c.execute(context.Background(), cl)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- c.execute(ctx, cl)
+	}()
+
+	// a closed connection never recovers, so stop instead of running on with a client that fails every publish
+	select {
+	case err := <-errCh:
+		return err
+	case <-cl.Closed():
+		return fmt.Errorf("connection to the server was closed")
+	}
 }
