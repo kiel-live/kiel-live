@@ -28,7 +28,7 @@
     "canvas-confetti": "1.9.4",
     "fuse.js": "7.5.0",
     "maplibre-gl": "6.4.1",
-    "micromark": "4.0.2",
+    "micromark": "4.0.3",
     "vue": "3.5.43",
     "vue-i18n": "11.4.12",
     "vue-router": "5.3.1"
