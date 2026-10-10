@@ -30,8 +30,8 @@
     "maplibre-gl": "6.4.1",
     "micromark": "4.0.3",
     "vue": "3.5.43",
-    "vue-i18n": "11.4.12",
-    "vue-router": "5.3.1"
+    "vue-i18n": "11.4.13",
+    "vue-router": "5.4.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "8.3.0",
@@ -56,11 +56,11 @@
     "typescript": "6.0.3",
     "unplugin-icons": "23.0.1",
     "unplugin-vue-components": "32.1.0",
-    "vite": "8.3.0",
+    "vite": "8.3.3",
     "vite-plugin-csp-guard": "4.0.1",
     "vite-plugin-pwa": "1.3.0",
-    "vitest": "5.0.1",
-    "vue-tsc": "3.3.11",
+    "vitest": "5.0.3",
+    "vue-tsc": "3.3.12",
     "workbox-build": "7.4.1",
     "workbox-window": "7.4.1",
     "yaml-eslint-parser": "1.3.2"
