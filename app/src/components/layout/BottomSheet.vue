@@ -1,7 +1,7 @@
 <template>
   <div
     v-show="isOpen"
-    class="shadow-top absolute right-0 bottom-0 left-0 z-10 flex w-full flex-col rounded-t-2xl bg-white px-4 pt-2 pb-0 transition dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
+    class="absolute right-0 bottom-0 left-0 z-10 flex w-full flex-col rounded-t-3xl border-t border-gray-100 bg-white px-4 pt-2 pb-0 transition dark:border-neutral-950 dark:bg-neutral-800 dark:text-gray-300"
     :class="{
       'max-h-0 overflow-hidden': actualSize === 'closed',
       'max-h-[calc(100%-var(--safe-area-top)-var(--app-bar-space))]': actualSize !== 'closed',
@@ -15,7 +15,7 @@
     :style="{ height: isOpen ? (height === undefined ? undefined : `${height}px`) : 0 }"
   >
     <button type="button" class="-mt-4 w-full touch-none pt-4 pb-4" :title="$t('drag_to_resize')" @pointerdown="drag">
-      <div class="mx-auto h-1.5 w-12 shrink-0 rounded-full bg-gray-500" />
+      <div class="mx-auto h-1 w-12 shrink-0 rounded-full bg-gray-500 dark:bg-neutral-700" />
     </button>
     <slot />
   </div>
