@@ -72,7 +72,7 @@ export default defineConfig(({ mode }) => {
             "'self'",
             "'unsafe-inline'", // needed for useColorMode and DetailsPopup
           ],
-          'connect-src': ["'self'", env.VITE_NATS_URL || '', 'https://tiles.ju60.de'],
+          'connect-src': ["'self'", env.VITE_NATS_URL || '', 'https://tiles.ju60.de', 'https://boomerang.ju60.de'],
           'worker-src': ["'self'"],
           'img-src': [
             "'self'",
