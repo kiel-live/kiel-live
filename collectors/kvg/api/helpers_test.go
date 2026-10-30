@@ -21,6 +21,13 @@ func TestTimeToIsoDateTime(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name:    "valid time during winter time",
+			input:   "13:27",
+			now:     time.Date(2026, 10, 30, 12, 28, 0, 0, time.UTC),
+			want:    "2026-10-30T13:27:00+01:00",
+			wantErr: false,
+		},
+		{
 			name:    "empty time",
 			input:   "",
 			now:     time.Date(2024, 6, 1, 12, 30, 0, 0, time.UTC),
