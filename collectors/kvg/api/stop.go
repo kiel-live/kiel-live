@@ -105,9 +105,15 @@ func (d *departure) parse(serverTime time.Time) *models.StopDepartures {
 		log.Printf("Error parsing planned time: %v", err)
 	}
 
+	// Planned departures have no vehicle assigned yet.
+	var vehicleID string
+	if d.VehicleID != "" {
+		vehicleID = IDPrefix + d.VehicleID
+	}
+
 	return &models.StopDepartures{
 		Name:      d.Direction,
-		VehicleID: IDPrefix + d.VehicleID,
+		VehicleID: vehicleID,
 		TripID:    IDPrefix + d.TripID,
 		RouteID:   d.RouteID,
 		RouteName: d.RouteName,
