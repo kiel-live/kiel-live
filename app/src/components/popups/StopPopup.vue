@@ -3,15 +3,19 @@
     <div class="mb-2 flex flex-row items-center border-b border-gray-200 pb-2 dark:border-neutral-600">
       <i-mdi-sign-real-estate />
       <h1 class="ml-2 text-lg">{{ stop.name }}</h1>
+      <Button class="ml-auto border-0" :title="t('share')" @click="share({ title: stop.name, url: shareUrl })">
+        <i-ph-check-bold v-if="copied" />
+        <i-ph-share-fat-bold v-else />
+      </Button>
       <Button
         v-if="isFavorite(stop)"
-        class="ml-auto border-0 text-yellow-300"
+        class="ml-2 border-0 text-yellow-300"
         :title="t('remove_favorite')"
         @click="removeFavorite(stop)"
       >
         <i-ph-star-fill />
       </Button>
-      <Button v-else class="ml-auto border-0" :title="t('add_favorite')" @click="addFavorite(stop)">
+      <Button v-else class="ml-2 border-0" :title="t('add_favorite')" @click="addFavorite(stop)">
         <i-ph-star-bold />
       </Button>
     </div>
@@ -114,6 +118,7 @@ import Button from '~/components/atomic/Button.vue';
 import NoData from '~/components/NoData.vue';
 import { get24hTime } from '~/compositions/date';
 import { useFavorites } from '~/compositions/useFavorites';
+import { useShare } from '~/compositions/useShare';
 
 const props = defineProps<{
   marker: Marker;
@@ -121,10 +126,13 @@ const props = defineProps<{
 
 const { addFavorite, removeFavorite, isFavorite } = useFavorites();
 const { t } = useI18n();
+const { share, copied } = useShare();
 
 const marker = toRef(props, 'marker');
 
 const { stop, unsubscribe: unsubscribeStop } = api.useStop(computed(() => props.marker.id));
+
+const shareUrl = computed(() => window.location.href);
 
 function getBoardTime(departure: StopDeparture) {
   if (!departure.actual) {
