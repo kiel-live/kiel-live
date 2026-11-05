@@ -4,7 +4,6 @@
     "config:recommended",
     ":maintainLockFilesWeekly",
     ":enablePreCommit",
-    "schedule:automergeDaily",
     "schedule:daily",
     "helpers:pinGitHubActionDigests"
   ],
