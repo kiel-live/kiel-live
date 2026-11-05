@@ -63,6 +63,13 @@
         "/^prettier/",
         "/^@antfu/eslint-config/"
       ]
+    },
+    {
+      "groupName": "ruby",
+      "matchPackageNames": [
+        "ruby",
+        "ruby/setup-ruby"
+      ]
     }
   ]
 }
