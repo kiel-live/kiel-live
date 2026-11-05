@@ -4,7 +4,7 @@ android {
     compileSdk = 36
     defaultConfig {
         applicationId "de.beechy.kiellive"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 36
         versionCode 175
         versionName "1.7.5"
