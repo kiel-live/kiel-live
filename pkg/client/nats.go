@@ -195,6 +195,15 @@ func parseOptionalTime(value string) (time.Time, error) {
 	return time.Parse(time.RFC3339, value)
 }
 
+// legacyVehicleID keeps the vehicle id non-empty, as legacy clients link every arrival to a vehicle and fail to render on an empty id.
+func legacyVehicleID(vehicleID string) string {
+	if vehicleID == "" {
+		return "unknown"
+	}
+
+	return vehicleID
+}
+
 func (n *natsClient) UpdateStop(stop *models.Stop) error {
 	// TODO: remove once majority of clients updated (added 29.03.2026)
 	stop.Arrivals = nil
@@ -237,7 +246,7 @@ func (n *natsClient) UpdateStop(stop *models.Stop) error {
 		arrival := &models.StopArrival{ //nolint:staticcheck
 			Name:      departure.Name,
 			Type:      departure.Type,
-			VehicleID: departure.VehicleID,
+			VehicleID: legacyVehicleID(departure.VehicleID),
 			TripID:    departure.TripID,
 			RouteID:   departure.RouteID,
 			RouteName: departure.RouteName,
