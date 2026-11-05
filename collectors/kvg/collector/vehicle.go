@@ -15,8 +15,15 @@ type VehicleCollector struct {
 	sync.Mutex
 }
 
+func isSameHeading(a *int, b *int) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return *a == *b
+}
+
 func isSameLocation(a *models.Location, b *models.Location) bool {
-	return a.Heading == b.Heading && a.Latitude == b.Latitude && a.Longitude == b.Longitude
+	return isSameHeading(a.Heading, b.Heading) && a.Latitude == b.Latitude && a.Longitude == b.Longitude
 }
 
 func isSameVehicle(a *models.Vehicle, b *models.Vehicle) bool {
