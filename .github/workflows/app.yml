@@ -10,6 +10,14 @@ on:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
+    # only build & publish a surge preview if the app actually changed
+    paths:
+      - "app/**"
+      - ".github/workflows/app.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
 
 permissions:
   pull-requests: write # allow surge-preview to create/update PR comments
