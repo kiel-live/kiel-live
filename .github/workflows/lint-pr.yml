@@ -11,7 +11,8 @@ permissions:
   pull-requests: read
 
 jobs:
-  main:
+  lint-pr:
+    name: Lint PR
     runs-on: ubuntu-latest
     steps:
       # https://github.com/amannn/action-semantic-pull-request/releases
