@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": "24.22.2",
+    "node": "26.13.1",
     "pnpm": "12.16.1"
   },
   "scripts": {
@@ -45,7 +45,7 @@
     "@tailwindcss/vite": "4.3.5",
     "@types/canvas-confetti": "1.9.0",
     "@types/geojson": "7946.0.16",
-    "@types/node": "24.19.2",
+    "@types/node": "26.6.6",
     "@vitejs/plugin-vue": "6.0.10",
     "eslint": "10.14.0",
     "eslint-plugin-promise": "7.3.0",
