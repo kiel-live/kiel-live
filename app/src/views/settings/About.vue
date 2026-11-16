@@ -8,11 +8,7 @@
 
     <p class="mb-2 text-center">{{ t('support_us') }}</p>
 
-    <Button
-      href="https://www.instagram.com/kiel.live/"
-      class="mx-auto mb-auto w-8/10"
-      @click="track('click:instagram')"
-    >
+    <Button :href="instagramUrl" class="mx-auto mb-auto w-8/10" @click="track('click:instagram')">
       <i-ph-instagram-logo class="mr-2" />
       <span>{{ t('follow_instagram', { account: '@kiel.live' }) }}</span>
     </Button>
@@ -74,7 +70,7 @@ import { useI18n } from 'vue-i18n';
 import Button from '~/components/atomic/Button.vue';
 import SettingsContainer from '~/components/layout/SettingsContainer.vue';
 import { useTrack } from '~/compositions/useTrack';
-import { analyticsUrl, buildDate } from '~/config';
+import { analyticsUrl, buildDate, instagramUrl } from '~/config';
 
 const { t } = useI18n();
 const { track } = useTrack();
