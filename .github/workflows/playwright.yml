@@ -6,7 +6,9 @@ on:
       - "app/**"
       - ".github/workflows/playwright.yml"
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - "renovate/**" # run checks on renovate branches to allow automerge without a PR
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

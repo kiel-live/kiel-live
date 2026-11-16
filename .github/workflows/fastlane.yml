@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "*"
+    branches:
+      - "renovate/**" # run checks on renovate branches to allow automerge without a PR
   workflow_dispatch:
     inputs:
       track:
@@ -65,6 +67,6 @@ jobs:
         working-directory: fastlane
 
       - name: Build bundle
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref_type == 'branch')
         run: bundle exec fastlane build
         working-directory: fastlane
