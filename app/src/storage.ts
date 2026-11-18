@@ -27,15 +27,18 @@ if (nativeStorage) {
 
 /**
  * Prefers native storage (Android app) and falls back to localStorage for reads.
- * Writes go to both, so localStorage stays a valid fallback.
+ * Writes only go to native storage if available, removes clear both.
  */
 export const appStorage: StorageLike = {
   getItem(key) {
     return nativeStorage?.getItem(key) ?? localStorage.getItem(key);
   },
   setItem(key, value) {
-    nativeStorage?.setItem(key, value);
-    localStorage.setItem(key, value);
+    if (nativeStorage) {
+      nativeStorage.setItem(key, value);
+    } else {
+      localStorage.setItem(key, value);
+    }
   },
   removeItem(key) {
     nativeStorage?.removeItem(key);
