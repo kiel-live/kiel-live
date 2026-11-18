@@ -54,3 +54,15 @@ func TestDepartureParse(t *testing.T) {
 		})
 	}
 }
+
+func TestDepartureParseVehicleID(t *testing.T) {
+	serverTime := time.Date(2026, 9, 25, 13, 15, 7, 0, time.UTC)
+
+	if got := (&departure{VehicleID: "123"}).parse(serverTime).VehicleID; got != "kvg-123" {
+		t.Errorf("VehicleID = %q, want %q", got, "kvg-123")
+	}
+
+	if got := (&departure{}).parse(serverTime).VehicleID; got != "" {
+		t.Errorf("VehicleID = %q, want it to be empty", got)
+	}
+}

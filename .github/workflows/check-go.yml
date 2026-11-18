@@ -4,9 +4,21 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - "**.go"
+      - "go.mod"
+      - "go.sum"
+      - ".golangci.yml"
+      - ".github/actions/go-coverage-comment/**"
+      - ".github/workflows/check-go.yml"
   push:
     branches:
       - main
+      - "renovate/**" # run checks on renovate branches to allow automerge without a PR
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions: {}
 
