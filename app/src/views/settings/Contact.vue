@@ -31,11 +31,12 @@ import SettingsContainer from '~/components/layout/SettingsContainer.vue';
 import { useTrack } from '~/compositions/useTrack';
 import { localStoragePrefix } from '~/compositions/useUserSettings';
 import { buildDate, feedbackMail } from '~/config';
+import { appStorage } from '~/storage';
 
 const { t } = useI18n();
 const { track } = useTrack();
 
-const message = useStorage(`${localStoragePrefix}.contact_message`, t('contact_email_body'));
+const message = useStorage(`${localStoragePrefix}.contact_message`, t('contact_email_body'), appStorage);
 
 async function sendEmail() {
   const subject = encodeURIComponent(t('feedback_subject'));

@@ -21,6 +21,7 @@ import de.beechy.kiellive.BuildConfig;
 import de.beechy.kiellive.Config;
 import de.beechy.kiellive.web.MyWebChromeClient;
 import de.beechy.kiellive.web.MyWebViewClient;
+import de.beechy.kiellive.web.NativeStorage;
 
 public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_FINE_LOCATION = 1;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         myWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         myWebView.setWebViewClient(webViewClient);
         myWebView.setWebChromeClient(new MyWebChromeClient(this));
+        myWebView.addJavascriptInterface(new NativeStorage(this), NativeStorage.JS_NAME);
 
         Map<String, String> extraHeaders = new HashMap<>();
         extraHeaders.put("Referer", "android-app://" + getApplication().getPackageName());

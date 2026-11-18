@@ -30,17 +30,18 @@ import PopupNotice from '~/components/PopupNotice.vue';
 import { useTrack } from '~/compositions/useTrack';
 import { localStoragePrefix } from '~/compositions/useUserSettings';
 import { feedbackMail } from '~/config';
+import { appStorage } from '~/storage';
 
 const latestVersion = '2.0.0';
-const version = useStorage(`${localStoragePrefix}.version`, '2.0.0');
+const version = useStorage(`${localStoragePrefix}.version`, '2.0.0', appStorage);
 const show = computed(() => version.value !== null && version.value !== latestVersion);
 const { t } = useI18n();
 
 onMounted(async () => {
-  const oldVersion = localStorage.getItem('version');
+  const oldVersion = appStorage.getItem('version');
   if (oldVersion !== null) {
     version.value = oldVersion;
-    localStorage.removeItem('version');
+    appStorage.removeItem('version');
   }
 });
 

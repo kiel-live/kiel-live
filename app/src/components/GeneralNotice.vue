@@ -21,6 +21,7 @@ import { useI18n } from 'vue-i18n';
 import Button from '~/components/atomic/Button.vue';
 import PopupNotice from '~/components/PopupNotice.vue';
 import { localStoragePrefix } from '~/compositions/useUserSettings';
+import { appStorage } from '~/storage';
 
 const { t } = useI18n();
 
@@ -43,7 +44,7 @@ const alerts: Alert[] = [
   },
 ];
 
-const readAlerts = useStorage<string[]>(`${localStoragePrefix}.alerts`, []);
+const readAlerts = useStorage<string[]>(`${localStoragePrefix}.alerts`, [], appStorage);
 
 const alert = computed(() =>
   alerts.find((a) => {
