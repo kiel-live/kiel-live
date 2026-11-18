@@ -179,6 +179,7 @@ const stopsLabelLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   filter: ['==', 'kind', 'stop'],
   layout: {
     'text-field': ['get', 'name'],
+    'text-font': ['Metropolis Regular', 'Klokantech Noto Sans Regular'],
     'text-size': 12,
     'text-offset': [0, 1],
     'text-anchor': 'top',
@@ -265,6 +266,7 @@ const vehiclesLabelLayer: Ref<SymbolLayerSpecification> = computed(() => ({
   filter: ['==', 'kind', 'vehicle'],
   layout: {
     'text-field': ['get', 'number'],
+    'text-font': ['Metropolis Regular', 'Klokantech Noto Sans Regular'],
     'text-size': 13,
     'text-offset': [0, 1.3],
     'text-anchor': 'top',
