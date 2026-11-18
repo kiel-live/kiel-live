@@ -31,6 +31,18 @@
         "#\\s*renovate:\\s*datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\sENV .*?_VERSION=\"(?<currentValue>.*)\"\\s"
       ],
       "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+    },
+    {
+      "customType": "regex",
+      "description": "Playwright docker image used by test:e2e:update",
+      "managerFilePatterns": [
+        "/(^|/)package\\.json$/"
+      ],
+      "matchStrings": [
+        "mcr\\.microsoft\\.com/playwright:v(?<currentValue>[0-9.]+)"
+      ],
+      "datasourceTemplate": "npm",
+      "depNameTemplate": "@playwright/test"
     }
   ],
   "labels": [
@@ -69,6 +81,13 @@
       "matchPackageNames": [
         "ruby",
         "ruby/setup-ruby"
+      ]
+    },
+    {
+      "groupName": "playwright",
+      "matchPackageNames": [
+        "@playwright/test",
+        "playwright"
       ]
     }
   ]
