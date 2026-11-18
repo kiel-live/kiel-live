@@ -1,4 +1,6 @@
 import { computed, ref } from 'vue';
+import { appStorage } from '~/storage';
+
 import { useTrack } from './useTrack';
 
 interface Favorite {
@@ -15,17 +17,17 @@ interface LegacyFavorite {
   favorite: true;
 }
 const LS_LEGACY_FAVORITES_KEY = 'favoriteStops';
-const legacyLocalStorageItem = localStorage.getItem(LS_LEGACY_FAVORITES_KEY);
+const legacyLocalStorageItem = appStorage.getItem(LS_LEGACY_FAVORITES_KEY);
 if (legacyLocalStorageItem !== null) {
   const legacyFavorites = JSON.parse(legacyLocalStorageItem) as LegacyFavorite[];
-  localStorage.setItem(
+  appStorage.setItem(
     LS_FAVORITES_KEY,
     JSON.stringify(legacyFavorites.map((f) => ({ id: `kvg-${f.id}`, name: f.name, type: 'bus-stop' }))),
   );
-  localStorage.removeItem(LS_LEGACY_FAVORITES_KEY);
+  appStorage.removeItem(LS_LEGACY_FAVORITES_KEY);
 }
 
-const favoritesRaw = ref<Favorite[]>(JSON.parse(localStorage.getItem(LS_FAVORITES_KEY) ?? '[]') as Favorite[]);
+const favoritesRaw = ref<Favorite[]>(JSON.parse(appStorage.getItem(LS_FAVORITES_KEY) ?? '[]') as Favorite[]);
 
 const favorites = computed({
   get() {
@@ -33,7 +35,7 @@ const favorites = computed({
   },
   set(_favorites: Favorite[]) {
     favoritesRaw.value = _favorites;
-    localStorage.setItem(LS_FAVORITES_KEY, JSON.stringify(_favorites));
+    appStorage.setItem(LS_FAVORITES_KEY, JSON.stringify(_favorites));
   },
 });
 

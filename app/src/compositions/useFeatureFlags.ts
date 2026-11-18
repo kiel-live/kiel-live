@@ -3,9 +3,11 @@ import { useStorage } from '@vueuse/core';
 import { computed, getCurrentInstance } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { appStorage } from '~/storage';
+
 import { localStoragePrefix } from './useUserSettings';
 
-const enabledFeatureFlags = useStorage<string[]>(`${localStoragePrefix}.feature_flags`, []);
+const enabledFeatureFlags = useStorage<string[]>(`${localStoragePrefix}.feature_flags`, [], appStorage);
 
 interface FeatureFlag {
   id: string;
