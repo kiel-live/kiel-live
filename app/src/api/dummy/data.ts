@@ -10,7 +10,7 @@ export const DUMMY_VEHICLES: Vehicle[] = [
   {
     id: 'bus-1',
     provider: 'dummy',
-    name: 'Dummy Vehicle 1',
+    name: '71 Ellerbeker Weg',
     type: 'bus',
     state: 'active',
     location: { latitude: 54.3239 * 3600000, longitude: 10.1228 * 3600000, heading: 0 },
@@ -19,7 +19,7 @@ export const DUMMY_VEHICLES: Vehicle[] = [
   {
     id: 'bus-2',
     provider: 'dummy',
-    name: 'Dummy Vehicle 2',
+    name: '11 Wik Kanal',
     type: 'bus',
     state: 'inactive',
     location: { latitude: 54.3237 * 3600000, longitude: 10.1229 * 3600000, heading: 0 },
@@ -92,7 +92,7 @@ export const DUMMY_VEHICLES: Vehicle[] = [
     name: 'F1 Reventlou',
     type: 'ferry',
     state: 'active',
-    location: { latitude: 54.325 * 3600000, longitude: 10.1255 * 3600000, heading: 200 },
+    location: { latitude: 54.3225 * 3600000, longitude: 10.1455 * 3600000, heading: 40 },
   },
   {
     id: 'escooter-1',
@@ -109,21 +109,21 @@ export const DUMMY_STOPS: Stop[] = [
   {
     id: 'stop-1',
     provider: 'dummy',
-    name: 'Dummy Stop 1',
+    name: 'Ziegelteich',
     type: 'bus-stop',
     routes: ['1', '2'],
-    alerts: ['Alert 1'],
+    alerts: ['Aufzug derzeit außer Betrieb'],
     location: { latitude: 54.3233 * 3600000, longitude: 10.1228 * 3600000, heading: 0 },
     actions: [],
     departures: [
       {
-        name: 'Dummy Vehicle 1',
+        name: 'Wik',
         type: 'bus',
         vehicleId: 'bus-1',
         tripId: 'trip-1',
         routeId: '1',
-        routeName: 'Route 1',
-        direction: 'North',
+        routeName: '1',
+        direction: 'Wik',
         state: 'predicted',
         planned: inMinutes(5),
         actual: inMinutes(5 + 3), // 3 minutes delay
@@ -134,21 +134,21 @@ export const DUMMY_STOPS: Stop[] = [
   {
     id: 'stop-2',
     provider: 'dummy',
-    name: 'Dummy Stop 2',
+    name: 'Lange Reihe',
     type: 'bus-stop',
     routes: ['3', '4'],
-    alerts: ['Alert 2'],
+    alerts: ['Bauarbeiten: Bussteig auf die andere Straßenseite verlegt'],
     location: { latitude: 54.3234 * 3600000, longitude: 10.1229 * 3600000, heading: 0 },
     actions: [],
     departures: [
       {
-        name: 'Dummy Vehicle 2',
+        name: 'Gaarden',
         type: 'bus',
         vehicleId: 'bus-2',
         tripId: 'trip-2',
         routeId: '2',
-        routeName: 'Route 2',
-        direction: 'South',
+        routeName: '2',
+        direction: 'Gaarden',
         state: 'predicted',
         planned: inMinutes(7),
         actual: inMinutes(7 + 1), // 1 minute delay
@@ -203,7 +203,7 @@ export const DUMMY_STOPS: Stop[] = [
     name: 'Hauptbahnhof',
     type: 'bus-stop',
     routes: ['80', '11', '12', '51', '91'],
-    alerts: ['Alert 1', 'Alert 2'],
+    alerts: ['Bussteig 3 gesperrt: Ersatzhalt an Bussteig 5', 'Verspätungen durch erhöhtes Verkehrsaufkommen'],
     departures: [
       {
         name: 'Strande',
@@ -311,12 +311,12 @@ export const DUMMY_TRIPS: Trip[] = [
   {
     id: 'trip-1',
     provider: 'dummy',
-    direction: 'North',
+    direction: 'Wik',
     path: [{ latitude: 54.3233 * 3600000, longitude: 10.1228 * 3600000, heading: 0 }],
     departures: [
       {
         id: 'stop-1',
-        name: 'Dummy Stop 1',
+        name: 'Ziegelteich',
         state: 'predicted',
         planned: '18:50',
       },
@@ -325,12 +325,12 @@ export const DUMMY_TRIPS: Trip[] = [
   {
     id: 'trip-2',
     provider: 'dummy',
-    direction: 'South',
+    direction: 'Gaarden',
     path: [{ latitude: 54.3234 * 3600000, longitude: 10.1229 * 3600000, heading: 0 }],
     departures: [
       {
         id: 'stop-2',
-        name: 'Dummy Stop 2',
+        name: 'Lange Reihe',
         state: 'predicted',
         planned: inMinutes(19),
       },
