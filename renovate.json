@@ -1,11 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
+    "config:best-practices",
     ":maintainLockFilesWeekly",
     ":enablePreCommit",
-    "schedule:daily",
-    "helpers:pinGitHubActionDigests"
+    "schedule:daily"
   ],
   "timezone": "Europe/Berlin",
   "dependencyDashboard": true,
