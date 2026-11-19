@@ -7,7 +7,9 @@
     "schedule:daily"
   ],
   "timezone": "Europe/Berlin",
-  "dependencyDashboard": true,
+  "dependencyDashboard": {
+    "enabled": true
+  },
   "semanticCommits": "enabled",
   "rangeStrategy": "pin",
   "prConcurrentLimit": 5,
