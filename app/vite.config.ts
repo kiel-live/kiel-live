@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       vue(),
       VueI18nPlugin({
-        include: path.resolve(__dirname, 'src/locales/**'),
+        include: path.resolve(import.meta.dirname, 'src/locales/**'),
       }),
       tailwindcss(),
       Icons({ compiler: 'vue3' }),
@@ -84,11 +84,11 @@ export default defineConfig(({ mode }) => {
     ],
     resolve: {
       alias: {
-        '~/': `${path.resolve(__dirname, 'src')}/`,
+        '~/': `${path.resolve(import.meta.dirname, 'src')}/`,
       },
     },
     test: {
-      dir: path.resolve(__dirname, 'src'),
+      dir: path.resolve(import.meta.dirname, 'src'),
     },
   };
 });
