@@ -1,4 +1,4 @@
-FROM thyrlian/android-sdk
+FROM thyrlian/android-sdk@sha256:bb9ed3686968550d927228777bca787dd7913e679f1e73e85525ba0094ea170d
 
 COPY ./Gemfile .
 

@@ -1,6 +1,6 @@
 services:
   server:
-    image: nats:2.15.3-scratch
+    image: nats:2.15.3-scratch@sha256:cf783105b65fd68ed9c40fdae8f624f97177c1fc1b705b4939eb25f27df22019
     ports:
       - 127.0.0.1:4222:4222
       - 127.0.0.1:4223:4223
@@ -13,7 +13,7 @@ services:
       - ./nats/nats-server.conf:/nats-server.conf
     command: -c /nats-server.conf
   setup:
-    image: natsio/nats-box:0.19.7
+    image: natsio/nats-box:0.19.7@sha256:ffce8bd103383f179f8c7f11cf645726acf5d17280706c530c3b342dbe16334c
     environment:
       - NATS_URL=server:4222
       - NATS_USER=admin
