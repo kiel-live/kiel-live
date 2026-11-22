@@ -2,7 +2,7 @@
 
 services:
   nats:
-    image: nats:2.15.3-scratch
+    image: nats:2.15.3-scratch@sha256:cf783105b65fd68ed9c40fdae8f624f97177c1fc1b705b4939eb25f27df22019
     ports:
       - 4222:4222
       - 4223:4223
@@ -19,7 +19,7 @@ services:
       - web
       - default
   setup:
-    image: natsio/nats-box:0.19.7
+    image: natsio/nats-box:0.19.7@sha256:ffce8bd103383f179f8c7f11cf645726acf5d17280706c530c3b342dbe16334c
     environment:
       - NATS_URL=nats:4222
       - NATS_USER=admin
@@ -32,7 +32,7 @@ services:
     depends_on:
       - nats
   kvg:
-    image: anbraten/kiel-live-kvg:latest
+    image: anbraten/kiel-live-kvg:latest@sha256:a1a89c9947a8e82ba2cf28a917d5ced2c59041223f0ab955c7589b15823d1873
     environment:
       - COLLECTOR_SERVER=nats
       - COLLECTOR_TOKEN=${COLLECTOR_TOKEN}
