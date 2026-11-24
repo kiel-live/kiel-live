@@ -22,7 +22,7 @@ type TripDeparture struct {
 	ID      string         `json:"id"`
 	Name    string         `json:"name"`
 	State   DepartureState `json:"state"`
-	Actual  string         `json:"actual"`
+	Actual  string         `json:"actual,omitempty"`
 	Planned string         `json:"planned"`
 }
 
